@@ -9,6 +9,8 @@ Branch: `release/v1-closure`
 
 The candidate is healthy and identity-checked in private Tower staging, and the exact-SHA hosted publication and Lighthouse checks pass. Release closure is not complete. The candidate must not be tagged or promoted until the unresolved technical gates and the human/qualified-review gates below produce attributable evidence.
 
+The report and receipt commit is an audit-record update after the staging deployment; it does not change the deployed candidate source SHA. Any final release evidence must continue to distinguish the deployed candidate SHA from later documentation-only commits.
+
 Immutable `v1.0.0-rc.1` remains at `031b5447786f9c619288c9044bb5bc65319a30d7`. It was not moved or retagged. Public GitHub, production deployment, production DNS/TLS, final `v1.0.0`, authentication, API work, and platform integration were not performed or started.
 
 ## Exact candidate evidence
