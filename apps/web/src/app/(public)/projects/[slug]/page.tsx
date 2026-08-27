@@ -41,6 +41,7 @@ export default async function ProjectDetail({ params }: { params: Promise<{ slug
               src={project.image}
               alt={project.imageAlt ?? project.name}
               fill
+              priority
               sizes="(max-width: 800px) 100vw, 40vw"
             />
             <figcaption>Reference asset · rights review pending</figcaption>

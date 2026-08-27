@@ -32,6 +32,14 @@ export const metadata: Metadata = {
       : undefined,
 };
 
+// A per-request nonce cannot be attached to Next's inline flight/bootstrap
+// scripts in a statically prerendered document. Keep the page components and
+// data loaders static-friendly, but render the root response dynamically so
+// the request-side CSP nonce reaches every inline script. This is an explicit
+// security/caching tradeoff documented for the RC rather than a silent policy
+// relaxation.
+export const dynamic = "force-dynamic";
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" suppressHydrationWarning>

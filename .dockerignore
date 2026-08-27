@@ -1,6 +1,15 @@
 node_modules
+**/node_modules
 .next
+**/.next
 .git
+.generated/launch
+.generated/requirements
+evidence
+.lighthouseci
+.turbo
+playwright-report
+test-results
 plans
 docs/goals
 tests/browser/snapshots

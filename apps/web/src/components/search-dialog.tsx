@@ -146,9 +146,10 @@ export function SearchDialog() {
         className="search-trigger"
         type="button"
         onClick={() => setOpen(true)}
-        aria-label="Open search"
+        aria-label="Search"
       >
-        <MagnifyingGlass aria-hidden size={17} /> <span>Search</span> <kbd>⌘/Ctrl K</kbd>
+        <MagnifyingGlass aria-hidden size={17} /> <span>Search</span>{" "}
+        <kbd aria-hidden="true">⌘/Ctrl K</kbd>
       </button>
       {open && (
         <div

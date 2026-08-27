@@ -3,17 +3,18 @@
 import Link from "next/link";
 import type { DocsDocument } from "../../../../packages/docs-ingestion/src/types";
 import { BookOpenText } from "@phosphor-icons/react";
+import { docProjectRecords } from "../lib/docs";
 export function DocsNavigation({ documents }: { documents: DocsDocument[] }) {
-  const projects = [...new Set(documents.map((doc) => doc.project))].sort();
+  const projects = docProjectRecords();
   const taxonomy = [...new Set(documents.flatMap((doc) => doc.taxonomy ?? []))].sort();
   return (
     <nav aria-label="Documentation taxonomy">
       <p className="eyebrow">Projects</p>
       <ul>
         {projects.map((project) => (
-          <li key={project}>
-            <Link href={`/docs/${project}`}>
-              <BookOpenText aria-hidden size={15} /> {project}
+          <li key={project.slug}>
+            <Link href={project.root}>
+              <BookOpenText aria-hidden size={15} /> {project.title}
             </Link>
           </li>
         ))}

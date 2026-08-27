@@ -1,60 +1,160 @@
-import { execFileSync, spawn, type ChildProcess } from "node:child_process";
+import { execFile, spawn, spawnSync, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
+import { promisify } from "node:util";
 
+const execFileAsync = promisify(execFile);
 const docker = process.platform === "win32" ? "docker.exe" : "docker";
-const image = "paper-and-slate-web:local";
+const image = process.env.CONTAINER_CHECK_IMAGE ?? "paper-and-slate-web:local";
 const container = `paper-and-slate-web-check-${process.pid}`;
-const port = 3211;
-const run = (args: string[], inherit = false) =>
-  execFileSync(docker, args, {
+const port = Number(process.env.CONTAINER_CHECK_PORT ?? 3211);
+const dockerfile = process.env.CONTAINER_CHECK_DOCKERFILE ?? "infrastructure/docker/Dockerfile";
+const evidencePath = `${process.cwd()}/.generated/launch/container-check.json`;
+
+type ContainerEvidence = {
+  schemaVersion: 1;
+  status: "running" | "passed" | "failed";
+  generatedAt: string;
+  releaseId: string;
+  gitSha: string;
+  image: string;
+  imageId?: string | null;
+  repoDigests?: string[];
+  runtimeUid?: string | null;
+  health?: { releaseId?: string; gitSha?: string; status?: string } | null;
+  healthcheck?: string[] | null;
+  error?: string;
+};
+
+function writeEvidence(evidence: ContainerEvidence) {
+  fs.mkdirSync(`${process.cwd()}/.generated/launch`, { recursive: true });
+  fs.writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+}
+
+async function run(args: string[], inherit = false) {
+  const result = await execFileAsync(docker, args, {
     cwd: process.cwd(),
     encoding: "utf8",
-    stdio: inherit ? "inherit" : ["ignore", "pipe", "pipe"],
-  });
-let child: ChildProcess | undefined;
-try {
-  if (!fs.existsSync("infrastructure/docker/Dockerfile")) throw new Error("Dockerfile is missing");
-  run(["version"]);
-  run(["build", "--file", "infrastructure/docker/Dockerfile", "--tag", image, "."], true);
-  const inspect = JSON.parse(run(["image", "inspect", image])) as Array<{
-    Config?: { User?: string; Healthcheck?: { Test?: string[] } };
-  }>;
-  const config = inspect[0]?.Config;
-  if (!config || config.User !== "node" || !config.Healthcheck?.Test?.length)
-    throw new Error("Container image must run as node and declare a healthcheck");
-  child = spawn(docker, ["run", "--rm", "--name", container, "-p", `${port}:3000`, image], {
-    cwd: process.cwd(),
-    stdio: "ignore",
+    maxBuffer: 20 * 1024 * 1024,
     windowsHide: true,
+    ...(inherit ? { stdio: "inherit" as const } : {}),
   });
-  const deadline = Date.now() + 30_000;
-  let healthy = false;
+  return result.stdout;
+}
+
+function stopProcess(child: ChildProcess | undefined) {
+  if (!child?.pid) return;
+  if (process.platform === "win32")
+    spawnSync("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
+      stdio: "ignore",
+      windowsHide: true,
+    });
+  else child.kill("SIGTERM");
+}
+
+async function waitForHealth() {
+  const deadline = Date.now() + 45_000;
   while (Date.now() < deadline) {
     try {
-      const response = fetch(`http://127.0.0.1:${port}/health`);
-      const result = await response;
-      if (result.ok) {
-        healthy = true;
-        break;
-      }
+      const response = await fetch(`http://127.0.0.1:${port}/health`, {
+        signal: AbortSignal.timeout(2_000),
+      });
+      if (response.ok) return response;
     } catch {
       // The container may still be starting.
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  if (!healthy) throw new Error("Container health endpoint did not become ready");
-  const identity = run(["exec", container, "id", "-u"]).trim();
-  if (identity === "0") throw new Error("Container process is running as root");
-  console.log(`Container check passed: ${image}, runtime uid ${identity}.`);
-} catch (error) {
-  if ((error as NodeJS.ErrnoException).code === "ENOENT")
-    throw new Error("Docker is unavailable; container acceptance remains blocked");
-  throw error;
-} finally {
-  try {
-    run(["rm", "--force", container]);
-  } catch {
-    // The --rm container may already have exited.
-  }
-  child?.kill();
+  throw new Error("Container health endpoint did not become ready");
 }
+
+async function main() {
+  if (!fs.existsSync(dockerfile)) throw new Error(`Dockerfile is missing: ${dockerfile}`);
+  const releaseId = process.env.RELEASE_ID ?? "container-check";
+  const gitSha = process.env.GIT_SHA ?? "container-check";
+  writeEvidence({
+    schemaVersion: 1,
+    status: "running",
+    generatedAt: new Date().toISOString(),
+    releaseId,
+    gitSha,
+    image,
+  });
+  await run(["version"]);
+  await run(["build", "--file", dockerfile, "--tag", image, "."], true);
+  const inspect = JSON.parse(await run(["image", "inspect", image])) as Array<{
+    Id?: string;
+    RepoDigests?: string[];
+    Config?: { User?: string; Healthcheck?: { Test?: string[] } };
+  }>;
+  const config = inspect[0]?.Config;
+  const imageId = inspect[0]?.Id ?? null;
+  const repoDigests = inspect[0]?.RepoDigests ?? [];
+  if (!config || config.User !== "node" || !config.Healthcheck?.Test?.length)
+    throw new Error("Container image must run as node and declare a healthcheck");
+  const child = spawn(
+    docker,
+    [
+      "run",
+      "--rm",
+      "--name",
+      container,
+      "-e",
+      `RELEASE_ID=${releaseId}`,
+      "-e",
+      `GIT_SHA=${gitSha}`,
+      "-p",
+      `${port}:3000`,
+      image,
+    ],
+    { cwd: process.cwd(), stdio: "ignore", windowsHide: true },
+  );
+  try {
+    const response = await waitForHealth();
+    const health = (await response.json()) as {
+      releaseId?: string;
+      gitSha?: string;
+      status?: string;
+    };
+    if (health.releaseId !== releaseId || health.gitSha !== gitSha)
+      throw new Error("Container health identity does not match the check environment");
+    const identity = (await run(["exec", container, "id", "-u"])).trim();
+    if (!identity || identity === "0") throw new Error("Container process is running as root");
+    writeEvidence({
+      schemaVersion: 1,
+      status: "passed",
+      generatedAt: new Date().toISOString(),
+      releaseId,
+      gitSha,
+      image,
+      imageId,
+      repoDigests,
+      runtimeUid: identity,
+      health,
+      healthcheck: config.Healthcheck?.Test ?? null,
+    });
+    console.log(`Container check passed: ${image}, runtime uid ${identity}.`);
+  } finally {
+    try {
+      await run(["rm", "--force", container]);
+    } catch {
+      // The --rm container may already have exited.
+    }
+    stopProcess(child);
+  }
+}
+
+main().catch((error) => {
+  writeEvidence({
+    schemaVersion: 1,
+    status: "failed",
+    generatedAt: new Date().toISOString(),
+    releaseId: process.env.RELEASE_ID ?? "container-check",
+    gitSha: process.env.GIT_SHA ?? "container-check",
+    image,
+    error: error instanceof Error ? error.message : String(error),
+  });
+  if ((error as NodeJS.ErrnoException).code === "ENOENT")
+    console.error("Docker is unavailable; container acceptance remains blocked");
+  else console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
+});

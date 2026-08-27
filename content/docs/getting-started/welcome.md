@@ -10,5 +10,5 @@ Paper & Slate documentation is assembled locally from reviewed Markdown sources.
 
 ## Start here
 
-- Read the [provenance guide](/docs/paper-and-slate/next/concepts/provenance).
+- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).
 - Browse the [File System project](/docs/file-system/next).

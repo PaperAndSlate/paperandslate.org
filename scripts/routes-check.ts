@@ -7,6 +7,7 @@ const required = [
   "apps/web/src/app/projects.json/route.ts",
   "apps/web/src/app/(public)/foundation/reports/[year]/page.tsx",
   "apps/web/src/app/(public)/projects/[slug]/releases/page.tsx",
+  "apps/web/src/app/(public)/design-system/page.tsx",
   "apps/web/src/app/(public)/privacy/page.tsx",
   "apps/web/src/app/(public)/terms/page.tsx",
   "apps/web/src/app/(public)/security/page.tsx",

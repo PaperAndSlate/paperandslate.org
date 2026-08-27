@@ -9,6 +9,11 @@ export const envSchema = z.object({
   KIT_API_URL: z.string().url().default("https://api.convertkit.com/v3"),
   NEWSLETTER_RATE_LIMIT: z.coerce.number().int().positive().default(5),
   NEWSLETTER_RATE_WINDOW_SECONDS: z.coerce.number().int().positive().default(600),
+  TRUSTED_PROXY_MODE: z.enum(["none", "coolify"]).default("none"),
+  PUBLICATION_AS_OF: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .default("2026-08-27"),
   VALKEY_URL: z.string().url().optional(),
   SEARCH_PROVIDER: z.enum(["static", "typesense"]).default("static"),
   TYPESENSE_ENDPOINT: z.string().url().optional(),

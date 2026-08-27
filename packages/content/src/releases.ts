@@ -1,4 +1,5 @@
 import { projectReleaseSchema, type ProjectRelease } from "./models";
+import { publicReleasesAt } from "./publication";
 const rawReleases = [
   {
     project: "file-system",
@@ -19,5 +20,6 @@ export const releases: ProjectRelease[] = rawReleases.map((release) =>
   projectReleaseSchema.parse(release),
 );
 export const validatedReleases = releases;
+export const publicReleases = publicReleasesAt(validatedReleases);
 export const getRelease = (project: string) =>
   releases.find((release) => release.project === project);

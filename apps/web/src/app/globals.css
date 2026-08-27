@@ -129,6 +129,33 @@ select {
   padding: 1rem 1.15rem;
   margin-block: 1.25rem;
 }
+.ds-field {
+  display: grid;
+  gap: 0.35rem;
+  margin-block: 0.8rem;
+  color: var(--muted-foreground);
+  font-family: var(--font-code);
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.ds-field input,
+.ds-field select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-control);
+  padding: 0.55rem 0.7rem;
+  background: var(--surface);
+  color: var(--foreground);
+  font-family: var(--font-interface);
+  font-size: 0.85rem;
+  letter-spacing: normal;
+  text-transform: none;
+}
+.design-system-grid {
+  align-items: start;
+}
 .docs-shell {
   display: grid;
   grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);

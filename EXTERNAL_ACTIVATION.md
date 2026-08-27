@@ -1,11 +1,21 @@
-# External activation
+# External activation boundary
 
-> Historical external-activation boundary. The current audit and owner handoff are [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md) and [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md).
+Status: private repository and bounded Tower resource bootstrap completed; hosted application/provider activation and production remain pending
+Date: 2026-08-27
 
-No external activation was performed for this local milestone. Remote repositories, Git providers, DNS/TLS, hosting, search providers, newsletter providers, analytics, credentials, and production deployment remain pending deliberate approval and evidence.
+The current audit and owner procedure are [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md), [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md), and [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md).
 
-The documentation pipeline reads central, fixture, and the local sibling `../standards` source only. It performs no request-time network fetch.
+## Current non-secret state
 
-T104–T114 confirms local documentation, routes, content, search fallback, governance/news/feed scaffolding, security/SEO, tests, and build checks, but does not activate or prove any external system. Typesense indexing, Kit newsletter delivery, GlitchTip/production observability, Infisical/secrets, Tower/Coolify, remote repository ownership, DNS/TLS, deployment, production monitoring, rollback drill, external syndication, publication workflow, and production feed validation remain unverified. No provider, credential, deployment, DNS/TLS, monitoring, or production claim is made.
+- Private Forgejo repository: `https://git.tower/callum/paperandslate-web.git`.
+- Baseline `main` and `release/v1-closure` branches were pushed under the scoped `callum` namespace. The final remediation commit/tag still requires the release gate.
+- Tower-managed staging resources for Typesense `search`, Valkey `cache`, and S3 `release-evidence` were reconciled.
+- `.tower/project.yaml` and `infrastructure/tower/intent.yaml` describe staging only; no production target is configured.
 
-T120 adds only local runtime evidence (102-page build and 7/7 docs/smoke/accessibility checks). T122 documents local central-doc Fumadocs wiring but remains a blocked receipt for its then-existing verification boundaries. T130 adds only local formatting and focused-check evidence. None supplies remote repository/branch/PR, provider credentials or activation, Tower/Coolify, DNS/TLS, deployment, monitoring, rollback drill, external syndication/publication/feed validation, or SBOM/release identity evidence.
+## Not activated or not proved
+
+The Coolify workload, immutable hosted registry image, secret bindings, Typesense credentials/indexing, Kit delivery, GlitchTip event, Infisical environment, staging URL, DNS/TLS, hosted monitoring, rollback drill, external syndication, publication workflow, production feed acceptance, signed RC identity, and production deployment remain pending explicit owner authority and evidence. No credential value is stored or reported.
+
+The documentation pipeline reads central, fixture, and local sibling `../standards` sources when available. CI validates the committed generated bundle because the sibling repository is not assumed to exist in a Forgejo checkout; this boundary is explicit in `pnpm docs:bundle:check`.
+
+Codex can perform the next authorized staging/bootstrap steps after the owner returns the redacted package described in `NEXT_PHASE_MANUAL_REVIEW.md`. Production, public GitHub publication, final `v1.0.0`, DNS/TLS mutation, and final human/legal/media approval remain outside this task.

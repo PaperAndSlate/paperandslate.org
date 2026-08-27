@@ -6,18 +6,34 @@ import { SourceProvenance } from "../../../../components/source-provenance";
 import { VersionSelector } from "../../../../components/version-selector";
 import { DocsTableOfContents } from "../../../../components/docs-table-of-contents";
 import { DocsPageActions } from "../../../../components/docs-page-actions";
-import { docs, getDoc } from "../../../../lib/docs";
+import { docs, getDoc, rawRouteFor } from "../../../../lib/docs";
+import type { Metadata } from "next";
 export const dynamic = "force-static";
 export function generateStaticParams() {
   return [...new Set(docs.flatMap((doc) => [doc.canonicalRoute, doc.route, ...doc.aliases]))].map(
     (route) => ({ slug: route.split("/").filter(Boolean).slice(1) }),
   );
 }
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string[] }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const doc = getDoc(`/docs/${slug.join("/")}`);
+  if (!doc) return {};
+  return {
+    title: doc.title,
+    description: doc.description,
+    alternates: { canonical: doc.canonicalRoute },
+    robots: doc.status === "draft" ? { index: false, follow: false } : undefined,
+  };
+}
 export default async function DocPage({ params }: { params: Promise<{ slug: string[] }> }) {
   const { slug } = await params;
   const doc = getDoc(`/docs/${slug.join("/")}`);
   if (!doc) notFound();
-  const rawRoute = `/docs/raw/${slug.join("/")}`;
+  const rawRoute = rawRouteFor(doc);
   const versioned = docs
     .filter((candidate) => candidate.project === doc.project && candidate.version === doc.version)
     .sort((a, b) => a.route.localeCompare(b.route));
@@ -30,13 +46,22 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
       <nav className="docs-breadcrumbs" aria-label="Breadcrumb">
         <Link href="/docs">Documentation</Link>
         <span aria-hidden="true">/</span>
-        <Link href={`/docs/${doc.project}`}>{doc.project}</Link>
+        <Link href={`/docs/${doc.publicProject}`}>{doc.publicProject}</Link>
         <span aria-hidden="true">/</span>
         <span aria-current="page">{doc.title}</span>
       </nav>
       <div className="eyebrow">
         {doc.status} · version {doc.version} · {doc.taxonomy.join(" / ")}
       </div>
+      {doc.status === "draft" ? (
+        <aside className="ds-callout ds-callout-warning" role="note">
+          <strong>Draft / experimental</strong>
+          <div>
+            This is a current working document, not a stable standard. It is excluded from
+            production search, sitemap, and AI-readable discovery until reviewed.
+          </div>
+        </aside>
+      ) : null}
       <h1>{doc.title}</h1>
       {doc.description ? <p className="lede">{doc.description}</p> : null}
       <DocsPageActions rawRoute={rawRoute} />
@@ -67,7 +92,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
       {(previous || next) && (
         <nav className="docs-nav-footer" aria-label="Documentation pagination">
           {previous ? (
-            <Link href={previous.route}>
+            <Link href={previous.canonicalRoute}>
               <small>Previous</small>
               <span>{previous.title}</span>
             </Link>
@@ -75,7 +100,7 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
             <span />
           )}
           {next ? (
-            <Link href={next.route}>
+            <Link href={next.canonicalRoute}>
               <small>Next</small>
               <span>{next.title}</span>
             </Link>

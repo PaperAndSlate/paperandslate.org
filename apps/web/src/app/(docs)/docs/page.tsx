@@ -1,8 +1,14 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { PageHeader } from "../../../components/page-primitives";
 import { docs } from "../../../lib/docs";
 import { DocsProjectSelector } from "../../../components/docs-project-selector";
 export const dynamic = "force-static";
+export const metadata: Metadata = {
+  title: "Documentation",
+  description: "Reviewed and clearly labeled Paper & Slate documentation.",
+  alternates: { canonical: "/docs" },
+};
 export default async function Docs({
   searchParams,
 }: {
@@ -14,7 +20,7 @@ export default async function Docs({
   const visible = docs
     .filter(
       (doc) =>
-        (!project || doc.project === project) &&
+        (!project || doc.project === project || doc.sourceProject === project) &&
         (!topic ||
           doc.taxonomy.includes(topic) ||
           doc.sourcePath.toLowerCase().includes(topic) ||
@@ -33,7 +39,8 @@ export default async function Docs({
   return (
     <main id="main-content" className="prose">
       <PageHeader eyebrow="Documentation" title="Read the work as it develops.">
-        Local pages are built from reviewed Markdown with visible version and provenance metadata.
+        Local pages are built from Markdown with visible status, version, and provenance metadata.
+        Draft pages are working material and are excluded from public discovery indexes.
       </PageHeader>
       <nav aria-label="Documentation sections" className="card-grid">
         {sections.map(([label, href]) => (
@@ -45,7 +52,7 @@ export default async function Docs({
           </article>
         ))}
       </nav>
-      <DocsProjectSelector documents={docs} current={project} />
+      <DocsProjectSelector current={project} />
       {(topic || project) && (
         <p>
           Filtered

@@ -3,6 +3,7 @@ budgets:
   javascriptKb: 250
   cssKb: 100
   imageKb: 500
+  fontKb: 150
   requestCount: 80
   lighthousePerformance: 0.9
   accessibility: 0.95
@@ -11,3 +12,4 @@ budgets:
   lcpMs: 2500
   cls: 0.1
   tbtMs: 200
+  inpMs: 500

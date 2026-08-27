@@ -1,5 +1,15 @@
 version: 1
 provider: tower-coolify
-status: intent-only
+status: configured-intent
 application: paper-and-slate-web
-activation: pending
+repository: callum/paperandslate-web
+branch: release/v1-closure
+environment: staging
+activation: pending-authorized-staging-gate
+production: explicitly-not-authorized
+resources:
+  - typesense: search
+  - valkey: cache
+  - s3: release-evidence
+observability: GlitchTip-project-and-alert-policy-pending
+registry: immutable-oci-sbom-and-vulnerability-policy-pending

@@ -25,7 +25,8 @@
       "documents": [
         "central:next:concepts/provenance",
         "central:next:getting-started/welcome",
-        "central:next:governance"
+        "central:next:governance",
+        "central:next:index"
       ],
       "versions": [
         "next"

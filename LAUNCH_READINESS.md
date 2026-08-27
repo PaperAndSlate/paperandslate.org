@@ -1,21 +1,29 @@
-# Launch readiness
+# Paper & Slate launch readiness
 
-> Historical readiness receipts. The current verdict is [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md); this file is not a current production approval.
+Date: 2026-08-27
+Verdict: locally verified release candidate; not approved for hosted or production launch
 
-T104–T114 readiness record: T104–T111 document the local docs/design foundation and verification history. T112 passed the non-visual local gates, browser/accessibility checks, and build, but visual verification failed twice for unchanged light, mobile, and dark homepage snapshots. Per the PM decision recorded by T114, the current truthful homepage source governs acceptance; the legacy snapshots remain unchanged baseline-drift evidence, not a visual pass. Accepted visual QA against the current source is still pending.
+## What is green locally
 
-T120 is the freshest local runtime evidence: the guarded build generated 102 static pages and the docs-core, smoke, and accessibility suite passed 7/7, with protected source/generated files and all three homepage snapshots unchanged. T122 records the central Fumadocs wiring and local documentation evidence but remains a blocked historical receipt for its then-existing format/test boundaries. T130 records the subsequent bounded formatting and focused verification package as passed. None of these receipts establish external or production readiness.
+The current production artifact passes the source/build/content gates, route and link validation, production CSP/hydration/browser checks for 12 routes, Lighthouse assertions for 6 indexable routes with 12 runs, performance budgets, container health/non-root checks, focused search/newsletter tests, secret scanning, and local SBOM generation. Thirteen production visual states have been captured without runtime errors.
 
-Launch remains blocked by missing Lighthouse measurements; accepted current-source visual QA; qualified legal/privacy/trademark/institutional/maintainer/funding/factual review and media provenance; Typesense, Kit, GlitchTip, Infisical and other provider credentials/activation; Tower/Coolify; remote repository/branch/PR; DNS/TLS; deployment; production monitoring; rollback drill; external syndication/publication/feed validation; and SBOM/release identity evidence. This is not production readiness or full outcome completion.
+Run and inspect:
 
-Current production-build gate: passed locally. T031 performed one exact-target Node cleanup of `apps/web/.next`; `pnpm build` passed on the first clean attempt. T031's content/feeds/release/routes/search/typecheck and full test checks also pass. Documentation/source files and unrelated app files were not modified.
+```sh
+pnpm verify
+```
 
-Status: local implementation milestone only; not approved for production launch.
+The generated evidence is under `.generated/launch/` and the release bundle is under `.generated/evidence/<release-id>/`. The visual manifest stays human-review-pending by design.
 
-Local readiness includes deterministic content/search foundations, static fallback behavior, safe headers, metadata, health route, reports, rollback artifacts, tests, budgets, and a non-root container definition. Pending evidence includes browser/axe/Lighthouse/Docker execution where unavailable, plus provider activation, Tower/Coolify, Infisical, DNS/TLS, production deployment and monitoring, and qualified legal/privacy/trademark/factual review.
+## Gates still required
 
-T038 repaired the development-only CSP incompatibility in `apps/web/src/middleware.ts` without adding `unsafe-eval` to production CSP or changing SearchDialog markup/assertions. After exact-target cleanup, the dedicated Playwright server launched the real Paper & Slate app on `http://127.0.0.1:3101`; all 4 smoke checks, including the header-dialog check, and all 4 a11y checks passed. Security, lint, typecheck, the 21-test suite, and the production build also passed.
+1. Final reviewed source commit and private Forgejo CI receipt.
+2. `v1.0.0-rc.1` tag/signature, hosted immutable OCI digest, SBOM, provenance, and vulnerability disposition.
+3. Authorized Tower/Coolify staging workload, secret bindings, deployment ID, and health/browser/feed acceptance.
+4. Typesense, Kit, Valkey, GlitchTip, and secret-manager activation/round-trip evidence.
+5. Human visual comparison and media/font rights approval.
+6. Qualified legal/privacy/licensing/trademark and factual/institutional/people/project/funding approval.
+7. DNS/TLS ownership, canonical URL, SLO/on-call, monitor, incident, and staging rollback authority/evidence.
+8. Publication/correction/syndication ownership and production feed acceptance.
 
-Browser and axe evidence passed through a dedicated Paper & Slate server on `http://127.0.0.1:3101`; visual acceptance is not evidenced. The baseline is explicitly stored at `tests/browser/snapshots/homepage.png`, and T112 recorded unchanged light, mobile, and dark snapshot mismatches without updating them. The standalone Docker image builds successfully. The first retained diagnostic launch exposed a missing `next` module caused by Windows pnpm symlinks in the standalone tree; after one bounded Dockerfile repair, the retry stayed up on free port `127.0.0.1:3111` and `/health` returned HTTP 200. Logs and status were captured before the named diagnostic container was removed, with unrelated services untouched. Lighthouse CLI/browser audit remains unavailable and pending; no result is fabricated.
-
-T044 recovery evidence: the guarded exact-target cleanup of `apps/web/.next` completed successfully. The real Paper & Slate app launched on the configured dedicated URL `http://127.0.0.1:3101` with `reuseExistingServer: false`; `pnpm e2e` passed 4/4 smoke tests and `pnpm a11y` passed 4/4 checks. `pnpm build` passed with 3/3 successful tasks and 80 generated static pages. This updates local verification only; Lighthouse, production deployment, and external-provider/Tower/DNS/legal checks remain pending.
+Production deployment, DNS/TLS changes, public GitHub publication, final `v1.0.0`, authentication, API, and platform integration remain outside this task. The exact owner/operator steps are in [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md) and [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md).

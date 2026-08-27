@@ -55,7 +55,7 @@ test.describe("release-candidate visual evidence", () => {
   test("global search overlay", async ({ page }) => {
     await page.setViewportSize({ width: 1440, height: 1100 });
     await page.goto("/");
-    await page.getByRole("button", { name: "Open search" }).click();
+    await page.getByRole("button", { name: "Search" }).click();
     await page.getByRole("dialog").getByRole("textbox").fill("RFC 1");
     await expect(page).toHaveScreenshot("rc-search-overlay.png", {
       animations: "disabled",

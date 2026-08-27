@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - release/v1-rc
+      - release/v1-closure
 
 jobs:
   container:
@@ -19,11 +19,21 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm docs:bundle:check
       - run: pnpm container:check
+        env:
+          RELEASE_ID: ci-${{ github.sha }}
+          GIT_SHA: ${{ github.sha }}
       - run: pnpm sbom:generate
+        env:
+          RELEASE_ID: ci-${{ github.sha }}
+          GIT_SHA: ${{ github.sha }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: paper-and-slate-container-${{ github.sha }}
-          path: evidence/local/sbom/
+          path: |
+            evidence/local/sbom/
+            .generated/launch/container-check.json
+            .generated/launch/docs-bundle-check.json
           if-no-files-found: warn

@@ -1,11 +1,16 @@
 import { atom, feedItems, jsonFeed, rss } from "../apps/web/src/lib/feeds";
-import { newsCategories, publishedNews } from "../packages/content/src";
+import {
+  isPublicNewsAt,
+  newsCategories,
+  publishedNews,
+  publicationClock,
+} from "../packages/content/src";
 
-const today = new Date().toISOString().slice(0, 10);
+const today = publicationClock();
 if (
   !publishedNews.every(
     (item) =>
-      item.status === "published" &&
+      isPublicNewsAt(item, today) &&
       item.id &&
       item.canonicalUrl.startsWith("/") &&
       item.summary &&

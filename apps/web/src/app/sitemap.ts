@@ -8,13 +8,19 @@ import {
   rfcs,
   decisions,
   reports,
-  releases,
+  publicReleases,
 } from "@paper-and-slate/content";
+import { docsForSitemap, docProjectRecords, isPublicIndexDocument } from "../lib/docs";
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-  const docs = ["getting-started", "concepts", "guides", "reference", "tools", "governance"].map(
-    (section) => `/docs/${section}`,
-  );
+  const docSections = [
+    "getting-started",
+    "concepts",
+    "guides",
+    "reference",
+    "tools",
+    "governance",
+  ].map((section) => `/docs/${section}`);
   const governance = [
     "contributing",
     "code-of-conduct",
@@ -41,7 +47,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/trademarks",
     "/licenses",
     "/code-of-conduct",
-    ...docs,
+    ...docSections,
     ...governance,
     ...categories,
     ...tags,
@@ -54,7 +60,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...reports
       .filter((report) => report.status === "published")
       .map((report) => report.canonicalUrl),
-    ...releases.map((release) => release.canonicalUrl),
+    ...docProjectRecords()
+      .filter((project) => isPublicIndexDocument(project.document))
+      .map((project) => project.root),
+    ...docsForSitemap().map((doc) => doc.canonicalRoute),
+    ...publicReleases.map((release) => release.canonicalUrl),
   ];
   return [...new Set(paths)].map((path) => ({
     url: `${base}${path}`,

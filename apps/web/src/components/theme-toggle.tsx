@@ -25,7 +25,7 @@ export function ThemeToggle() {
   }
 
   return (
-    <label className="theme-control">
+    <label className="theme-control" data-theme-mounted={mounted ? "true" : "false"}>
       <span className="sr-only">Color theme</span>
       {mounted && theme === "dark" ? <Moon aria-hidden size={16} /> : null}
       {mounted && theme === "light" ? <Sun aria-hidden size={16} /> : null}

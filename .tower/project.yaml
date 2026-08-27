@@ -41,7 +41,7 @@ spec:
     packageManager: pnpm
     commands:
       install: pnpm install --frozen-lockfile
-      build: pnpm build
+      build: pnpm build:web
       test: pnpm test
     playwright:
       enabled: true
@@ -76,11 +76,15 @@ spec:
     required:
       - NEXT_PUBLIC_SITE_URL
       - RELEASE_ID
+      - GIT_SHA
+      - PUBLICATION_AS_OF
     optional:
       - SEARCH_PROVIDER
       - TYPESENSE_ENDPOINT
       - TYPESENSE_COLLECTION
       - TYPESENSE_INDEX_ID
+      - TRUSTED_PROXY_MODE
+      - NEWSLETTER_BODY_LIMIT_BYTES
     secret:
       - TYPESENSE_API_KEY
       - VALKEY_URL
@@ -116,7 +120,7 @@ spec:
       - name: projects
         url: https://paper-and-slate-web.dev.tower/projects
       - name: docs
-        url: https://paper-and-slate-web.dev.tower/docs/paper-and-slate/next/concepts/provenance
+        url: https://paper-and-slate-web.dev.tower/docs/file-system/v/1.0
       - name: search
         url: https://paper-and-slate-web.dev.tower/api/search?q=paper
       - name: rss

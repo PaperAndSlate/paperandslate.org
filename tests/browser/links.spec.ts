@@ -6,12 +6,21 @@ const seedRoutes = [
   "/projects",
   "/search?q=RFC%201",
   "/docs",
+  "/docs/paper-and-slate",
+  "/docs/file-system",
+  "/docs/file-system/v/1.0/reference/metadata",
+  "/docs/well-known-discovery",
+  "/docs/organization-schema",
+  "/docs/curriculum-standards-schema",
+  "/docs/course-catalog-schema",
+  "/docs/tools-and-libraries",
   "/news",
   "/governance",
   "/privacy",
   "/terms",
   "/accessibility",
   "/security",
+  "/design-system",
 ];
 
 test("public internal links resolve without 4xx/5xx responses", async ({

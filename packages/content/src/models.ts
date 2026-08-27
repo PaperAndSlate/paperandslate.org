@@ -43,6 +43,8 @@ export const projectSchema = z.object({
   nextVersion: z.string().optional(),
   repository: z.string().url().or(z.string().startsWith("git@")).nullable().default(null),
   docsRoot: z.string(),
+  /** Source-project id in the normalized documentation bundle, when it differs from the public slug. */
+  docsProject: z.string().optional(),
   maintainers: z.array(z.string()),
   licenses: z.array(z.string()),
   licenseReviewStatus: z
@@ -75,7 +77,15 @@ export const foundationPageSchema = z.object({
   status: contentStatusSchema,
 });
 export type FoundationPage = z.infer<typeof foundationPageSchema>;
-export const publicationStatusSchema = z.enum(["draft", "published", "scheduled", "withdrawn"]);
+export const publicationStatusSchema = z.enum([
+  "draft",
+  "published",
+  "scheduled",
+  "corrected",
+  "superseded",
+  "archived",
+  "withdrawn",
+]);
 export type PublicationStatus = z.infer<typeof publicationStatusSchema>;
 export const newsArticleSchema = z.object({
   id: z.string(),

@@ -42,13 +42,13 @@
     "version": "next",
     "sourceId": "central",
     "sourcePath": "getting-started/welcome.md",
-    "content": "\n# Welcome\n\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\n\n## Start here\n\n- Read the [provenance guide](/docs/paper-and-slate/next/concepts/provenance).\n- Browse the [File System project](/docs/file-system/next).\n",
+    "content": "\n# Welcome\n\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\n\n## Start here\n\n- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system/next).\n",
     "headings": [
       "Welcome",
       "Start here"
     ],
-    "hash": "6ac953432f17fc5e1e8489ac8f71a5638bff6770882f5ed663431817382ae2f8",
-    "sourceHash": "6ac953432f17fc5e1e8489ac8f71a5638bff6770882f5ed663431817382ae2f8",
+    "hash": "e2e12c5014e856b990afcc3bc4b4777230c41a195f628b9b0e4a81b76218100c",
+    "sourceHash": "e2e12c5014e856b990afcc3bc4b4777230c41a195f628b9b0e4a81b76218100c",
     "status": "draft",
     "ref": "working-tree",
     "sourceMode": "central",
@@ -93,6 +93,37 @@
       "source-review",
       "versions-and-provenance",
       "honest-status"
+    ],
+    "assets": []
+  },
+  {
+    "title": "Paper & Slate documentation",
+    "description": "The current Paper & Slate documentation track, assembled from reviewed local sources.",
+    "order": 0,
+    "id": "central:next:index",
+    "route": "/docs/paper-and-slate/next",
+    "canonicalRoute": "/docs/paper-and-slate",
+    "aliases": [],
+    "project": "paper-and-slate",
+    "version": "next",
+    "sourceId": "central",
+    "sourcePath": "index.md",
+    "content": "\n# Paper & Slate documentation\n\nThis is the current documentation track for Paper & Slate. It records work as it develops and keeps each page tied to a visible source and version.\n\n## Start here\n\n- Read the [welcome page](/docs/paper-and-slate/getting-started/welcome).\n- Review [provenance and local source state](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system).\n",
+    "headings": [
+      "Paper & Slate documentation",
+      "Start here"
+    ],
+    "hash": "799c5ec0adf69c954b909885c29f8996c0a3cbfed344adc486dd56d3e5ee99e9",
+    "sourceHash": "799c5ec0adf69c954b909885c29f8996c0a3cbfed344adc486dd56d3e5ee99e9",
+    "status": "draft",
+    "ref": "working-tree",
+    "sourceMode": "central",
+    "requirementAnchors": [
+      "paper-slate-documentation",
+      "start-here"
+    ],
+    "taxonomy": [
+      "getting-started"
     ],
     "assets": []
   },

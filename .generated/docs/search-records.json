@@ -31,7 +31,7 @@
       "welcome",
       "start-here"
     ],
-    "text": "\n Welcome\n\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\n\n Start here\n\n- Read the [provenance guide](/docs/paper-and-slate/next/concepts/provenance).\n- Browse the [File System project](/docs/file-system/next).\n"
+    "text": "\n Welcome\n\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\n\n Start here\n\n- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system/next).\n"
   },
   {
     "id": "central:next:governance",
@@ -51,6 +51,23 @@
       "honest-status"
     ],
     "text": "\n Governance\n\nPaper & Slate publishes documentation from a local, reviewable source set. This page records the boundaries that are\ncurrently evidenced by the documentation system; it is not a claim of institutional approval or production status.\n\n Source review\n\nCentral pages are reviewed repository-owned Markdown. Each ingested page retains its source path, local ref, and\ncontent hash. Fixture, sibling-local, and future Git-imported pages remain separated from the reviewed central rendering\npath.\n\n Versions and provenance\n\nSupported and historical versions remain independent records. A content hash identifies the recorded bytes; it is not\npresented as a Git commit SHA. Raw Markdown routes remain available for source inspection.\n\n Honest status\n\nLocal checks can establish source shape, route behavior, rendering boundaries, and generated artifacts. They do not by\nthemselves establish deployment, legal review, provider activation, production monitoring, or factual approval.\n"
+  },
+  {
+    "id": "central:next:index",
+    "route": "/docs/paper-and-slate",
+    "legacyRoute": "/docs/paper-and-slate/next",
+    "title": "Paper & Slate documentation",
+    "description": "The current Paper & Slate documentation track, assembled from reviewed local sources.",
+    "sourceId": "central",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "paper-slate-documentation",
+      "start-here"
+    ],
+    "text": "\n Paper & Slate documentation\n\nThis is the current documentation track for Paper & Slate. It records work as it develops and keeps each page tied to a visible source and version.\n\n Start here\n\n- Read the [welcome page](/docs/paper-and-slate/getting-started/welcome).\n- Review [provenance and local source state](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system).\n"
   },
   {
     "id": "file-system:next:guides/publish",

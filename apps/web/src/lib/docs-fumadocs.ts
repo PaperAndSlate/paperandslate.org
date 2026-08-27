@@ -5,6 +5,7 @@ import { mdxComponents } from "../../mdx-components";
 // Only reviewed central sources cross this adapter. Imported, fixture, and sibling
 // records intentionally remain on the restricted escaped renderer.
 const reviewedCentralIds = new Set([
+  "central:next:index",
   "central:next:concepts/provenance",
   "central:next:getting-started/welcome",
   "central:next:governance",

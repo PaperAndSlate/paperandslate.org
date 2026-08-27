@@ -7,6 +7,7 @@ describe("documentation rendering boundary", () => {
       "central",
       "central",
       "central",
+      "central",
     ]);
     expect(
       docs.filter((doc) => !isReviewedCentral(doc)).some((doc) => doc.sourceMode !== "central"),

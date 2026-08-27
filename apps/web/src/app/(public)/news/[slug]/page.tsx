@@ -6,7 +6,13 @@ export function generateStaticParams() {
 }
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const item = getNews((await params).slug);
-  return item ? { title: item.title, description: item.summary } : {};
+  return item
+    ? {
+        title: item.title,
+        description: item.summary,
+        alternates: { canonical: item.canonicalUrl },
+      }
+    : {};
 }
 export default async function NewsArticle({ params }: { params: Promise<{ slug: string }> }) {
   const item = getNews((await params).slug);

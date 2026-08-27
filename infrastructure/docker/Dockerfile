@@ -13,7 +13,10 @@ COPY packages/search/package.json packages/search/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm docs:ingest && pnpm search:index && pnpm --filter @paper-and-slate/web build
+# Sibling-local standards sources are validated before the image build in CI, but are
+# intentionally outside this repository's Docker context. The generated docs bundle
+# is the immutable build input; search records are regenerated from that bundle here.
+RUN pnpm search:index && pnpm --filter @paper-and-slate/web build
 
 FROM node:22-bookworm-slim AS runner
 

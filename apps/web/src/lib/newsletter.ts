@@ -1,8 +1,11 @@
 import net from "node:net";
 import tls from "node:tls";
-import { parseEnv } from "@paper-and-slate/config";
+import { parseEnv, type Env } from "@paper-and-slate/config";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+export const NEWSLETTER_BODY_LIMIT_BYTES = 8192;
+const IDEMPOTENCY_TTL_SECONDS = 24 * 60 * 60;
+
 export type NewsletterInput = {
   email?: unknown;
   consent?: unknown;
@@ -12,6 +15,15 @@ export type NewsletterInput = {
 export type NewsletterResult =
   | { status: "subscribed" | "duplicate"; message: string }
   | { status: "unconfigured" | "failed"; message: string };
+
+export class NewsletterBodyError extends Error {
+  constructor(
+    message: string,
+    readonly status: 400 | 413 | 415 = 400,
+  ) {
+    super(message);
+  }
+}
 
 export function validateNewsletter(input: NewsletterInput) {
   const email = typeof input.email === "string" ? input.email.trim().toLowerCase() : "";
@@ -29,8 +41,120 @@ export function validateNewsletter(input: NewsletterInput) {
   return { ok: true as const, email, idempotencyKey };
 }
 
-export function kitConfigured(env: NodeJS.ProcessEnv = process.env) {
-  return env.KIT_ENABLED === "true" && Boolean(env.KIT_API_KEY && env.KIT_FORM_ID);
+function requestOrigin(request: Request) {
+  try {
+    return new URL(request.url).origin;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Browser submissions must carry a same-origin Origin header. A missing Origin
+ * is accepted only when Fetch Metadata independently identifies same-origin
+ * browser navigation; arbitrary server/API clients therefore fail closed.
+ */
+export function allowedOrigin(request: Request, env: Env = parseEnv()) {
+  const origin = request.headers.get("origin");
+  const expected = requestOrigin(request);
+  if (!expected) return false;
+  if (!origin) return request.headers.get("sec-fetch-site") === "same-origin";
+  try {
+    const configured = new URL(env.NEXT_PUBLIC_SITE_URL).origin;
+    return new URL(origin).origin === expected || new URL(origin).origin === configured;
+  } catch {
+    return false;
+  }
+}
+
+function validAddress(value: string | null) {
+  if (!value) return null;
+  const candidate = value.trim().replace(/^\[|\]$/g, "");
+  return net.isIP(candidate) ? candidate : null;
+}
+
+/**
+ * Coolify is the only supported trusted-proxy mode. In that mode the
+ * platform-scrubbed x-real-ip value wins; otherwise the application never
+ * uses arbitrary x-forwarded-for input as an identity. Rate limiting remains
+ * fail-safe (one anonymous bucket) until the deployment explicitly configures
+ * the proxy contract.
+ */
+export function clientAddress(request: Request, env: Env = parseEnv()) {
+  if (env.TRUSTED_PROXY_MODE !== "coolify") return "anonymous";
+  return (
+    validAddress(request.headers.get("x-real-ip")) ??
+    validAddress(request.headers.get("x-forwarded-for")?.split(",", 1)[0] ?? null) ??
+    "anonymous"
+  );
+}
+
+function objectFromEntries(entries: Iterable<[string, FormDataEntryValue | string]>) {
+  return Object.fromEntries(entries) as Record<string, unknown>;
+}
+
+/** Read and parse a newsletter body after enforcing a byte limit on the stream itself. */
+export async function readNewsletterBody(
+  request: Request,
+  maxBytes = NEWSLETTER_BODY_LIMIT_BYTES,
+): Promise<Record<string, unknown>> {
+  const declaredLength = request.headers.get("content-length");
+  if (declaredLength !== null) {
+    const parsedLength = Number(declaredLength);
+    if (!Number.isSafeInteger(parsedLength) || parsedLength < 0)
+      throw new NewsletterBodyError("Invalid request", 400);
+    if (parsedLength > maxBytes) throw new NewsletterBodyError("Request body is too large", 413);
+  }
+  if (!request.body) throw new NewsletterBodyError("Invalid request", 400);
+
+  const reader = request.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+  try {
+    while (true) {
+      const next = await reader.read();
+      if (next.done) break;
+      total += next.value.byteLength;
+      if (total > maxBytes) throw new NewsletterBodyError("Request body is too large", 413);
+      chunks.push(next.value);
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = new Uint8Array(total);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  const contentType = request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase();
+  if (contentType === "application/json") {
+    try {
+      const parsed: unknown = JSON.parse(new TextDecoder().decode(bytes));
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+        throw new NewsletterBodyError("Invalid request", 400);
+      return parsed as Record<string, unknown>;
+    } catch (error) {
+      if (error instanceof NewsletterBodyError) throw error;
+      throw new NewsletterBodyError("Invalid request", 400);
+    }
+  }
+  if (contentType === "application/x-www-form-urlencoded") {
+    return objectFromEntries(new URLSearchParams(new TextDecoder().decode(bytes)).entries());
+  }
+  if (contentType === "multipart/form-data") {
+    try {
+      const boundedRequest = new Request(request.url, {
+        method: "POST",
+        headers: request.headers,
+        body: bytes,
+      });
+      return objectFromEntries((await boundedRequest.formData()).entries());
+    } catch {
+      throw new NewsletterBodyError("Invalid request", 400);
+    }
+  }
+  throw new NewsletterBodyError("Unsupported content type", 415);
 }
 
 const localAttempts = new Map<string, { count: number; expires: number }>();
@@ -50,117 +174,145 @@ export function withinAbuseLimit(
   return true;
 }
 
-export function allowedOrigin(request: Request) {
-  const origin = request.headers.get("origin");
-  if (!origin) return true;
-  try {
-    return new URL(origin).origin === new URL(request.url).origin;
-  } catch {
-    return false;
-  }
-}
+type RedisReply = string | number | null;
+type RedisResult = { ok: true; replies: RedisReply[] } | { ok: false };
 
 function command(parts: Array<string | number>) {
-  return `*${parts.length}\r\n${parts.map((part) => `$${String(part).length}\r\n${part}\r\n`).join("")}`;
+  return `*${parts.length}\r\n${parts
+    .map((part) => {
+      const value = String(part);
+      return `$${Buffer.byteLength(value)}\r\n${value}\r\n`;
+    })
+    .join("")}`;
 }
 
-function readRedisValue(buffer: string): { value: string | number | null; rest: string } | null {
+function parseRedisValue(buffer: string): { value: RedisReply; rest: string } | null {
   const lineEnd = buffer.indexOf("\r\n");
   if (lineEnd < 0) return null;
   const prefix = buffer[0];
   const line = buffer.slice(1, lineEnd);
   if (prefix === ":") return { value: Number(line), rest: buffer.slice(lineEnd + 2) };
   if (prefix === "+") return { value: line, rest: buffer.slice(lineEnd + 2) };
-  if (prefix === "-") return { value: null, rest: buffer.slice(lineEnd + 2) };
+  if (prefix === "-") throw new Error(line);
+  if (prefix === "$") {
+    const length = Number(line);
+    if (length === -1) return { value: null, rest: buffer.slice(lineEnd + 2) };
+    if (!Number.isSafeInteger(length) || length < 0)
+      throw new Error("Invalid Valkey bulk response");
+    const start = lineEnd + 2;
+    const end = start + length;
+    if (buffer.length < end + 2) return null;
+    return { value: buffer.slice(start, end), rest: buffer.slice(end + 2) };
+  }
   return null;
+}
+
+async function valkeyCommands(
+  url: URL,
+  commands: Array<Array<string | number>>,
+  timeoutMs = 800,
+): Promise<RedisResult> {
+  if (url.protocol !== "redis:" && url.protocol !== "rediss:") return { ok: false };
+  const port = Number(url.port || (url.protocol === "rediss:" ? 6380 : 6379));
+  const socket =
+    url.protocol === "rediss:"
+      ? tls.connect({ host: url.hostname, port, rejectUnauthorized: true })
+      : net.connect({ host: url.hostname, port });
+  const authenticated = Boolean(url.username || url.password);
+  const pending = authenticated
+    ? [
+        ["AUTH", decodeURIComponent(url.username || "default"), decodeURIComponent(url.password)],
+        ...commands,
+      ]
+    : commands;
+  return await new Promise<RedisResult>((resolve) => {
+    let buffer = "";
+    let index = 0;
+    const replies: RedisReply[] = [];
+    let settled = false;
+    const finish = (result: RedisResult) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timer);
+      socket.destroy();
+      resolve(result);
+    };
+    const timer = setTimeout(() => finish({ ok: false }), timeoutMs);
+    socket.on("error", () => finish({ ok: false }));
+    socket.on("data", (chunk) => {
+      buffer += chunk.toString();
+      try {
+        while (index < pending.length) {
+          const parsed = parseRedisValue(buffer);
+          if (!parsed) return;
+          buffer = parsed.rest;
+          replies.push(parsed.value);
+          index += 1;
+          if (index < pending.length) socket.write(command(pending[index]));
+        }
+        finish({ ok: true, replies: replies.slice(authenticated ? 1 : 0) });
+      } catch {
+        finish({ ok: false });
+      }
+    });
+    const start = () => socket.write(command(pending[0]));
+    if (url.protocol === "rediss:") socket.once("secureConnect", start);
+    else socket.once("connect", start);
+  });
 }
 
 async function valkeyRateLimit(key: string, limit: number, windowSeconds: number) {
   const env = parseEnv();
   if (!env.VALKEY_URL) return null;
   const url = new URL(env.VALKEY_URL);
-  const port = Number(url.port || (url.protocol === "rediss:" ? 6380 : 6379));
-  const socket =
-    url.protocol === "rediss:"
-      ? tls.connect({ host: url.hostname, port, rejectUnauthorized: true })
-      : net.connect({ host: url.hostname, port });
   const prefix = url.pathname.replace(/^\//, "") || "paper-slate";
   const redisKey = `${prefix}:newsletter:rate:${key}`;
-  return await new Promise<boolean | null>((resolve) => {
-    let buffer = "";
-    let stage: "auth" | "incr" | "expire" | "done" = url.username || url.password ? "auth" : "incr";
-    let settled = false;
-    const finish = (value: boolean | null) => {
-      if (settled) return;
-      settled = true;
-      socket.destroy();
-      resolve(value);
-    };
-    const timer = setTimeout(() => finish(false), 800);
-    socket.on("error", () => {
-      clearTimeout(timer);
-      finish(null);
-    });
-    socket.on("data", (chunk) => {
-      buffer += chunk.toString();
-      while (true) {
-        const parsed = readRedisValue(buffer);
-        if (!parsed) return;
-        buffer = parsed.rest;
-        if (stage === "auth") {
-          if (parsed.value === null) {
-            clearTimeout(timer);
-            finish(null);
-            return;
-          }
-          stage = "incr";
-          socket.write(command(["INCR", redisKey]));
-        } else if (stage === "incr") {
-          const count = typeof parsed.value === "number" ? parsed.value : limit + 1;
-          if (count > limit) {
-            clearTimeout(timer);
-            finish(false);
-            return;
-          }
-          if (count === 1) {
-            stage = "expire";
-            socket.write(command(["EXPIRE", redisKey, windowSeconds]));
-          } else {
-            clearTimeout(timer);
-            finish(true);
-            return;
-          }
-        } else {
-          clearTimeout(timer);
-          finish(stage === "expire" && parsed.value !== null);
-          return;
-        }
-      }
-    });
-    const start = () => {
-      if (stage === "auth")
-        socket.write(
-          command([
-            "AUTH",
-            decodeURIComponent(url.username || "default"),
-            decodeURIComponent(url.password),
-          ]),
-        );
-      else socket.write(command(["INCR", redisKey]));
-    };
-    if (url.protocol === "rediss:") socket.once("secureConnect", start);
-    else socket.once("connect", start);
-  });
+  const increment = await valkeyCommands(url, [["INCR", redisKey]]);
+  if (!increment.ok) return null;
+  const count = typeof increment.replies[0] === "number" ? increment.replies[0] : limit + 1;
+  if (count > limit) return false;
+  if (count === 1) {
+    const expiry = await valkeyCommands(url, [["EXPIRE", redisKey, windowSeconds]]);
+    if (!expiry.ok || expiry.replies[0] !== 1) return null;
+  }
+  return true;
+}
+
+async function valkeyClaim(key: string, ttlSeconds: number) {
+  const env = parseEnv();
+  if (!env.VALKEY_URL) return null;
+  const url = new URL(env.VALKEY_URL);
+  const prefix = url.pathname.replace(/^\//, "") || "paper-slate";
+  const result = await valkeyCommands(url, [
+    ["SET", `${prefix}:newsletter:idempotency:${key}`, "1", "NX", "EX", ttlSeconds],
+  ]);
+  if (!result.ok) return null;
+  return result.replies[0] === null ? ("duplicate" as const) : ("claimed" as const);
+}
+
+async function valkeyRelease(key: string) {
+  const env = parseEnv();
+  if (!env.VALKEY_URL) return;
+  const url = new URL(env.VALKEY_URL);
+  const prefix = url.pathname.replace(/^\//, "") || "paper-slate";
+  await valkeyCommands(url, [["DEL", `${prefix}:newsletter:idempotency:${key}`]]);
+}
+
+export function kitConfigured(env: NodeJS.ProcessEnv | Env = process.env) {
+  return env.KIT_ENABLED === "true" && Boolean(env.KIT_API_KEY && env.KIT_FORM_ID);
 }
 
 export async function withinDistributedAbuseLimit(key: string) {
   const env = parseEnv();
-  const distributed = await valkeyRateLimit(
-    key,
-    env.NEWSLETTER_RATE_LIMIT,
-    env.NEWSLETTER_RATE_WINDOW_SECONDS,
-  );
-  if (distributed !== null) return { allowed: distributed, mode: "valkey" as const };
+  if (env.VALKEY_URL) {
+    const distributed = await valkeyRateLimit(
+      key,
+      env.NEWSLETTER_RATE_LIMIT,
+      env.NEWSLETTER_RATE_WINDOW_SECONDS,
+    );
+    if (distributed !== null) return { allowed: distributed, mode: "valkey" as const };
+    return { allowed: false, mode: "valkey-unavailable" as const };
+  }
   return {
     allowed: withinAbuseLimit(
       key,
@@ -172,20 +324,37 @@ export async function withinDistributedAbuseLimit(key: string) {
   };
 }
 
-const idempotency = new Map<string, number>();
+const localIdempotency = new Map<string, number>();
 export async function submitNewsletter(
   email: string,
   options: { idempotencyKey?: string; timeoutMs?: number } = {},
 ): Promise<NewsletterResult> {
   const env = parseEnv();
-  if (!kitConfigured())
+  if (!kitConfigured(env))
     return {
       status: "unconfigured",
       message: "Newsletter signup is not enabled in this environment.",
     };
   const key = options.idempotencyKey;
-  if (key && idempotency.has(key))
-    return { status: "duplicate", message: "This signup has already been received." };
+  let claimed = false;
+  let distributedClaim = false;
+  if (key) {
+    if (env.VALKEY_URL) {
+      const claim = await valkeyClaim(key, IDEMPOTENCY_TTL_SECONDS);
+      if (!claim)
+        return { status: "failed", message: "Newsletter signup is temporarily unavailable." };
+      if (claim === "duplicate")
+        return { status: "duplicate", message: "This signup has already been received." };
+      claimed = true;
+      distributedClaim = true;
+    } else {
+      const expires = localIdempotency.get(key);
+      if (expires && expires > Date.now())
+        return { status: "duplicate", message: "This signup has already been received." };
+      localIdempotency.set(key, Date.now() + IDEMPOTENCY_TTL_SECONDS * 1000);
+      claimed = true;
+    }
+  }
   const controller = new AbortController();
   const timer = setTimeout(
     () => controller.abort(),
@@ -206,11 +375,19 @@ export async function submitNewsletter(
         signal: controller.signal,
       },
     );
-    if (!response.ok)
+    if (!response.ok) {
+      if (claimed) {
+        if (distributedClaim) await valkeyRelease(key!);
+        else localIdempotency.delete(key!);
+      }
       return { status: "failed", message: "Newsletter signup is temporarily unavailable." };
-    if (key) idempotency.set(key, Date.now());
+    }
     return { status: "subscribed", message: "You are subscribed. Thank you." };
   } catch {
+    if (claimed) {
+      if (distributedClaim) await valkeyRelease(key!);
+      else localIdempotency.delete(key!);
+    }
     return { status: "failed", message: "Newsletter signup is temporarily unavailable." };
   } finally {
     clearTimeout(timer);

@@ -1,7 +1,10 @@
 import { NextResponse } from "next/server";
 import {
   allowedOrigin,
+  clientAddress,
   kitConfigured,
+  NewsletterBodyError,
+  readNewsletterBody,
   submitNewsletter,
   validateNewsletter,
   withinDistributedAbuseLimit,
@@ -10,40 +13,40 @@ import {
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
-  if (request.body === null || !allowedOrigin(request))
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
-  const length = Number(request.headers.get("content-length") || 0);
-  if (length > 8192)
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 413 });
-  const abuseKey = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "anonymous";
+  const failure = (error: string, status: number) =>
+    NextResponse.json(
+      { ok: false, error },
+      { status, headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
+    );
+  if (!allowedOrigin(request)) return failure("Invalid request", 403);
+  const abuseKey = clientAddress(request);
   const abuse = await withinDistributedAbuseLimit(abuseKey);
   if (!abuse.allowed)
-    return NextResponse.json({ ok: false, error: "Too many attempts" }, { status: 429 });
-  const type = request.headers.get("content-type") || "";
+    return failure(
+      abuse.mode === "valkey-unavailable"
+        ? "Signup is temporarily unavailable"
+        : "Too many attempts",
+      abuse.mode === "valkey-unavailable" ? 503 : 429,
+    );
   let input: Record<string, unknown>;
   try {
-    input = type.includes("application/json")
-      ? await request.json()
-      : Object.fromEntries((await request.formData()).entries());
-  } catch {
-    return NextResponse.json({ ok: false, error: "Invalid request" }, { status: 400 });
+    input = await readNewsletterBody(request);
+  } catch (error) {
+    if (error instanceof NewsletterBodyError) return failure(error.message, error.status);
+    return failure("Invalid request", 400);
   }
   const result = validateNewsletter(input);
   if (!result.ok || !result.email)
-    return NextResponse.json(
-      { ok: false, error: result.reason === "consent" ? "Consent is required" : "Invalid request" },
-      { status: 400 },
-    );
+    return failure(result.reason === "consent" ? "Consent is required" : "Invalid request", 400);
   const outcome = await submitNewsletter(result.email, { idempotencyKey: result.idempotencyKey });
-  if (outcome.status === "unconfigured")
-    return NextResponse.json(
-      { ok: false, configured: false, error: outcome.message },
-      { status: 503 },
-    );
+  if (outcome.status === "unconfigured") return failure(outcome.message, 503);
   if (outcome.status === "failed")
     return NextResponse.json(
       { ok: false, configured: kitConfigured(), error: outcome.message },
-      { status: 502 },
+      {
+        status: 502,
+        headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" },
+      },
     );
   return NextResponse.json(
     { ok: true, configured: true, ...outcome, rateLimit: abuse.mode },

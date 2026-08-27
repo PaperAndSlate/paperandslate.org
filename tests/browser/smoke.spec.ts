@@ -26,7 +26,7 @@ test("search page returns local indexed records", async ({ page }) => {
 
 test("header search dialog opens and links to results", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Open search" }).click();
+  await page.getByRole("button", { name: "Search" }).click();
   await expect(page.getByRole("dialog", { name: "Search Paper & Slate" })).toBeVisible();
   await page.getByRole("dialog").getByRole("textbox", { name: "Search" }).fill("RFC 1");
   await expect(
@@ -52,4 +52,26 @@ test("route catalog landings are reachable on the dedicated test port", async ({
     "/governance/licenses",
   ];
   for (const route of routes) expect((await request.get(route)).ok(), route).toBeTruthy();
+});
+
+test("component library is intentionally noindex", async ({ request }) => {
+  const response = await request.get("/design-system");
+  expect(response.ok()).toBeTruthy();
+  expect(await response.text()).toMatch(/noindex/);
+});
+
+test("every public documentation project root is useful", async ({ request }) => {
+  for (const route of [
+    "/docs/paper-and-slate",
+    "/docs/file-system",
+    "/docs/well-known-discovery",
+    "/docs/organization-schema",
+    "/docs/curriculum-standards-schema",
+    "/docs/course-catalog-schema",
+    "/docs/tools-and-libraries",
+  ]) {
+    const response = await request.get(route);
+    expect(response.ok(), route).toBeTruthy();
+    expect(await response.text(), route).toMatch(/<h1[^>]*>/);
+  }
 });

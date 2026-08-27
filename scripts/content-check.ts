@@ -5,8 +5,11 @@ import {
   projects,
   rfcs,
   reports,
+  publicationClock,
+  isPublicNewsAt,
   validatedReleases,
 } from "../packages/content/src";
+const asOf = publicationClock();
 const ids = [
   ...news.map((x) => x.id),
   ...rfcs.map((x) => `rfc:${x.number}`),
@@ -18,7 +21,7 @@ if (new Set(ids).size !== ids.length) throw new Error("Content IDs must be uniqu
 for (const item of news) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(item.date) || !item.canonicalUrl || !item.summary)
     throw new Error(`Invalid news record ${item.id}`);
-  if (item.status === "published" && item.date > "2026-08-26")
+  if (isPublicNewsAt(item, asOf) && item.date > asOf)
     throw new Error(`Future publication ${item.id}`);
 }
 for (const rfc of rfcs)

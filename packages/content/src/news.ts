@@ -1,4 +1,5 @@
 import { newsArticleSchema, type NewsArticle } from "./models";
+import { publicNewsAt } from "./publication";
 export const news: NewsArticle[] = [
   {
     id: "news:local-publishing-foundations",
@@ -47,7 +48,5 @@ export const newsCategories = [
   "research",
   "report",
 ] as const;
-export const publishedNews = validatedNews.filter(
-  (item) => item.status === "published" && item.date <= "2026-08-26",
-);
+export const publishedNews = publicNewsAt(validatedNews);
 export const getNews = (slug: string) => publishedNews.find((item) => item.slug === slug);

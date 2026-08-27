@@ -20,6 +20,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm sbom:generate
+        env:
+          RELEASE_ID: ${{ github.ref_name }}
+          GIT_SHA: ${{ github.sha }}
       - run: pnpm security:scan
       - run: pnpm vulnerability:scan
       - uses: actions/upload-artifact@v4

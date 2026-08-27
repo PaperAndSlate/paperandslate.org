@@ -17,10 +17,13 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm verify
         env:
           NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3101
           RELEASE_ID: ci-${{ github.sha }}
+          GIT_SHA: ${{ github.sha }}
+          PUBLICATION_AS_OF: 2026-08-27
       - run: pnpm evidence:bundle
       - uses: actions/upload-artifact@v4
         if: always()
@@ -28,6 +31,9 @@ jobs:
           name: paper-and-slate-quality-${{ github.sha }}
           path: |
             evidence/
+            .generated/evidence/
+            .generated/launch/
+            .generated/requirements/
             playwright-report/
             test-results/
           if-no-files-found: warn

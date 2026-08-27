@@ -8,6 +8,8 @@ type LockPackage = { resolution?: { integrity?: string }; dev?: boolean };
 type Lockfile = { packages?: Record<string, LockPackage> };
 const root = process.cwd();
 const output = path.join(root, "evidence", "local", "sbom");
+const launchOutput = path.join(root, ".generated", "launch", "sbom-manifest.json");
+const containerEvidencePath = path.join(root, ".generated", "launch", "container-check.json");
 const lockText = fs.readFileSync(path.join(root, "pnpm-lock.yaml"), "utf8");
 const lock = YAML.parse(lockText) as Lockfile;
 const packages = Object.entries(lock.packages ?? {})
@@ -34,7 +36,7 @@ const componentFor = (item: (typeof packages)[number]) => ({
     : {}),
   properties: [{ name: "pnpm:development", value: String(item.dev) }],
 });
-const gitSha = (() => {
+const resolvedGitSha = (() => {
   try {
     return execFileSync(process.platform === "win32" ? "git.exe" : "git", ["rev-parse", "HEAD"], {
       cwd: root,
@@ -46,6 +48,24 @@ const gitSha = (() => {
   }
 })();
 const releaseId = process.env.RELEASE_ID || "local-development";
+const gitSha = process.env.GIT_SHA || resolvedGitSha || "uncommitted";
+const containerEvidence = (() => {
+  if (!fs.existsSync(containerEvidencePath)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(containerEvidencePath, "utf8")) as {
+      status?: string;
+      repoDigests?: string[];
+      imageId?: string | null;
+    };
+  } catch {
+    return null;
+  }
+})();
+const containerDigest =
+  process.env.CONTAINER_IMAGE_DIGEST ||
+  (containerEvidence?.status === "passed"
+    ? containerEvidence.repoDigests?.[0] || containerEvidence.imageId || "pending"
+    : "pending");
 const lockHash = createHash("sha256").update(lockText).digest("hex");
 const components = packages.map(componentFor);
 const metadata = {
@@ -54,11 +74,11 @@ const metadata = {
   component: { type: "application", name: "paper-and-slate-web", version: releaseId },
   properties: [
     { name: "paper-slate:release-id", value: releaseId },
-    { name: "paper-slate:git-sha", value: gitSha ?? "uncommitted" },
+    { name: "paper-slate:git-sha", value: gitSha },
     { name: "paper-slate:lockfile-sha256", value: lockHash },
     {
       name: "paper-slate:container-digest",
-      value: process.env.CONTAINER_IMAGE_DIGEST || "pending",
+      value: containerDigest,
     },
   ],
 };
@@ -107,10 +127,19 @@ const spdx = {
 };
 
 fs.mkdirSync(output, { recursive: true });
+fs.mkdirSync(path.dirname(launchOutput), { recursive: true });
 fs.writeFileSync(path.join(output, "cyclonedx.json"), `${JSON.stringify(cyclonedx, null, 2)}\n`);
 fs.writeFileSync(path.join(output, "spdx.json"), `${JSON.stringify(spdx, null, 2)}\n`);
-fs.writeFileSync(
-  path.join(output, "manifest.json"),
-  `${JSON.stringify({ releaseId, gitSha, lockHash, packageCount: packages.length, generatedAt: metadata.timestamp }, null, 2)}\n`,
-);
+const manifest = {
+  schemaVersion: 1,
+  releaseId,
+  gitSha,
+  lockHash,
+  packageCount: packages.length,
+  containerDigest,
+  generatedAt: metadata.timestamp,
+  formats: ["CycloneDX 1.5", "SPDX 2.3"],
+};
+fs.writeFileSync(path.join(output, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+fs.writeFileSync(launchOutput, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`Generated CycloneDX and SPDX SBOMs for ${packages.length} locked packages.`);

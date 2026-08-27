@@ -1,9 +1,25 @@
-# Missing public facts
+# Missing public facts and approvals
 
-The following facts are intentionally not asserted by this repository: legal entity or registration, institutional affiliation, accreditation, endorsement, standards adoption, maintainer identities, support guarantees, production availability, and external repository ownership.
+Date: 2026-08-27
+Status: intentionally unresolved pending owner or qualified-reviewer evidence
 
-The standards sibling therefore uses only `Planned` or `Experimental` labels until source-backed review supplies those facts.
+The repository must not invent or imply legal entity status, registration, institutional affiliation, accreditation, endorsement, standards adoption, maintainer identity, support guarantees, production availability, funding, adoption, or external repository ownership.
 
-T104–T114 did not supply the missing facts or approvals. Qualified review is still required for legal entity, privacy, trademark, institutional, accreditation, endorsement, standards-adoption, funding, maintainer, support, availability, repository-ownership, media-provenance, and other factual claims. The PM visual decision concerns evidence authority only: current truthful homepage source governs acceptance, while unchanged legacy snapshots are baseline-drift evidence. It is not legal or factual approval.
+The approved factual baseline is that Paper & Slate operates as an open education initiative of Glasscow LLC. Glasscow LLC is a privately held LLC. This baseline does not establish a separate nonprofit, charity, foundation, school, standards authority, accreditor, government body, or institutional endorsement.
 
-T120, T122, and T130 add local runtime, documentation, browser, formatting, and focused-check receipts only. They do not supply public facts or qualified legal/privacy/trademark/institutional/maintainer/funding/factual approval, media provenance, production release identity, or external publication authority.
+## Facts the owner must supply or approve
+
+- Legal entity, jurisdiction, contact channel, privacy/terms scope, and processor/subprocessor disclosures.
+- Mission, audience, public-benefit, governance, project lifecycle, maturity/health, roadmap, funding, sponsorship, adoption, release dates, and support/availability wording.
+- Names, roles, biographies, photos, profiles, maintainer records, and consent—or an approved role-only presentation.
+- Project repositories, source owners, licenses, standards relationships, compatibility, versions, dependencies, and factual update dates.
+- Publication authors, dates, corrections, supersession, archival, syndication, and feed metadata.
+- Media/font provenance, permissions, attribution, alt text, crop, and public/commercial channel rights.
+
+## Required record
+
+Return a claim/rights register with claim or asset ID, exact approved wording/value, source or permission, reviewer, approval/ticket ID, approval date, review/expiry date, and public/private classification. A qualified reviewer must approve legal/privacy/licensing/trademark matters; a factual owner must approve factual claims; a rights owner must approve media/fonts; a product owner must approve visual deviations.
+
+Codex can reconcile the register against content, metadata, search, feeds, sitemap, JSON-LD, screenshots, asset hashes, and release evidence after it is supplied. It cannot supply the facts or grant the approvals.
+
+See [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md) for the exact handoff package and [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md) for detailed provider, repository, deployment, monitoring, rollback, SBOM, and publication procedures.

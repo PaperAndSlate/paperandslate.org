@@ -62,6 +62,36 @@
       "recordedAt": "build-time"
     },
     {
+      "sourceId": "central",
+      "path": "content/docs",
+      "ref": "working-tree",
+      "sourceMode": "central",
+      "lockType": "content-hash",
+      "gitSha": null,
+      "contentHash": "1b0c0c5c56a51db410ca056f71c3ff1f78db175d4d74f984e178ea8f1742d21f",
+      "files": [
+        {
+          "path": "concepts/provenance.md",
+          "contentHash": "cd1ad43f8b20b6096e0a90befbc870a238fa7ac43238e7fbb489befc7d478cb1"
+        },
+        {
+          "path": "getting-started/welcome.md",
+          "contentHash": "e2e12c5014e856b990afcc3bc4b4777230c41a195f628b9b0e4a81b76218100c"
+        },
+        {
+          "path": "governance.md",
+          "contentHash": "a9911e81ec9558599ae9d9054a460a9be7f49936f617a69a1f6f197b71484f2a"
+        },
+        {
+          "path": "index.md",
+          "contentHash": "799c5ec0adf69c954b909885c29f8996c0a3cbfed344adc486dd56d3e5ee99e9"
+        }
+      ],
+      "deterministicId": "ad7bbc03205597371fb1bee2ecfbb70fd5053e82e862925b32505568d45f4cef",
+      "editable": true,
+      "recordedAt": "build-time"
+    },
+    {
       "sourceId": "standards-curriculum-standards",
       "path": "../standards/projects/curriculum-standards",
       "ref": "local-sibling",
@@ -76,32 +106,6 @@
         }
       ],
       "deterministicId": "c51b5d633ac5684066a1218f41fc18b9914e7b0e61c09a9726cce6e797fc35d4",
-      "editable": true,
-      "recordedAt": "build-time"
-    },
-    {
-      "sourceId": "central",
-      "path": "content/docs",
-      "ref": "working-tree",
-      "sourceMode": "central",
-      "lockType": "content-hash",
-      "gitSha": null,
-      "contentHash": "0f98158ffa7e093bb9c589407625d67aa9e41a92d7a01f4e01c3160cfc58b45b",
-      "files": [
-        {
-          "path": "concepts/provenance.md",
-          "contentHash": "cd1ad43f8b20b6096e0a90befbc870a238fa7ac43238e7fbb489befc7d478cb1"
-        },
-        {
-          "path": "getting-started/welcome.md",
-          "contentHash": "6ac953432f17fc5e1e8489ac8f71a5638bff6770882f5ed663431817382ae2f8"
-        },
-        {
-          "path": "governance.md",
-          "contentHash": "a9911e81ec9558599ae9d9054a460a9be7f49936f617a69a1f6f197b71484f2a"
-        }
-      ],
-      "deterministicId": "d03d5bda1369229141902bcf53fe8793842be15a2d7b3ff487d97e16e0800a89",
       "editable": true,
       "recordedAt": "build-time"
     },

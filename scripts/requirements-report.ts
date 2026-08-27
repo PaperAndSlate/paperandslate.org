@@ -2,7 +2,16 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
-type Status = "implemented" | "partial" | "blocked-external" | "not-started" | "not-applicable";
+type Status =
+  | "implemented"
+  | "verified-local"
+  | "verified-ci"
+  | "verified-staging"
+  | "partial"
+  | "blocked-external"
+  | "human-approval-pending"
+  | "not-started"
+  | "not-applicable";
 
 type Requirement = {
   id: string;
@@ -19,14 +28,32 @@ type Requirement = {
   externalDependencies: string[];
   blocker: string | null;
   notes: string | null;
+  evidenceUpdatedAt: string;
 };
+
+type EvidenceOverride = Partial<
+  Pick<
+    Requirement,
+    | "status"
+    | "implementationFiles"
+    | "tests"
+    | "verificationCommands"
+    | "generatedEvidence"
+    | "externalDependencies"
+    | "blocker"
+    | "notes"
+    | "evidenceUpdatedAt"
+  >
+>;
 
 const root = process.cwd();
 const planRoot = path.join(root, "plans");
 const corePath = path.join(root, "config", "requirements-core.json");
+const evidencePath = path.join(root, "config", "requirements-evidence.json");
 const outputDir = path.join(root, ".generated", "requirements");
 const outputJson = path.join(outputDir, "requirements.json");
 const outputMarkdown = path.join(root, "IMPLEMENTATION_LEDGER.md");
+const generatedAt = process.env.REQUIREMENTS_EVIDENCE_AT ?? new Date().toISOString();
 
 function relative(file: string) {
   return path.relative(root, file).split(path.sep).join("/");
@@ -34,11 +61,6 @@ function relative(file: string) {
 
 function hash(value: string) {
   return crypto.createHash("sha256").update(value).digest("hex").slice(0, 16).toUpperCase();
-}
-
-function categoryFor(file: string) {
-  const section = file.split(/[\\/]/)[1] ?? "reference";
-  return section.replace(/^\d+-/, "").replace(/-/g, " ");
 }
 
 function headingsFor(content: string) {
@@ -70,12 +92,13 @@ function sourceRequirements(): Requirement[] {
         id: `PLAN-REQ-${hash(`${sourcePlanPath}\n${index}\n${sourceSection}`)}`,
         sourcePlanPath,
         sourceSection,
-        requirement: `The planning-pack section “${sourceSection}” is represented in the generated requirement ledger; substantive acceptance is tracked by the WEB-REQ records.`,
+        requirement:
+          "Index-only traceability record for this planning source section; substantive acceptance is tracked by WEB-REQ records.",
         category: "traceability",
         priority: "P1",
-        status: "implemented" as const,
-        implementationFiles: ["scripts/requirements-report.ts", "config/requirements-core.json"],
-        tests: ["scripts/requirements-report.ts"],
+        status: "not-applicable" as const,
+        implementationFiles: [],
+        tests: [],
         verificationCommands: ["pnpm requirements:check"],
         generatedEvidence: [
           ".generated/requirements/requirements.json",
@@ -84,34 +107,60 @@ function sourceRequirements(): Requirement[] {
         externalDependencies: [],
         blocker: null,
         notes:
-          "Traceability record only; it does not claim that every substantive plan action is complete.",
+          "Index-only row. It confirms that the planning source is represented, not that every action described by the section is complete.",
+        evidenceUpdatedAt: generatedAt,
       }));
     });
 }
 
 function coreRequirements(): Requirement[] {
   const core = JSON.parse(fs.readFileSync(corePath, "utf8")) as Array<
-    Partial<Requirement> &
-      Pick<
-        Requirement,
-        | "id"
-        | "sourcePlanPath"
-        | "sourceSection"
-        | "requirement"
-        | "category"
-        | "priority"
-        | "status"
-      >
+    Partial<Requirement> & {
+      id: string;
+      source?: string;
+      section?: string;
+      requirement: string;
+      category: string;
+      priority: string;
+      status: Status;
+    }
   >;
   return core.map((item) => ({
-    ...item,
+    id: item.id,
+    sourcePlanPath: item.sourcePlanPath ?? item.source ?? "config/requirements-core.json",
+    sourceSection: item.sourceSection ?? item.section ?? item.id,
+    requirement: item.requirement,
+    category: item.category,
+    priority: item.priority,
+    status: item.status,
     implementationFiles: item.implementationFiles ?? [],
     tests: item.tests ?? [],
-    verificationCommands: item.verificationCommands ?? ["pnpm verify"],
-    generatedEvidence: item.generatedEvidence ?? [".generated/evidence/<release-id>/manifest.json"],
+    verificationCommands: item.verificationCommands ?? [],
+    generatedEvidence: item.generatedEvidence ?? [],
     externalDependencies: item.externalDependencies ?? [],
     blocker: item.blocker ?? null,
     notes: item.notes ?? null,
+    evidenceUpdatedAt: item.evidenceUpdatedAt ?? generatedAt,
+  }));
+}
+
+function evidenceOverrides() {
+  if (!fs.existsSync(evidencePath)) return {} as Record<string, EvidenceOverride>;
+  const parsed = JSON.parse(fs.readFileSync(evidencePath, "utf8")) as {
+    records?: Record<string, EvidenceOverride>;
+  };
+  return parsed.records ?? {};
+}
+
+function applyEvidence(requirements: Requirement[]) {
+  const overrides = evidenceOverrides();
+  const known = new Set(requirements.map((item) => item.id));
+  for (const id of Object.keys(overrides))
+    if (!known.has(id)) throw new Error(`Evidence override references unknown requirement: ${id}`);
+  return requirements.map((item) => ({
+    ...item,
+    ...(overrides[item.id] ?? {}),
+    evidenceUpdatedAt: overrides[item.id]?.evidenceUpdatedAt ?? generatedAt,
   }));
 }
 
@@ -120,41 +169,102 @@ function escape(value: string | null) {
 }
 
 function markdown(requirements: Requirement[]) {
-  const counts = requirements.reduce<Record<Status, number>>(
-    (result, requirement) => {
-      result[requirement.status] += 1;
-      return result;
-    },
-    { implemented: 0, partial: 0, "blocked-external": 0, "not-started": 0, "not-applicable": 0 },
-  );
+  const statuses = [
+    "implemented",
+    "verified-local",
+    "verified-ci",
+    "verified-staging",
+    "partial",
+    "blocked-external",
+    "human-approval-pending",
+    "not-started",
+    "not-applicable",
+  ] as const;
+  const counts = Object.fromEntries(statuses.map((status) => [status, 0])) as Record<
+    Status,
+    number
+  >;
+  for (const requirement of requirements) counts[requirement.status] += 1;
   const rows = requirements
     .map(
       (item) =>
-        `| ${item.id} | ${escape(item.sourcePlanPath)} | ${escape(item.sourceSection)} | ${escape(item.requirement)} | ${item.category} | ${item.priority} | ${item.status} | ${escape(item.implementationFiles.join(", "))} | ${escape(item.tests.join(", "))} | ${escape(item.verificationCommands.join(", "))} | ${escape(item.generatedEvidence.join(", "))} | ${escape(item.externalDependencies.join(", "))} | ${escape(item.blocker)} | ${escape(item.notes)} |`,
+        `| ${item.id} | ${escape(item.sourcePlanPath)} | ${escape(item.sourceSection)} | ${escape(item.requirement)} | ${item.category} | ${item.priority} | ${item.status} | ${escape(item.implementationFiles.join(", "))} | ${escape(item.tests.join(", "))} | ${escape(item.verificationCommands.join(", "))} | ${escape(item.generatedEvidence.join(", "))} | ${escape(item.externalDependencies.join(", "))} | ${escape(item.blocker)} | ${escape(item.notes)} | ${item.evidenceUpdatedAt} |`,
     )
     .join("\n");
-  return `# Implementation ledger\n\n> Generated by pnpm requirements:check from config/requirements-core.json and every Markdown section under plans/. Do not edit this table by hand.\n>\n> This ledger is current-state evidence for the v1 release candidate. A plan-pack traceability row means the source section is represented; it does not claim that all work described by that section is complete.\n\n## Summary\n\n- Total records: ${requirements.length}\n- Implemented: ${counts.implemented}\n- Partial: ${counts.partial}\n- Blocked external: ${counts["blocked-external"]}\n- Not started: ${counts["not-started"]}\n- Not applicable: ${counts["not-applicable"]}\n\n## Status vocabulary\n\n- implemented: concrete implementation and evidence exist.\n- partial: some implementation exists, but the acceptance bar is not complete.\n- blocked-external: local work is complete as far as possible and activation depends on external/manual authority or credentials.\n- not-started: implementation or evidence is still required.\n- not-applicable: explicitly out of scope with a written rationale.\n\n## Records\n\n| ID | Source plan | Section | Requirement | Category | Priority | Status | Implementation files | Tests | Verification commands | Generated evidence | External dependencies | Blocker | Notes |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |\n${rows}\n`;
+  return `# Implementation ledger
+
+> Generated by \`pnpm requirements:check\` from \`config/requirements-core.json\`, \`config/requirements-evidence.json\`, and every Markdown section under \`plans/\`. Do not edit this table by hand.
+>
+> A plan-pack row is an index-only traceability record. It is deliberately \`not-applicable\` so that source representation cannot be mistaken for substantive implementation.
+
+## Summary
+
+- Generated at: ${generatedAt}
+- Total records: ${requirements.length}
+${statuses.map((status) => `- ${status}: ${counts[status]}`).join("\n")}
+
+## Status vocabulary
+
+- implemented: concrete implementation and evidence exist, but the check is not attributed to a specific automated environment.
+- verified-local: the current workspace produced the cited implementation and check evidence.
+- verified-ci: a CI run produced the cited evidence.
+- verified-staging: an authorized staging deployment produced the cited evidence.
+- partial: some implementation exists, but the acceptance bar is not complete.
+- blocked-external: local work is complete as far as possible, but activation depends on external authority, credentials, or provider state.
+- human-approval-pending: automated evidence exists, but a qualified or accountable human decision is still required.
+- not-started: implementation or evidence is still required.
+- not-applicable: explicitly scoped out or used only as an index row, with a written rationale.
+
+## Records
+
+| ID | Source plan | Section | Requirement | Category | Priority | Status | Implementation files | Tests | Verification commands | Generated evidence | External dependencies | Blocker | Notes | Evidence updated |\n| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+${rows}
+`;
 }
 
-const requirements = [...coreRequirements(), ...sourceRequirements()];
-const ids = new Set<string>();
-for (const item of requirements) {
-  if (ids.has(item.id)) throw new Error(`Duplicate requirement ID: ${item.id}`);
-  ids.add(item.id);
-  if (item.status === "implemented" && item.generatedEvidence.length === 0) {
-    throw new Error(`Implemented requirement has no evidence: ${item.id}`);
-  }
-  if (item.status === "not-applicable" && !item.notes) {
-    throw new Error(`Not-applicable requirement needs a rationale: ${item.id}`);
+function validate(requirements: Requirement[]) {
+  const ids = new Set<string>();
+  for (const item of requirements) {
+    if (ids.has(item.id)) throw new Error(`Duplicate requirement ID: ${item.id}`);
+    ids.add(item.id);
+    if (item.id.startsWith("PLAN-REQ-")) {
+      if (item.status !== "not-applicable")
+        throw new Error(`Traceability row must be not-applicable: ${item.id}`);
+      if (!item.requirement.startsWith("Index-only traceability record"))
+        throw new Error(`Traceability row has substantive-looking wording: ${item.id}`);
+      if (!item.notes) throw new Error(`Traceability row needs a rationale: ${item.id}`);
+    }
+    if (
+      ["implemented", "verified-local", "verified-ci", "verified-staging"].includes(item.status)
+    ) {
+      if (item.implementationFiles.length === 0)
+        throw new Error(`Verified requirement has no implementation files: ${item.id}`);
+      if (item.tests.length === 0 && item.verificationCommands.length === 0)
+        throw new Error(`Verified requirement has no tests or commands: ${item.id}`);
+      if (item.generatedEvidence.length === 0)
+        throw new Error(`Verified requirement has no evidence: ${item.id}`);
+    }
+    if (item.status === "blocked-external" || item.status === "human-approval-pending") {
+      if (item.externalDependencies.length === 0 || !item.blocker)
+        throw new Error(
+          `Blocked or approval-pending requirement needs dependencies and blocker: ${item.id}`,
+        );
+    }
+    if (item.status === "not-applicable" && !item.notes)
+      throw new Error(`Not-applicable requirement needs a rationale: ${item.id}`);
+    if (item.generatedEvidence.some((evidence) => evidence.includes("<release-id>")))
+      throw new Error(`Requirement contains a placeholder evidence path: ${item.id}`);
   }
 }
 
+const requirements = applyEvidence([...coreRequirements(), ...sourceRequirements()]);
+validate(requirements);
 fs.mkdirSync(outputDir, { recursive: true });
 fs.writeFileSync(
   outputJson,
-  `${JSON.stringify({ schemaVersion: 1, generatedBy: "pnpm requirements:check", requirements }, null, 2)}\n`,
+  `${JSON.stringify({ schemaVersion: 2, generatedAt, generatedBy: "pnpm requirements:check", requirements }, null, 2)}\n`,
 );
 fs.writeFileSync(outputMarkdown, markdown(requirements));
 console.log(
-  `Generated ${requirements.length} requirement records from ${sourceRequirements().length} plan sections.`,
+  `Generated ${requirements.length} requirement records: ${requirements.filter((item) => item.category !== "traceability").length} substantive and ${requirements.filter((item) => item.category === "traceability").length} traceability-only.`,
 );

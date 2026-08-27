@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - release/v1-rc
+      - release/v1-closure
 
 jobs:
   lighthouse:
@@ -19,10 +19,14 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm docs:ingest
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm docs:bundle:check
       - run: pnpm search:index
-      - run: pnpm build
+      - run: pnpm build:web
       - run: pnpm lighthouse
+        env:
+          RELEASE_ID: ci-${{ github.sha }}
+          GIT_SHA: ${{ github.sha }}
       - run: pnpm performance:check
       - uses: actions/upload-artifact@v4
         if: always()

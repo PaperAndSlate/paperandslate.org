@@ -5,8 +5,10 @@ export function GET() {
     {
       status: "ok",
       deployment: process.env.VERCEL_ENV || "local",
-      build: process.env.NEXT_BUILD_ID || "local",
-      docs: { sourceCount: 2, lockHash: "local-content-lock" },
+      releaseId: process.env.RELEASE_ID || "local-development",
+      gitSha: process.env.GIT_SHA || "local-development",
+      build: process.env.NEXT_BUILD_ID || process.env.RELEASE_ID || "local",
+      docs: { sourceCount: 8, lockHash: process.env.DOCS_LOCK_HASH || "local-content-lock" },
       search: { mode: searchStatus.mode, configured: searchStatus.configured, ready: true },
     },
     { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },

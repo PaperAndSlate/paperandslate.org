@@ -15,7 +15,7 @@
   --muted-foreground: #5f6b72;
   --focus-ring: #5f7f93;
   --success: #4f6b5c;
-  --warning: #d6a25e;
+  --warning: #8b5e26;
   --danger: #b87566;
   --experimental: #7d7694;
   --font-display: "Bodoni Moda", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
@@ -49,6 +49,7 @@
     --muted-foreground: #b2bec5;
     --focus-ring: #b8d2de;
     --success: #a8c0af;
+    --warning: #e3ac67;
   }
 }
 
@@ -69,6 +70,7 @@
   --muted-foreground: #b2bec5;
   --focus-ring: #b8d2de;
   --success: #a8c0af;
+  --warning: #e3ac67;
 }
 
 :root.light {

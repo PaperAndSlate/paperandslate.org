@@ -1,7 +1,16 @@
 # Rollback plan
 
-This local plan identifies immutable-artifact redeployment as the rollback strategy. A release operator should stop the current release, redeploy the last known good artifact, and verify `/health` plus static routes. Tower/Coolify activation, credentials, production monitoring, and a live rollback drill remain pending.
+Date: 2026-08-27
+Status: procedure validated locally; hosted staging drill pending
 
-T104–T114 do not add deployment or rollback evidence. The current truthful homepage source governs visual acceptance by PM decision; unchanged legacy snapshots remain baseline-drift evidence and are not rollback artifacts. A production rollback drill, deployment identity, DNS/TLS, monitoring, and operator evidence are still required before this plan can support a production-readiness claim.
+## Strategy
 
-T120's local build and browser evidence, T122's local documentation receipt, and T130's formatting/focused-check receipt do not constitute deployment or rollback evidence. Production deployment, release identity/SBOM, DNS/TLS, monitoring, Tower/Coolify authority, operator credentials, and a live rollback drill remain pending.
+Use immutable-artifact redeployment. Keep the last-known-good image digest and source identity. If the current release breaches the approved stop condition, stop or route away from the current workload, redeploy the known-good digest, verify `/health`, representative static routes, feeds, search, and monitors, then record the incident and restored digest.
+
+## Required staging drill
+
+An authorized operator must deploy two immutable, compatible staging artifacts A and B, record both deployment IDs/digests, verify A, switch to B, verify B, invoke the approved rollback action to A, and verify A again. Record timestamps, operator, health/route/feed/search probes, monitor results, logs/issue IDs, and any data-consistency impact. Do not call a source rebuild “rollback” unless its digest is independently recorded.
+
+## Current boundary
+
+`pnpm rollback:check` validates the local procedure/configuration. No hosted A→B→A drill, production rollback, DNS/TLS rollback, or data rollback has been performed. The exact authority and evidence return package is in [`NEXT_PHASE_MANUAL_REVIEW.md`](../../NEXT_PHASE_MANUAL_REVIEW.md).

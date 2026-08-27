@@ -1,0 +1,471 @@
+{
+  "schemaVersion": 1,
+  "records": {
+    "WEB-REQ-0001": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/requirements-report.ts", "config/requirements-core.json"],
+      "verificationCommands": ["pnpm requirements:check"],
+      "generatedEvidence": [
+        ".generated/requirements/requirements.json",
+        "IMPLEMENTATION_LEDGER.md"
+      ],
+      "notes": "All planning Markdown files are enumerated into index-only traceability records."
+    },
+    "WEB-REQ-0002": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "scripts/requirements-report.ts",
+        "config/requirements-evidence.json"
+      ],
+      "verificationCommands": ["pnpm requirements:check"],
+      "generatedEvidence": [".generated/requirements/requirements.json"],
+      "notes": "Machine-readable statuses are supplied by the core registry plus the evidence override registry."
+    },
+    "WEB-REQ-0003": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/requirements-report.ts"],
+      "verificationCommands": ["pnpm requirements:check"],
+      "generatedEvidence": [".generated/requirements/requirements.json"],
+      "notes": "The generator rejects verified rows without implementation files, checks, and evidence."
+    },
+    "WEB-REQ-0004": {
+      "status": "verified-local",
+      "implementationFiles": [".git/HEAD", "README.md"],
+      "verificationCommands": ["git rev-parse --is-inside-work-tree"],
+      "generatedEvidence": [".generated/requirements/requirements.json"],
+      "notes": "The workspace is a real Git worktree."
+    },
+    "WEB-REQ-0005": {
+      "status": "verified-local",
+      "implementationFiles": [".git/config"],
+      "verificationCommands": ["git remote -v", "Tower Forgejo repository inspection"],
+      "generatedEvidence": [".generated/launch/repository-identity.json"],
+      "notes": "A private Forgejo repository is present under the scoped callum namespace; organization visibility was not assumed."
+    },
+    "WEB-REQ-0037": {
+      "externalDependencies": [
+        "Authorized Tower staging workload",
+        "Staging URL and deployment identity"
+      ],
+      "blocker": "Depends on the staging workload and URL created by the authorized deployment gate."
+    },
+    "WEB-REQ-0010": {
+      "status": "verified-local",
+      "implementationFiles": ["packages/config/src/env.ts", "apps/web/src"],
+      "verificationCommands": ["pnpm typecheck"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json"],
+      "notes": "Workspace typecheck has passed during this remediation pass."
+    },
+    "WEB-REQ-0011": {
+      "status": "verified-local",
+      "implementationFiles": ["tests"],
+      "verificationCommands": ["pnpm test"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json"],
+      "notes": "Focused tests have passed; the full current-candidate suite remains a final gate."
+    },
+    "WEB-REQ-0012": {
+      "status": "verified-local",
+      "implementationFiles": ["apps/web/next.config.ts", "apps/web/src"],
+      "verificationCommands": ["pnpm --filter @paper-and-slate/web build"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json"],
+      "notes": "The current production web build has passed locally."
+    },
+    "WEB-REQ-0013": {
+      "status": "verified-local",
+      "implementationFiles": ["tests/browser/smoke.spec.ts", "scripts/production-browser-check.ts"],
+      "verificationCommands": ["pnpm e2e", "pnpm production:browser"],
+      "generatedEvidence": [".generated/launch/production-browser.json"],
+      "notes": "Development smoke and standalone production-browser checks are implemented; full verify must refresh the evidence."
+    },
+    "WEB-REQ-0014": {
+      "status": "verified-local",
+      "implementationFiles": ["apps/web/src/lib/docs.ts", "tests/docs-routes.test.ts"],
+      "verificationCommands": [
+        "pnpm docs:ingest",
+        "pnpm docs:validate",
+        "pnpm test -- tests/docs-routes.test.ts"
+      ],
+      "generatedEvidence": [
+        ".generated/docs/documents.json",
+        ".generated/requirements/requirements.json"
+      ],
+      "notes": "Documentation ingestion, validation, normalized routing, and focused tests are implemented."
+    },
+    "WEB-REQ-0015": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/routes-check.ts", "tests/browser/links.spec.ts"],
+      "verificationCommands": ["pnpm routes:check", "pnpm links"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json"],
+      "notes": "Route and internal-link checks are part of the RC verification sequence."
+    },
+    "WEB-REQ-0047": {
+      "status": "verified-local",
+      "implementationFiles": ["RELEASE_EVIDENCE_HANDOFF.md", "NEXT_PHASE_MANUAL_REVIEW.md"],
+      "verificationCommands": ["pnpm requirements:check"],
+      "generatedEvidence": ["RELEASE_EVIDENCE_HANDOFF.md", "NEXT_PHASE_MANUAL_REVIEW.md"],
+      "notes": "Owner-only approvals, credentials, domains, production authority, and publication decisions have explicit handoff steps."
+    },
+    "WEB-REQ-0048": {
+      "status": "verified-local",
+      "implementationFiles": ["ASSUMPTIONS.md", "POST_V1_PLATFORM_INTEGRATION.md"],
+      "verificationCommands": ["pnpm requirements:check"],
+      "generatedEvidence": ["ASSUMPTIONS.md", "POST_V1_PLATFORM_INTEGRATION.md"],
+      "notes": "Authentication, API, and platform integrations remain outside the authorized v1 closure scope."
+    },
+    "WEB-REQ-0006": {
+      "status": "partial",
+      "implementationFiles": [
+        ".forgejo/workflows/quality.yml",
+        ".forgejo/workflows/lighthouse.yml",
+        ".forgejo/workflows/container.yml"
+      ],
+      "verificationCommands": [
+        "Forgejo workflow inspection",
+        "pending authorized Forgejo Actions run"
+      ],
+      "generatedEvidence": [".forgejo/workflows/quality.yml"],
+      "externalDependencies": ["Forgejo Actions runner and workflow execution"],
+      "blocker": "Workflow definitions are present and CI is wired, but a hosted Forgejo Actions run has not yet produced a receipt.",
+      "notes": "Local workflow configuration is not the same as a completed hosted CI run."
+    },
+    "WEB-REQ-0007": {
+      "status": "verified-local",
+      "implementationFiles": [".prettierignore", ".gitignore", "scripts/requirements-report.ts"],
+      "verificationCommands": ["pnpm format:check", "pnpm lint"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "Generated evidence and ledgers are excluded or represented by explicit generated-file boundaries."
+    },
+    "WEB-REQ-0008": {
+      "status": "verified-local",
+      "implementationFiles": [".prettierignore"],
+      "verificationCommands": ["pnpm format:check"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "Repository formatting passes with volatile reports excluded from the source formatting gate."
+    },
+    "WEB-REQ-0009": {
+      "status": "verified-local",
+      "implementationFiles": ["package.json", "apps/web"],
+      "verificationCommands": ["pnpm lint"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "Workspace lint passes locally."
+    },
+    "WEB-REQ-0016": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "apps/web/src/app/sitemap.ts",
+        "scripts/seo-check.ts",
+        "scripts/feeds-check.ts",
+        "packages/content/src/publication.ts"
+      ],
+      "tests": ["tests/publishing.test.ts"],
+      "verificationCommands": ["pnpm seo:check", "pnpm feeds:check", "pnpm routes:check"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "Sitemap, canonical/discovery, feed, and publication-clock checks pass locally; hosted feed acceptance remains external."
+    },
+    "WEB-REQ-0017": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "packages/search/src/typesense-provider.ts",
+        "packages/search/src/fallback.ts"
+      ],
+      "tests": ["tests/search.test.ts"],
+      "verificationCommands": ["pnpm test -- tests/search.test.ts"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "The primary provider timeout/error path returns the static public fallback and marks degraded mode; live Typesense remains external."
+    },
+    "WEB-REQ-0018": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "apps/web/src/lib/newsletter.ts",
+        "apps/web/src/app/api/newsletter/route.ts"
+      ],
+      "tests": ["tests/newsletter.test.ts"],
+      "verificationCommands": ["pnpm test -- tests/newsletter.test.ts"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "Disabled, validation, origin, bounded-body, idempotency, rate-limit, and provider-failure paths pass without provider credentials."
+    },
+    "WEB-REQ-0019": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "apps/web/src/components/search-dialog.tsx",
+        "scripts/production-browser-check.ts"
+      ],
+      "tests": ["tests/browser/a11y-rc.spec.ts"],
+      "verificationCommands": ["pnpm production:browser", "pnpm a11y:rc"],
+      "generatedEvidence": [".generated/launch/production-browser.json"],
+      "notes": "The production search overlay and query interaction are exercised locally; hosted provider results remain external."
+    },
+    "WEB-REQ-0020": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "apps/web/src/lib/docs-fumadocs.ts",
+        "apps/web/src/app/(docs)/docs/[...slug]/page.tsx",
+        "tests/docs-components.test.ts"
+      ],
+      "tests": ["tests/docs-components.test.ts", "tests/docs-routes.test.ts"],
+      "verificationCommands": [
+        "pnpm build:web",
+        "pnpm test -- tests/docs-components.test.ts tests/docs-routes.test.ts"
+      ],
+      "generatedEvidence": [".generated/launch/production-browser.json"],
+      "notes": "Central reviewed documents use the Fumadocs adapter and the normalized route contract; non-central sources retain the safe alternate renderer by design."
+    },
+    "WEB-REQ-0021": {
+      "status": "partial",
+      "implementationFiles": [
+        "packages/content/src/models.ts",
+        "packages/content/src/registry.ts",
+        "apps/web/src/lib/projects.ts"
+      ],
+      "verificationCommands": ["pnpm content:validate", "pnpm build:web"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "Project status and maturity metadata are represented, but public factual approval of project health/maturity is still pending."
+    },
+    "WEB-REQ-0022": {
+      "status": "partial",
+      "implementationFiles": [
+        "packages/content/src/models.ts",
+        "packages/content/src/publication.ts",
+        "packages/content/src/releases.ts"
+      ],
+      "tests": ["tests/publishing.test.ts"],
+      "verificationCommands": ["pnpm content:validate", "pnpm feeds:check"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "Models and publication-state filtering are implemented; final governance/editorial approval is external."
+    },
+    "WEB-REQ-0023": {
+      "status": "partial",
+      "implementationFiles": [
+        "apps/web/src/components/search-dialog.tsx",
+        "apps/web/src/components/theme-toggle.tsx",
+        "apps/web/src/components/mobile-navigation.tsx",
+        "apps/web/src/components/newsletter-form.tsx",
+        "apps/web/src/app/not-found.tsx",
+        "apps/web/src/app/error.tsx",
+        "apps/web/src/app/health/route.ts",
+        "apps/web/src/app/robots.ts",
+        "apps/web/src/app/sitemap.ts"
+      ],
+      "tests": ["tests/browser/smoke.spec.ts", "tests/browser/a11y-rc.spec.ts"],
+      "verificationCommands": ["pnpm e2e", "pnpm a11y:rc", "pnpm production:browser"],
+      "generatedEvidence": [
+        ".generated/launch/verify.json",
+        ".generated/launch/production-browser.json"
+      ],
+      "externalDependencies": [
+        "Approved public source repository URL",
+        "Approved contribution destination",
+        "Final mobile legal-link information architecture"
+      ],
+      "blocker": "Search, theme, mobile navigation, newsletter, error, health, and discovery utilities are implemented and tested, but the desktop GitHub action, approved contribution destination, and complete mobile legal-link utility set cannot be finalized without owner-approved public destinations and copy.",
+      "notes": "Partial is intentional: the current shell exposes only destinations that are locally defined and approved; no public GitHub or contribution URL is invented."
+    },
+    "WEB-REQ-0024": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "apps/web/src/components/site-header.tsx",
+        "scripts/production-browser-check.ts"
+      ],
+      "tests": ["tests/browser/a11y-rc.spec.ts", "tests/browser/smoke.spec.ts"],
+      "verificationCommands": ["pnpm production:browser", "pnpm a11y:rc"],
+      "generatedEvidence": [".generated/launch/production-browser.json"],
+      "notes": "Mobile navigation opening/closing and compact-header interaction pass against the production artifact."
+    },
+    "WEB-REQ-0025": {
+      "status": "human-approval-pending",
+      "implementationFiles": [
+        "scripts/production-visual-evidence.ts",
+        "apps/web/src/app/(public)/design-system/page.tsx"
+      ],
+      "verificationCommands": ["pnpm production:visual"],
+      "generatedEvidence": [".generated/launch/visual/manifest.json"],
+      "externalDependencies": ["Product owner visual approval", "Media/font rights approval"],
+      "blocker": "Thirteen clean production captures exist, but reference comparison, intentional-deviation approval, and rights approval require accountable human reviewers.",
+      "notes": "The visual tool never converts a screenshot hash into an automatic approval."
+    },
+    "WEB-REQ-0026": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "tests/browser/a11y-rc.spec.ts",
+        "scripts/production-browser-check.ts"
+      ],
+      "tests": ["tests/browser/a11y-rc.spec.ts"],
+      "verificationCommands": ["pnpm a11y:rc", "pnpm production:browser"],
+      "generatedEvidence": [".generated/launch/production-browser.json"],
+      "notes": "Representative production routes and interaction states pass the RC accessibility suite; this is not a complete human audit."
+    },
+    "WEB-REQ-0027": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/lighthouse.ts", "lighthouserc.json"],
+      "verificationCommands": ["pnpm lighthouse", "pnpm performance:check"],
+      "generatedEvidence": [
+        ".generated/launch/lighthouse/lighthouse-run.json",
+        ".generated/launch/performance-summary.json"
+      ],
+      "notes": "Fresh Lighthouse runs pass the configured thresholds on six indexable routes; CI and hosted staging runs remain separate gates."
+    },
+    "WEB-REQ-0028": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "apps/web/src/proxy.ts",
+        "apps/web/src/app/layout.tsx",
+        "scripts/production-browser-check.ts"
+      ],
+      "verificationCommands": ["pnpm production:browser", "pnpm security:check"],
+      "generatedEvidence": [".generated/launch/production-browser.json"],
+      "notes": "Nonce-based production CSP, hydration, headers, and representative interactivity pass against the standalone build."
+    },
+    "WEB-REQ-0029": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "infrastructure/docker/Dockerfile",
+        ".dockerignore",
+        "scripts/container-check.ts"
+      ],
+      "verificationCommands": ["pnpm container:check"],
+      "generatedEvidence": [".generated/launch/container-check.json"],
+      "notes": "The image builds from the committed generated documentation bundle and passes runtime acceptance locally."
+    },
+    "WEB-REQ-0030": {
+      "status": "verified-local",
+      "implementationFiles": ["infrastructure/docker/Dockerfile", "scripts/container-check.ts"],
+      "verificationCommands": ["pnpm container:check"],
+      "generatedEvidence": [".generated/launch/container-check.json"],
+      "notes": "The container check records runtime uid 1000 rather than root."
+    },
+    "WEB-REQ-0031": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "apps/web/src/app/health/route.ts",
+        "infrastructure/docker/Dockerfile",
+        "scripts/container-check.ts"
+      ],
+      "verificationCommands": ["pnpm container:check", "pnpm production:browser"],
+      "generatedEvidence": [
+        ".generated/launch/container-check.json",
+        ".generated/launch/production-browser.json"
+      ],
+      "notes": "Container and standalone production health checks validate release/git identity and readiness."
+    },
+    "WEB-REQ-0032": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/sbom.ts"],
+      "verificationCommands": ["pnpm sbom:generate"],
+      "generatedEvidence": [
+        ".generated/launch/sbom-manifest.json",
+        "evidence/local/sbom/cyclonedx.json",
+        "evidence/local/sbom/spdx.json"
+      ],
+      "notes": "CycloneDX and SPDX lockfile SBOMs are generated locally; final hosted image SBOM and signing remain external."
+    },
+    "WEB-REQ-0033": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/vulnerability-scan.ts"],
+      "verificationCommands": ["pnpm vulnerability:scan"],
+      "generatedEvidence": ["evidence/local/security/vulnerability-scan.json"],
+      "notes": "Production dependencies pass the high-severity policy; development-tool advisory groups remain recorded with a disposition requirement."
+    },
+    "WEB-REQ-0034": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/security-scan.ts"],
+      "verificationCommands": ["pnpm security:scan"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "Local secret-pattern scan passes; provider secret values are not stored in the repository."
+    },
+    "WEB-REQ-0035": {
+      "status": "blocked-external",
+      "implementationFiles": [
+        "scripts/sbom.ts",
+        "scripts/evidence-bundle.ts",
+        ".tower/project.yaml"
+      ],
+      "verificationCommands": [
+        "pnpm sbom:generate",
+        "git rev-parse HEAD",
+        "pending authorized registry/tag receipt"
+      ],
+      "generatedEvidence": [
+        ".generated/launch/sbom-manifest.json",
+        ".generated/launch/container-check.json"
+      ],
+      "externalDependencies": [
+        "RC tag/signing authority",
+        "Immutable hosted OCI registry",
+        "Staging deployment receipt"
+      ],
+      "blocker": "Local source and image identity are recorded, but the exact RC tag, signed provenance, hosted immutable digest, and deployed-digest equality are not yet available."
+    },
+    "WEB-REQ-0039": {
+      "status": "verified-local",
+      "implementationFiles": [
+        "packages/search/src/typesense-provider.ts",
+        "packages/search/src/fallback.ts"
+      ],
+      "tests": ["tests/search.test.ts"],
+      "verificationCommands": ["pnpm test -- tests/search.test.ts"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "A simulated primary-provider outage returns static public search results with degraded=true; hosted outage telemetry remains external."
+    },
+    "WEB-REQ-0040": {
+      "status": "blocked-external",
+      "implementationFiles": ["apps/web/src/lib/newsletter.ts", "packages/config/src/env.ts"],
+      "tests": ["tests/newsletter.test.ts"],
+      "verificationCommands": [
+        "pnpm test -- tests/newsletter.test.ts",
+        "pending authorized Valkey staging probe"
+      ],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "externalDependencies": [
+        "Tower Valkey endpoint and secret binding",
+        "multi-instance staging test"
+      ],
+      "blocker": "The adapter and fail-closed behavior are locally tested, but distributed rate/idempotency behavior needs the authorized staging Valkey service."
+    },
+    "WEB-REQ-0041": {
+      "status": "blocked-external",
+      "implementationFiles": [".tower/project.yaml", "config/observability.yml"],
+      "verificationCommands": ["pending authorized GlitchTip project/event probe"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json"],
+      "externalDependencies": ["GlitchTip project, DSN secret binding, event authority"],
+      "blocker": "No observability provider has been activated or sent a labeled staging event."
+    },
+    "WEB-REQ-0042": {
+      "status": "blocked-external",
+      "implementationFiles": [".tower/project.yaml", "config/synthetic-monitors.yml"],
+      "verificationCommands": ["pending authorized Tower monitor probes"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json"],
+      "externalDependencies": ["Tower monitor creation authority", "reachable HTTPS staging URL"],
+      "blocker": "Monitor definitions exist, but no hosted staging endpoints or monitor IDs have been returned."
+    },
+    "WEB-REQ-0043": {
+      "status": "blocked-external",
+      "implementationFiles": ["config/rollback.yml", "docs/reports/rollback-plan.md"],
+      "verificationCommands": ["pnpm rollback:check", "pending authorized staging rollback drill"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json"],
+      "externalDependencies": ["Two immutable staging deployments", "rollback authority"],
+      "blocker": "The rollback procedure validates locally, but an A-to-B-to-A hosted staging drill has not been authorized or run."
+    },
+    "WEB-REQ-0044": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/evidence-bundle.ts", "scripts/launch-report.ts"],
+      "verificationCommands": ["pnpm launch:report", "pnpm evidence:bundle"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json", ".generated/evidence/"],
+      "notes": "The bundle generator records current checks, identity, hashes, and explicit owner blockers; hosted receipts are added only when present."
+    },
+    "WEB-REQ-0045": {
+      "status": "blocked-external",
+      "implementationFiles": [".forgejo/workflows/supply-chain.yml", "scripts/evidence-bundle.ts"],
+      "verificationCommands": ["pending authorized v1.0.0-rc.1 tag and artifact receipt"],
+      "generatedEvidence": [".generated/launch/launch-evidence.json"],
+      "externalDependencies": ["Release tag authority", "hosted registry publication authority"],
+      "blocker": "The branch is pushed privately, but the RC tag and hosted immutable artifact are deliberately deferred until the final source commit and release review."
+    },
+    "WEB-REQ-0046": {
+      "status": "verified-local",
+      "implementationFiles": ["scripts/security-scan.ts", ".gitignore"],
+      "verificationCommands": ["pnpm security:scan"],
+      "generatedEvidence": [".generated/launch/verify.json"],
+      "notes": "No high-confidence credential pattern was found locally; actual provider values remain outside the repository."
+    }
+  }
+}

@@ -1,14 +1,8 @@
 "use client";
 import Link from "next/link";
-import type { DocsDocument } from "../../../../packages/docs-ingestion/src/types";
-export function DocsProjectSelector({
-  documents,
-  current,
-}: {
-  documents: DocsDocument[];
-  current?: string;
-}) {
-  const projects = [...new Set(documents.map((doc) => doc.project))].sort();
+import { docProjectRecords } from "../lib/docs";
+export function DocsProjectSelector({ current }: { current?: string }) {
+  const projects = docProjectRecords();
   return (
     <nav aria-label="Documentation projects">
       <form method="get" action="/docs">
@@ -24,8 +18,8 @@ export function DocsProjectSelector({
         >
           <option value="">All projects</option>
           {projects.map((project) => (
-            <option key={project} value={project}>
-              {project}
+            <option key={project.slug} value={project.slug}>
+              {project.title}
             </option>
           ))}
         </select>
@@ -34,8 +28,8 @@ export function DocsProjectSelector({
       <noscript>
         <ul>
           {projects.map((project) => (
-            <li key={project}>
-              <Link href={`/docs/${project}`}>{project}</Link>
+            <li key={project.slug}>
+              <Link href={project.root}>{project.title}</Link>
             </li>
           ))}
         </ul>

@@ -5,7 +5,7 @@ import type { NewsArticle } from "../../../../packages/content/src/models";
 export function NewsFilteredList({ items, label }: { items: NewsArticle[]; label: string }) {
   return items.length > 0 ? (
     <div className="card-grid">
-      {items.map((item) => (
+      {items.map((item, index) => (
         <article className="info-card news-list-card" key={item.id}>
           {item.image ? (
             <div className="news-list-media">
@@ -13,6 +13,7 @@ export function NewsFilteredList({ items, label }: { items: NewsArticle[]; label
                 src={item.image}
                 alt={item.imageAlt ?? ""}
                 fill
+                priority={index === 0}
                 sizes="(max-width: 639px) 100vw, 33vw"
               />
             </div>

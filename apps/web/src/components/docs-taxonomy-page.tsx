@@ -16,7 +16,8 @@ export function DocsTaxonomyPage({
   return (
     <main id="main-content" className="prose">
       <PageHeader eyebrow="Documentation" title={title}>
-        Browse reviewed local documents filed under this documentation topic.
+        Browse local documents filed under this documentation topic. Draft documents are clearly
+        marked and are not included in public discovery indexes.
       </PageHeader>
       {visible.length > 0 ? (
         <div className="card-grid">

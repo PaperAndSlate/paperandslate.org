@@ -4,7 +4,9 @@
       "url": [
         "http://127.0.0.1:3200/",
         "http://127.0.0.1:3200/projects/file-system",
-        "http://127.0.0.1:3200/docs/paper-and-slate/next/concepts/provenance",
+        "http://127.0.0.1:3200/docs",
+        "http://127.0.0.1:3200/docs/file-system/v/1.0",
+        "http://127.0.0.1:3200/docs/file-system/v/1.0/reference/metadata",
         "http://127.0.0.1:3200/news/local-publishing-foundations"
       ],
       "numberOfRuns": 2,

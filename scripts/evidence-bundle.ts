@@ -5,9 +5,13 @@ import path from "node:path";
 
 const root = process.cwd();
 const releaseId = (
-  process.env.RELEASE_ID || `v1-rc-${new Date().toISOString().slice(0, 10)}`
+  process.env.RELEASE_ID || `local-rc-${new Date().toISOString().slice(0, 10)}`
 ).replace(/[^A-Za-z0-9._-]/g, "-");
-const bundleRoot = path.join(root, "evidence", releaseId);
+const generatedEvidenceRoot = path.resolve(root, ".generated", "evidence");
+const bundleRoot = path.resolve(generatedEvidenceRoot, releaseId);
+if (!bundleRoot.startsWith(`${generatedEvidenceRoot}${path.sep}`))
+  throw new Error(`Refusing to write evidence outside ${generatedEvidenceRoot}`);
+
 const git = (args: string[]) => {
   try {
     return execFileSync(process.platform === "win32" ? "git.exe" : "git", args, {
@@ -19,46 +23,79 @@ const git = (args: string[]) => {
     return null;
   }
 };
+const readJson = <T>(relative: string): T | null => {
+  const file = path.join(root, relative);
+  if (!fs.existsSync(file)) return null;
+  try {
+    return JSON.parse(fs.readFileSync(file, "utf8")) as T;
+  } catch {
+    return null;
+  }
+};
 const copyIfPresent = (source: string, destination: string) => {
-  const absoluteSource = path.join(root, source);
-  if (!fs.existsSync(absoluteSource)) return false;
-  const absoluteDestination = path.join(bundleRoot, destination);
+  const absoluteSource = path.resolve(root, source);
+  if (!absoluteSource.startsWith(`${root}${path.sep}`) || !fs.existsSync(absoluteSource))
+    return false;
+  const absoluteDestination = path.resolve(bundleRoot, destination);
+  if (!absoluteDestination.startsWith(`${bundleRoot}${path.sep}`))
+    throw new Error(`Refusing to write evidence outside bundle: ${destination}`);
   fs.mkdirSync(path.dirname(absoluteDestination), { recursive: true });
   fs.cpSync(absoluteSource, absoluteDestination, { recursive: true });
   return true;
 };
-const files = [
+const sha256File = (file: string) =>
+  createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+const lockfile = path.join(root, "pnpm-lock.yaml");
+const lockfileSha256 = fs.existsSync(lockfile) ? sha256File(lockfile) : null;
+
+const sources = [
   [".generated/requirements/requirements.json", "traceability/requirements.json"],
-  [".generated/docs/documents.json", "content/documents.json"],
-  [".generated/docs/docs-sources.lock.json", "content/source-lock.json"],
-  [".generated/docs/source-provenance.json", "content/source-provenance.json"],
-  [".generated/docs/search-records.json", "search/docs-records.json"],
-  [".generated/search/search-records.json", "search/search-records.json"],
-  [".generated/launch/lighthouse", "lighthouse"],
+  ["IMPLEMENTATION_LEDGER.md", "traceability/IMPLEMENTATION_LEDGER.md"],
+  [".generated/docs", "content/generated-docs"],
+  [".generated/search", "search/generated"],
+  [".generated/launch/lighthouse", "launch/lighthouse"],
+  [".generated/launch/performance-summary.json", "launch/performance-summary.json"],
+  [".generated/launch/production-browser.json", "launch/production-browser.json"],
+  [".generated/launch/visual", "launch/visual"],
+  [".generated/launch/container-check.json", "launch/container-check.json"],
+  [".generated/launch/docs-bundle-check.json", "launch/docs-bundle-check.json"],
+  [".generated/launch/sbom-manifest.json", "launch/sbom-manifest.json"],
+  [".generated/launch/verify.json", "launch/verify.json"],
+  [".generated/launch/repository-identity.json", "launch/repository-identity.json"],
   [".generated/launch/launch-evidence.json", "launch/launch-evidence.json"],
-  ["evidence/local/sbom", "sbom"],
-  ["evidence/local/security", "security"],
+  ["evidence/local/sbom", "supply-chain/sbom"],
+  ["evidence/local/security", "supply-chain/security"],
   ["playwright-report", "browser/playwright-report"],
   ["test-results", "browser/test-results"],
 ] as const;
 
 fs.rmSync(bundleRoot, { recursive: true, force: true });
 fs.mkdirSync(bundleRoot, { recursive: true });
-const copied = files.filter(([source, destination]) => copyIfPresent(source, destination));
+const includedEvidence = sources
+  .filter(([source, destination]) => copyIfPresent(source, destination))
+  .map(([source, destination]) => ({ source, destination }));
+
 const pending = {
   status: "pending-owner-or-external-evidence",
   approvals: [
-    "qualified legal/privacy/trademark/institutional/funding review",
-    "factual, maintainer, and media-provenance approval",
+    "qualified legal/privacy/licensing/trademark review and approval IDs",
+    "factual, institutional, people, project, funding, maintainer, and publication-copy approval",
+    "media/font provenance, permissions, alt text, crop, and human visual comparison approval",
   ],
   authority: [
-    "Forgejo repository owner and branch/PR authority",
-    "DNS/TLS and Tower/Coolify deployment authority",
+    "Forgejo branch protection, reviewer/PR, tag-signing, and release authority",
+    "DNS/TLS and canonical-domain authority",
+    "Tower/Coolify staging and production deployment authority",
     "provider credentials and production monitoring/rollback authority",
   ],
   publication: [
-    "publication workflow owner",
-    "syndication destinations and production feed acceptance",
+    "publication and corrections workflow owner",
+    "syndication destination authority",
+    "production feed acceptance",
+  ],
+  explicitlyDeferred: [
+    "authentication, API, and platform integration work remains outside v1 closure scope",
+    "public GitHub publication, production deployment, and final v1.0.0 release are not authorized",
   ],
 };
 fs.mkdirSync(path.join(bundleRoot, "approvals"), { recursive: true });
@@ -67,43 +104,46 @@ fs.writeFileSync(
   `${JSON.stringify(pending, null, 2)}\n`,
 );
 
-const hashes: Record<string, { sha256: string; bytes: number }> = {};
-const hashTree = (directory: string) => {
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const absolute = path.join(directory, entry.name);
-    const relative = path.relative(bundleRoot, absolute).replaceAll(path.sep, "/");
-    if (entry.isDirectory()) hashTree(absolute);
-    else if (relative !== "manifest.json" && relative !== "hashes.json") {
-      const bytes = fs.readFileSync(absolute);
-      hashes[relative] = {
-        sha256: createHash("sha256").update(bytes).digest("hex"),
-        bytes: bytes.length,
-      };
-    }
-  }
-};
-hashTree(bundleRoot);
-fs.writeFileSync(path.join(bundleRoot, "hashes.json"), `${JSON.stringify(hashes, null, 2)}\n`);
+const launch = readJson<{ status?: string; checks?: Array<{ id?: string; status?: string }> }>(
+  ".generated/launch/launch-evidence.json",
+);
+const container = readJson<{ imageId?: string | null; repoDigests?: string[] }>(
+  ".generated/launch/container-check.json",
+);
+const visual = readJson<{ status?: string; captures?: unknown[] }>(
+  ".generated/launch/visual/manifest.json",
+);
+const verify = readJson<{ status?: string; completed?: string[] }>(".generated/launch/verify.json");
 const manifest = {
-  schemaVersion: 1,
-  status: "release-candidate",
+  schemaVersion: 2,
+  status: "local-release-candidate-evidence",
   releaseId,
   generatedAt: new Date().toISOString(),
-  git: {
+  source: {
     sha: git(["rev-parse", "HEAD"]),
     branch: git(["branch", "--show-current"]),
+    remote: git(["remote", "get-url", "origin"]),
     exactTag: git(["describe", "--tags", "--exact-match"]),
+    worktreeClean: (git(["status", "--porcelain"]) ?? "") === "",
   },
   build: {
     node: process.version,
     packageManager: "pnpm@10.6.0",
-    lockfileSha256: createHash("sha256")
-      .update(fs.readFileSync(path.join(root, "pnpm-lock.yaml")))
-      .digest("hex"),
+    lockfileSha256,
+  },
+  verification: {
+    launchReportStatus: launch?.status ?? "missing",
+    fullVerifyStatus: verify?.status ?? "missing",
+    fullVerifyTasks: verify?.completed?.length ?? 0,
+    visualStatus: visual?.status ?? "missing",
+    visualCaptures: visual?.captures?.length ?? 0,
   },
   artifact: {
-    imageDigest: process.env.CONTAINER_IMAGE_DIGEST || null,
+    localImageId: container?.imageId ?? null,
+    localImageRepoDigests: container?.repoDigests ?? [],
+    hostedRegistryDigest: process.env.CONTAINER_IMAGE_DIGEST || null,
     stagingUrl: process.env.STAGING_URL || null,
+    deploymentId: process.env.STAGING_DEPLOYMENT_ID || null,
   },
   providers: {
     search: {
@@ -116,10 +156,28 @@ const manifest = {
     errorTracking: { configured: Boolean(process.env.GLITCHTIP_DSN) },
     cache: { configured: Boolean(process.env.VALKEY_URL) },
   },
-  includedEvidence: copied.map(([source, destination]) => ({ source, destination })),
+  includedEvidence,
   pending,
 };
 fs.writeFileSync(path.join(bundleRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
+
+const hashes: Record<string, { sha256: string; bytes: number }> = {};
+const hashTree = (directory: string) => {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const absolute = path.join(directory, entry.name);
+    const relative = path.relative(bundleRoot, absolute).replaceAll(path.sep, "/");
+    if (entry.isDirectory()) hashTree(absolute);
+    else if (!["manifest.json", "hashes.json", "manifest.sha256"].includes(relative)) {
+      hashes[relative] = { sha256: sha256File(absolute), bytes: fs.statSync(absolute).size };
+    }
+  }
+};
+hashTree(bundleRoot);
+fs.writeFileSync(path.join(bundleRoot, "hashes.json"), `${JSON.stringify(hashes, null, 2)}\n`);
+fs.writeFileSync(
+  path.join(bundleRoot, "manifest.sha256"),
+  `${sha256File(path.join(bundleRoot, "manifest.json"))}\n`,
+);
 console.log(
   `Created release evidence bundle ${path.relative(root, bundleRoot)} with ${Object.keys(hashes).length} hashed files.`,
 );

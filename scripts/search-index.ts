@@ -2,6 +2,7 @@ import fs from "node:fs";
 import {
   publicProjects,
   news,
+  publishedNews,
   rfcs,
   decisions,
   policies,
@@ -10,6 +11,7 @@ import {
   roadmap,
 } from "../packages/content/src";
 import { normalizeRecords, type SearchRecord } from "../packages/search/src";
+import { docsForSearch } from "../apps/web/src/lib/docs";
 type Doc = {
   id: string;
   title: string;
@@ -18,7 +20,7 @@ type Doc = {
   route: string;
   status?: string;
 };
-const docs = JSON.parse(fs.readFileSync(".generated/docs/documents.json", "utf8")) as Doc[];
+const docs = docsForSearch() as Doc[];
 const records: SearchRecord[] = [
   ...publicProjects.map((p) => ({
     id: `project:${p.slug}`,
@@ -41,19 +43,17 @@ const records: SearchRecord[] = [
       type: "documentation" as const,
       source: "docs" as const,
     })),
-  ...news
-    .filter((n) => n.status === "published")
-    .map((n) => ({
-      id: n.id,
-      title: n.title,
-      summary: n.summary,
-      text: n.content,
-      route: n.canonicalUrl,
-      type: "news" as const,
-      source: "news" as const,
-      date: n.date,
-      properties: n.tags,
-    })),
+  ...publishedNews.map((n) => ({
+    id: n.id,
+    title: n.title,
+    summary: n.summary,
+    text: n.content,
+    route: n.canonicalUrl,
+    type: "news" as const,
+    source: "news" as const,
+    date: n.date,
+    properties: n.tags,
+  })),
   ...rfcs.map((r) => ({
     id: `rfc:${r.number}`,
     title: `RFC ${r.number}: ${r.title}`,

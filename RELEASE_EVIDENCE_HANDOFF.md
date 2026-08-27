@@ -1,7 +1,7 @@
 # Paper & Slate release-evidence handoff
 
-Date: 2026-08-27  
-Status: owner and qualified-reviewer input required  
+Date: 2026-08-27
+Status: local remediation evidence available; owner, qualified-reviewer, and hosted-staging input required
 Related audit: [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md)
 
 This file is the current action list for work that cannot be truthfully completed from the local workspace alone. It states the purpose, the exact owner/reviewer action, the evidence to return, and what Codex can do after that evidence or authority exists.
@@ -16,6 +16,8 @@ Never put passwords, API keys, private keys, personal data, legal contracts, or 
 4. Ask Codex to execute only the specifically authorized local, repository, provider, staging, or production actions.
 
 Codex can inventory, draft, automate, validate, capture, compare, and assemble evidence. Codex cannot grant legal/factual/media approval, invent organizational facts, create authority, choose a provider policy on the owner's behalf, or silently perform production-impacting mutations.
+
+Current non-secret state: a private Forgejo repository exists at `https://git.tower/callum/paperandslate-web.git`; `main` and `release/v1-closure` contain the baseline source commit, and the current remediation changes are still local until the final source review/commit. Tower-managed staging resources for Typesense `search`, Valkey `cache`, and S3 `release-evidence` have been applied. No RC tag, protected PR, hosted image, Coolify application, staging deployment, DNS/TLS change, provider credential, or production action is claimed by this handoff.
 
 ## 1. Appoint accountable reviewers
 
@@ -142,7 +144,7 @@ Required return for all providers: provider/project/region identifiers, non-secr
 
 Purpose: create a verifiable source identity, review path, and protected release process.
 
-Current state: local Git was initialized on `main`, but there is no commit, tag, remote, pull request, or protected branch.
+Current state: the local Git repository has a private Forgejo remote at `https://git.tower/callum/paperandslate-web.git`, and the baseline has been pushed to `main` and `release/v1-closure`. The remediation tree is not yet the final reviewed commit; there is no RC tag, protected branch/PR receipt, signed tag, or release artifact receipt yet.
 
 Owner steps:
 
@@ -154,7 +156,7 @@ Owner steps:
 
 Return: canonical URL, authority statement, team/role IDs, branch/release policy, and an exact allowed-action list.
 
-After receipt, Codex can create the authorized source/review workflow, configure CI/CODEOWNERS, produce a commit/tag/PR receipt, and bind release evidence to the source SHA. No such mutation is performed by this audit.
+After receipt, Codex can create the authorized source/review workflow, configure CI/CODEOWNERS, produce a commit/tag/PR receipt, and bind release evidence to the source SHA. The private repository creation and baseline push were authorized and completed; final remediation commit/tag/PR actions still require the release owner's exact authorization.
 
 ## 7. DNS, TLS, and canonical URL authority
 
@@ -177,9 +179,11 @@ After receipt, Codex can validate propagation from multiple resolvers, HTTPS red
 
 Purpose: deploy a reviewed immutable artifact to the correct environment with attributable approvals.
 
+Current non-secret state: `.tower/project.yaml` and `infrastructure/tower/intent.yaml` describe staging only. The Tower controller has a staging server/target and the managed shared resources have been reconciled, but the application workload, registry image, secret bindings, monitors, deployment, and rollback receipt remain pending.
+
 Owner steps:
 
-- Identify exact Tower/Coolify instance, organization/project, server/cluster, network, registry, and application.
+- Identify exact Tower/Coolify instance, organization/project, server/cluster, network, registry, and application. For this task, the known non-secret target is the Tower Development project `rggf2bl4tdww50yu6h58czg2`, staging environment `l56i154xmd5r4ywgc9ez2ce3`, and staging target `tower-staging`; re-check these values before mutation.
 - Approve staging/production separation, limits, replicas, health checks, storage, log destination, and secret injection.
 - Define preview/staging/production promotion rules and immutable digest requirement.
 - Define deployment window, approver, smoke tests, stop criteria, maintenance notice, and rollback threshold.
@@ -188,7 +192,7 @@ Owner steps:
 
 Return: target identifiers, role/access confirmation, approved environment contract, window, approver, and exact allowed mutations.
 
-After receipt, Codex can validate the Tower manifest, plan/reconcile resources, deploy to authorized staging, run acceptance, record deployment IDs, and promote the identical digest only when separately approved.
+After receipt, Codex can validate the Tower manifest, plan/reconcile resources, create or adopt the staging Coolify workload, configure non-secret variables, bind approved secret names, deploy to authorized staging, run acceptance, record deployment IDs, and promote the identical digest only when separately approved. Production deployment is outside the current authorization.
 
 ## 9. Monitoring, incident response, and rollback
 
@@ -222,7 +226,7 @@ Owner steps:
 
 Return: registry URL/policy, release policy, signer identity policy, vulnerability policy, exception records, and publication authority.
 
-After receipt, Codex can generate lockfile and image SBOMs, scan dependencies/filesystem/container, create provenance, sign/verify using the authorized mechanism, publish to the approved registry, and prove deployed digest equality. The current local SBOM is not a signed production release.
+After receipt, Codex can generate lockfile and image SBOMs, scan dependencies/filesystem/container, create provenance, sign/verify using the authorized mechanism, publish to the approved registry, and prove deployed digest equality. The current local SBOM and local image ID/digest are recorded in `.generated/launch/`; they are not a signed hosted release.
 
 ## 11. Publication, syndication, and feed validation
 
