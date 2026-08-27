@@ -3,18 +3,20 @@
 Date: 2026-08-27
 Purpose: identify the decisions, approvals, credentials, and operator authority that must come from the owner or a qualified reviewer before release closure
 
-This is an owner-run handoff, not an automated approval. The immutable `v1.0.0-rc.1` tag points to `031b5447786f9c619288c9044bb5bc65319a30d7`; the authorized follow-up staging fix is `59c1e2cb8231866729ad3248d763417aa88790f1` on `release/v1-closure` and is not yet a new release candidate. Never paste passwords, API keys, private keys, DSNs, personal data, legal contracts, or secret-manager values into this repository, Markdown, screenshots, or chat.
+This is an owner-run handoff, not an automated approval. Immutable `v1.0.0-rc.1` remains at `031b5447786f9c619288c9044bb5bc65319a30d7`; the selected untagged `v1.0.0-rc.2` staging candidate is `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` on `release/v1-closure`. Never paste passwords, API keys, private keys, DSNs, personal data, legal contracts, or secret-manager values into this repository, Markdown, screenshots, or chat.
+
+Current snapshot: the candidate is deployed at `https://paper-and-slate-web.dev.tower` as Coolify deployment `zzpooecepztro4urk5sx6obv`; health, 12-route publication/feed validation, and 12 hosted Lighthouse reports pass for the exact SHA. Visual comparison and rights approval remain pending. Exact-SHA Forgejo runs 25–27 failed with no task-level jobs exposed through Tower; the registry is empty; provider completion, release-specific SLO, rollback, and qualified approvals remain open. This snapshot supersedes earlier deployment, canonical-url, and CI-run statements below where they differ.
 
 ## 1. What is already available locally
 
-- The post-fix full `pnpm verify` run passed all 31 aggregate checks, including 42 unit/integration tests, 7 browser scenarios, 21 accessibility assertions, a 74-page production build, 12 local Lighthouse runs across 6 routes, and the local container/SBOM gates. It produces `.generated/launch/verify.json` and the local bundle under `.generated/evidence/local-rc-staging-health-fix/`.
-- `pnpm production:visual` captured the 13-state matrix against authorized staging at `https://paper-and-slate-web.dev.tower`; the manifest is `human-review-pending` by design and does not grant visual or media approval.
-- `pnpm lighthouse` and `pnpm performance:check` produce local route reports and budget evidence under `.generated/launch/lighthouse/` and `.generated/launch/performance-summary.json`. The current Lighthouse wrapper targets the local standalone artifact; a hosted Lighthouse receipt has not been claimed.
+- The full local `pnpm verify` run passed 28 local tasks at source `65f739168f71e6c8a6b9c16d5c09929b0ead41cc`, with external checks intentionally skipped; it includes 45 tests, 7 browser scenarios, 21 accessibility assertions, a 74-page production build, local Lighthouse/performance, and local container/SBOM gates. It produces `.generated/launch/verify.json` and the local bundle under `.generated/evidence/`.
+- `pnpm production:visual` captured the 13-state matrix against exact-candidate staging at `https://paper-and-slate-web.dev.tower`; the manifest is `human-review-pending` by design and does not grant visual or media approval.
+- `pnpm lighthouse` and `pnpm performance:check` produce local route reports and budget evidence under `.generated/launch/lighthouse/` and `.generated/launch/performance-summary.json`. The separate `pnpm lighthouse:staging` run passed 12 hosted reports for the exact candidate and stores its receipt under `.generated/launch/lighthouse-staging/`.
 - `pnpm container:check` records local image ID/digest, health identity, and non-root uid in `.generated/launch/container-check.json`.
 - `pnpm sbom:generate`, `pnpm security:scan`, and `pnpm vulnerability:scan` produce local supply-chain evidence.
-- A private Forgejo repository exists at `https://git.tower/callum/paperandslate-web.git`. The immutable RC1 tag is present, and the follow-up health-probe fix is pushed to `release/v1-closure`; the branch fix must receive a new RC tag if it is selected for release. Protected review, signed-tag verification, and passing Forgejo CI are not evidenced.
-- Tower-managed staging resources for Typesense `search`, Valkey `cache`, and S3 `release-evidence` have been reconciled. Coolify application `ngqtewtqeqhj88v1005a38va` and latest healthy deployment `axrm4kappbnargjw1mbtuie4` run `59c1e2cb8231866729ad3248d763417aa88790f1`; six monitors are active and healthy. The deployment is a direct Coolify build, so no hosted OCI digest/SBOM receipt is claimed.
-- Staging route probes for `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/feeds/rss.xml`, `/api/search`, `/robots.txt`, `/sitemap.xml`, and `/design-system` returned 200. The staging health payload reports the follow-up release identity, but canonical/feed/robots/sitemap output still falls back to `http://localhost:3000` because Tower rejected `NEXT_PUBLIC_SITE_URL` as a public project variable.
+- A private Forgejo repository exists at `https://git.tower/callum/paperandslate-web.git`; the exact candidate branch source is pushed. Protected review, signed-tag verification, and passing Forgejo CI are not evidenced: runs 25–27 failed and no task-level jobs were exposed through Tower.
+- Tower-managed staging resources for Typesense `search`, Valkey `cache`, and S3 `release-evidence` have been reconciled. Coolify application `ngqtewtqeqhj88v1005a38va` and deployment `zzpooecepztro4urk5sx6obv` run the exact candidate; six monitors have fresh healthy probes. The deployment remains a direct Coolify build, so no hosted OCI digest/SBOM receipt is claimed.
+- Exact staging publication checks for `/`, `/projects`, `/standards/changes`, the three feeds, robots, sitemap, AI outputs, projects JSON, and search returned valid 200 responses with no localhost leakage. The health payload reports staging identity, release, and SHA. Typesense is empty/static-fallback; S3/Valkey resource probes pass, but app-level provider evidence remains open.
 
 ## 2. Owner actions, in order
 
@@ -71,8 +73,8 @@ Required return: provider/project/region IDs, non-secret endpoint/collection/for
 1. Confirm the canonical private Forgejo URL and owner/team.
 2. Approve default branch, protected branch, merge method, required checks/reviewers, CODEOWNERS, signed commit/tag policy, secret scanning, and release permissions.
 3. Explicitly authorize the exact mutations: final commit, push, branch/PR, branch protection, RC tag, registry publication, and release evidence upload.
-4. Treat `v1.0.0-rc.1` as immutable at `031b544...`; do not move or overwrite it. If the `59c1e2c...` staging fix is the release source, authorize a new RC tag after the remaining gates pass. Do not authorize final `v1.0.0` as part of this task.
-5. Return the exact commit SHA, PR/review ID, tag/signature verification result, and CI run IDs. Current private Forgejo runs 10–19 are failed and have no task logs exposed through Tower; do not treat them as passing evidence.
+4. Treat `v1.0.0-rc.1` as immutable at `031b544...`; do not move or overwrite it. If the `7aaa9b4...` candidate is accepted after the remaining gates pass, authorize a new immutable RC2 tag. Do not authorize final `v1.0.0` as part of this task.
+5. Return the exact commit SHA, PR/review ID, tag/signature verification result, and CI run IDs. Current exact-candidate Forgejo runs 25–27 are failed and have no task-level jobs exposed through Tower; do not treat them as passing evidence until the full Forgejo UI/task logs are inspected.
 
 Codex can commit/push/tag only within the exact authority granted, inspect the private Forgejo receipt, and bind all evidence to the SHA. A repository grant does not grant deployment or DNS authority.
 
@@ -81,7 +83,7 @@ Codex can commit/push/tag only within the exact authority granted, inspect the p
 1. Confirm the Tower instance, project, staging environment, server/cluster, network, registry, application name, resource limits, replicas, health path, log destination, and secret bindings. The existing non-secret workload is application `ngqtewtqeqhj88v1005a38va`.
 2. Re-check the known non-secret target: project `rggf2bl4tdww50yu6h58czg2`, staging environment `l56i154xmd5r4ywgc9ez2ce3`, target `tower-staging`. Treat these as revalidated facts, not permanent assumptions.
 3. Approve a staging hostname and HTTPS policy. Production is a separate approval and is outside this task.
-4. For any further staging mutation, explicitly authorize the non-secret variable change, secret-name binding, provider activation, registry publication, monitor change, or redeployment of the exact reviewed commit. The current deployment was authorized and completed at `axrm4kappbnargjw1mbtuie4` for `59c1e2cb...`.
+4. For any further staging mutation, explicitly authorize the non-secret variable change, secret-name binding, provider activation, registry publication, monitor change, or redeployment of the exact reviewed commit. The current candidate deployment was authorized and completed at `zzpooecepztro4urk5sx6obv` for `7aaa9b4...`.
 5. Return application ID, deployment ID, hosted image digest if the workload is registry-backed, health receipt, source SHA, and environment name. The current direct-build deployment has no hosted OCI digest to return.
 
 Codex can validate the manifest, create/adopt the staging workload, configure non-secret variables, bind approved secret names, deploy the exact commit, run route/browser/feed checks, and package redacted receipts. Codex must stop before production.
@@ -104,7 +106,7 @@ Codex can validate DNS propagation, HTTPS redirects, certificate chain/expiry, C
 5. Authorize an A→B→A staging drill using two immutable deployments. Record both deployment IDs/digests, probe results before/after, restored health, and operator/time.
 6. Identify who may trigger production rollback. Production drills remain separately authorized and are not performed here.
 
-Current state: all six staging monitors are active and currently healthy, but the earlier deployment failures left active historical SLO-budget alerts (availability history around 4.5%). The first RC1 deployment was automatically rolled back by Coolify because the image lacked `curl`/`wget`; this is evidence of a health-check rollback, not the required A→B→A drill. Codex can create/probe authorized Tower monitors, read bounded logs/status, run the staging drill, compare digests, and assemble the incident/rollback receipt after two approved immutable deployments exist.
+Current state: all six staging monitors have fresh healthy probes, but the available SLO is a degraded historical 24-hour window (synthetic availability about 63.5% against a 99% target), not a release-specific clean window. The first RC1 deployment was automatically rolled back by Coolify because the image lacked `curl`/`wget`; this is evidence of health-check recovery, not the required A→B→A drill. The monitor listing also needs controller review because multiple paths appeared as `/`. Codex can create/probe authorized Tower monitors, read bounded logs/status, run the staging drill, compare digests, and assemble the incident/rollback receipt after two approved immutable deployments exist.
 
 ### I. SBOM, vulnerabilities, signing, and release identity
 

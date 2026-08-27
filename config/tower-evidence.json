@@ -1,23 +1,112 @@
 {
   "schemaVersion": 1,
-  "status": "pending",
-  "capturedAt": null,
-  "capturedBy": "Tower structured/redacted APIs",
+  "status": "degraded",
+  "capturedAt": "2026-08-27T23:34:18.8439809Z",
+  "capturedBy": "Tower structured/redacted APIs and exact-SHA staging evidence",
   "project": {
     "slug": "paper-and-slate-web",
     "environment": "staging",
-    "applicationId": null,
+    "applicationId": "ngqtewtqeqhj88v1005a38va",
     "host": "https://paper-and-slate-web.dev.tower"
   },
-  "source": null,
-  "repository": null,
-  "ci": null,
-  "staging": null,
-  "hostedLighthouse": null,
-  "providers": null,
-  "monitoring": null,
+  "source": {
+    "sha": "7aaa9b45ba0b6264d089eb530ecfd471a8e2008b",
+    "branch": "release/v1-closure",
+    "releaseId": "v1.0.0-rc.2",
+    "rcTag": null
+  },
+  "repository": {
+    "status": "passed",
+    "branch": "release/v1-closure",
+    "remoteSha": "7aaa9b45ba0b6264d089eb530ecfd471a8e2008b",
+    "rc1Sha": "031b5447786f9c619288c9044bb5bc65319a30d7"
+  },
+  "ci": {
+    "status": "failed",
+    "runId": "36",
+    "workflow": "quality.yml",
+    "sha": "7aaa9b45ba0b6264d089eb530ecfd471a8e2008b",
+    "artifacts": []
+  },
+  "staging": {
+    "status": "passed",
+    "deploymentId": "zzpooecepztro4urk5sx6obv",
+    "sourceSha": "7aaa9b45ba0b6264d089eb530ecfd471a8e2008b",
+    "releaseId": "v1.0.0-rc.2",
+    "url": "https://paper-and-slate-web.dev.tower",
+    "healthStatus": "passed",
+    "smokeStatus": "passed"
+  },
+  "hostedLighthouse": {
+    "status": "passed",
+    "target": "https://paper-and-slate-web.dev.tower",
+    "sourceSha": "7aaa9b45ba0b6264d089eb530ecfd471a8e2008b",
+    "releaseId": "v1.0.0-rc.2",
+    "reportCount": 12,
+    "evidencePath": ".generated/launch/lighthouse-staging/lighthouse-run.json"
+  },
+  "providers": {
+    "typesense": {
+      "status": "degraded",
+      "mode": "search-only",
+      "searchStatus": "degraded",
+      "fallbackStatus": "passed",
+      "facetsStatus": "pending",
+      "rankingStatus": "pending",
+      "aliasStatus": "pending",
+      "previewExclusionStatus": "pending"
+    },
+    "valkey": {
+      "status": "degraded",
+      "roundtripStatus": "passed",
+      "ttlStatus": "pending",
+      "idempotencyStatus": "pending",
+      "rateLimitStatus": "pending",
+      "failureStatus": "pending"
+    },
+    "s3": {
+      "status": "passed",
+      "roundtripStatus": "passed"
+    },
+    "glitchtip": {
+      "status": "degraded",
+      "eventStatus": "degraded"
+    }
+  },
+  "monitoring": {
+    "status": "degraded",
+    "probeStatus": "passed",
+    "monitorIds": [
+      "466b911c-5fee-48cc-b0c9-cf7faeb6e6f2",
+      "58a88f60-2183-48e9-8f38-69cf81f43e1c",
+      "ea56c3ff-7b67-471c-be9b-2b7015bc2c2f",
+      "5c6716bf-67db-4e76-887a-61896934364b",
+      "a11b4696-54c5-41c6-95ac-9a9d2f33bdd4",
+      "ac495eb1-4a12-4256-944a-7c338a8fa9f4"
+    ],
+    "sloWindow": "24h historical (not release-specific)",
+    "sloStatus": "degraded"
+  },
   "artifact": null,
   "rollback": null,
-  "publication": null,
-  "notes": "Replace pending fields only with redacted, structured Tower receipts. Never store credentials, tokens, DSNs, API keys, or private URLs here."
+  "publication": {
+    "status": "passed",
+    "sourceSha": "7aaa9b45ba0b6264d089eb530ecfd471a8e2008b",
+    "routes": [
+      "/",
+      "/projects",
+      "/standards/changes",
+      "/feeds/rss.xml",
+      "/feeds/atom.xml",
+      "/feeds/feed.json",
+      "/robots.txt",
+      "/sitemap.xml",
+      "/llms.txt",
+      "/llms-full.txt",
+      "/projects.json",
+      "/api/search?q=paper"
+    ],
+    "feedStatus": "passed"
+  },
+  "notes": "Exact-SHA staging deployment, health identity, smoke, publication/feed, and hosted Lighthouse evidence passed for the v1.0.0-rc.2 candidate. CI runs 25-27 for this SHA failed and exposed no task-level jobs through Tower. Typesense is empty and the application remains on static fallback; Valkey has a resource roundtrip only; the final exact-SHA GlitchTip event is not evidenced. Fresh monitor probes passed, but the available SLO is a degraded historical 24-hour window and monitor route materialization needs controller review. The project registry is empty, so no hosted OCI digest, SBOM, provenance, signature, or A-B-A rollback is claimed. RC1 remains immutable; this candidate is not tagged, production is untouched, and final human approvals remain open."
 }
