@@ -11,6 +11,7 @@ const outputPath = path.join(root, ".generated", "launch", "staging-publication.
 const routeDefinitions = [
   { path: "/", contentType: "text/html" },
   { path: "/projects", contentType: "text/html" },
+  { path: "/standards/changes", contentType: "text/html" },
   { path: "/feeds/rss.xml", contentType: "application/rss+xml" },
   { path: "/feeds/atom.xml", contentType: "application/atom+xml" },
   { path: "/feeds/feed.json", contentType: "application/json" },
