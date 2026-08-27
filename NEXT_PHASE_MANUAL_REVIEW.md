@@ -114,7 +114,7 @@ Current state: all six staging monitors are active and currently healthy, but th
 4. Require equality across: final Forgejo commit, signed RC tag, CI build, OCI digest, image SBOM, scan report, staged deployment, and rollback artifact.
 5. Return registry image digest, SBOM object IDs, scan result, provenance/signature verification, and CI run ID.
 
-Codex can generate and verify local/authorized artifacts and attach them to the evidence bundle. The post-fix local image digest is `sha256:29b8f73c9274426ced2e10ec7d3c01c1e6b45559dd0473451c848550bc58aa5f`; it is not a hosted immutable registry or deployment receipt. Four development-tool advisory groups remain visible and require owner disposition.
+Codex can generate and verify local/authorized artifacts and attach them to the evidence bundle. The current post-fix local image digest is `sha256:f3b81557b62784ec77202ef7a698f10059597257a347dfe72f7f62fef2ddc70f`; it is not a hosted immutable registry or deployment receipt. Four development-tool advisory groups remain visible and require owner disposition.
 
 ### J. Publication, syndication, and feed acceptance
 

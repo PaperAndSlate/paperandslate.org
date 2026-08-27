@@ -226,7 +226,7 @@ Owner steps:
 
 Return: registry URL/policy, release policy, signer identity policy, vulnerability policy, exception records, and publication authority.
 
-After receipt, Codex can generate lockfile and image SBOMs, scan dependencies/filesystem/container, create provenance, sign/verify using the authorized mechanism, publish to the approved registry, and prove deployed digest equality. The current local post-fix image digest is `sha256:29b8f73c9274426ced2e10ec7d3c01c1e6b45559dd0473451c848550bc58aa5f`; local SBOM and image evidence are recorded in `.generated/launch/`, but the registry is currently empty and no signed hosted release is claimed.
+After receipt, Codex can generate lockfile and image SBOMs, scan dependencies/filesystem/container, create provenance, sign/verify using the authorized mechanism, publish to the approved registry, and prove deployed digest equality. The current post-fix local image digest is `sha256:f3b81557b62784ec77202ef7a698f10059597257a347dfe72f7f62fef2ddc70f`; local SBOM and image evidence are recorded in `.generated/launch/`, but the registry is currently empty and no signed hosted release is claimed.
 
 ## 11. Publication, syndication, and feed validation
 
