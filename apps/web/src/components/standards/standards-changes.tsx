@@ -5,6 +5,9 @@ export function StandardsChanges({ result }: { result: StandardsChangesResult })
     return (
       <section className="standards-detail">
         <p className="standards-empty info-card">{result.unavailable}</p>
+        <p className="standards-disclaimer">
+          Fixture-only · rights denied · non-public · no full text · no raw bytes.
+        </p>
       </section>
     );
   return (
