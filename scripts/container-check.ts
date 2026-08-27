@@ -20,6 +20,7 @@ type ContainerEvidence = {
   imageId?: string | null;
   repoDigests?: string[];
   runtimeUid?: string | null;
+  healthcheckClient?: string | null;
   health?: { releaseId?: string; gitSha?: string; status?: string } | null;
   healthcheck?: string[] | null;
   error?: string;
@@ -91,6 +92,19 @@ async function main() {
   const repoDigests = inspect[0]?.RepoDigests ?? [];
   if (!config || config.User !== "node" || !config.Healthcheck?.Test?.length)
     throw new Error("Container image must run as node and declare a healthcheck");
+  const healthcheckClient = (
+    await run([
+      "run",
+      "--rm",
+      "--entrypoint",
+      "sh",
+      image,
+      "-c",
+      "command -v curl || command -v wget",
+    ])
+  ).trim();
+  if (!healthcheckClient)
+    throw new Error("Container image must include curl or wget for HTTP health probes");
   const child = spawn(
     docker,
     [
@@ -129,6 +143,7 @@ async function main() {
       imageId,
       repoDigests,
       runtimeUid: identity,
+      healthcheckClient,
       health,
       healthcheck: config.Healthcheck?.Test ?? null,
     });

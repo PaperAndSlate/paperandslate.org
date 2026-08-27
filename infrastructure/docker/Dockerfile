@@ -25,6 +25,13 @@ ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
 ENV PORT=3000
 
+# Coolify's in-container HTTP health probe uses curl or wget even when the
+# image declares a native Docker healthcheck. Keep the runtime image slim, but
+# provide the probe client required by the staging deployment contract.
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends curl \
+  && rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /workspace/apps/web/.next/standalone ./
 COPY --from=builder /workspace/apps/web/.next/static ./apps/web/.next/static
 COPY --from=builder /workspace/apps/web/public ./apps/web/public
