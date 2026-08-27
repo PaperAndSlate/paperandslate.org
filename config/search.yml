@@ -8,5 +8,5 @@ facets:
   - type
   - source
 typesense:
-  activation: explicit SEARCH_PROVIDER=typesense plus endpoint and key
+  activation: explicit SEARCH_PROVIDER=typesense plus endpoint and search-only key
   collection: search_records

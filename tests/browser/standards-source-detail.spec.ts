@@ -26,7 +26,7 @@ test.describe("public Standards source detail", () => {
     await expect(page.locator("main")).toContainText("source-iowa-mathematics-research");
     await expect(page.locator("main")).toContainText(release);
     await expect(page.locator("main")).toContainText(/fixture-only/i);
-    await expect(page.locator("main")).toContainText("metadata only");
+    await expect(page.locator("main")).toContainText("Metadata only.");
     await expect(page.locator("main")).toContainText("Rights and availability");
     await expect(page.locator("main")).toContainText("Provenance");
     await expect(page.locator("main")).not.toContainText("rawBytes");

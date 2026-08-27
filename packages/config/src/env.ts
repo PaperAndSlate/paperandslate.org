@@ -19,6 +19,7 @@ export const envSchema = z.object({
   SEARCH_PROVIDER: z.enum(["static", "typesense"]).default("static"),
   TYPESENSE_ENDPOINT: z.string().url().optional(),
   TYPESENSE_API_KEY: z.string().optional(),
+  TYPESENSE_SEARCH_API_KEY: z.string().optional(),
   TYPESENSE_COLLECTION: z.string().default("search_records"),
   TYPESENSE_INDEX_ID: z.string().optional(),
   GLITCHTIP_DSN: z.string().url().optional(),

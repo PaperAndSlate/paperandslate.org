@@ -87,6 +87,7 @@ spec:
       - NEWSLETTER_BODY_LIMIT_BYTES
     secret:
       - TYPESENSE_API_KEY
+      - TYPESENSE_SEARCH_API_KEY
       - VALKEY_URL
       - KIT_API_KEY
       - KIT_FORM_ID
