@@ -41,6 +41,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/standards/explore",
     "/standards/coverage",
     "/standards/compare",
+    "/standards/changes",
     "/standards/sources",
     "/standards/frameworks",
     "/docs",

@@ -41,6 +41,17 @@ export default function StandardsLanding() {
           </Link>
         </article>
         <article>
+          <p className="eyebrow">History</p>
+          <h2>Track candidate changes.</h2>
+          <p>
+            Review release-pinned metadata changes while keeping historical identities and rights
+            limits visible.
+          </p>
+          <Link className="button button-light" href="/standards/changes">
+            View changes
+          </Link>
+        </article>
+        <article>
           <p className="eyebrow">Trust and limits</p>
           <h2>Start with the source.</h2>
           <p>

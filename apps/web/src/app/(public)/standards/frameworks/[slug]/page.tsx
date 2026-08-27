@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageHeader } from "../../../../../components/page-primitives";
+import Link from "next/link";
 import { StandardsFrameworkDetail } from "../../../../../components/standards/standards-framework-detail";
 import { getStandardsFrameworkDetail } from "../../../../../lib/standards-api";
 
@@ -22,6 +23,11 @@ export default async function StandardsFrameworkPage({
       <PageHeader eyebrow="Standards / Frameworks" title="Framework detail.">
         Inspect the pinned candidate projection, native hierarchy, source record, and rights limits.
       </PageHeader>
+      <p>
+        <Link className="button button-light" href="/standards/changes">
+          View candidate change history
+        </Link>
+      </p>
       <StandardsFrameworkDetail detail={detail} />
     </main>
   );

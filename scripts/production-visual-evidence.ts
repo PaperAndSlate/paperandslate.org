@@ -232,10 +232,12 @@ async function setTheme(page: Page, theme: MatrixItem["theme"]) {
   }, theme);
   const control = page.locator('select[aria-label="Color theme"]:visible').first();
   if (await control.count()) await control.selectOption(theme);
+  await page.waitForTimeout(250);
 }
 
 async function capturePage(page: Page, item: MatrixItem, outputPath: string): Promise<Capture> {
   const runtimeErrors: string[] = [];
+  let searchInteractionOpen = false;
   page.removeAllListeners("console");
   page.removeAllListeners("pageerror");
   page.removeAllListeners("requestfailed");
@@ -263,8 +265,15 @@ async function capturePage(page: Page, item: MatrixItem, outputPath: string): Pr
       .getByText(/result/i)
       .first()
       .waitFor({ state: "visible" });
+    searchInteractionOpen = true;
   }
-  await page.screenshot({ path: outputPath, fullPage: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(50);
+  await page.screenshot({ path: outputPath, fullPage: !searchInteractionOpen });
+  if (searchInteractionOpen) {
+    await page.getByRole("button", { name: "Close search" }).click();
+    await page.locator(".search-dialog").waitFor({ state: "hidden" });
+  }
   const screenshotBytes = (await stat(outputPath)).size;
   const screenshotSha256 = createHash("sha256").update(readFileSync(outputPath)).digest("hex");
   const referenceAbsolute = path.join(root, item.referencePath);
@@ -315,16 +324,21 @@ async function main() {
     }
     await waitForServer(`${baseUrl}/health`);
     const health = (await (await fetch(`${baseUrl}/health`)).json()) as {
+      status?: string;
+      deployment?: string;
       releaseId?: string;
       gitSha?: string;
     };
+    const expectedGitSha = process.env.GIT_SHA ?? git(["rev-parse", "HEAD"]);
     if (
-      !externalBaseUrl &&
-      (health.releaseId !== releaseId ||
-        health.gitSha !== (process.env.GIT_SHA ?? git(["rev-parse", "HEAD"])))
+      health.status !== "ok" ||
+      health.releaseId !== releaseId ||
+      health.gitSha !== expectedGitSha ||
+      (process.env.PRODUCTION_VISUAL_EXPECTED_DEPLOYMENT &&
+        health.deployment !== process.env.PRODUCTION_VISUAL_EXPECTED_DEPLOYMENT)
     )
       throw new Error(
-        `Visual target identity mismatch: ${health.releaseId ?? "missing"}/${health.gitSha ?? "missing"}`,
+        `Visual target identity mismatch: ${health.deployment ?? "missing"}/${health.releaseId ?? "missing"}/${health.gitSha ?? "missing"}`,
       );
     browser = await chromium.launch({ headless: true, executablePath: systemChromeCandidates[0] });
     const page = await browser.newPage();
@@ -349,7 +363,7 @@ async function main() {
           ? "human-review-pending"
           : "failed",
       releaseId,
-      gitSha: process.env.GIT_SHA ?? git(["rev-parse", "HEAD"]),
+      gitSha: expectedGitSha,
       target: baseUrl,
       generatedAt: new Date().toISOString(),
       referencePolicy:

@@ -17,9 +17,10 @@ const releaseId = process.env.RELEASE_ID ?? "unknown-release";
 const expectedGitSha = process.env.GIT_SHA ?? "";
 
 type Health = {
+  status?: string;
   releaseId?: string;
   gitSha?: string;
-  environment?: string;
+  deployment?: string;
 };
 
 type StagingRunManifest = {
@@ -45,6 +46,8 @@ function requireStagingUrl() {
     throw new Error("Hosted Lighthouse requires an HTTPS staging URL");
   if (!parsed.hostname.endsWith(".dev.tower"))
     throw new Error("Hosted Lighthouse is restricted to managed .dev.tower staging hosts");
+  if (parsed.pathname !== "/")
+    throw new Error("STAGING_URL must be the managed staging origin without a path");
   if (parsed.username || parsed.password || parsed.search || parsed.hash)
     throw new Error("STAGING_URL must not contain credentials, query parameters, or fragments");
   return parsed;
@@ -114,6 +117,7 @@ async function main() {
   });
 
   const health = await waitForHealth(`${base.origin}/health`);
+  if (health.status !== "ok") throw new Error("Staging health did not report status=ok");
   if (!health.releaseId || !health.gitSha)
     throw new Error("Staging health did not return releaseId and gitSha");
   if (process.env.RELEASE_ID && health.releaseId !== process.env.RELEASE_ID)
@@ -124,8 +128,8 @@ async function main() {
     throw new Error(
       `Staging Git identity mismatch: expected ${expectedGitSha}, got ${health.gitSha}`,
     );
-  if (health.environment && health.environment !== "staging")
-    throw new Error(`Staging environment identity mismatch: got ${health.environment}`);
+  if (health.deployment !== "staging")
+    throw new Error(`Staging environment identity mismatch: got ${health.deployment ?? "missing"}`);
 
   const template = JSON.parse(await readFile(path.join(root, "lighthouserc.json"), "utf8")) as {
     ci: {
@@ -146,7 +150,7 @@ async function main() {
     releaseId: health.releaseId,
     gitSha: health.gitSha,
     deploymentId: process.env.STAGING_DEPLOYMENT_ID ?? null,
-    environment: health.environment ?? process.env.DEPLOYMENT_ENV ?? "staging",
+    environment: health.deployment ?? "staging",
     configuredUrls,
     health,
   });
@@ -172,7 +176,7 @@ async function main() {
       releaseId: health.releaseId,
       gitSha: health.gitSha,
       deploymentId: process.env.STAGING_DEPLOYMENT_ID ?? null,
-      environment: health.environment ?? process.env.DEPLOYMENT_ENV ?? "staging",
+      environment: health.deployment ?? "staging",
       configuredUrls,
       reportCount,
       health,
@@ -195,7 +199,7 @@ main().catch(async (error) => {
       status: "failed",
       startedAt: new Date().toISOString(),
       finishedAt: new Date().toISOString(),
-      targetUrl: base?.origin ?? stagingUrl ?? "missing",
+      targetUrl: base?.origin ?? (stagingUrl ? "invalid" : "missing"),
       releaseId,
       gitSha: expectedGitSha,
       deploymentId: process.env.STAGING_DEPLOYMENT_ID ?? null,

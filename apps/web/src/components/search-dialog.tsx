@@ -3,6 +3,7 @@
 import { MagnifyingGlass, ArrowUp, ArrowDown, ArrowElbowDownLeft, X } from "@phosphor-icons/react";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { SearchResponse, SearchResult } from "@paper-and-slate/search";
 
 const typeLabels: Record<string, string> = {
@@ -36,6 +37,119 @@ export function SearchDialog() {
 
   const results = response?.results ?? [];
   const groups = useMemo(() => grouped(results), [results]);
+
+  const dialog = open ? (
+    <div
+      className="search-dialog"
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) setOpen(false);
+      }}
+    >
+      <div
+        ref={dialogRef}
+        className="search-dialog-inner"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="search-title"
+        aria-describedby="search-help"
+      >
+        <div className="dialog-heading">
+          <div>
+            <p className="eyebrow">Find the work</p>
+            <h2 id="search-title">Search Paper &amp; Slate</h2>
+          </div>
+          <button
+            className="dialog-close"
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close search"
+          >
+            <X aria-hidden size={20} />
+          </button>
+        </div>
+        <form
+          action="/search"
+          onSubmit={(event) => {
+            if (!q.trim()) event.preventDefault();
+          }}
+        >
+          <label className="sr-only" htmlFor="global-search">
+            Search projects, docs, governance, and news
+          </label>
+          <div className="search-input-wrap">
+            <MagnifyingGlass aria-hidden size={19} />
+            <input
+              ref={inputRef}
+              id="global-search"
+              name="q"
+              value={q}
+              onChange={(event) => setQ(event.target.value.slice(0, 120))}
+              placeholder="Search projects, docs, governance…"
+              maxLength={120}
+              autoComplete="off"
+            />
+          </div>
+          <button className="button button-dark" type="submit">
+            Search <ArrowElbowDownLeft aria-hidden size={16} />
+          </button>
+        </form>
+        <p id="search-help" className="muted">
+          {loading
+            ? "Searching…"
+            : response
+              ? `${response.total} result${response.total === 1 ? "" : "s"} · ${response.provider}${response.degraded ? " · fallback" : ""}`
+              : "Type to search. Use ↑ and ↓ to move through results."}
+        </p>
+        {q.trim() ? (
+          <Link className="search-all-results" href={`/search?q=${encodeURIComponent(q.trim())}`}>
+            View results →
+          </Link>
+        ) : null}
+        {q.trim() && !loading && response && results.length === 0 ? (
+          <div className="search-empty">
+            <strong>No matching records</strong>
+            <span>Try a project name, RFC number, or broader phrase.</span>
+          </div>
+        ) : null}
+        {Object.entries(groups).map(([type, items]) => (
+          <section key={type} className="search-group" aria-labelledby={`search-group-${type}`}>
+            <h3 id={`search-group-${type}`}>{typeLabels[type] ?? type}</h3>
+            <ul role="listbox" aria-label={typeLabels[type] ?? type}>
+              {items.map((result) => {
+                const index = results.indexOf(result);
+                return (
+                  <li key={result.id} role="option" aria-selected={index === activeIndex}>
+                    <Link
+                      href={result.route}
+                      onClick={() => setOpen(false)}
+                      onMouseEnter={() => setActiveIndex(index)}
+                    >
+                      <span>
+                        <strong>{result.title}</strong>
+                        <small>{result.snippet}</small>
+                      </span>
+                      <ArrowElbowDownLeft aria-hidden size={15} />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))}
+        <div className="search-keys" aria-hidden="true">
+          <span>
+            <ArrowUp size={13} />
+            <ArrowDown size={13} /> Navigate
+          </span>
+          <span>
+            <ArrowElbowDownLeft size={13} /> Open
+          </span>
+          <span>Esc Close</span>
+        </div>
+      </div>
+    </div>
+  ) : null;
 
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -151,121 +265,7 @@ export function SearchDialog() {
         <MagnifyingGlass aria-hidden size={17} /> <span>Search</span>{" "}
         <kbd aria-hidden="true">⌘/Ctrl K</kbd>
       </button>
-      {open && (
-        <div
-          className="search-dialog"
-          role="presentation"
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) setOpen(false);
-          }}
-        >
-          <div
-            ref={dialogRef}
-            className="search-dialog-inner"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="search-title"
-            aria-describedby="search-help"
-          >
-            <div className="dialog-heading">
-              <div>
-                <p className="eyebrow">Find the work</p>
-                <h2 id="search-title">Search Paper &amp; Slate</h2>
-              </div>
-              <button
-                className="dialog-close"
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="Close search"
-              >
-                <X aria-hidden size={20} />
-              </button>
-            </div>
-            <form
-              action="/search"
-              onSubmit={(event) => {
-                if (!q.trim()) event.preventDefault();
-              }}
-            >
-              <label className="sr-only" htmlFor="global-search">
-                Search projects, docs, governance, and news
-              </label>
-              <div className="search-input-wrap">
-                <MagnifyingGlass aria-hidden size={19} />
-                <input
-                  ref={inputRef}
-                  id="global-search"
-                  name="q"
-                  value={q}
-                  onChange={(event) => setQ(event.target.value.slice(0, 120))}
-                  placeholder="Search projects, docs, governance…"
-                  maxLength={120}
-                  autoComplete="off"
-                />
-              </div>
-              <button className="button button-dark" type="submit">
-                Search <ArrowElbowDownLeft aria-hidden size={16} />
-              </button>
-            </form>
-            <p id="search-help" className="muted">
-              {loading
-                ? "Searching…"
-                : response
-                  ? `${response.total} result${response.total === 1 ? "" : "s"} · ${response.provider}${response.degraded ? " · fallback" : ""}`
-                  : "Type to search. Use ↑ and ↓ to move through results."}
-            </p>
-            {q.trim() ? (
-              <Link
-                className="search-all-results"
-                href={`/search?q=${encodeURIComponent(q.trim())}`}
-              >
-                View results →
-              </Link>
-            ) : null}
-            {q.trim() && !loading && response && results.length === 0 ? (
-              <div className="search-empty">
-                <strong>No matching records</strong>
-                <span>Try a project name, RFC number, or broader phrase.</span>
-              </div>
-            ) : null}
-            {Object.entries(groups).map(([type, items]) => (
-              <section key={type} className="search-group" aria-labelledby={`search-group-${type}`}>
-                <h3 id={`search-group-${type}`}>{typeLabels[type] ?? type}</h3>
-                <ul role="listbox" aria-label={typeLabels[type] ?? type}>
-                  {items.map((result) => {
-                    const index = results.indexOf(result);
-                    return (
-                      <li key={result.id} role="option" aria-selected={index === activeIndex}>
-                        <Link
-                          href={result.route}
-                          onClick={() => setOpen(false)}
-                          onMouseEnter={() => setActiveIndex(index)}
-                        >
-                          <span>
-                            <strong>{result.title}</strong>
-                            <small>{result.snippet}</small>
-                          </span>
-                          <ArrowElbowDownLeft aria-hidden size={15} />
-                        </Link>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
-            ))}
-            <div className="search-keys" aria-hidden="true">
-              <span>
-                <ArrowUp size={13} />
-                <ArrowDown size={13} /> Navigate
-              </span>
-              <span>
-                <ArrowElbowDownLeft size={13} /> Open
-              </span>
-              <span>Esc Close</span>
-            </div>
-          </div>
-        </div>
-      )}
+      {dialog && typeof document !== "undefined" ? createPortal(dialog, document.body) : null}
     </>
   );
 }

@@ -39,6 +39,7 @@
     "visual:check": "playwright test tests/browser/visual.spec.ts",
     "lighthouse": "tsx scripts/lighthouse.ts",
     "lighthouse:staging": "tsx scripts/lighthouse-staging.ts",
+    "staging:publication": "tsx scripts/staging-publication-check.ts",
     "container:check": "tsx scripts/container-check.ts",
     "wrappers:failure": "tsx scripts/wrapper-failure-fixture.ts",
     "sbom:generate": "tsx scripts/sbom.ts",

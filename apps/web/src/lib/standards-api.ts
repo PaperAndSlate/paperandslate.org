@@ -229,6 +229,22 @@ export type StandardsComparisonResult = {
   candidateOnly: boolean;
   unavailable?: string;
 };
+export type StandardsChange = {
+  id: string;
+  fromCandidateReleaseId: string;
+  toCandidateReleaseId: string;
+  changeClass: "issuer-change" | "processing-correction";
+  sourceLocator?: string;
+  provenance?: Record<string, unknown>;
+  candidateOnly: boolean;
+  public: boolean;
+  stable: boolean;
+};
+export type StandardsChangesResult = {
+  changes: StandardsChange[];
+  releaseId: string;
+  unavailable?: string;
+};
 
 const DEFAULT_STANDARDS_RELEASE = "standards-2026.08.0-preview";
 const RELEASE_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
@@ -984,6 +1000,59 @@ export async function getStandardsCoverage(): Promise<StandardsCoverageResult> {
       unavailable:
         "Standards coverage is temporarily unavailable. No unverified local data is shown.",
     };
+  }
+}
+
+export async function getStandardsChanges(
+  frameworkId = "framework-iowa-mathematics",
+): Promise<StandardsChangesResult> {
+  const releaseId = "candidate-ia-mathematics-fixture-2026";
+  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const unavailable =
+    "Standards change history is unavailable until the candidate API release is configured.";
+  if (!baseUrl) return { changes: [], releaseId, unavailable };
+  try {
+    const url = new URL(
+      `/v1/framework-versions/${encodeURIComponent(frameworkId)}/changes`,
+      baseUrl,
+    );
+    url.searchParams.set("release", releaseId);
+    const payload = (await (await standardsFetch(url, [releaseId])).json()) as {
+      data?: unknown;
+      meta?: Record<string, unknown>;
+    };
+    const meta = payload.meta ?? {};
+    const apiRelease = stringValue(meta.release) ?? stringValue(meta.standardsRelease) ?? releaseId;
+    if (apiRelease !== releaseId) throw new Error("Standards changes release mismatch");
+    const changes = Array.isArray(payload.data)
+      ? payload.data
+          .map((item) => {
+            const row = objectValue(item);
+            return {
+              id: stringValue(row.id) ?? "",
+              fromCandidateReleaseId: stringValue(row.fromCandidateReleaseId) ?? "",
+              toCandidateReleaseId: stringValue(row.toCandidateReleaseId) ?? "",
+              changeClass:
+                row.changeClass === "issuer-change" ? "issuer-change" : "processing-correction",
+              sourceLocator: sourceLocatorValue(row.sourceLocator),
+              provenance: objectValue(row.provenance),
+              candidateOnly: row.candidateOnly === true,
+              public: row.public === true,
+              stable: row.stable === true,
+            } satisfies StandardsChange;
+          })
+          .filter(
+            (item) =>
+              item.id &&
+              item.toCandidateReleaseId === releaseId &&
+              item.candidateOnly &&
+              !item.public &&
+              !item.stable,
+          )
+      : [];
+    return { changes, releaseId };
+  } catch {
+    return { changes: [], releaseId, unavailable };
   }
 }
 

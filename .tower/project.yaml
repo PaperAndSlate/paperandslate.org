@@ -77,6 +77,7 @@ spec:
       - NEXT_PUBLIC_SITE_URL
       - RELEASE_ID
       - GIT_SHA
+      - DEPLOYMENT_ENV
       - PUBLICATION_AS_OF
     optional:
       - SEARCH_PROVIDER
