@@ -1,7 +1,7 @@
 # Paper & Slate release-evidence handoff
 
 Date: 2026-08-27
-Status: local remediation evidence available; owner, qualified-reviewer, and hosted-staging input required
+Status: RC1 and authorized staging evidence available; closure still requires owner/qualified-reviewer decisions, provider credentials, passing private CI, canonical URL configuration, hosted artifact identity, and rollback/publication evidence
 Related audit: [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md)
 
 This file is the current action list for work that cannot be truthfully completed from the local workspace alone. It states the purpose, the exact owner/reviewer action, the evidence to return, and what Codex can do after that evidence or authority exists.
@@ -17,7 +17,7 @@ Never put passwords, API keys, private keys, personal data, legal contracts, or 
 
 Codex can inventory, draft, automate, validate, capture, compare, and assemble evidence. Codex cannot grant legal/factual/media approval, invent organizational facts, create authority, choose a provider policy on the owner's behalf, or silently perform production-impacting mutations.
 
-Current non-secret state: a private Forgejo repository exists at `https://git.tower/callum/paperandslate-web.git`; `main` and `release/v1-closure` contain the baseline source commit, and the current remediation changes are still local until the final source review/commit. Tower-managed staging resources for Typesense `search`, Valkey `cache`, and S3 `release-evidence` have been applied. No RC tag, protected PR, hosted image, Coolify application, staging deployment, DNS/TLS change, provider credential, or production action is claimed by this handoff.
+Current non-secret state: a private Forgejo repository exists at `https://git.tower/callum/paperandslate-web.git`. Immutable tag `v1.0.0-rc.1` points to `031b5447786f9c619288c9044bb5bc65319a30d7`; follow-up commit `59c1e2cb8231866729ad3248d763417aa88790f1` is pushed to `release/v1-closure` and fixes the Coolify health-probe dependency, but is not yet a new RC tag. Tower-managed Typesense `search`, Valkey `cache`, and S3 `release-evidence` resources are applied. Coolify application `ngqtewtqeqhj88v1005a38va` is healthy at latest deployment `axrm4kappbnargjw1mbtuie4` on the follow-up SHA, and six staging monitors are active/healthy. No passing Forgejo CI, hosted OCI image/SBOM/provenance receipt, provider credential activation, DNS/TLS change, production action, or A→B→A rollback drill is claimed. Staging canonical output still falls back to `http://localhost:3000` because Tower rejected `NEXT_PUBLIC_SITE_URL` as a public project variable.
 
 ## 1. Appoint accountable reviewers
 
@@ -144,7 +144,7 @@ Required return for all providers: provider/project/region identifiers, non-secr
 
 Purpose: create a verifiable source identity, review path, and protected release process.
 
-Current state: the local Git repository has a private Forgejo remote at `https://git.tower/callum/paperandslate-web.git`, and the baseline has been pushed to `main` and `release/v1-closure`. The remediation tree is not yet the final reviewed commit; there is no RC tag, protected branch/PR receipt, signed tag, or release artifact receipt yet.
+Current state: the private Forgejo remote is `https://git.tower/callum/paperandslate-web.git`; the immutable RC1 tag is `v1.0.0-rc.1` at `031b544...`, and the current follow-up staging fix is `59c1e2c...` on `release/v1-closure`. There is no protected branch/PR receipt, verified signature, passing CI receipt, or hosted release-artifact receipt. Do not move RC1; authorize a new RC tag only after the follow-up source and remaining gates are accepted.
 
 Owner steps:
 
@@ -156,7 +156,7 @@ Owner steps:
 
 Return: canonical URL, authority statement, team/role IDs, branch/release policy, and an exact allowed-action list.
 
-After receipt, Codex can create the authorized source/review workflow, configure CI/CODEOWNERS, produce a commit/tag/PR receipt, and bind release evidence to the source SHA. The private repository creation and baseline push were authorized and completed; final remediation commit/tag/PR actions still require the release owner's exact authorization.
+After receipt, Codex can configure the authorized source/review workflow, configure CI/CODEOWNERS, produce a new commit/tag/PR receipt, and bind release evidence to the source SHA. The private repository, RC1 tag, follow-up branch push, and current branch commit receipt were authorized and completed; protected review, signature verification, passing CI, and any new RC tag still require the release owner's exact authorization.
 
 ## 7. DNS, TLS, and canonical URL authority
 
@@ -179,7 +179,7 @@ After receipt, Codex can validate propagation from multiple resolvers, HTTPS red
 
 Purpose: deploy a reviewed immutable artifact to the correct environment with attributable approvals.
 
-Current non-secret state: `.tower/project.yaml` and `infrastructure/tower/intent.yaml` describe staging only. The Tower controller has a staging server/target and the managed shared resources have been reconciled, but the application workload, registry image, secret bindings, monitors, deployment, and rollback receipt remain pending.
+Current non-secret state: `.tower/project.yaml` and `infrastructure/tower/intent.yaml` describe staging only. The Tower controller has a staging server/target and the managed shared resources have been reconciled. Coolify application `ngqtewtqeqhj88v1005a38va` and deployment `axrm4kappbnargjw1mbtuie4` are healthy on `59c1e2c...`; route/feed/health probes pass and six monitors are active/healthy. The deployment is a direct Coolify build, so the private registry has no corresponding hosted image digest/SBOM receipt. Secret values are not bound, Typesense is unhealthy with HTTP 401, canonical `NEXT_PUBLIC_SITE_URL` is not configured, and the required rollback drill remains pending.
 
 Owner steps:
 
@@ -192,7 +192,7 @@ Owner steps:
 
 Return: target identifiers, role/access confirmation, approved environment contract, window, approver, and exact allowed mutations.
 
-After receipt, Codex can validate the Tower manifest, plan/reconcile resources, create or adopt the staging Coolify workload, configure non-secret variables, bind approved secret names, deploy to authorized staging, run acceptance, record deployment IDs, and promote the identical digest only when separately approved. Production deployment is outside the current authorization.
+After receipt, Codex can validate the Tower manifest, plan/reconcile resources, configure the approved native environment variables, bind approved secret names, deploy to authorized staging, run acceptance, record deployment IDs, and promote the identical digest only when separately approved. Production deployment is outside the current authorization. The current deployment proves staging availability, not release closure, because canonical URL configuration, provider credentials, CI, hosted artifact identity, and rollback evidence remain open.
 
 ## 9. Monitoring, incident response, and rollback
 
@@ -207,7 +207,7 @@ Owner steps:
 5. Approve a staging rollback drill and a separately scheduled production drill with expected impact.
 6. Identify who may trigger rollback and who confirms restoration.
 
-Return: SLO/alert policy, role aliases, privacy settings, monitor IDs/destinations, drill window, known-good release, rollback authority, and incident template.
+Current state: the six staging monitors are active and healthy, but the earlier failed probes left historical SLO-budget alerts active (availability history around 4.5%). The first RC1 Coolify deployment automatically rolled back when its image lacked `curl`/`wget`; the follow-up image includes `curl` and is healthy. Return: SLO/alert policy, role aliases, privacy settings, monitor IDs/destinations, drill window, known-good release, rollback authority, and incident template.
 
 After receipt, Codex can configure health/route/feed/search/newsletter/certificate/error monitors, send a labeled test alert, run the authorized staging drill, verify before/after digests and smoke tests, and package the evidence. Production drills require explicit production-impact authority.
 
@@ -226,7 +226,7 @@ Owner steps:
 
 Return: registry URL/policy, release policy, signer identity policy, vulnerability policy, exception records, and publication authority.
 
-After receipt, Codex can generate lockfile and image SBOMs, scan dependencies/filesystem/container, create provenance, sign/verify using the authorized mechanism, publish to the approved registry, and prove deployed digest equality. The current local SBOM and local image ID/digest are recorded in `.generated/launch/`; they are not a signed hosted release.
+After receipt, Codex can generate lockfile and image SBOMs, scan dependencies/filesystem/container, create provenance, sign/verify using the authorized mechanism, publish to the approved registry, and prove deployed digest equality. The current local post-fix image digest is `sha256:29b8f73c9274426ced2e10ec7d3c01c1e6b45559dd0473451c848550bc58aa5f`; local SBOM and image evidence are recorded in `.generated/launch/`, but the registry is currently empty and no signed hosted release is claimed.
 
 ## 11. Publication, syndication, and feed validation
 

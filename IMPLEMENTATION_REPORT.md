@@ -1,7 +1,7 @@
 # Paper & Slate implementation report
 
 Date: 2026-08-27
-Status: local v1.0.0-rc.1 remediation implemented; hosted staging/release gates remain open
+Status: v1.0.0-rc.1 source remediation verified; post-RC staging health-probe fix is deployed, while hosted release gates remain open
 Current source of truth: [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md)
 
 This report records the implementation performed against AUDIT-001 through AUDIT-012. It is not a legal approval, production approval, provider receipt, or final release declaration.
@@ -21,7 +21,7 @@ This report records the implementation performed against AUDIT-001 through AUDIT
 
 ## Local evidence recorded
 
-The current commands and generated reports are listed in [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md). The intended aggregate command is:
+The current commands and generated reports are listed in [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md). The post-fix aggregate run passed all 31 checks with release identity `local-rc-staging-health-fix` and source `59c1e2cb8231866729ad3248d763417aa88790f1`. The intended aggregate command is:
 
 ```sh
 pnpm verify
@@ -31,6 +31,6 @@ It includes requirements, docs, content, feeds, routes, security/SEO, formatting
 
 ## Explicitly not completed
 
-The following are not represented as complete: qualified legal/privacy/licensing/trademark/factual/media approvals; provider credentials or privacy decisions; protected Forgejo review/tag/signature; hosted immutable OCI artifact; Coolify staging deployment; DNS/TLS; hosted monitoring/on-call; rollback drill; production; public GitHub; final `v1.0.0`; external publication/syndication/feed acceptance; authentication; API; and platform integration.
+The following are not represented as complete: qualified legal/privacy/licensing/trademark/factual/media approvals; provider credentials or privacy decisions; protected Forgejo review/signature and passing CI; hosted immutable OCI artifact/SBOM/provenance; canonical URL configuration; DNS/TLS; hosted monitoring/on-call policy; two-good-deployment rollback drill; production; public GitHub; final `v1.0.0`; external publication/syndication/feed acceptance; authentication; API; and platform integration. The six authorized staging monitors are active/healthy, but prior failures leave historical SLO-budget alerts that require an approved clean-window disposition.
 
-The private Forgejo repository and Tower shared staging resources were created/reconciled under the authorized scope, but the final remediation commit, RC tag, workload deployment, and hosted receipts still require the corresponding release/operator authorization described in [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md).
+The private Forgejo repository and Tower shared staging resources were created/reconciled under the authorized scope. Immutable tag `v1.0.0-rc.1` points to `031b5447786f9c619288c9044bb5bc65319a30d7`. Follow-up commit `59c1e2cb8231866729ad3248d763417aa88790f1` fixes the missing Coolify health-probe client, is pushed to `release/v1-closure`, and is healthy in Coolify deployment `axrm4kappbnargjw1mbtuie4` for application `ngqtewtqeqhj88v1005a38va`. That follow-up is not a new RC tag, the direct Coolify build has no hosted registry digest, and the remaining owner/operator actions are described in [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md) and [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md).
