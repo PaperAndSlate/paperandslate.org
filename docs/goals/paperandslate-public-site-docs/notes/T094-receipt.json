@@ -1,0 +1,23 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T094",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "apps/web/src/app/(public)/news/category/[category]/page.tsx",
+      "apps/web/src/app/(public)/news/tag/[tag]/page.tsx"
+    ],
+    "commands": [
+      { "cmd": "pnpm exec prettier --check nested news category/tag pages", "status": "pass" },
+      { "cmd": "pnpm routes:check", "status": "pass", "count": "23 routes, 2 redirects" },
+      { "cmd": "pnpm test -- tests/public-routes.test.ts tests/docs-routes.test.ts", "status": "pass", "count": "5 focused tests" },
+      { "cmd": "pnpm lint", "status": "pass" },
+      { "cmd": "pnpm typecheck", "status": "pass" }
+    ],
+    "summary": "Corrected both nested news-page component imports from four-level to five-level relative paths. All required verification passed: formatting, 23 routes and 2 redirects, 5 focused tests, lint, and full typecheck.",
+    "deviations": [],
+    "remaining_blockers": [],
+    "verification_attempts": 1,
+    "stopped_because": null
+  }
+}

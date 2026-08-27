@@ -1,0 +1,73 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T131",
+    "decision": "approved",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "summary": "Approved a coupled local launch-evidence refresh. The generator, emitted JSON, and named readiness/report files may be updated together with receipt-backed T120/T122/T130 evidence, while every pending blocker and the intentionally unchanged visual baseline remain explicit.",
+    "worker_package": {
+      "objective": "Refresh the local launch evidence and readiness reports after T130 by updating the generator, emitted JSON, and named reports with receipt-backed T120/T122/T130 evidence while preserving every pending blocker and making no new public, production, provider, legal, factual, or visual claims.",
+      "allowed_files": [
+        "scripts/launch-report.ts",
+        ".generated/launch/launch-evidence.json",
+        "IMPLEMENTATION_REPORT.md",
+        "LAUNCH_READINESS.md",
+        "IMPLEMENTATION_LEDGER.md",
+        "EXTERNAL_ACTIVATION.md",
+        "MISSING_PUBLIC_FACTS.md",
+        "docs/reports/external-activation.md",
+        "docs/reports/rollback-plan.md"
+      ],
+      "verify": [
+        "pnpm launch:report",
+        "pnpm exec prettier --check scripts/launch-report.ts .generated/launch/launch-evidence.json IMPLEMENTATION_REPORT.md LAUNCH_READINESS.md IMPLEMENTATION_LEDGER.md EXTERNAL_ACTIVATION.md MISSING_PUBLIC_FACTS.md docs/reports/external-activation.md docs/reports/rollback-plan.md",
+        "pnpm format:check",
+        "pnpm docs:validate",
+        "pnpm content:validate",
+        "Assert generated JSON remains local-runtime-verified, retains visual unavailable evidence, and retains all external/legal/factual/production pending categories.",
+        "Assert only the exact allowed files changed."
+      ],
+      "stop_if": [
+        "Any path outside the nine listed files changes.",
+        "Generated evidence is edited without the generator producing the same result.",
+        "Any pending or unavailable blocker is removed, weakened, or converted into a pass without receipt-backed evidence.",
+        "The work requires snapshots, product/source changes, browser/build reruns, external systems, credentials, deployment, commit, or push.",
+        "T120, T122, or T130 evidence cannot be distinguished truthfully from older T112/T114 evidence."
+      ]
+    },
+    "evidence": [
+      "T130 is complete with format, focused tests, docs/content validation, ESLint, and both TypeScript checks passing.",
+      "T120 records a guarded non-standalone build with 102 static pages and 7/7 docs/smoke/accessibility checks.",
+      "T122 records central Fumadocs wiring, 102-page build success, and 7 browser checks while preserving pending status.",
+      "T131 read-only review found reports and launch JSON still hard-coded to older T112/T114 evidence.",
+      "The package is sequential because the generator, emitted JSON, and duplicated reports are coupled."
+    ],
+    "parallel_safety": {
+      "safe": false,
+      "reason": "Do not parallelize the generator, emitted launch JSON, or duplicated readiness reports."
+    },
+    "blocked_tasks": [
+      "Accepted visual QA against the current homepage source.",
+      "Lighthouse measurement.",
+      "Qualified legal, privacy, trademark, institutional, maintainer, funding, and factual approval.",
+      "Media provenance approval.",
+      "Typesense, Kit, GlitchTip, Infisical, Tower/Coolify, and other provider activation.",
+      "Remote repository, DNS/TLS, deployment, production monitoring, and rollback-drill evidence.",
+      "External syndication, publication workflow, and production feed validation.",
+      "SBOM and production release identity evidence."
+    ],
+    "missing_evidence": [
+      "Authoritative legal and public-fact approvals.",
+      "Accepted current-source visual QA.",
+      "Lighthouse results.",
+      "Provider credentials and activation evidence.",
+      "Remote repository, DNS/TLS, deployment, monitoring, rollback, and production evidence.",
+      "External publication, syndication, and production feed evidence."
+    ],
+    "required_board_updates": [
+      "Record T131 as approved and activate one sequential Worker for this exact package.",
+      "Retain all existing T112/T114 visual-baseline and external-blocker evidence as historical or pending evidence."
+    ],
+    "full_outcome_complete": false
+  }
+}

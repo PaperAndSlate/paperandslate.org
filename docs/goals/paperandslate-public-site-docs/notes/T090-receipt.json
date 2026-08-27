@@ -1,0 +1,47 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T090",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "summary": "Homepage/design milestone is locally implemented and verified, but the full brief remains incomplete. Public routes, content registries, docs ingestion, static search, feeds, governance, hardening, Docker, browser, Axe, visual, build, and focused tests have evidence. Remaining local gaps include incomplete design-system/package-stack parity, shallow launch evidence, incomplete CI/operations/compliance automation, sparse truthful content, and missing route/template coverage against the full catalog. External activation, legal/factual approval, provenance/licensing, DNS/TLS, providers, production deployment, and remote repositories remain blocked or pending.",
+    "evidence": [
+      "Original brief requires phases 0-7 plus launch-appropriate phase 8, complete public site, documentation system, provider-neutral adapters, accessibility/security/SEO/operations, CI/CD, Docker, visual QA, and activation documentation.",
+      "T089 explicitly approves only the homepage/design milestone and states full_outcome_complete=false; broader documentation, search, governance, operations, external, legal, and factual oracle work remains incomplete.",
+      "Current implementation contains foundation, project, governance, news, docs, feeds, search, newsletter, health, metadata, raw Markdown, sitemap, robots, and utility routes, with 80 static pages reported by T044.",
+      "The route catalog requires category/tag news routes, broader docs taxonomy/version routes, and additional utility/template coverage; the current route tree does not expose news category/tag routes or several catalog-specific docs routes as dedicated files.",
+      "The planning stack requires Fumadocs, Tailwind 4, shadcn source-owned primitives, Phosphor Icons, next/font families, Testing Library, Lighthouse CI, markdownlint, cspell, Changesets, and Dependabot/Renovate; package.json and source inventory do not evidence the complete stack.",
+      "The design-system package contains tokens and an index, but the application uses bespoke components and CSS; no component-board route or broad component-family implementation is evidenced.",
+      "Generated docs/search artifacts exist and local ingestion supports central, fixture, sibling-local, and Git adapter abstractions with provenance/lock output; this is a custom local pipeline, not evidence of complete Fumadocs parity.",
+      "Static search, normalized records, ranking, facets, API/page/dialog wiring, and an optional Typesense provider are present locally; Typesense provisioning/key verification remains pending.",
+      "Feeds, disabled newsletter behavior, governance registries, reports, project registry, releases, and truthful missing-facts/external-activation documents are present; Kit activation and double-opt-in/provider acceptance remain unverified.",
+      "T044 evidence records passing e2e 4/4, Axe 4/4, visual snapshots, Docker image/health, build 80 pages, content/feeds/releases/routes/search/typecheck, and 21 tests; Lighthouse remains unavailable.",
+      "Launch checklist remains entirely unchecked, including legal/factual review, content approval, source SHA review, full accessibility matrix, Lighthouse budgets, SBOM, monitoring, deployment SHA, domain/TLS, and production rollback.",
+      "Tower intent is explicitly status intent-only/activation pending; reports also defer GlitchTip, Infisical, DNS/TLS, remote repositories, production deployment, monitoring, legal, factual, media, and font provenance."
+    ],
+    "facts": [
+      "Implemented local behavior: branded homepage, responsive/dark treatment, public content routes, docs rendering/raw output, deterministic ingestion artifacts, static fallback search, feeds, newsletter disabled state, security headers, health metadata, redirects registry, Docker packaging, and local verification harnesses.",
+      "Missing local implementation/evidence: complete route-catalog parity, full design-system/component-board parity, required dependency/tooling parity, broader content/template depth, mobile/dark Axe evidence, Lighthouse evidence tooling result, full CI/operations/compliance automation, and complete launch-report coverage.",
+      "Evidence-only gaps: several capabilities appear implemented but lack independent launch acceptance, including full route behavior, keyboard/screen-reader coverage across templates, zoom/reflow, structured data review, image optimization review, source SHA presentation, provider failure tests, and operational rollback drills.",
+      "External blockers: DNS/TLS, Tower/Coolify, GlitchTip, Infisical, Typesense credentials/provisioning, Kit credentials/activation, remote repositories, production deployment/monitoring, legal/privacy/trademark review, factual biographies/funding/status/adoption claims, and production media/font licensing/provenance.",
+      "No safe claim of full-goal completion is supported."
+    ],
+    "contradictions": [
+      "T089 records the homepage milestone as approved while the original brief expressly says not to stop after a homepage milestone; approval is scoped and not full launch approval.",
+      "Historical route-catalog examples describe a catch-all docs route and dedicated taxonomy expectations; the current implementation relies primarily on a catch-all page and does not expose every catalog row as a dedicated route file.",
+      "Launch evidence reports Docker/browser/Axe success, while the launch checklist correctly remains open because those checks are focused local evidence rather than production acceptance."
+    ],
+    "ambiguity_requiring_judge": [
+      "Whether the custom docs renderer is acceptable as a deliberate Fumadocs substitution or must be replaced for launch-scope compliance.",
+      "Whether sparse Planned/Experimental content is sufficient for launch or requires approved factual/editorial content before further implementation.",
+      "Whether the remaining route and design-system differences are launch blockers or post-milestone scope."
+    ],
+    "commands": [
+      "Get-ChildItem -Force; rg --files -g 'plans/**' -g 'supplied assets/**' -g 'mockups/**' -g '*receipt*' -g 'state.yaml' -g 'README*' -g 'package.json' -g 'Docker*' -g '*report*'",
+      "Read original brief, selected planning documents, state.yaml, reports, activation/facts documents, and T089 receipt",
+      "Enumerated repository routes, components, packages, scripts, tests, infrastructure, generated artifacts, and supplied assets",
+      "Parsed all available T001-T089 receipt files",
+      "Read IMPLEMENTATION_LEDGER.md, scripts/routes-check.ts, route catalog, launch checklist, launch evidence, Dockerfile, and Tower intent"
+    ],
+    "note_needed": false
+  }
+}

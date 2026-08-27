@@ -1,0 +1,22 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T096",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [],
+    "commands": [
+      { "cmd": "pnpm view fumadocs-core@15.8.5 peerDependencies --json", "status": "pass" },
+      { "cmd": "pnpm view fumadocs-ui@15.8.5 peerDependencies --json", "status": "pass" },
+      { "cmd": "pnpm view fumadocs-mdx@15.3.1 peerDependencies --json", "status": "pass" },
+      { "cmd": "pnpm view fumadocs-mdx@14.3.2 peerDependencies --json", "status": "pass" }
+    ],
+    "summary": "No files were changed. Official Fumadocs Core/UI 15.8.5 support Next 15 and React 19, but official Fumadocs MDX versions require Next ^15.3.0 and React ^19.2.0. This workspace uses Next 15.2.2 and React 19.0.0, so the required Core/UI/MDX integration cannot be established without changing current framework versions.",
+    "deviations": [],
+    "remaining_blockers": [
+      "Fumadocs MDX official peer requirements conflict with current Next.js/React versions.",
+      "Upgrading Next.js or React is outside the task's permitted compatibility requirement."
+    ],
+    "verification_attempts": 0,
+    "stopped_because": "Official Fumadocs compatibility could not be established with the current Next.js/React versions."
+  }
+}

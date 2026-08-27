@@ -1,0 +1,46 @@
+{
+  "task_id": "T073",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T072 proves five HTTP routes and integrity preservation, but screenshots failed twice because bundled Chromium was missing and Axe was not run. Prior Scout evidence confirms system Chrome launches through Playwright, so approve one sole inline system-Chrome diagnostics Worker. The broader brief and visual acceptance remain incomplete.",
+  "worker_package": {
+    "objective": "Run one sole post-T068 homepage/browser diagnostics pass against existing apps/web/.next on 127.0.0.1:3101, launching only the known system Chrome through an inline Playwright script. Own and stop next start, smoke five routes, run strict root browser and Axe checks, capture light desktop, 390x844 mobile, and dark screenshots, and persist only diagnostic artifacts under test-results/t073-system-chrome. Preserve T060 source, T068 build boundary, standalone/Docker behavior, hashes, and immutable visual baselines.",
+    "allowed_files": ["test-results/t073-system-chrome"],
+    "verify": [
+      "Preflight read-only: require port 3101 FREE, exact apps/web/.next target with no reparse descendants, and known Chrome executable present; record baseline hashes/process facts only under test-results/t073-system-chrome.",
+      "Run one inline Node command without a temporary source/config file: start next start on 127.0.0.1:3101, record owned PID, require 200-399 responses for /, /health, /docs, /projects, /search, then launch Playwright Chromium with executablePath C:/Program Files/Google/Chrome/Application/chrome.exe.",
+      "Within the inline command require non-empty homepage and strict root assertions, run AxeBuilder and persist axe.json, capture light desktop, 390x844 mobile, and dark PNGs, persist route/results/server logs, and return nonzero for failed assertions.",
+      "In finally stop only owned server; verify port FREE, hashes for source/configuration/Playwright/Docker/snapshots/.next unchanged, no reparse points remain, and all new files are under test-results/t073-system-chrome.",
+      "Do not invoke pnpm e2e, pnpm a11y, pnpm visual:update, or any baseline-writing command; report screenshots diagnostically only."
+    ],
+    "stop_if": [
+      "Port 3101 is occupied by unknown process or ownership cannot be established.",
+      "Exact .next target is missing, reparse root/descendant exists, or next start requires cleanup/build/config changes.",
+      "Specified system Chrome is missing/cannot launch twice for same cause or browser/Axe artifacts cannot be persisted solely under test-results/t073-system-chrome.",
+      "Any source, configuration, snapshot, report, content, generated-output, Docker, or baseline hash changes; browser installation; visual:update; assertion weakening; or baseline approval.",
+      "Owned server cannot be stopped safely or any artifact is written outside allowed directory."
+    ]
+  },
+  "evidence": [
+    "T068 records two passing build:verify runs with preserved default standalone/Docker behavior and unchanged source/configuration hashes.",
+    "T072 records 5/5 HTTP smoke success and unchanged integrity hashes, but screenshots failed twice on missing bundled Chromium; Axe was not run.",
+    "Current test-results/t071-runtime contains only server logs; no fresh screenshot or Axe artifacts.",
+    "Prior Scout T012 records Chrome at C:/Program Files/Google/Chrome/Application/chrome.exe and successful Playwright launch.",
+    "Port 3101 is FREE; configured browser commands and visual:update remain separate."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Worker owns port 3101, reads shared .next, and writes browser artifacts in one runtime boundary; no parallel runtime/browser/build/snapshot work is safe."
+  },
+  "blocked_tasks": ["T060", "T062", "T064", "T066", "T070", "T072"],
+  "missing_evidence": [
+    "Fresh post-T068 system-Chrome homepage browser evidence.",
+    "Fresh AxeBuilder result.",
+    "Fresh light desktop, 390x844 mobile, and dark screenshot diagnostics with unchanged snapshots.",
+    "Persisted current route/browser/server artifacts under a bounded directory.",
+    "Current standalone/Docker runtime revalidation.",
+    "Repository-backed raster-media provenance and truthful font-loading evidence.",
+    "Completion of documentation ingestion, versioning, search, governance, hardening, operations, and external activation requirements."
+  ]
+}

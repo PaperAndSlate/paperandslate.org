@@ -1,0 +1,450 @@
+[
+  {
+    "id": "WEB-REQ-0001",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 1",
+    "requirement": "Every /plans document is represented in the requirement ledger.",
+    "category": "traceability",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0002",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 2",
+    "requirement": "Every v1 requirement has a reviewed machine-readable status.",
+    "category": "traceability",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0003",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 3",
+    "requirement": "No requirement is marked implemented without evidence.",
+    "category": "traceability",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0004",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 4",
+    "requirement": "The project is a real Git repository.",
+    "category": "repository",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0005",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 5",
+    "requirement": "The Forgejo remote exists and contains the project.",
+    "category": "repository",
+    "priority": "P0",
+    "status": "blocked-external",
+    "externalDependencies": ["Tower Forgejo repository-write authority"],
+    "blocker": "Requires the approved Forgejo repository and push operation to be completed through Tower."
+  },
+  {
+    "id": "WEB-REQ-0006",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 6",
+    "requirement": "CI runs on Forgejo Actions.",
+    "category": "ci",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0007",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 7",
+    "requirement": "Generated files no longer cause author-source lint failures.",
+    "category": "quality",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0008",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 8",
+    "requirement": "Repository-wide formatting passes.",
+    "category": "quality",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0009",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 9",
+    "requirement": "Lint passes.",
+    "category": "quality",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0010",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 10",
+    "requirement": "Typecheck passes.",
+    "category": "quality",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0011",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 11",
+    "requirement": "Unit tests pass.",
+    "category": "quality",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0012",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 12",
+    "requirement": "Production build passes.",
+    "category": "quality",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0013",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 13",
+    "requirement": "Browser smoke tests pass.",
+    "category": "browser",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0014",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 14",
+    "requirement": "Documentation tests pass.",
+    "category": "documentation",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0015",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 15",
+    "requirement": "Internal link and route tests pass.",
+    "category": "quality",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0016",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 16",
+    "requirement": "SEO, sitemap, and feed behavior is validated.",
+    "category": "publication",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0017",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 17",
+    "requirement": "Hosted search success and static fallback tests pass.",
+    "category": "search",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0018",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 18",
+    "requirement": "Kit implementation tests pass even when external credentials are absent.",
+    "category": "newsletter",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0019",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 19",
+    "requirement": "Rich search UI browser tests pass.",
+    "category": "search",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0020",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 20",
+    "requirement": "Fumadocs rendering is used consistently for supported documentation surfaces.",
+    "category": "documentation",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0021",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 21",
+    "requirement": "Project maturity and health are separate and properly modeled.",
+    "category": "content",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0022",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 22",
+    "requirement": "Planned project, governance, and publication models are implemented.",
+    "category": "content",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0023",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 23",
+    "requirement": "Planned global utilities are implemented.",
+    "category": "ui",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0024",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 24",
+    "requirement": "Mobile navigation and interaction states are tested.",
+    "category": "ui",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0025",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 25",
+    "requirement": "Automated visual regression is comprehensive and green against the current candidate baseline/reference policy.",
+    "category": "visual",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0026",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 26",
+    "requirement": "Accessibility automation covers representative templates and interaction flows.",
+    "category": "accessibility",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0027",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 27",
+    "requirement": "Lighthouse CI actually runs and passes configured thresholds.",
+    "category": "performance",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0028",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 28",
+    "requirement": "Production CSP and header behavior is tested against the real build.",
+    "category": "security",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0029",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 29",
+    "requirement": "Container build passes.",
+    "category": "container",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0030",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 30",
+    "requirement": "Container starts as a non-root user.",
+    "category": "container",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0031",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 31",
+    "requirement": "Container health test passes.",
+    "category": "container",
+    "priority": "P0",
+    "status": "partial"
+  },
+  {
+    "id": "WEB-REQ-0032",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 32",
+    "requirement": "An SBOM is generated.",
+    "category": "release",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0033",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 33",
+    "requirement": "Vulnerability scanning runs with an explicit severity policy.",
+    "category": "security",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0034",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 34",
+    "requirement": "Secret scanning runs.",
+    "category": "security",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0035",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 35",
+    "requirement": "Release identity is tied to the exact Forgejo commit and immutable artifact digest.",
+    "category": "release",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0036",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 36",
+    "requirement": "Tower staging deployment succeeds.",
+    "category": "deployment",
+    "priority": "P0",
+    "status": "blocked-external",
+    "externalDependencies": ["Tower/Coolify deploy authority", "Forgejo staging repository"],
+    "blocker": "Capability is available, but a project-scoped staging workload and approved repository deployment must still be created and verified."
+  },
+  {
+    "id": "WEB-REQ-0037",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 37",
+    "requirement": "Staging health and smoke checks pass.",
+    "category": "deployment",
+    "priority": "P0",
+    "status": "blocked-external",
+    "blocker": "Depends on the staging workload and URL created by the deployment gate."
+  },
+  {
+    "id": "WEB-REQ-0038",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 38",
+    "requirement": "Tower Typesense works.",
+    "category": "provider",
+    "priority": "P0",
+    "status": "blocked-external",
+    "externalDependencies": ["Tower Typesense resource and scoped credentials"],
+    "blocker": "The adapter and outage contract can be verified locally; live success requires staging resource binding and credentials."
+  },
+  {
+    "id": "WEB-REQ-0039",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 39",
+    "requirement": "Typesense outage automatically falls back to static search.",
+    "category": "search",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0040",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 40",
+    "requirement": "Valkey-backed distributed protections work where implemented.",
+    "category": "provider",
+    "priority": "P0",
+    "status": "blocked-external",
+    "externalDependencies": ["Tower Valkey resource and scoped credentials"],
+    "blocker": "Local contract coverage is possible; live distributed acceptance requires the staging Valkey binding."
+  },
+  {
+    "id": "WEB-REQ-0041",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 41",
+    "requirement": "A GlitchTip staging event is captured and verified.",
+    "category": "observability",
+    "priority": "P0",
+    "status": "blocked-external",
+    "externalDependencies": ["Tower GlitchTip project and DSN"],
+    "blocker": "Tower reports GlitchTip available, but a staging project binding and safe synthetic event still need activation."
+  },
+  {
+    "id": "WEB-REQ-0042",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 42",
+    "requirement": "Synthetic monitoring is configured and evidenced.",
+    "category": "observability",
+    "priority": "P0",
+    "status": "blocked-external",
+    "externalDependencies": ["Tower synthetic monitoring target"],
+    "blocker": "The monitor manifest can be validated locally; live monitor state depends on the staging URL."
+  },
+  {
+    "id": "WEB-REQ-0043",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 43",
+    "requirement": "A staging rollback drill succeeds.",
+    "category": "rollback",
+    "priority": "P0",
+    "status": "blocked-external",
+    "externalDependencies": ["Two immutable staging deployments", "Tower deploy authority"],
+    "blocker": "Requires two successfully deployed RC identities in staging."
+  },
+  {
+    "id": "WEB-REQ-0044",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 44",
+    "requirement": "A complete release evidence bundle exists.",
+    "category": "release",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0045",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 45",
+    "requirement": "A release-candidate tag and artifact exist.",
+    "category": "release",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0046",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 46",
+    "requirement": "The repository remains free of secrets.",
+    "category": "security",
+    "priority": "P0",
+    "status": "not-started"
+  },
+  {
+    "id": "WEB-REQ-0047",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 47",
+    "requirement": "External and manual blockers are reduced to a concise honest next-phase list.",
+    "category": "handoff",
+    "priority": "P0",
+    "status": "implemented"
+  },
+  {
+    "id": "WEB-REQ-0048",
+    "source": "master implementation brief",
+    "section": "Automated acceptance bar 48",
+    "requirement": "Authentication, API, and platform integration work has not been started.",
+    "category": "scope",
+    "priority": "P0",
+    "status": "implemented",
+    "notes": "Protected by the v1 scope decision; documented in ASSUMPTIONS.md and POST_V1_PLATFORM_INTEGRATION.md."
+  }
+]

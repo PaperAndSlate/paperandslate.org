@@ -1,0 +1,24 @@
+{
+  "task_id": "T056",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Generated-output cleanup succeeded and browser smoke/accessibility checks passed. Visual baselines materially mismatch fresh light, mobile, and dark output, so recovery stopped per the stop condition. No source, snapshots, reports, content, provenance, documentation, search, hardening, operations, or external files were changed.",
+  "summary": "Generated-output cleanup succeeded and browser smoke/accessibility checks passed. Visual baselines materially mismatch fresh light, mobile, and dark output, so recovery stopped per the stop condition. No source, snapshots, reports, content, provenance, documentation, search, hardening, operations, or external files were changed.",
+  "changed_files": ["apps/web/.next", "test-results"],
+  "commands": [
+    { "cmd": "port inspection", "status": "pass", "count": "FREE before each Playwright command" },
+    { "cmd": "guarded .next cleanup", "status": "pass", "count": 1 },
+    { "cmd": "pnpm e2e", "status": "pass", "count": "4 passed" },
+    { "cmd": "pnpm a11y", "status": "pass", "count": "4 passed" },
+    { "cmd": "pnpm visual:check", "status": "fail", "count": "0 passed, 3 failed", "output": "Light: 5,548 differing pixels; mobile: expected 390x3579, received 390x6630 with 36% differing pixels; dark: 8,183 differing pixels." },
+    { "cmd": "pnpm build", "status": "not_run", "count": 0 }
+  ],
+  "deviations": [],
+  "remaining_blockers": [
+    "Material visual mismatch against existing snapshots; snapshots were not rewritten or approved.",
+    "Production build was not run because the visual stop condition triggered."
+  ],
+  "verification_attempts": 1,
+  "stopped_because": "Required stop condition triggered: visual output showed material mismatch; do not weaken assertions, rewrite, or approve baselines."
+}

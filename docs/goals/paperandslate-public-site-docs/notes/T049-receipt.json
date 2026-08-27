@@ -1,0 +1,85 @@
+{
+  "task_id": "T049",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T048 verified only its scoped formatting and then stopped. The sole out-of-scope source needed by the prescribed gate is apps/web/src/app/page.tsx. Generated .next and test-results were already permitted artifacts, but .next is stale/incomplete and current test-results provide no design evidence. Named mobile and dark snapshots remain absent. Design, browser, accessibility, visual, and build completion is therefore unproven.",
+  "worker_package": {
+    "objective": "Recover T048 as one sole design-system verification slice: format the required homepage source, recover only stale generated runtime output, generate or update exactly the named light desktop, 390px mobile, and dark-mode snapshots, run focused formatting, lint, typecheck, unit, E2E, accessibility, visual, and build checks, and make only minimal in-scope corrections required by observed failures. Preserve assertions, supplied artwork, and truthful font/image/license provenance. Keep content, docs-ingestion, search, hardening/operations, and external activation separate.",
+    "allowed_files": [
+      "packages/design-system/src/index.ts",
+      "packages/design-system/src/tokens.css",
+      "packages/design-system/package.json",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/page.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/app/(public)/layout.tsx",
+      "apps/web/src/app/(docs)/docs/layout.tsx",
+      "apps/web/src/components/brand-logo.tsx",
+      "apps/web/src/components/site-header.tsx",
+      "apps/web/src/components/site-footer.tsx",
+      "apps/web/src/components/page-primitives.tsx",
+      "apps/web/src/components/project-card.tsx",
+      "apps/web/src/components/mobile-navigation.tsx",
+      "apps/web/src/components/docs-navigation.tsx",
+      "apps/web/src/components/docs-project-selector.tsx",
+      "apps/web/src/components/version-selector.tsx",
+      "tests/browser/visual.spec.ts",
+      "tests/browser/snapshots/homepage.png",
+      "tests/browser/snapshots/homepage-mobile.png",
+      "tests/browser/snapshots/homepage-dark.png",
+      "tests/design-system.test.ts",
+      "apps/web/.next",
+      "test-results"
+    ],
+    "verify": [
+      "pnpm exec prettier --check apps/web/src/app/page.tsx",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:update",
+      "pnpm visual:check",
+      "pnpm build",
+      "Compare generated light, mobile, and dark screenshots with plans/assets/brand/paper-and-slate-brand-board.png, plans/assets/mockups/01-home-desktop.png, plans/assets/mockups/13-home-mobile.png, and plans/assets/mockups/12-dark-mode-home.png."
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files.",
+      "pnpm format:check identifies another out-of-scope source file.",
+      "The work requires changing content registries/routes, docs-ingestion/source artifacts, generated docs, search-provider code or configuration, middleware/CSP, Docker/Tower/monitoring files, credentials, providers, or production activation.",
+      "Font, image, or license provenance is unavailable; do not invent provenance or substitute supplied artwork.",
+      "A required command fails twice for the same in-scope cause.",
+      "Visual comparison reveals a material responsive, dark-mode, logo, functional, or accessibility regression; do not weaken assertions or accept a misleading baseline.",
+      "The named snapshot paths differ, or stale generated output prevents a truthful local run after recovery.",
+      "Reports would claim unrun browser, accessibility, visual, Lighthouse, production, provider, or external results."
+    ]
+  },
+  "evidence": [
+    "T048 receipt records scoped formatting success, root format:check blocked by apps/web/src/app/page.tsx, stale .next preventing browser inspection, and no browser/a11y/visual/build runs.",
+    "Current visual.spec.ts explicitly names homepage.png, homepage-mobile.png, and homepage-dark.png; snapshot inventory contains only homepage.png.",
+    "Current Prettier check fails specifically on apps/web/src/app/page.tsx.",
+    "apps/web/.next contains stale generated output: 2,104 files, with standalone output older than current design edits and missing normal build key files; test-results contains only .last-run.json with a generic passed status.",
+    "Current design files declare fallback font stacks and metadata, but no receipt proves loaded-font provenance or visual fidelity.",
+    "T045-T047 and the supplied design requirements keep design verification separate from content, docs-ingestion, search, hardening/operations, and external activation."
+  ],
+  "blocked_tasks": ["T048"],
+  "missing_evidence": [
+    "Current post-edit lint, typecheck, unit-test, E2E, accessibility, visual, and build results.",
+    "Generated mobile and dark visual baselines and comparison against supplied references.",
+    "Truthful loaded-font evidence for Bodoni Moda, Inter, and IBM Plex Mono.",
+    "Overall docs-ingestion, search, hardening/operations, external activation, legal, Lighthouse, and production evidence."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Use one sole Worker. Shared homepage source, global design styles, layouts, visual snapshots, .next output, browser results, and build artifacts form one verification boundary."
+  },
+  "required_board_updates": [
+    "Record T049 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker using this worker_package.",
+    "Record apps/web/src/app/page.tsx as the explicit source-scope addition required by the formatting gate.",
+    "Treat .next and test-results as generated recovery artifacts, not verification evidence.",
+    "Keep content, docs-ingestion, search, hardening/operations, and external activation as separate future packages."
+  ]
+}

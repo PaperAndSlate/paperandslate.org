@@ -1,0 +1,88 @@
+{
+  "task_id": "T047",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T046 is incomplete: it changed design files but ran zero verification commands. The 390px snapshot is legitimate because the brief and supplied mockups require mobile validation, but it must be explicitly named and allowlisted. Current files also do not prove loaded font provenance, dark-mode fidelity, or current post-edit accessibility/build health.",
+  "worker_package": {
+    "objective": "Recover T046 as one sole design-system verification slice: explicitly name light desktop, 390px mobile, and dark-mode visual snapshots; generate or update only those baselines from the current app; run focused formatting, lint, typecheck, unit, E2E, accessibility, visual, and build checks; and make only minimal in-scope corrections required by observed failures. Preserve assertions and supplied artwork. Do not change content, docs-ingestion, search, hardening/operations, or external activation.",
+    "allowed_files": [
+      "packages/design-system/src/index.ts",
+      "packages/design-system/src/tokens.css",
+      "packages/design-system/package.json",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/app/(public)/layout.tsx",
+      "apps/web/src/app/(docs)/docs/layout.tsx",
+      "apps/web/src/components/brand-logo.tsx",
+      "apps/web/src/components/site-header.tsx",
+      "apps/web/src/components/site-footer.tsx",
+      "apps/web/src/components/page-primitives.tsx",
+      "apps/web/src/components/project-card.tsx",
+      "apps/web/src/components/mobile-navigation.tsx",
+      "apps/web/src/components/docs-navigation.tsx",
+      "apps/web/src/components/docs-project-selector.tsx",
+      "apps/web/src/components/version-selector.tsx",
+      "tests/browser/visual.spec.ts",
+      "tests/browser/snapshots/homepage.png",
+      "tests/browser/snapshots/homepage-mobile.png",
+      "tests/browser/snapshots/homepage-dark.png",
+      "tests/design-system.test.ts",
+      "apps/web/.next",
+      "test-results"
+    ],
+    "verify": [
+      "pnpm exec prettier --check packages/design-system/src/index.ts packages/design-system/src/tokens.css packages/design-system/package.json apps/web/src/app/layout.tsx apps/web/src/app/globals.css \"apps/web/src/app/(public)/layout.tsx\" \"apps/web/src/app/(docs)/docs/layout.tsx\" apps/web/src/components/brand-logo.tsx apps/web/src/components/site-header.tsx apps/web/src/components/site-footer.tsx apps/web/src/components/page-primitives.tsx apps/web/src/components/project-card.tsx apps/web/src/components/mobile-navigation.tsx apps/web/src/components/docs-navigation.tsx apps/web/src/components/docs-project-selector.tsx apps/web/src/components/version-selector.tsx tests/browser/visual.spec.ts tests/design-system.test.ts",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:update",
+      "pnpm visual:check",
+      "pnpm build",
+      "Compare generated light, mobile, and dark screenshots with the supplied brand board and homepage mockups; record observed differences and do not auto-approve material mismatches."
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files.",
+      "The work requires changing content registries/routes, docs-ingestion/source artifacts, generated docs, search-provider code or configuration, middleware/CSP, Docker/Tower/monitoring files, credentials, providers, or production activation.",
+      "Font, image, or license provenance is unavailable; do not invent provenance or substitute supplied artwork.",
+      "A required command fails twice for the same in-scope cause.",
+      "Visual comparison reveals a material light-logo, dark-mode, responsive, functional, or accessibility regression; do not weaken assertions or accept a misleading baseline.",
+      "The mobile snapshot path differs from the explicitly named allowlisted artifact.",
+      "Current design files cannot provide truthful loaded-font and theme evidence without broader source changes.",
+      "Reports would claim unrun browser, Lighthouse, production, provider, or external results."
+    ]
+  },
+  "evidence": [
+    "T046 receipt: 13 design files changed, zero commands run, no browser screenshot captured, and the mobile snapshot scope was unresolved.",
+    "tests/browser/visual.spec.ts:7-12 sets a 390px viewport and calls unnamed toHaveScreenshot; no mobile snapshot currently exists.",
+    "playwright.config.ts:9-12 defines tests/browser/snapshots and arg-based snapshot paths.",
+    "The supplied responsive requirements explicitly require mobile behavior and 44px controls; the supplied mockup index identifies assets/mockups/13-home-mobile.png as the mobile reference.",
+    "Current snapshot inventory contains only homepage.png; the existing baseline visibly conflicts with the light-background dark-logo treatment.",
+    "T044 verification predates T046 edits and cannot serve as current design, accessibility, visual, or build evidence."
+  ],
+  "blocked_tasks": ["T046"],
+  "missing_evidence": [
+    "Current post-T046 format, lint, typecheck, unit-test, E2E, accessibility, visual-update, visual-check, and production-build results.",
+    "Explicitly named and generated 390px mobile visual baseline.",
+    "Current dark-mode and dark-logo visual evidence.",
+    "Browser/IAB screenshot comparison against supplied desktop, mobile, dark-mode, and brand-board references.",
+    "Accessibility evidence after edits for focus states, target sizes, mobile navigation, landmarks, contrast, and reduced motion.",
+    "Truthful evidence that Bodoni Moda, Inter, and IBM Plex Mono are actually loaded with non-invented provenance; current files only declare fallback stacks.",
+    "Evidence that the claimed primitive inventory is implemented rather than metadata-only.",
+    "Overall completion remains blocked by separate docs-ingestion, search, hardening/operations, and external activation gaps."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Use one sole Worker. Shared tokens, global styles, layouts, navigation, visual tests, snapshots, generated runtime output, and accessibility/build artifacts form one verification boundary."
+  },
+  "required_board_updates": [
+    "Record T047 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker using worker_package verbatim.",
+    "Treat homepage-mobile.png as a necessary generated artifact, not pre-existing evidence.",
+    "Keep content, docs-ingestion, search, hardening/operations, and external activation as separate future packages.",
+    "Do not mark the design milestone or full goal complete from snapshot generation alone."
+  ]
+}

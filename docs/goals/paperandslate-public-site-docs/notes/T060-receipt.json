@@ -1,0 +1,34 @@
+{
+  "task_id": "T060",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Implemented dark/light principle-panel materials, expanded principle copy, completed footer groups with local routes, added footer legal links, and improved mobile panel overflow sizing. Registry-driven projects/news and provenance-pending media remain intact. Static checks passed, but E2E and build failed twice on the existing generated .next reparse-point scan; a11y and visual verification were not run.",
+  "changed_files": [
+    "apps/web/src/app/page.tsx",
+    "apps/web/src/app/globals.css",
+    "apps/web/src/components/site-footer.tsx",
+    "apps/web/.next",
+    "test-results"
+  ],
+  "commands": [
+    { "cmd": "focused prettier check", "status": "pass", "output": "after formatting fix" },
+    { "cmd": "pnpm format:check", "status": "pass" },
+    { "cmd": "pnpm lint", "status": "pass", "count": "6/6" },
+    { "cmd": "pnpm typecheck", "status": "pass", "count": "6/6" },
+    { "cmd": "pnpm test", "status": "pass", "count": "13 files, 23 tests" },
+    { "cmd": "pnpm e2e", "status": "fail", "output": "generated .next reparse-point scan" },
+    { "cmd": "pnpm build", "status": "fail", "output": "same generated .next cause" },
+    { "cmd": "pnpm a11y", "status": "not_run" },
+    { "cmd": "pnpm visual:check", "status": "not_run" }
+  ],
+  "summary": "Implemented dark/light principle-panel materials, expanded principle copy, completed footer groups with local routes, added footer legal links, and improved mobile panel overflow sizing. Registry-driven projects/news and provenance-pending media remain intact. Required static checks passed. Playwright and build were blocked by an existing .next/standalone reparse-point scan failure.",
+  "deviations": ["Used supplied reference principle copy.", "Used registry-driven project links in the footer."],
+  "remaining_blockers": [
+    "apps/web/.next/standalone contains reparse-point links.",
+    "Guarded cleanup refused recursive deletion and targeted deletion was blocked by execution policy.",
+    "Playwright accessibility and visual verification remain unrun."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": "Required e2e and build commands failed twice for the same generated-output reparse-point cause."
+}

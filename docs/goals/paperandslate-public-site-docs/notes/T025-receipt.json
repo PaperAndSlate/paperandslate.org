@@ -1,0 +1,45 @@
+{
+  "task_id": "T025",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T022-T024 repaired aliases and build verification, but the documentation/source contract remains incomplete: includes, asset copying, robust safety, complete taxonomy/selectors, immutable Git resolution, required standards metadata, and full provenance validation are still missing.",
+  "evidence": [
+    "Current checks pass: docs validation covers 12 pages, focused docs tests pass 9 tests, and the full suite passes 18 tests.",
+    "The implementation has adapters and route aliases, but Git mode only checks the current HEAD and no true SHA fixture is tested.",
+    "No include resolver or generated asset pipeline exists; safety, links, anchors, and collisions are shallow.",
+    "Docs navigation hardcodes five topics, lacks a project selector, and canonical defaults are not represented in generated static params.",
+    "Standards manifests contain only id, name, status, and description; reports do not map the complete docs/source requirements."
+  ],
+  "missing_evidence": [
+    "Required public route families remain missing, including reports/[year], releases, news category/tag, governance policy routes, privacy, terms, and top-level accessibility.",
+    "Full validated content schemas, Typesense, schema-property indexing, design-system assets/fonts/dark mode, complete CI/security/observability/performance/visual evidence, and external activation remain incomplete."
+  ],
+  "worker_package": {
+    "objective": "Complete the local docs/source contract only, including adapters, immutable locks/provenance, safe includes/assets/links/anchors/collisions, canonical routes, taxonomy and project/version selectors, no-JavaScript fallbacks, standards manifests, generated artifacts, tests, and truthful reports.",
+    "verify": [
+      "pnpm docs:ingest",
+      "pnpm docs:validate",
+      "pnpm search:index",
+      "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-source-adapters.test.ts tests/docs-source-contract.test.ts",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm build"
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files or the work expands into public content/routes, search/Typesense, design, or hardening.",
+      "Remote activation, credentials, runtime fetches, databases, or fabricated facts/SHAs are required.",
+      "The same verification command fails twice.",
+      "Existing behavior would be overwritten or deterministic generated artifacts cannot be reproduced."
+    ]
+  },
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Shared ingestion, docs routes, generated artifacts, reports, and sibling standards source require one sole Worker."
+  },
+  "required_board_updates": [
+    "Record T025 as done with not_complete and full_outcome_complete false.",
+    "Create one sole Worker task from this package and keep other workstreams separate."
+  ]
+}

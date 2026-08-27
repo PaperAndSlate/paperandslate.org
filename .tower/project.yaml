@@ -1,0 +1,136 @@
+apiVersion: tower.dev/v4
+kind: Project
+metadata:
+  slug: paper-and-slate-web
+  name: Paper & Slate Web
+spec:
+  repository: callum/paperandslate-web
+  runtime: nextjs
+  staging:
+    hostname: paper-and-slate-web.dev.tower
+    cloudflare: false
+  resources:
+    - kind: typesense
+      name: search
+      mode: shared
+      provider: tower-local
+      environments:
+        - staging
+    - kind: valkey
+      name: cache
+      mode: shared
+      provider: tower-local
+      environments:
+        - staging
+    - kind: s3
+      name: release-evidence
+      mode: shared
+      provider: tower-local
+      environments:
+        - staging
+  deployments:
+    staging:
+      autoApply: false
+    production:
+      approvalRequired: true
+  bootstrap:
+    generatedFiles: pull-request
+    allowExistingFileReplacement: false
+  ci:
+    enabled: true
+    packageManager: pnpm
+    commands:
+      install: pnpm install --frozen-lockfile
+      build: pnpm build
+      test: pnpm test
+    playwright:
+      enabled: true
+      command: pnpm e2e
+      healthPath: /health
+      workers: 2
+      retries: 1
+    artifacts:
+      retentionDays: 90
+      include:
+        - evidence
+        - playwright-report
+        - test-results
+  previews:
+    enabled: false
+    trigger: trusted-pull-request
+    copyStagingData: false
+  observability:
+    serviceName: paper-and-slate-web
+    traces: false
+    errorTracking: true
+    sourceMaps: true
+    tracesSampleRate: 0
+  queues: []
+  messaging:
+    exchanges: []
+    queues: []
+    defaultRetryLimit: 5
+    defaultPayloadPolicy: metadata-only
+  environmentContract:
+    source: both
+    required:
+      - NEXT_PUBLIC_SITE_URL
+      - RELEASE_ID
+    optional:
+      - SEARCH_PROVIDER
+      - TYPESENSE_ENDPOINT
+      - TYPESENSE_COLLECTION
+      - TYPESENSE_INDEX_ID
+    secret:
+      - TYPESENSE_API_KEY
+      - VALKEY_URL
+      - KIT_API_KEY
+      - KIT_FORM_ID
+      - GLITCHTIP_DSN
+    previewAllowed:
+      - NEXT_PUBLIC_SITE_URL
+      - RELEASE_ID
+  registry:
+    enabled: true
+    buildOn: both
+    retentionDays: 90
+    retainImages: 10
+    sbom: true
+    vulnerabilityScan: true
+  identity:
+    enabled: false
+    provider: keycloak
+    clients: []
+    testPersonas: []
+  featureFlags:
+    enabled: false
+    productionApproval: true
+  monitoring:
+    enabled: true
+    profile: balanced
+    targets:
+      - name: health
+        url: https://paper-and-slate-web.dev.tower/health
+      - name: homepage
+        url: https://paper-and-slate-web.dev.tower/
+      - name: projects
+        url: https://paper-and-slate-web.dev.tower/projects
+      - name: docs
+        url: https://paper-and-slate-web.dev.tower/docs/paper-and-slate/next/concepts/provenance
+      - name: search
+        url: https://paper-and-slate-web.dev.tower/api/search?q=paper
+      - name: rss
+        url: https://paper-and-slate-web.dev.tower/feeds/rss.xml
+    availabilityPercent: 99
+    latencyP95Ms: 2000
+  quotas:
+    snapshotsPerResource: 5
+    activePreviews: 1
+    identitiesPerEnvironment: 1
+    monitors: 20
+    registryGiB: 10
+    queues: 1
+    investigationsPerHour: 10
+  iac:
+    engine: opentofu
+    stacks: []

@@ -1,0 +1,56 @@
+{
+  "task_id": "T043",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T042 verified the public-content slice through SEO, but E2E failed twice before app startup at the generated standalone .next tree; a11y, build, and current report updates remain absent. The current standalone next entry is a symlink into workspace node_modules. Prior T031 and T038 receipts show exact .next cleanup can recover build/browser verification, so this is a sufficient bounded recovery hypothesis, not proof of completion.",
+  "worker_package": {
+    "objective": "Clean only the generated apps/web/.next output, rebuild and verify the real Paper & Slate public-content runtime with e2e, a11y, and production build checks, then update launch reports and generated launch evidence strictly from observed results. Preserve T042 source and search outputs; make no unrelated product or production changes.",
+    "allowed_files": [
+      "apps/web/.next",
+      "test-results",
+      "IMPLEMENTATION_REPORT.md",
+      "LAUNCH_READINESS.md",
+      ".generated/launch/launch-evidence.json"
+    ],
+    "verify": [
+      "node -e \"const fs=require('fs'),path=require('path'); const p=path.resolve('apps/web/.next'); if (p !== path.resolve(process.cwd(),'apps/web/.next')) throw new Error('unexpected target'); fs.rmSync(p,{recursive:true,force:true});\"",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm build",
+      "Validate reports and launch evidence against captured outputs; do not mark unrun checks passed."
+    ],
+    "stop_if": [
+      "The cleanup target is not exactly apps/web/.next or would traverse outside it.",
+      "The same UNKNOWN scandir failure recurs twice; record exact output and stop.",
+      "The real Paper & Slate app cannot launch on a dedicated port without source changes.",
+      "Any fix requires files outside allowed_files or changes to content, search implementation, middleware, design, docs-ingestion, Docker, Tower, providers, credentials, or production activation.",
+      "Reports would require claiming unrun, external, Lighthouse, or production results.",
+      "Any required command fails twice for the same in-scope cause."
+    ]
+  },
+  "evidence": [
+    "T042 receipt: content, feeds, releases, routes, search indexing, lint, typecheck, tests, security, and SEO passed.",
+    "T042 receipt: pnpm e2e failed twice before tests ran at apps/web/.next/standalone/apps/web/node_modules/next with UNKNOWN scandir; a11y and build were not run.",
+    "Current generated tree contains apps/web/.next/standalone/apps/web/node_modules/next as a symbolic link targeting the workspace pnpm Next package.",
+    "T031 receipt: exact generated-output cleanup was followed by a passing production build and content verification.",
+    "T038 receipt: exact generated-output cleanup was followed by passing real-app e2e, a11y, and build checks without weakening production CSP."
+  ],
+  "blocked_tasks": ["T042"],
+  "missing_evidence": [
+    "Passing post-T042 real-app e2e evidence against the updated public content.",
+    "A passing pnpm a11y result.",
+    "A passing pnpm build result after the content changes.",
+    "Current IMPLEMENTATION_REPORT.md, LAUNCH_READINESS.md, and .generated/launch/launch-evidence.json reflecting actual T042 recovery results.",
+    "No production, Lighthouse, provider, Tower, DNS, or external activation evidence is available; those must remain explicitly pending."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Use one sole Worker because generated .next output, browser results, build evidence, and launch reports share one runtime-verification boundary."
+  },
+  "required_board_updates": [
+    "Record T043 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker from worker_package verbatim and preserve T042 source and generated search-record changes.",
+    "Keep design-system, docs-ingestion, search-provider, middleware, Docker/Tower, external activation, and production claims out of scope."
+  ]
+}

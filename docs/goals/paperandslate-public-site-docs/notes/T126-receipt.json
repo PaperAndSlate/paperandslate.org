@@ -1,0 +1,39 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T126",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [],
+    "commands": [
+      {
+        "cmd": "Worker scope preflight and requested package.json-only repair",
+        "status": "fail",
+        "count": 1,
+        "output": "Invalid worker report referenced C:\\Users\\Callum\\Documents\\GitHub\\paperandslate\\data-platform\\docs\\goals\\paper-slate-education-data-platform\\state.yaml and ran unrelated @paper-slate commands; no Paper & Slate web change is accepted as T126 evidence."
+      },
+      {
+        "cmd": "Read-only web package.json inspection",
+        "status": "pass",
+        "count": 1,
+        "output": "The Paper & Slate web format:check script currently contains apps/web/src/app/*/docs/**/*.tsx."
+      }
+    ],
+    "summary": "T126 did not produce a valid Paper & Slate worker receipt: the returned report belongs to the unrelated data-platform workspace. The web manifest is already in the requested token state, but that state is not attributed to this invalid worker. No web files were changed or accepted here; the unrelated data-platform package is left untouched for a read-only Judge audit.",
+    "deviations": [
+      "The worker returned a different GoalBuddy board path and unrelated verification commands.",
+      "The reported out-of-scope data-platform package.json was not reverted or modified by this task."
+    ],
+    "remaining_blockers": [
+      "No valid T126 worker evidence is available for the Paper & Slate board.",
+      "The origin and safety of the already-present web package token need to be audited before treating T126 as complete.",
+      "full_outcome_complete remains false."
+    ],
+    "verification_attempts": 0,
+    "stopped_because": "Worker workspace/board mismatch; the returned receipt cannot be applied to this goal.",
+    "evidence": [
+      "The worker report board_path was C:\\Users\\Callum\\Documents\\GitHub\\paperandslate\\data-platform\\docs\\goals\\paper-slate-education-data-platform\\state.yaml.",
+      "The web workspace has no .git checkout and the unrelated data-platform workspace was not modified by this task."
+    ],
+    "full_outcome_complete": false
+  }
+}

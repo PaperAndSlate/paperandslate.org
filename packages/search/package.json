@@ -1,0 +1,11 @@
+{
+  "name": "@paper-and-slate/search",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  }
+}

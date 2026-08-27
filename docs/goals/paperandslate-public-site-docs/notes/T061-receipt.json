@@ -1,0 +1,49 @@
+{
+  "task_id": "T061",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T060 source closure is present and static checks passed, but completion is unsupported: apps/web/.next contains reparse-point entries and T060's E2E/build failed twice. Prior exact cleanup recovered browser/a11y, while visual checks materially mismatched unchanged baselines. Provenance-pending media and font evidence remain unresolved. Approve one sole generated-output recovery package without changing source or snapshots.",
+  "worker_package": {
+    "objective": "Recover post-T060 homepage runtime evidence by deleting only the exact generated apps/web/.next tree with a reparse-point-aware, non-following cleanup, then run the configured production build, homepage E2E, accessibility, and visual checks without changing source or snapshots. Preserve T060 source changes; treat visual mismatch as diagnostic and do not approve baselines.",
+    "allowed_files": ["apps/web/.next", "test-results"],
+    "verify": [
+      "Before each Playwright command inspect 127.0.0.1:3101; proceed only when FREE or owned by this workspace and record PID and command line.",
+      "Guard exact apps/web/.next path, reject a reparse-point root, recursively remove only children without following reparse points, then remove the exact root.",
+      "pnpm build",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:check",
+      "Compare fresh desktop, 390px mobile, dark-mode, and supplied-reference output without running visual:update or approving mismatched baselines.",
+      "Confirm writes are limited to apps/web/.next and test-results."
+    ],
+    "stop_if": [
+      "The cleanup target is not exactly apps/web/.next, the root is a reparse point, or cleanup would follow any reparse point.",
+      "Port 3101 is occupied by an unknown process or ownership cannot be established.",
+      "Any source, snapshot, report, content, provenance, docs-ingestion, search, governance, hardening/operations, or external-system change is required.",
+      "The worker runs visual:update, modifies snapshots, weakens assertions, or approves stale or mismatched baselines.",
+      "A required recovery command fails twice for the same cause.",
+      "Any deletion or write would affect a path outside apps/web/.next or test-results."
+    ]
+  },
+  "evidence": [
+    "T060 records static checks passing but E2E and build failing twice on generated .next reparse-point scanning.",
+    "T056 records successful exact-target cleanup, 4 E2E passes, and 4 accessibility passes; visual checks still failed materially.",
+    "Current .next scan found 27 reparse-point entries, including standalone/apps/web/node_modules/next and react.",
+    "Current port 127.0.0.1:3101 is FREE; Playwright uses dedicated port 3101 with reuseExistingServer false.",
+    "Current homepage source preserves T060 changes and provenance-pending media slots; current visual snapshots remain unapproved."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Generated output, test-results, Playwright server ownership, build behavior, and visual evidence share one runtime boundary; run one sole Worker."
+  },
+  "blocked_tasks": ["T054", "T056", "T058", "T060"],
+  "missing_evidence": [
+    "Post-cleanup production build, E2E, and accessibility results.",
+    "Fresh visual comparisons after T060 without approving stale snapshots.",
+    "Persisted fresh actual/diff screenshot evidence.",
+    "Repository-backed raster-media licensing/provenance and truthful Bodoni Moda, Inter, and IBM Plex Mono loading evidence.",
+    "Complete homepage acceptance at required responsive widths.",
+    "Completion evidence for docs-ingestion, search, governance, hardening/operations, and external activation."
+  ]
+}

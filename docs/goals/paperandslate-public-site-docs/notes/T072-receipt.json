@@ -1,0 +1,27 @@
+{
+  "task_id": "T072",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "The existing non-standalone output served all five required routes through next start and integrity checks passed, but Playwright CLI screenshots failed twice because the bundled Chromium executable is missing. No source, configuration, snapshots, or .next files changed; Axe was not run.",
+  "changed_files": [
+    "test-results/t071-runtime/server.stdout.log",
+    "test-results/t071-runtime/server.stderr.log"
+  ],
+  "commands": [
+    { "cmd": "preflight", "status": "pass", "output": "port free; .next normal; zero reparse descendants; five baseline hashes and Docker hash recorded" },
+    { "cmd": "next start", "status": "pass", "output": "owned listener established; PID chain recorded" },
+    { "cmd": "HTTP smoke", "status": "pass", "count": "5/5", "output": "/, /health, /docs, /projects, /search" },
+    { "cmd": "Playwright screenshots", "status": "fail", "count": "0/3; repeated twice", "output": "Bundled Chromium executable missing" },
+    { "cmd": "server stop and integrity", "status": "pass", "output": "port free; .next/source/config/snapshots/Docker hashes unchanged; visual:update false" },
+    { "cmd": "AxeBuilder", "status": "not_run" }
+  ],
+  "summary": "Runtime server started from existing output and served all five required routes successfully. Owned processes were stopped cleanly. Integrity checks passed: .next, source, config, snapshots, Docker, and reparse state unchanged. Playwright screenshots could not run because Chromium was unavailable; no browser installation or configuration changes were made. Axe was not run after the repeated browser failure.",
+  "deviations": ["Next reported its existing standalone-output warning; no configuration or runtime-mode changes were made.", "Playwright mobile CLI rejected --is-mobile; browser execution was already blocked by missing Chromium."],
+  "remaining_blockers": [
+    "Playwright Chromium executable missing at C:/Users/Callum/AppData/Local/ms-playwright/chromium_headless_shell-1161/chrome-win/headless_shell.exe.",
+    "AxeBuilder check and three screenshots remain unexecuted."
+  ],
+  "verification_attempts": 1,
+  "stopped_because": "Required browser diagnostics failed twice for the same missing-Chromium cause; T072 stop condition reached."
+}

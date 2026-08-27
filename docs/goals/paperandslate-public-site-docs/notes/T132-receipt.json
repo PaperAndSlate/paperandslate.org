@@ -1,0 +1,58 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T132",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "scripts/launch-report.ts",
+      ".generated/launch/launch-evidence.json",
+      "IMPLEMENTATION_REPORT.md",
+      "LAUNCH_READINESS.md",
+      "IMPLEMENTATION_LEDGER.md",
+      "EXTERNAL_ACTIVATION.md",
+      "MISSING_PUBLIC_FACTS.md",
+      "docs/reports/external-activation.md",
+      "docs/reports/rollback-plan.md"
+    ],
+    "commands": [
+      {"cmd": "Get-Location and board preflight", "status": "pass", "count": 1, "output": "Exact Paper & Slate workspace and board path confirmed."},
+      {"cmd": "pnpm launch:report", "status": "pass", "count": 2, "output": "Generated deterministic local launch evidence."},
+      {"cmd": "Prettier check on nine allowed files", "status": "pass", "count": 9, "output": "All matched files use Prettier code style."},
+      {"cmd": "pnpm format:check", "status": "pass", "count": 1, "output": "All matched files use Prettier code style."},
+      {"cmd": "pnpm docs:validate", "status": "pass", "count": 13, "output": "Validated 13 local documentation pages."},
+      {"cmd": "pnpm content:validate", "status": "pass", "count": 12, "output": "Validated 12 local content records."},
+      {"cmd": "Generated JSON assertions", "status": "pass", "count": 1, "output": "local-runtime-verified; T120/T122/T130 evidence present; visual unavailable and 14 pending categories retained."},
+      {"cmd": "Exact allowed-file scope assertion", "status": "pass", "count": 9, "output": "Only the nine approved paths targeted."}
+    ],
+    "summary": "Refreshed the launch-report generator, regenerated deterministic launch evidence, and updated every approved readiness/report artifact with truthful T120/T122/T130 evidence. Preserved local-runtime-only status, visual-unavailable evidence, and all external, legal, factual, provider, deployment, monitoring, rollback, publication, feed, SBOM, and release-identity blockers. No snapshots, product files, external systems, or production claims changed.",
+    "deviations": [
+      "Two local PowerShell assertion expressions were corrected during verification; no source or report edits were required for those corrections."
+    ],
+    "remaining_blockers": [
+      "Accepted current-source visual QA",
+      "Lighthouse",
+      "Qualified legal/privacy/trademark/institutional/maintainer/funding/factual approval",
+      "Media provenance",
+      "Provider credentials and activation: Typesense, Kit, GlitchTip, Infisical",
+      "Tower/Coolify",
+      "Remote repository/branch/PR",
+      "DNS/TLS",
+      "Deployment and production monitoring",
+      "Rollback drill",
+      "External syndication/publication/feed validation",
+      "SBOM and production release identity",
+      "full_outcome_complete remains false."
+    ],
+    "verification_attempts": 1,
+    "stopped_because": null,
+    "evidence": [
+      "T120: guarded build passed with 102 static pages; 7/7 docs, smoke, and accessibility checks passed; protected hashes unchanged.",
+      "T122: central Fumadocs wiring and local documentation evidence retained with its historical blocked receipt.",
+      "T130: formatting, format:check, focused docs/content checks, ESLint, and TypeScript checks passed.",
+      "Generated JSON is deterministic and generator-produced.",
+      "All pending categories remain explicit in the refreshed reports and generated evidence.",
+      "Full outcome remains incomplete."
+    ],
+    "full_outcome_complete": false
+  }
+}

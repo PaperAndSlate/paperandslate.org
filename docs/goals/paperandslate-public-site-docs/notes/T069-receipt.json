@@ -1,0 +1,49 @@
+{
+  "task_id": "T069",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T068 is truthful as a local verification boundary: it directly invokes Next, forces non-standalone verification mode, propagates exit status, and current output has no standalone or reparse trees. Default production remains standalone and Docker behavior is preserved. Fresh post-boundary browser and accessibility evidence is missing; previous visual baselines materially mismatched and remain unapproved.",
+  "worker_package": {
+    "objective": "Run one sole post-T068 homepage runtime diagnostics pass: safely clean only apps/web/.next, then use Playwright on the dedicated 127.0.0.1:3101 dev server for fresh smoke, accessibility, and light-desktop, 390px-mobile, and dark visual diagnostics. Preserve source, configuration, content, provenance, tests/browser/snapshots, and Docker behavior. Capture truthful exit statuses and actual/diff/trace artifacts. Never approve or update visual baselines.",
+    "allowed_files": ["apps/web/.next", "test-results"],
+    "verify": [
+      "Guard exact apps/web/.next target; reject reparse-point root and remove only individually validated reparse-point children without following links.",
+      "Before every Playwright command inspect 127.0.0.1:3101; proceed only when FREE or owned by this workspace and record PID/command line.",
+      "Run pnpm e2e and record fresh browser/runtime results.",
+      "Run pnpm a11y and record complete accessibility result.",
+      "Run pnpm visual:check and record light desktop, 390px mobile, and dark actual/expected/diff/trace diagnostics and real exit status.",
+      "Verify tests/browser/snapshots and homepage/source/configuration hashes are unchanged; visual:update is forbidden.",
+      "Verify writes are limited to apps/web/.next and test-results and no reparse points remain in generated output."
+    ],
+    "stop_if": [
+      "Cleanup target is not exactly apps/web/.next, root is a reparse point, or a link cannot be removed safely without following it.",
+      "Port 3101 is occupied by an unknown process or ownership cannot be established.",
+      "Browser or accessibility command fails twice for the same cause, or fresh runtime artifacts cannot be persisted.",
+      "visual:update runs, snapshots change, assertions are weakened, or visual mismatches are approved.",
+      "Any source, snapshot, report, content, provenance, configuration, Docker, documentation, search, governance, operations, or external-system change is required.",
+      "Any write or deletion affects a path outside apps/web/.next or test-results."
+    ]
+  },
+  "evidence": [
+    "T068 records pnpm build:verify passing twice with output guards, exit propagation, unchanged source/configuration/Dockerfile hashes, and preserved default standalone behavior.",
+    "Current apps/web/.next has no standalone, .turbo, test-results, or reparse entries after verification build.",
+    "T066 recorded e2e 4/4 and accessibility 4/4, but visual diagnostics recorded 3/3 mismatches with snapshots unchanged.",
+    "Current test-results contains actual/expected/diff PNGs and traces dated before the T068 build output.",
+    "Playwright uses 127.0.0.1:3101 with reuseExistingServer false and a dedicated Chromium project.",
+    "Homepage media slots remain provenance-pending."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Generated output, Playwright server ownership, browser artifacts, and visual snapshots share one runtime boundary; run one sole Worker."
+  },
+  "blocked_tasks": ["T060", "T062", "T064", "T066"],
+  "missing_evidence": [
+    "Fresh post-T068 smoke/browser and accessibility results.",
+    "Fresh light desktop, 390px mobile, and dark visual diagnostics after the boundary change.",
+    "Persisted current actual/diff/trace evidence with unchanged snapshots and no baseline approval.",
+    "Current-source standalone Docker image/runtime revalidation.",
+    "Repository-backed raster-media licensing/provenance and truthful Bodoni Moda, Inter, and IBM Plex Mono font-loading evidence.",
+    "Completion of documentation ingestion, search, governance, hardening, operations, and external activation workstreams."
+  ]
+}

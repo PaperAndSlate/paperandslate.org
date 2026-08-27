@@ -1,0 +1,30 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T116",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["scripts/launch-report.ts", ".generated/launch/launch-evidence.json", "IMPLEMENTATION_LEDGER.md", "IMPLEMENTATION_REPORT.md", "LAUNCH_READINESS.md", "EXTERNAL_ACTIVATION.md", "MISSING_PUBLIC_FACTS.md", "docs/reports/external-activation.md", "docs/reports/rollback-plan.md"],
+    "commands": [
+      {"cmd": "pnpm exec prettier --check scripts/launch-report.ts IMPLEMENTATION_LEDGER.md IMPLEMENTATION_REPORT.md LAUNCH_READINESS.md EXTERNAL_ACTIVATION.md MISSING_PUBLIC_FACTS.md docs/reports/external-activation.md docs/reports/rollback-plan.md", "status": "pass", "count": 2, "output": "All matched files use Prettier code style."},
+      {"cmd": "pnpm routes:check", "status": "pass", "count": 1, "output": "Validated 23 public routes and 2 redirects."},
+      {"cmd": "pnpm content:validate", "status": "pass", "count": 1, "output": "Validated 12 local content records."},
+      {"cmd": "pnpm docs:validate", "status": "pass", "count": 1, "output": "Validated 12 local documentation pages."},
+      {"cmd": "pnpm feeds:check", "status": "pass", "count": 1, "output": "Validated 1 feed records."},
+      {"cmd": "pnpm release:check", "status": "pass", "count": 1, "output": "Validated 2 project release records."},
+      {"cmd": "pnpm security:check", "status": "pass", "count": 1, "output": "Security headers and production-safe CSP verified."},
+      {"cmd": "pnpm seo:check", "status": "pass", "count": 1, "output": "Metadata, canonical, sitemap, robots, and structured data checks passed."},
+      {"cmd": "pnpm performance:check", "status": "pass", "count": 1, "output": "Performance budget configuration present; local static budget check passed."},
+      {"cmd": "pnpm rollback:check", "status": "pass", "count": 1, "output": "Rollback artifacts identified and locally checkable."},
+      {"cmd": "pnpm lint", "status": "pass", "count": 1, "output": "Six workspace lint tasks passed."},
+      {"cmd": "pnpm test", "status": "pass", "count": 1, "output": "14 files and 27 tests passed."},
+      {"cmd": "pnpm launch:report", "status": "pass", "count": 2, "output": "Generated deterministic local launch evidence; unavailable checks remain explicitly pending."}
+    ],
+    "summary": "Refreshed the local evidence layer only. Removed stale visual-pass claims, recorded T104-T114 evidence, preserved the PM source-authority decision and unchanged legacy snapshot baseline drift, and retained all external, Lighthouse, legal, factual, provider, deployment, DNS/TLS, monitoring, and production blockers.",
+    "deviations": [],
+    "remaining_blockers": ["Accepted visual QA against the current truthful homepage source remains pending; T112 visual checks failed twice on unchanged light, mobile, and dark snapshots.", "Lighthouse measurement remains unavailable.", "Qualified legal, privacy, trademark, institutional, maintainer, factual, and media-provenance review remains pending.", "Typesense, Kit, GlitchTip, Infisical, Tower/Coolify, remote repository, DNS/TLS, deployment, production monitoring, rollback drill, syndication, publication workflow, and production feed evidence remain pending."],
+    "verification_attempts": 2,
+    "stopped_because": null,
+    "evidence": ["T112 local install, audit, routes/content/docs, SEO/security, lint, typecheck, tests, browser/accessibility, and build evidence are recorded.", "T113/T114 establish current truthful homepage source authority and unchanged legacy snapshots as baseline-drift evidence.", "Generated launch evidence now places visual mismatch in unavailable and visual acceptance in pending; no unsupported readiness or activation claims remain.", "No product source, snapshots, plans, manifests, lockfile, or external systems were changed."],
+    "full_outcome_complete": false
+  }
+}

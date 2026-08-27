@@ -1,0 +1,31 @@
+{
+  "task_id": "T058",
+  "result": "done",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Implemented the bounded homepage fidelity slice across layout, responsive spacing, hero illustration, cards, header, footer, and dark theme. Preserved truthful registry-driven copy and deterministic provenance-pending media slots. Focused checks, browser smoke, accessibility, and production build passed. Existing visual baselines remain unchanged and materially mismatch fresh output, so visual acceptance is not claimed.",
+  "changed_files": [
+    "apps/web/src/app/page.tsx",
+    "apps/web/src/app/globals.css",
+    "apps/web/src/components/hero-illustration.tsx",
+    "apps/web/src/components/project-card.tsx",
+    "apps/web/src/components/site-header.tsx",
+    "apps/web/src/components/site-footer.tsx"
+  ],
+  "commands": [
+    { "cmd": "focused prettier check", "status": "pass" },
+    { "cmd": "pnpm format:check", "status": "pass", "count": "6/6 packages" },
+    { "cmd": "pnpm lint", "status": "pass", "count": "6/6 packages" },
+    { "cmd": "pnpm typecheck", "status": "pass", "count": "6/6 packages" },
+    { "cmd": "pnpm test", "status": "pass", "count": "13 files, 23 tests" },
+    { "cmd": "pnpm e2e", "status": "pass", "count": "4/4" },
+    { "cmd": "pnpm a11y", "status": "pass", "count": "4/4", "output": "after one fix" },
+    { "cmd": "pnpm visual:check", "status": "fail", "count": "0/3", "output": "Baselines unchanged; light desktop 8%, mobile 40% with height mismatch, dark mode 14%." },
+    { "cmd": "pnpm build", "status": "pass", "count": "3/3 build tasks" }
+  ],
+  "summary": "Implemented the bounded homepage fidelity slice across layout, responsive spacing, hero illustration, cards, header, footer, and dark theme. Preserved truthful registry-driven copy and deterministic provenance-pending media slots. Smoke, accessibility, formatting, lint, typecheck, tests, and build passed.",
+  "deviations": ["Visual baselines were not updated or modified; supplied-reference fidelity was used for comparison."],
+  "remaining_blockers": ["visual:check remains baseline-mismatched: light desktop 8%, mobile 40% with height mismatch, dark mode 14%."],
+  "verification_attempts": 2,
+  "stopped_because": "Required visual verification failed against existing baselines; snapshots were intentionally left unchanged per task constraints."
+}

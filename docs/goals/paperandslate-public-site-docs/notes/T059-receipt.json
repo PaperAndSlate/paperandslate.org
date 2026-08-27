@@ -1,0 +1,64 @@
+{
+  "task_id": "T059",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T058 passed focused checks, E2E, accessibility, and build, but visual checks still materially mismatch unchanged baselines. Fixable source gaps remain in light/dark panel and footer treatment, footer structure, and responsive presentation. Raster media, unavailable fonts, sparse truthful registry content, and stale baselines remain gated and must not be fabricated or approved.",
+  "worker_package": {
+    "objective": "Implement and verify one deterministic homepage source-fidelity closure slice across the existing homepage boundary: correct light/dark principle-panel and footer materials, complete footer groups using only existing local routes, improve responsive spacing and overflow where demonstrated, and preserve truthful registry-driven content and provenance-pending media placeholders. Do not add raster media, fonts, invented news, external URLs, snapshots, provider activation, or unrelated workstreams.",
+    "allowed_files": [
+      "apps/web/src/app/page.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/components/hero-illustration.tsx",
+      "apps/web/src/components/project-card.tsx",
+      "apps/web/src/components/site-header.tsx",
+      "apps/web/src/components/site-footer.tsx",
+      "apps/web/.next",
+      "test-results"
+    ],
+    "verify": [
+      "Before each Playwright command inspect 127.0.0.1:3101 and proceed only when FREE or owned by this workspace.",
+      "pnpm exec prettier --check apps/web/src/app/page.tsx apps/web/src/app/globals.css apps/web/src/components/hero-illustration.tsx apps/web/src/components/project-card.tsx apps/web/src/components/site-header.tsx apps/web/src/components/site-footer.tsx",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:check",
+      "pnpm build",
+      "Compare fresh 1440px desktop, 1024px, 768px, 390px mobile, dark-mode, and brand-board output; treat unchanged-baseline differences as diagnostic only and do not run visual:update.",
+      "Confirm writes are limited to the listed source files, apps/web/.next, and test-results."
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files, especially content registries, snapshots, plans, reports, provenance manifests, docs-ingestion, search, governance, hardening, operations, or external systems.",
+      "Raster media, font files, licenses, project/news facts, institutional claims, or external URLs would need to be invented or inferred.",
+      "The worker runs visual:update, modifies snapshots, weakens assertions, or approves stale or mismatched baselines.",
+      "A fresh comparison reveals a material responsive overflow, accessibility, functional, logo, or dark-mode regression.",
+      "A remaining visual difference cannot be separated between a fixable source gap and provenance/content/font-gated variance.",
+      "Port 3101 is occupied by an unknown process or generated-output cleanup would traverse a symlink or broader directory.",
+      "A required command fails twice for the same in-scope cause."
+    ]
+  },
+  "evidence": [
+    "T058 passed formatting, lint, typecheck, tests, E2E, a11y, and build; visual:check failed light 8%, mobile 40% with height mismatch, and dark 14%.",
+    "Current page renders four principles without explanatory copy and only the single truthful published news item.",
+    "Current footer styling and structure do not match the supplied light/dark references or the required complete footer groups.",
+    "The asset guide gates raster mockup media on license/provenance; current public assets contain only SVG logos.",
+    "The supplied mockups are implementation references, not pixel-perfect contracts, and stale baselines remain unchanged."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Homepage markup, shared styling, theme behavior, shell components, generated output, browser ownership, and visual evidence remain one coupled boundary; use one sole Worker."
+  },
+  "blocked_tasks": ["T054", "T056", "T058"],
+  "missing_evidence": [
+    "Source-fidelity corrections verified against supplied desktop, mobile, dark, and brand references.",
+    "Persisted fresh actual and diff screenshots from T058.",
+    "Repository-backed raster license/provenance evidence.",
+    "Evidence that Bodoni Moda, Inter, or IBM Plex Mono are loaded.",
+    "Fresh post-change responsive comparisons at 1440, 1024, 768, and 390 pixels.",
+    "Truthful additional published news records required for the reference three-card composition.",
+    "Completion evidence for the broader documentation, search, governance, hardening/operations, and external activation brief."
+  ]
+}

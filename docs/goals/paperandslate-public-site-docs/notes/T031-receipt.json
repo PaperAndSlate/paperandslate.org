@@ -1,0 +1,27 @@
+{
+  "task_id": "T031",
+  "result": "done",
+  "changed_files": [
+    "apps/web/.next",
+    "IMPLEMENTATION_REPORT.md",
+    "LAUNCH_READINESS.md",
+    ".generated/launch/launch-evidence.json"
+  ],
+  "commands": [
+    {"cmd": "Node exact-target cleanup of apps/web/.next", "status": "pass"},
+    {"cmd": "pnpm build", "status": "pass"},
+    {"cmd": "pnpm content:validate", "status": "pass"},
+    {"cmd": "pnpm feeds:check", "status": "pass"},
+    {"cmd": "pnpm release:check", "status": "pass"},
+    {"cmd": "pnpm routes:check", "status": "pass"},
+    {"cmd": "pnpm search:index", "status": "pass"},
+    {"cmd": "pnpm typecheck", "status": "pass"},
+    {"cmd": "pnpm test", "status": "pass"},
+    {"cmd": "Validate launch-evidence.json", "status": "pass"}
+  ],
+  "summary": "Cleaned only apps/web/.next. The production build passed on the first clean attempt without changing Next standalone configuration. All listed content, feeds, release, routes, search, typecheck, and full test checks passed. Launch reports and evidence now truthfully record the passing build.",
+  "deviations": [],
+  "remaining_blockers": [],
+  "verification_attempts": 1,
+  "stopped_because": null
+}

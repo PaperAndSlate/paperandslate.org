@@ -1,0 +1,47 @@
+{
+  "task_id": "T071",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T068 proves only a successful non-standalone production build; T070 stopped before deletion and produced no fresh runtime evidence. The current .next is a normal directory with no reparse descendants or standalone tree, and port 3101 is free. A no-deletion next start pass is safe. The configured e2e/a11y/visual scripts use next dev and cannot consume this existing production output without config changes. Prior visual diagnostics had 3/3 mismatches and the broader brief remains incomplete.",
+  "worker_package": {
+    "objective": "Run one sole no-deletion runtime diagnostics pass against the existing apps/web/.next verification output. Start it with next start on 127.0.0.1:3101, collect HTTP smoke checks, Playwright CLI light-desktop, 390px-mobile, and dark screenshots, and an inline Playwright/Axe result. Persist only new diagnostics under test-results/t071-runtime. Do not clean or rebuild .next, modify source/configuration/content/reports/snapshots, run visual:update, approve baselines, or alter standalone/Docker behavior.",
+    "allowed_files": ["test-results/t071-runtime"],
+    "verify": [
+      "Preflight 127.0.0.1:3101 and proceed only when free; assert apps/web/.next is exact target with no reparse descendants; record before hashes for .next, source, next.config.ts, build-boundary.ts, and tests/browser/snapshots.",
+      "Start only existing output with pnpm --filter @paper-and-slate/web exec next start --hostname 127.0.0.1 --port 3101; record owned PID and command line.",
+      "Run Invoke-WebRequest smoke checks against /, /health, /docs, /projects, and /search; require successful responses and stop the owned server afterward.",
+      "Run Playwright CLI screenshots for 1440x900 light, 390x844 mobile, and 1440x900 dark into test-results/t071-runtime.",
+      "Run inline Node Playwright/AxeBuilder check against the root and write JSON only under test-results/t071-runtime/axe.json.",
+      "Repeat reparse scan and before/after hashes; verify snapshots, source, configuration, Docker files, and .next are unchanged and visual:update did not run."
+    ],
+    "stop_if": [
+      "Port 3101 is occupied by unknown process or ownership cannot be established.",
+      "apps/web/.next is a reparse point, any descendant is a reparse point, or cleanup/build/dev operation would be required.",
+      "next start changes .next, source, configuration, snapshots, content, or any path outside test-results/t071-runtime.",
+      "Existing output cannot serve required smoke routes.",
+      "Browser or Axe check fails twice for same cause or artifacts cannot be written only beneath test-results/t071-runtime.",
+      "Configured browser scripts require next dev/config changes, visual:update runs, snapshots change, assertions weaken, or any mismatch is approved."
+    ]
+  },
+  "evidence": [
+    "T068 records build:verify passing twice with output guards, exit propagation, unchanged source/configuration/Dockerfile checks, and preserved default standalone behavior.",
+    "T070 records cleanup rejected before deletion and no files changed.",
+    "Current apps/web/.next is a normal directory with no standalone tree or reparse descendants; port 3101 is FREE.",
+    "package scripts and Playwright config bind the normal browser commands to next dev on port 3101, so a no-deletion next start harness is needed for existing output.",
+    "Prior visual diagnostics recorded 3/3 mismatches with snapshots unchanged."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "The runtime owns port 3101, reads shared .next, and produces shared browser diagnostics; run one sole Worker with no parallel runtime or snapshot work."
+  },
+  "blocked_tasks": ["T060", "T062", "T064", "T066", "T070"],
+  "missing_evidence": [
+    "Fresh post-T068 canonical browser and accessibility results.",
+    "Fresh screenshot diagnostics and Axe results from existing non-standalone output.",
+    "Canonical expected/diff/trace artifacts without changing Playwright configuration.",
+    "Current-source standalone/Docker image or runtime revalidation.",
+    "Repository-backed raster-media provenance and truthful font-loading evidence.",
+    "Completion of documentation ingestion, search, governance, hardening, operations, and external activation requirements."
+  ]
+}

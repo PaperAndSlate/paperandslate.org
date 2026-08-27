@@ -1,0 +1,15 @@
+{
+  "name": "@paper-and-slate/content",
+  "private": true,
+  "version": "0.1.0",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "3.24.2"
+  }
+}

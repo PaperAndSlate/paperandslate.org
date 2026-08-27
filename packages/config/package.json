@@ -1,0 +1,14 @@
+{
+  "name": "@paper-and-slate/config",
+  "private": true,
+  "main": "src/env.ts",
+  "types": "src/env.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "3.24.2"
+  }
+}

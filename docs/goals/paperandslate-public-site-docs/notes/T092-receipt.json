@@ -1,0 +1,48 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T092",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "apps/web/src/components/docs-taxonomy-page.tsx",
+      "apps/web/src/components/news-filtered-list.tsx",
+      "apps/web/src/components/docs-navigation.tsx",
+      "apps/web/src/app/(docs)/docs/page.tsx",
+      "apps/web/src/app/(docs)/docs/getting-started/page.tsx",
+      "apps/web/src/app/(docs)/docs/concepts/page.tsx",
+      "apps/web/src/app/(docs)/docs/guides/page.tsx",
+      "apps/web/src/app/(docs)/docs/reference/page.tsx",
+      "apps/web/src/app/(docs)/docs/tools/page.tsx",
+      "apps/web/src/app/(docs)/docs/governance/page.tsx",
+      "apps/web/src/app/(public)/news/page.tsx",
+      "apps/web/src/app/(public)/news/category/[category]/page.tsx",
+      "apps/web/src/app/(public)/news/tag/[tag]/page.tsx",
+      "apps/web/src/app/(public)/governance/contributing/page.tsx",
+      "apps/web/src/app/(public)/governance/code-of-conduct/page.tsx",
+      "apps/web/src/app/(public)/governance/security/page.tsx",
+      "apps/web/src/app/(public)/governance/conflicts/page.tsx",
+      "apps/web/src/app/(public)/governance/trademarks/page.tsx",
+      "apps/web/src/app/(public)/governance/licenses/page.tsx",
+      "apps/web/src/app/sitemap.ts",
+      "scripts/routes-check.ts",
+      "tests/public-routes.test.ts",
+      "tests/docs-routes.test.ts",
+      "tests/browser/smoke.spec.ts"
+    ],
+    "commands": [
+      "pnpm exec prettier --write <changed files>",
+      "pnpm exec prettier --check <changed files>",
+      "pnpm routes:check",
+      "pnpm content:validate",
+      "pnpm docs:validate",
+      "pnpm seo:check",
+      "pnpm lint",
+      "pnpm typecheck"
+    ],
+    "summary": "Implemented the requested route-catalog slice and passed formatting, routes, content, docs, SEO, and lint checks. Typecheck remained blocked by unresolved relative imports in the nested news category/tag pages after two verification runs.",
+    "deviations": [],
+    "remaining_blockers": ["Nested news category/tag page imports still fail typecheck."],
+    "verification_attempts": 2,
+    "stopped_because": "The same in-scope typecheck failure repeated twice, exhausting the allowed fix/verification boundary."
+  }
+}

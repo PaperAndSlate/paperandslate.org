@@ -1,0 +1,88 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T002",
+    "board_path": "C:/Users/Callum/Documents/GitHub/paperandslate/web/docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T001 is consistent with the brief: the workspace is implementation-empty, while Phase 0 explicitly calls for local workspace/bootstrap tooling and a blank branded shell. This is the largest reversible vertical slice. Public repository creation, Tower/Coolify, DNS, credentials, provider activation, commits, pushes, and database/auth work remain external or prohibited.",
+    "worker_package": {
+      "objective": "Implement the local Phase 0 pnpm/Turborepo bootstrap and a working blank-but-branded Next.js App Router / shell, with strict TypeScript, ESLint, Prettier, Vitest, environment schema, local CI configuration, truthful legal/governance placeholders, one ADR, and an implementation ledger. Pin exact dependency versions in manifests and lockfile and record them in the ADR. Do not commit, push, create repositories or pull requests, activate Tower/DNS/providers, or invent institutional claims.",
+      "allowed_files": [
+        ".gitignore",
+        "README.md",
+        "package.json",
+        "pnpm-workspace.yaml",
+        "pnpm-lock.yaml",
+        "turbo.json",
+        "tsconfig.json",
+        "eslint.config.mjs",
+        "prettier.config.mjs",
+        "vitest.config.ts",
+        ".github/workflows/ci.yml",
+        "LICENSE",
+        "LICENSE-DOCS.md",
+        "NOTICE",
+        "TRADEMARKS.md",
+        "SECURITY.md",
+        "CODE_OF_CONDUCT.md",
+        "CONTRIBUTING.md",
+        "IMPLEMENTATION_LEDGER.md",
+        "docs/adr/0001-local-bootstrap.md",
+        "apps/web/package.json",
+        "apps/web/next.config.ts",
+        "apps/web/tsconfig.json",
+        "apps/web/next-env.d.ts",
+        "apps/web/src/app/layout.tsx",
+        "apps/web/src/app/page.tsx",
+        "apps/web/src/app/globals.css",
+        "apps/web/public/brand/paper-and-slate-horizontal-dark.svg",
+        "packages/config/package.json",
+        "packages/config/tsconfig.json",
+        "packages/config/src/env.ts",
+        "tests/bootstrap.test.ts"
+      ],
+      "verify": [
+        "pnpm install --frozen-lockfile",
+        "pnpm format:check",
+        "pnpm lint",
+        "pnpm typecheck",
+        "pnpm test",
+        "pnpm build",
+        "$hits = rg -n -i 'next-auth|prisma|drizzle-orm|postgres|valkey|rabbitmq|qdrant|keycloak|aws-sdk|@aws-sdk|s3' package.json apps packages; if ($hits) { $hits; exit 1 }"
+      ],
+      "stop_if": [
+        "Any write is needed outside allowed_files, including plans, docs/goals, parent directories, or sibling repositories.",
+        "The work requires a commit, push, pull request, remote repository creation, Tower/Coolify, DNS, credentials, or provider activation.",
+        "The work requires authentication, database/ORM, PostgreSQL, queues, object storage, or other excluded infrastructure.",
+        "A legal wording, brand-rights, dependency-version, or factual-content decision cannot be resolved truthfully with a clearly marked local placeholder.",
+        "A verification command fails twice for the same in-scope cause, or the built application does not render the root route.",
+        "Existing unrelated changes would be overwritten or the supplied logo asset cannot be copied without altering its artwork."
+      ]
+    },
+    "evidence": [
+      "T001 receipt: workspace contains only docs/ and plans/, with no application, package manifest, lockfile, or verification setup.",
+      "plans/11-implementation/01-phased-implementation-plan.md:3-26: Phase 0 requires workspace/CI/bootstrap, strict tooling, environment schema, legal placeholders, and a blank branded shell with no database/auth.",
+      "plans/08-technical-architecture/02-repository-architecture.md:14-81: defines the apps/web, packages/config, root workspace, and CI-oriented repository boundaries.",
+      "plans/README.md:3-18,55-75: specifies one Next.js application, truthful positioning, and deferred repository creation.",
+      "plans/08-technical-architecture/01-technology-stack.md:3-47: requires strict TypeScript, current stable version pinning, pnpm/Turborepo, and excludes auth/database infrastructure.",
+      "plans/06-governance/05-policies-licenses-and-trademarks.md:3-66: names the required local license and trademark notice files.",
+      "Current workspace inspection: node and pnpm are available; no implementation files exist."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "Run this as the sole write Worker; no disjoint parallel implementation scope is established."
+    },
+    "blocked_tasks": [],
+    "missing_evidence": [
+      "Worker implementation and focused verification are not yet present.",
+      "External repository, preview, DNS, Tower, Typesense, and Kit activation evidence is unavailable and intentionally out of this local package."
+    ],
+    "required_board_updates": [
+      "Record T002 as done with this receipt.",
+      "Copy the worker_package objective, allowed_files, verify, and stop_if values verbatim into T003.",
+      "Preserve the single-active-task rule; track external activation as deferred evidence rather than blocking local bootstrap."
+    ]
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T103",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T099-T102 pass the prerequisite gate: Next.js 16.3.3, React 19.2.8, zero production advisories, lint, typecheck, browser smoke, route/content checks, and build verification are recorded. Official Fumadocs metadata now aligns with Next 16, React 19.2, and Tailwind 4. Authorize one vertical package implementing actual central Fumadocs Core/UI/MDX, Tailwind 4, and source-owned docs primitives while retaining restricted custom rendering for imported docs. Fumadocs parity remains unclaimed until implemented and verified.",
+    "worker_package": {
+      "objective": "Implement the Phase 1/3 local documentation design foundation: pin and integrate Fumadocs Core/UI 16.15.2 and MDX 15.3.1 with Next.js 16.3.3, Tailwind CSS 4.3.3, @tailwindcss/postcss 4.3.3, PostCSS 8.5.26, @types/mdx 2.0.14, and Phosphor Icons 2.1.10; add Tailwind configuration, source-owned shadcn-style design primitives, semantic tokens, central Fumadocs MDX rendering, docs shell/navigation/TOC/actions/code/callout/tabs/requirement components, and browser/accessibility coverage. Compile only reviewed central content/docs; retain the restricted custom renderer for fixture, sibling, and future Git-imported documents. Preserve existing registries, ingestion safety, provenance, static search fallback, raw routes, route parity, truthful content, public-site behavior, and zero-advisory security posture. Record the decision and local evidence without claiming production, legal, provenance, provider, or Fumadocs parity beyond verified scope.",
+      "allowed_files": [
+        ".gitignore", "package.json", "pnpm-lock.yaml", "components.json", "apps/web/package.json", "apps/web/next.config.ts", "apps/web/postcss.config.mjs", "apps/web/src/app/layout.tsx", "apps/web/src/app/globals.css", "apps/web/src/app/(docs)/docs/layout.tsx", "apps/web/src/app/(docs)/docs/page.tsx", "apps/web/src/app/(docs)/docs/[...slug]/page.tsx", "apps/web/src/components/docs-renderer.tsx", "apps/web/src/components/docs-interactive.tsx", "apps/web/src/components/docs-navigation.tsx", "apps/web/src/components/docs-project-selector.tsx", "apps/web/src/components/source-provenance.tsx", "apps/web/src/components/version-selector.tsx", "apps/web/src/components/docs-table-of-contents.tsx", "apps/web/src/components/docs-page-actions.tsx", "apps/web/src/components/docs-code-block.tsx", "apps/web/src/components/docs-callout.tsx", "apps/web/src/components/docs-tabs.tsx", "apps/web/src/components/docs-requirement.tsx", "apps/web/src/components/mdx.tsx", "apps/web/src/lib/docs.ts", "apps/web/src/lib/docs-fumadocs.ts", "packages/design-system/package.json", "packages/design-system/tsconfig.json", "packages/design-system/src/index.ts", "packages/design-system/src/tokens.css", "packages/design-system/src/lib/utils.ts", "packages/design-system/src/components/index.ts", "packages/design-system/src/components/button.tsx", "packages/design-system/src/components/badge.tsx", "packages/design-system/src/components/surface.tsx", "packages/design-system/src/components/callout.tsx", "packages/design-system/src/components/code-block.tsx", "packages/design-system/src/components/tabs.tsx", "packages/design-system/src/components/requirement.tsx", "tests/design-system.test.ts", "tests/docs-routes.test.ts", "tests/docs-ingestion.test.ts", "tests/docs-components.test.ts", "tests/browser/docs-core.spec.ts", "tests/browser/smoke.spec.ts", "tests/browser/a11y.spec.ts", "IMPLEMENTATION_LEDGER.md", "IMPLEMENTATION_REPORT.md", "LAUNCH_READINESS.md", "docs/adr/0004-fumadocs-tailwind-design-system.md", ".source", "apps/web/.next", ".turbo", "apps/web/tsconfig.tsbuildinfo", "test-results/.last-run.json"
+      ],
+      "verify": [
+        "pnpm install --frozen-lockfile --strict-peer-dependencies", "pnpm view fumadocs-core@16.15.2 peerDependencies peerDependenciesMeta --json", "pnpm view fumadocs-ui@16.15.2 peerDependencies peerDependenciesMeta --json", "pnpm view fumadocs-mdx@15.3.1 peerDependencies peerDependenciesMeta --json", "pnpm view tailwindcss@4.3.3 version --json", "pnpm view @tailwindcss/postcss@4.3.3 dependencies peerDependencies --json", "pnpm view @phosphor-icons/react@2.1.10 peerDependencies --json", "pnpm audit --prod --json", "pnpm why fumadocs-core fumadocs-ui fumadocs-mdx tailwindcss @tailwindcss/postcss postcss --recursive", "pnpm exec prettier --check listed changed package/source/test files", "pnpm routes:check", "pnpm content:validate", "pnpm docs:validate", "pnpm seo:check", "pnpm security:check", "pnpm lint", "pnpm typecheck", "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-components.test.ts tests/design-system.test.ts", "pnpm test", "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "pnpm visual:check", "pnpm build:verify"
+      ],
+      "stop_if": [
+        "Any write is needed outside allowed_files, including imported/generated content, plans, unrelated source, reports beyond the listed readiness artifacts, assets, infrastructure, or external systems.", "Official peer metadata no longer supports the pinned Next.js 16.3.3, React 19.2.8, Fumadocs, and Tailwind combination under strict-peer installation.", "Any moderate, high, or critical production advisory appears, or remediation requires overrides, hidden installs, registry replacement, or unrelated dependency churn.", "Fumadocs MDX would compile fixture, sibling, Git-imported, or otherwise untrusted documentation; arbitrary imports/exports, unsafe HTML/URLs, runtime fetches, path traversal, or source shadowing are introduced.", "The existing Zod 3 content/config contracts require a cross-package major migration, or Fumadocs integration requires excluded infrastructure.", "Existing custom fallback rendering, ingestion validation, provenance, static search, raw routes, route parity, truthful content, public pages, or build behavior regresses.", "Visual checks require updating existing snapshots to hide a regression.", "Browser verification collides with an unrelated server or requires stopping/modifying an unrelated process.", "A verification command fails twice for the same in-scope cause, or reports/readiness cannot be refreshed truthfully from local evidence."
+      ]
+    },
+    "evidence": [
+      "T102 receipt records Next.js 16.3.3, React 19.2.8, zero production advisories, 23 routes, lint, typecheck, browser smoke, and build verification.",
+      "Official Fumadocs metadata and guidance align with Next.js 16, React 19.2, Tailwind 4, and the MDX plugin/RootProvider/source-loader integration boundary.",
+      "Official Tailwind guidance uses @tailwindcss/postcss and @import tailwindcss; shadcn guidance supports Tailwind 4 and source-owned components.",
+      "Current docs use a custom escaped renderer and generated documents; design-system currently exposes metadata/tokens but no component primitives.",
+      "Planning Phase 1 requires tokens, fonts, themes, source primitives, responsive navigation, and accessibility; Phase 3 requires Fumadocs, docs components, selectors, dark mode, Markdown/LLM views, and print styles.",
+      "Current reports keep Lighthouse, SBOM, deployment, providers, legal/factual review, and production acceptance pending."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": { "safe": false, "reason": "The package changes shared manifests/lockfile, global CSS, root provider, docs routing, design-system exports, and application-wide verification surfaces; run one sole Worker." },
+    "blocked_tasks": ["T096"],
+    "missing_evidence": [
+      "Actual Fumadocs Core/UI/MDX implementation and central-page parity.",
+      "Tailwind 4 compilation and source-owned shadcn primitive evidence.",
+      "Dedicated docs browser, keyboard, dark-mode, provenance, raw-route, version, and accessibility evidence.",
+      "Fresh complete launch/readiness reports, Lighthouse, SBOM, synthetic-monitor, rollback-drill, deployment, provider, legal, maintainer, and public-fact evidence.",
+      "Fumadocs integration of imported documentation remains intentionally unapproved until a safe adapter boundary is demonstrated."
+    ],
+    "required_board_updates": [
+      "Record T103 as done with this receipt.",
+      "Create exactly one Worker task from worker_package verbatim and keep it as the sole active write task.",
+      "Treat T100's lint stop as repaired by T101/T102 verification while preserving its zero-advisory evidence.",
+      "Keep T096 as historical blocked evidence until the new package is implemented and verified; do not claim Fumadocs parity beforehand.",
+      "Keep full_outcome_complete false and preserve external, provenance, legal, factual, provider, deployment, and operations blockers explicitly."
+    ]
+  }
+}

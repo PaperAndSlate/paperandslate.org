@@ -1,0 +1,4 @@
+version: 1
+mode: local-structured
+redaction: request-bodies-email-credentials-hostnames
+provider: none

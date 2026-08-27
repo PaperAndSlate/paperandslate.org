@@ -1,0 +1,26 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T124",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["package.json", "tests/docs-components.test.ts"],
+    "commands": [
+      {"cmd": "pnpm format:check", "status": "fail", "count": 1, "output": "Initial repair removed the parse error but passed literal quote characters; Prettier reported unmatched quoted route-group and tests/**/*.tsx patterns."},
+      {"cmd": "pnpm format:check", "status": "fail", "count": 1, "output": "Windows cmd parsing still failed: /docs/**/*.tsx was unexpected at this time."},
+      {"cmd": "pnpm test -- tests/docs-components.test.ts tests/docs-ingestion.test.ts tests/docs-source-adapters.test.ts", "status": "not_run", "count": 0, "output": "Stopped per T124 stop_if."},
+      {"cmd": "pnpm test", "status": "not_run", "count": 0, "output": "Stopped per T124 stop_if."},
+      {"cmd": "pnpm docs:validate", "status": "not_run", "count": 0, "output": "Stopped per T124 stop_if."},
+      {"cmd": "pnpm content:validate", "status": "not_run", "count": 0, "output": "Stopped per T124 stop_if."},
+      {"cmd": "pnpm exec eslint apps/web/src packages scripts tests --no-error-on-unmatched-pattern", "status": "not_run", "count": 0, "output": "Stopped per T124 stop_if."},
+      {"cmd": "pnpm exec tsc -p apps/web --noEmit --incremental false", "status": "not_run", "count": 0, "output": "Stopped per T124 stop_if."},
+      {"cmd": "pnpm exec tsc -p packages/design-system --noEmit --incremental false", "status": "not_run", "count": 0, "output": "Stopped per T124 stop_if."}
+    ],
+    "summary": "Updated the reviewed-central expectation from two to three and attempted the Windows-safe route-group quoting repair. The exact format check still fails at cmd.exe parsing after one bounded correction, so T124 stopped. No other files or systems were changed.",
+    "deviations": [],
+    "remaining_blockers": ["The package.json format:check route-group glob remains Windows-unsafe.", "The remaining verification commands were not run because the required stop condition was met.", "full_outcome_complete remains false."],
+    "verification_attempts": 2,
+    "stopped_because": "The same in-scope format:check failure remained after one bounded correction: /docs/**/*.tsx was unexpected at this time.",
+    "evidence": ["Only package.json and tests/docs-components.test.ts were edited.", "No visual:update, commit, push, deploy, provider, external write, snapshot, generated-artifact, or source change was performed."],
+    "full_outcome_complete": false
+  }
+}

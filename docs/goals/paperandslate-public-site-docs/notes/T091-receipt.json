@@ -1,0 +1,96 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T091",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "Approve one route-catalog parity vertical slice. The brief and route catalog require docs taxonomy entrypoints, governance utility entrypoints, and news category/tag routes; current source has only the docs catch-all/index, public utility pages, and query-only news filtering, while sitemap, route checks, and tests omit those paths. Existing registries support truthful content and explicit empty states. Fumadocs replacement and dependency expansion are deferred as a separate higher-risk package. External activation, legal/factual review, and media/font provenance remain blockers.",
+    "worker_package": {
+      "objective": "Implement and verify the concrete launch route-catalog parity slice: add working /docs/getting-started, /docs/concepts, /docs/guides, /docs/reference, /docs/tools, and /docs/governance landing routes backed by existing ingested documents with explicit empty states; add /news/category/[category] and /news/tag/[tag] filtered pages; add /governance/contributing, /governance/code-of-conduct, /governance/security, /governance/conflicts, /governance/trademarks, and /governance/licenses truthful entrypoints; wire discoverability, sitemap, route checks, tests, and dedicated-port HTTP smoke coverage. Preserve the existing custom docs renderer and registries. Add no new factual claims, dependencies, providers, database/auth, or remote behavior.",
+      "allowed_files": [
+        "apps/web/src/components/docs-taxonomy-page.tsx",
+        "apps/web/src/components/news-filtered-list.tsx",
+        "apps/web/src/components/docs-navigation.tsx",
+        "apps/web/src/app/(docs)/docs/page.tsx",
+        "apps/web/src/app/(docs)/docs/getting-started/page.tsx",
+        "apps/web/src/app/(docs)/docs/concepts/page.tsx",
+        "apps/web/src/app/(docs)/docs/guides/page.tsx",
+        "apps/web/src/app/(docs)/docs/reference/page.tsx",
+        "apps/web/src/app/(docs)/docs/tools/page.tsx",
+        "apps/web/src/app/(docs)/docs/governance/page.tsx",
+        "apps/web/src/app/(public)/news/page.tsx",
+        "apps/web/src/app/(public)/news/category/[category]/page.tsx",
+        "apps/web/src/app/(public)/news/tag/[tag]/page.tsx",
+        "apps/web/src/app/(public)/governance/contributing/page.tsx",
+        "apps/web/src/app/(public)/governance/code-of-conduct/page.tsx",
+        "apps/web/src/app/(public)/governance/security/page.tsx",
+        "apps/web/src/app/(public)/governance/conflicts/page.tsx",
+        "apps/web/src/app/(public)/governance/trademarks/page.tsx",
+        "apps/web/src/app/(public)/governance/licenses/page.tsx",
+        "apps/web/src/app/sitemap.ts",
+        "scripts/routes-check.ts",
+        "tests/public-routes.test.ts",
+        "tests/docs-routes.test.ts",
+        "tests/browser/smoke.spec.ts",
+        "apps/web/.next",
+        ".turbo",
+        "test-results/.last-run.json"
+      ],
+      "verify": [
+        "pnpm exec prettier --check <all changed source, script, and test files in allowed_files>",
+        "pnpm routes:check",
+        "pnpm content:validate",
+        "pnpm docs:validate",
+        "pnpm seo:check",
+        "pnpm lint",
+        "pnpm typecheck",
+        "pnpm test",
+        "pnpm e2e",
+        "pnpm build:verify"
+      ],
+      "stop_if": [
+        "Any write is needed outside allowed_files, including plans, reports, ledger files, assets, generated documentation/search artifacts, or external systems.",
+        "The implementation requires Fumadocs, Tailwind, shadcn, new dependencies, database/auth/provider infrastructure, remote fetches, repositories, credentials, or deployment activation.",
+        "Truthful route content cannot be produced from existing registries and documented empty-state behavior without inventing people, adoption, legal, institutional, standards, URL, media, or font claims.",
+        "A route collision, wrong existing server, unrelated port ownership, or browser failure requires killing or modifying an unrelated process.",
+        "A visual baseline, T080 diagnostic artifact, provenance record, or media/font asset must be changed.",
+        "A verification command fails twice for the same in-scope cause, build output is written outside the allowed generated paths, or the route smoke/build does not establish the new paths."
+      ]
+    },
+    "evidence": [
+      "T090 receipt: homepage milestone is verified, while route/template parity, design-system parity, CI/operations, and broader launch evidence remain incomplete.",
+      "T089 receipt: homepage approval is explicitly scoped and full_outcome_complete remains false.",
+      "Original brief lines 447-502 require the missing docs taxonomy, governance utility, and news category/tag routes.",
+      "Original brief lines 692-725 require a complete distinct documentation experience with taxonomy, navigation, selectors, labels, and provenance.",
+      "plans/02-information-architecture/03-route-catalog.md defines /docs/**, governance, news category/tag, and redirect route behavior.",
+      "Current route inventory has no dedicated docs taxonomy, news category/tag, or governance nested utility route files.",
+      "apps/web/src/app/(docs)/docs/page.tsx and [..slug]/page.tsx provide only the docs index and generated document routes; unknown taxonomy entrypoints resolve to notFound.",
+      "apps/web/src/app/(public)/news/page.tsx supports query filtering only; packages/content/src/news.ts provides published records and category data suitable for deterministic filtered routes.",
+      "apps/web/src/app/sitemap.ts and scripts/routes-check.ts enumerate only a partial route set.",
+      "The complete plans/assets inventory remains available: 89 Markdown planning documents and 64 supplied assets, including route, taxonomy, governance, news, docs, brand, and component references.",
+      "No git repository exists at the web workspace or immediate parent, so the package must remain filesystem-bounded and reversible."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "Run as the sole Worker. The package shares application route resolution, sitemap behavior, docs navigation, and browser/build outputs; no disjoint parallel implementation scope is established."
+    },
+    "blocked_tasks": ["T084"],
+    "missing_evidence": [
+      "Fumadocs Core/UI/MDX parity remains unresolved and is intentionally deferred from this package.",
+      "The full design-system component board and required dependency/tooling parity remain incomplete.",
+      "Lighthouse execution, full accessibility matrix, 320px/200% zoom review, SBOM, dependency review, and operational drills remain incomplete.",
+      "Typesense, Kit, Tower/Coolify, Infisical, GlitchTip, DNS/TLS, production deployment, and remote repository evidence remain externally blocked.",
+      "Qualified legal/factual approval, production media licensing/provenance, and exact font provenance remain unavailable.",
+      "The complete launch checklist and full oracle mapping remain open."
+    ],
+    "required_board_updates": [
+      "Record T091 as done with this receipt.",
+      "Create exactly one next Worker task using this worker_package objective, allowed_files, verify, and stop_if values verbatim.",
+      "Preserve one-active-task sequencing and do not parallelize this package.",
+      "Retain T084 as historical blocked evidence while treating T088-T090 as the superseding homepage audit trail.",
+      "Keep full_outcome_complete false and preserve external, legal, factual, media, and font blockers explicitly."
+    ]
+  }
+}

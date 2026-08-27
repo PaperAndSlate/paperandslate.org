@@ -1,0 +1,48 @@
+{
+  "task_id": "T067",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T060 homepage source work and static checks are present. T066 proves E2E and accessibility, but visual checks still materially mismatch unchanged baselines and the production build exits 1 while scanning standalone output. Turbo also writes out-of-scope logs. Approve one bounded local verification-build boundary while preserving standalone Docker behavior.",
+  "worker_package": {
+    "objective": "Add a cross-platform non-standalone local production-build verification boundary that bypasses Turbo's build task, while preserving the existing production-default standalone output and Dockerfile contract. Add only an explicit environment-controlled next.config mode, a root build:verify script, and a small Node/tsx launcher. Do not modify homepage source, Dockerfile, snapshots, reports, content, docs-ingestion, search, governance, operations, or external systems.",
+    "allowed_files": ["package.json", "apps/web/next.config.ts", "scripts/build-boundary.ts", "apps/web/.next"],
+    "verify": [
+      "Guard exact apps/web/.next target, remove only validated reparse-point children without following links, and remove exact root.",
+      "Verify source/configuration/Dockerfile hashes before and after; inspect port 3101 but do not run browser or visual-update commands.",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm build:verify; require the launcher to invoke only the web Next.js production build with verification output mode and record actual exit status.",
+      "Verify apps/web/.next contains valid production output, no standalone tree or reparse points, and no .turbo, test-results, snapshot, or source writes occurred.",
+      "Verify unset/default production configuration still selects output: standalone and infrastructure/docker/Dockerfile is unchanged."
+    ],
+    "stop_if": [
+      "Build boundary requires changing Dockerfile, lockfile, dependencies, homepage source, snapshots, reports, content, docs-ingestion, search, governance, operations, or external systems.",
+      "Exact .next cleanup target is ambiguous, is a reparse point, or any link cannot be removed without following it.",
+      "build:verify invokes Turbo, recreates standalone output, writes .turbo logs, or cannot provide actual successful exit status.",
+      "Verification build fails twice for the same in-scope cause.",
+      "Default standalone configuration or Docker packaging contract would be weakened or made implicit.",
+      "Any visual:update, snapshot change, assertion weakening, or approval of mismatched baselines occurs."
+    ]
+  },
+  "evidence": [
+    "T060 homepage source/material/footer work passed format, lint, typecheck, and unit tests; E2E/build failed on generated .next reparse-point scanning.",
+    "T066 cleanup passed; E2E 4/4 and a11y 4/4 passed; visual diagnostics produced 3/3 mismatches with snapshots unchanged.",
+    "T066 production build exited 1 at .next/standalone/apps/web/node_modules/next and touched three Turbo logs outside its allowed roots.",
+    "next.config.ts selects standalone in production; turbo.json runs the full build graph and declares .next/dist outputs.",
+    "T017 recorded successful standalone Docker build and /health runtime after the existing Dockerfile contract."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "The build boundary, generated .next tree, process environment, and production verification share one runtime surface; run one sole Worker."
+  },
+  "blocked_tasks": ["T060", "T062", "T064", "T066"],
+  "missing_evidence": [
+    "Actual successful local production-build exit after the boundary change.",
+    "Post-T060 visual acceptance without approving or changing baselines.",
+    "Current-source standalone Docker packaging revalidation after the build boundary is established.",
+    "Repository-backed raster-media provenance and truthful font-loading evidence.",
+    "Completion evidence for docs-ingestion, search, governance, hardening/operations, and external activation."
+  ]
+}

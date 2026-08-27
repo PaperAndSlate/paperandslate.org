@@ -1,0 +1,89 @@
+{
+  "task_id": "T053",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T052 passed focused checks, but the latest baselines remain materially unlike the supplied homepage direction: sparse hero-only desktop captures, two plain text project cards on mobile, no editorial media, news cards, newsletter, or full reference composition. Source/layout changes are required. The existing registry already contains six truthful projects, so registry edits are unnecessary. New facts and raster media remain provenance-gated.",
+  "mismatches": [
+    "Hero uses a synthetic inline SVG tile instead of the supplied editorial still-life treatment.",
+    "Homepage renders two featured project cards; the reference shows six desktop cards and three mobile cards, all image-led.",
+    "Project cards lack media headers, reference status styling, card footers, and the reference summaries/layout.",
+    "The three-column news/update section and newsletter form are absent; current content ends with a quiet-state paragraph.",
+    "Approach panel is a stacked five-row list without the reference icons, explanatory copy, or three-column treatment.",
+    "Audience label says Designed for rather than Built with the education community; header labels/actions also differ.",
+    "Current surfaces lack the reference linen/grid texture and the footer is materially simpler.",
+    "Loaded Bodoni Moda, Inter, and IBM Plex Mono provenance is unproven."
+  ],
+  "worker_package": {
+    "objective": "Implement one homepage fidelity vertical slice using only existing truthful content: render all six public projects, add the reference section structure and card treatment, align header/footer/audience/approach styling, and add provenance-gated local media slots. Do not add public facts or modify content registries; use existing published news only. Use supplied raster media only when repository-backed license/provenance is established.",
+    "allowed_files": [
+      "apps/web/src/app/page.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/components/hero-illustration.tsx",
+      "apps/web/src/components/project-card.tsx",
+      "apps/web/src/components/site-header.tsx",
+      "apps/web/src/components/site-footer.tsx",
+      "apps/web/public/media/hero-still-life.webp",
+      "apps/web/public/media/offering-file-system.webp",
+      "apps/web/public/media/offering-discovery.webp",
+      "apps/web/public/media/offering-schemas.webp",
+      "apps/web/public/media/offering-standards.webp",
+      "apps/web/public/media/offering-news.webp",
+      "apps/web/public/media/offering-apis.webp",
+      "apps/web/public/media/offering-docs.webp",
+      "tests/browser/visual.spec.ts",
+      "tests/browser/snapshots/homepage.png",
+      "tests/browser/snapshots/homepage-mobile.png",
+      "tests/browser/snapshots/homepage-dark.png",
+      "apps/web/.next",
+      "test-results"
+    ],
+    "verify": [
+      "Inspect 127.0.0.1:3101 before each Playwright command and record ownership or FREE; terminate only an attributable orphan from this workspace.",
+      "pnpm exec prettier --check apps/web/src/app/page.tsx apps/web/src/app/globals.css apps/web/src/components/hero-illustration.tsx apps/web/src/components/project-card.tsx apps/web/src/components/site-header.tsx apps/web/src/components/site-footer.tsx tests/browser/visual.spec.ts",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:update",
+      "pnpm visual:check",
+      "pnpm build",
+      "Compare current light, mobile, and dark screenshots with the supplied desktop, mobile, dark-mode, and brand-board references without auto-approving material differences."
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files, especially packages/content, docs-ingestion, search, hardening/operations, reports, plans, or external systems.",
+      "Raster media provenance or license cannot be established; do not copy, optimize, reference, or claim those assets as production media.",
+      "The implementation would require invented news, project facts, font provenance, GitHub/repository URLs, or external activation.",
+      "A required command fails twice for the same in-scope cause.",
+      "Visual comparison reveals a material responsive, accessibility, dark-mode, logo, or functional regression; do not weaken assertions or accept a misleading baseline.",
+      "Port 3101 is occupied by an unknown process or ownership cannot be established.",
+      "Reports would claim unrun browser, accessibility, visual, build, Lighthouse, production, provider, or legal results."
+    ]
+  },
+  "evidence": [
+    "T052 receipt: formatting, lint, typecheck, tests, E2E, a11y, visual checks, and build passed; reference comparison stopped on material mismatch.",
+    "Current apps/web/src/app/page.tsx renders only featured projects, the approach list, and a quiet-state message.",
+    "Current apps/web/src/components/project-card.tsx has no image treatment and exposes type/update/tag metadata unlike the reference cards.",
+    "plans/assets/README.md says mockup media requires confirmed license/provenance before production use; current font declarations are fallback stacks only.",
+    "Supplied reference images and plans/07-design-system/06-mockup-index.md define the editorial homepage direction while allowing usability judgment."
+  ],
+  "missing_evidence": [
+    "Post-change homepage source and responsive implementation.",
+    "Provenance/license approval for any raster mockup media and truthful font-loading evidence.",
+    "Fresh 1440px desktop, 390px mobile, dark-mode, accessibility, visual, and build evidence after source changes.",
+    "Truthful published records for the reference news cards; only existing published registry data may be rendered."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Homepage source, shared shell styles, header/footer, project cards, media, snapshots, generated output, and browser evidence form one coupled boundary; run one sole Worker."
+  },
+  "blocked_tasks": ["T052"],
+  "required_board_updates": [
+    "Record T053 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker using this worker_package verbatim.",
+    "Record that content-registry edits are not required for the six existing truthful projects.",
+    "Treat media provenance as an explicit gate; keep docs-ingestion, search, hardening/operations, and external activation separate."
+  ]
+}

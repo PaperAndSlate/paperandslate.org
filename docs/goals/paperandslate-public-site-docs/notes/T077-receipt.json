@@ -1,0 +1,57 @@
+{
+  "task_id": "T077",
+  "result": "done",
+  "decision": "approved",
+  "full_outcome_complete": false,
+  "rationale": "T076 confirms successful preflight, all five HTTP routes, owned server readiness, system Chrome launch, cleanup, and unchanged integrity hashes. The sole failure is TypeError: textbox.isFocused is not a function at the dialog assertion. Existing browser tests use expect(locator).toBeFocused(). Screenshots, browser.json, and axe.json remain absent, so this milestone is not complete.",
+  "worker_package": {
+    "objective": "Modify only test-results/t075-system-chrome/browser-audit.mjs to replace the unsupported Locator.isFocused call with Playwright's supported expect(locator).toBeFocused() equivalent, then rerun the same sole post-T068 system-Chrome homepage diagnostics against existing apps/web/.next on 127.0.0.1:3101, writing only the listed bounded artifacts; preserve prior artifacts and all source/configuration/snapshot/.next/Docker hashes and runtime boundary.",
+    "allowed_files": [
+      "test-results/t075-system-chrome/browser-audit.mjs",
+      "test-results/t075-system-chrome/preflight.json",
+      "test-results/t075-system-chrome/server.stdout.log",
+      "test-results/t075-system-chrome/server.stderr.log",
+      "test-results/t075-system-chrome/http.json",
+      "test-results/t075-system-chrome/browser.json",
+      "test-results/t075-system-chrome/axe.json",
+      "test-results/t075-system-chrome/homepage-light-desktop.png",
+      "test-results/t075-system-chrome/homepage-mobile.png",
+      "test-results/t075-system-chrome/homepage-dark.png",
+      "test-results/t075-system-chrome/integrity.json"
+    ],
+    "verify": [
+      "node --check test-results/t075-system-chrome/browser-audit.mjs",
+      "node test-results/t075-system-chrome/browser-audit.mjs",
+      "Use expect(textbox).toBeFocused() with existing strict focus semantics; do not weaken/remove assertion.",
+      "Use shell:false process spawning, configured system Chrome fallback, existing next start output, and no inline -e command.",
+      "Require port 3101 FREE, exact .next target, zero reparse descendants, known Chrome before launch.",
+      "Require successful responses for /, /health, /docs, /projects, /search and mirror existing smoke assertions.",
+      "Persist all Axe violations while failing on serious/critical homepage violations.",
+      "Capture all three screenshots diagnostically without snapshot comparison, baseline writes, or visual:update.",
+      "Finally stop only owned server; verify port FREE, protected hashes unchanged, no reparses, and all new files beneath allowed directory."
+    ],
+    "stop_if": [
+      "Port 3101 unknown/occupied, .next missing/reparse, system Chrome missing/cannot launch, artifact script syntax/artifact/server stop failure.",
+      "Any browser/Axe/HTTP/assertion failure repeats for same cause; preserve artifacts and stop.",
+      "Any source/configuration/.next/Docker/test/snapshot/content/report/generated-output hash changes.",
+      "Any pnpm browser/update command, baseline approval, assertion weakening, or out-of-scope write."
+    ]
+  },
+  "evidence": [
+    "T076 preflight.json: port free, exact .next real path, zero .next reparses, known system Chrome present.",
+    "T076 http.json: required routes returned HTTP 200; server reached Ready and stopped cleanly.",
+    "T076 integrity.json: protected files unchanged and failure exactly TypeError: textbox.isFocused is not a function.",
+    "browser-audit.mjs reaches Chrome launch before the dialog focus assertion; existing smoke/a11y tests use expect(locator).toBeFocused()."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Worker owns port 3101, reads shared .next, launches system Chrome, and writes the single bounded diagnostic artifact set."
+  },
+  "blocked_tasks": ["T060", "T062", "T064", "T066", "T070", "T072", "T074", "T076"],
+  "missing_evidence": [
+    "Fresh browser.json with successful homepage assertions.",
+    "Fresh axe.json from AxeBuilder.",
+    "Fresh light desktop, mobile, and dark diagnostic screenshots.",
+    "Post-rerun integrity proof preserving all protected hashes."
+  ]
+}

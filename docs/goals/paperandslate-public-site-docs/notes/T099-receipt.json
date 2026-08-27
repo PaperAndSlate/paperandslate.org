@@ -1,0 +1,73 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T099",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T098 passes its compatibility gate: exact Next.js/React versions, strict-peer installation, preservation checks, and the 101-page build receipt are present. Fumadocs is framework-compatible but remains unimplemented, with Tailwind/design-system parity absent. Current pnpm audit reports six advisories, including vulnerable PostCSS through Next 15.5.24, Playwright 1.51.1, and yaml 2.7.0. Remediate this bounded security gap first.",
+    "worker_package": {
+      "objective": "Upgrade only Next.js to 16.3.3, @playwright/test to 1.55.1, and yaml to 2.8.3 to remediate current advisories without overrides; preserve React 19.2.8 and all existing docs, ingestion, search, raw-route, and truthful-content behavior; record the security decision and add a CI audit gate. Do not add Fumadocs, Tailwind, or unrelated dependencies.",
+      "allowed_files": [
+        "package.json",
+        "apps/web/package.json",
+        "packages/docs-ingestion/package.json",
+        "pnpm-lock.yaml",
+        ".github/workflows/ci.yml",
+        "IMPLEMENTATION_LEDGER.md",
+        "docs/adr/0003-dependency-security-floor.md",
+        "apps/web/.next",
+        ".turbo",
+        "apps/web/tsconfig.tsbuildinfo",
+        "test-results/.last-run.json"
+      ],
+      "verify": [
+        "pnpm install --frozen-lockfile --strict-peer-dependencies",
+        "pnpm audit --prod --json",
+        "pnpm why postcss yaml playwright --recursive",
+        "pnpm routes:check",
+        "pnpm content:validate",
+        "pnpm docs:validate",
+        "pnpm seo:check",
+        "pnpm security:check",
+        "pnpm lint",
+        "pnpm typecheck",
+        "pnpm exec playwright test tests/browser/smoke.spec.ts",
+        "pnpm build:verify"
+      ],
+      "stop_if": [
+        "Any write is needed outside allowed_files.",
+        "Any moderate, high, or critical advisory remains, or remediation requires overrides, hidden installs, or unrelated dependency churn.",
+        "Next.js 16 requires source or configuration changes outside allowed_files.",
+        "Docs, ingestion, static fallback/search, raw routes, truthful content, or build behavior regresses.",
+        "A verification command fails twice for the same in-scope cause.",
+        "Browser or build verification requires modifying an unrelated process."
+      ]
+    },
+    "evidence": [
+      "T098 receipt reports exact framework upgrades, passing strict-peer install, focused docs tests, smoke tests, and a 101-page build.",
+      "Current manifests and lockfile contain Next.js 15.5.24 and React 19.2.8, with no Fumadocs or Tailwind packages.",
+      "Current audit reports vulnerable PostCSS 8.4.31, Playwright 1.51.1, and yaml 2.7.0.",
+      "Registry metadata shows Next 16.3.3 uses patched PostCSS 8.5.23; Playwright 1.55.1 and yaml 2.8.3 meet patched floors.",
+      "Current routes, content, docs, SEO, security, performance, rollback, and formatting checks pass.",
+      "Current reports and launch evidence remain stale relative to T098; external, Lighthouse, SBOM, and legal/factual evidence remain open."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "Shared framework manifests, lockfile, CI, and application-wide verification require one sole Worker."
+    },
+    "blocked_tasks": ["T096"],
+    "missing_evidence": [
+      "Actual Fumadocs integration and parity.",
+      "Tailwind/shadcn and complete design-system implementation.",
+      "Fresh launch/readiness reports, Lighthouse, SBOM, synthetic-monitor, rollback, provider, deployment, legal, and factual evidence."
+    ],
+    "required_board_updates": [
+      "Record T099 as done.",
+      "Create one sole Worker task using worker_package verbatim.",
+      "Keep T096 blocked and full_outcome_complete false.",
+      "Re-evaluate Fumadocs/Tailwind/design-system only after security remediation."
+    ]
+  }
+}

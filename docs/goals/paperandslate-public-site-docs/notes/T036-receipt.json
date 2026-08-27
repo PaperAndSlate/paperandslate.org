@@ -1,0 +1,45 @@
+{
+  "task_id": "T036",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "The search artifact was regenerated and focused search-page/header-dialog coverage was added within the allowlist. Index, lint, typecheck, and the 21-test suite passed, and the real Paper & Slate app launched on dedicated port 3101. The required e2e command failed twice because Playwright could not resolve the existing header search dialog by the expected accessible name, so a11y and build were not run.",
+  "evidence": [
+    "Node exact-target cleanup of apps/web/.next passed.",
+    "pnpm search:index passed and generated the permitted .generated/search/search-records.json artifact.",
+    "pnpm lint passed.",
+    "pnpm typecheck passed.",
+    "pnpm test passed with 21 tests.",
+    "pnpm e2e launched the real Paper & Slate app on dedicated port 3101; 3 tests passed and the dialog test failed twice.",
+    "The focused search-page and dialog assertions were added only to tests/browser/smoke.spec.ts and tests/browser/a11y.spec.ts; launch reports were updated truthfully."
+  ],
+  "missing_evidence": [
+    "A passing dedicated-port e2e run for the header search dialog.",
+    "Search-specific a11y and build evidence after the dialog accessibility failure is resolved."
+  ],
+  "changed_files": [
+    "apps/web/.next",
+    ".generated/search/search-records.json",
+    "tests/browser/smoke.spec.ts",
+    "tests/browser/a11y.spec.ts",
+    "IMPLEMENTATION_REPORT.md",
+    "LAUNCH_READINESS.md",
+    ".generated/launch/launch-evidence.json"
+  ],
+  "commands": [
+    { "cmd": "Node exact-target cleanup of apps/web/.next", "status": "pass" },
+    { "cmd": "pnpm search:index", "status": "pass" },
+    { "cmd": "pnpm lint", "status": "pass" },
+    { "cmd": "pnpm typecheck", "status": "pass" },
+    { "cmd": "pnpm test", "status": "pass", "count": "21 tests" },
+    { "cmd": "pnpm e2e (first attempt)", "status": "fail", "count": "3 passed, 1 failed" },
+    { "cmd": "pnpm e2e (retry)", "status": "fail", "count": "3 passed, 1 failed" },
+    { "cmd": "pnpm a11y", "status": "not_run" },
+    { "cmd": "pnpm build", "status": "not_run" }
+  ],
+  "remaining_blockers": [
+    "Existing header search dialog is not resolved by Playwright with the expected accessible name."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": "The same required pnpm e2e command failed twice. Exact output: Locator getByRole('dialog', { name: 'Search Paper & Slate' }) expected visible, but no element was found."
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "project": "file-system",
+    "documents": [
+      "file-system:next:guides/publish",
+      "file-system:next:index",
+      "file-system:v1:index",
+      "file-system:v1:reference/metadata"
+    ],
+    "versions": [
+      "next",
+      "v1"
+    ]
+  },
+  {
+    "project": "paper-and-slate",
+    "documents": [
+      "central:next:concepts/provenance",
+      "central:next:getting-started/welcome",
+      "central:next:governance"
+    ],
+    "versions": [
+      "next"
+    ]
+  },
+  {
+    "project": "standards-course-schema",
+    "documents": [
+      "standards-course-schema:next:index"
+    ],
+    "versions": [
+      "next"
+    ]
+  },
+  {
+    "project": "standards-curriculum-standards",
+    "documents": [
+      "standards-curriculum-standards:next:index"
+    ],
+    "versions": [
+      "next"
+    ]
+  },
+  {
+    "project": "standards-discovery",
+    "documents": [
+      "standards-discovery:next:index"
+    ],
+    "versions": [
+      "next"
+    ]
+  },
+  {
+    "project": "standards-file-system",
+    "documents": [
+      "standards-file-system:next:index"
+    ],
+    "versions": [
+      "next"
+    ]
+  },
+  {
+    "project": "standards-organization-schema",
+    "documents": [
+      "standards-organization-schema:next:index"
+    ],
+    "versions": [
+      "next"
+    ]
+  },
+  {
+    "project": "standards-tools-and-libraries",
+    "documents": [
+      "standards-tools:next:index"
+    ],
+    "versions": [
+      "next"
+    ]
+  }
+]

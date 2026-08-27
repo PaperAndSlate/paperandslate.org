@@ -1,0 +1,32 @@
+{
+  "task_id": "T030",
+  "result": "blocked",
+  "changed_files": [
+    "apps/web/src/app/(public)/foundation/reports/[year]/page.tsx",
+    "apps/web/.next",
+    "IMPLEMENTATION_REPORT.md",
+    "LAUNCH_READINESS.md",
+    ".generated/launch/launch-evidence.json"
+  ],
+  "commands": [
+    {"cmd": "pnpm typecheck", "status": "pass"},
+    {"cmd": "pnpm content:validate", "status": "pass"},
+    {"cmd": "pnpm feeds:check", "status": "pass"},
+    {"cmd": "pnpm release:check", "status": "pass"},
+    {"cmd": "pnpm routes:check", "status": "pass"},
+    {"cmd": "pnpm search:index", "status": "pass"},
+    {"cmd": "pnpm lint", "status": "pass"},
+    {"cmd": "pnpm exec vitest run public route suites (7 tests)", "status": "pass"},
+    {"cmd": "pnpm test (20 tests)", "status": "pass"},
+    {"cmd": "Node exact-target cleanup of apps/web/.next", "status": "pass"},
+    {"cmd": "pnpm build (first attempt)", "status": "fail"},
+    {"cmd": "pnpm build (retry)", "status": "fail"}
+  ],
+  "summary": "Repaired the report-year await usage without changing report data. All required validation, lint, typecheck, focused tests, and full tests pass. Exact-target .next cleanup passed, but the production build failed twice with the existing Windows standalone-output scandir error. Permitted launch reports/evidence were corrected to show the blocked build status.",
+  "deviations": [],
+  "remaining_blockers": [
+    "pnpm build fails twice with UNKNOWN scandir at apps/web/.next/standalone/apps/web/node_modules/next."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": "The same required command, pnpm build, failed twice at the generated standalone Next.js path."
+}

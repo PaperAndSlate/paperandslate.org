@@ -1,0 +1,22 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T125",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "The safe repair is package.json-only: replace the Windows-unsafe route-group token apps/web/src/app/^(docs^)/docs/**/*.tsx with apps/web/src/app/*/docs/**/*.tsx. This preserves the intended route-group file set closely while avoiding cmd.exe metacharacters. The corrected central-count test already passes, as do the focused/full tests and validation/typecheck commands. Full format remains non-green because Prettier reports eight existing style mismatches and an unmatched tests/**/*.tsx pattern; those cannot be truthfully hidden or fixed within this package.",
+    "worker_package": {
+      "objective": "Update only package.json format:check by replacing apps/web/src/app/^(docs^)/docs/**/*.tsx with apps/web/src/app/*/docs/**/*.tsx. Preserve every other checked file, script, central-only Fumadocs boundary, escaped fallback, provenance/search/raw routes, truthful homepage authority, unchanged snapshots, zero-advisory posture, and all no-commit/no-push/no-deployment/external constraints.",
+      "allowed_files": ["package.json"],
+      "verify": ["pnpm format:check", "pnpm test -- tests/docs-components.test.ts tests/docs-ingestion.test.ts tests/docs-source-adapters.test.ts", "pnpm test", "pnpm docs:validate", "pnpm content:validate", "pnpm exec eslint apps/web/src packages scripts tests --no-error-on-unmatched-pattern", "pnpm exec tsc -p apps/web --noEmit --incremental false", "pnpm exec tsc -p packages/design-system --noEmit --incremental false"],
+      "stop_if": ["Any file besides package.json must change.", "Any package.json script besides format:check or any format:check path other than the specified route-group token must change.", "Making format:check green requires removing meaningful files, adding write/ignore behavior, or touching product, source, docs, content, generated, snapshot, or test files.", "Any command fails for a new reason beyond the documented Prettier style mismatches or unmatched tests/**/*.tsx pattern.", "Any snapshot update, generated-artifact rewrite, advisory behavior, external write, provider action, deployment, legal/factual change, commit, or push is requested."]
+    },
+    "evidence": ["Current package.json invokes Prettier with the Windows-unsafe route-group token apps/web/src/app/^(docs^)/docs/**/*.tsx.", "pnpm run format:check reproduces '/docs/**/*.tsx was unexpected at this time.' under cmd.exe.", "Prettier accepts apps/web/src/app/*/docs/**/*.tsx and the equivalent cmd.exe invocation reaches the intended file set without shell parsing failure.", "The corrected central-count test contains three central entries; the focused boundary set passes 9/9 tests and the full suite passes 27/27.", "docs:validate validates 13 pages, content:validate validates 12 records, ESLint passes, and both requested TypeScript checks pass."],
+    "subgoal_contract": null,
+    "parallel_safety": {"safe": false, "reason": "package.json is the shared root manifest and this repair must run as one sole sequential Worker package."},
+    "blocked_tasks": ["T112 visual snapshot mismatches remain baseline evidence and snapshots must stay unchanged.", "External repository, DNS/TLS, provider, credentials, deployment, production, legal, factual, Lighthouse, SBOM, and production-acceptance evidence remains pending."],
+    "missing_evidence": ["Post-repair pnpm format:check execution through the package script.", "Protected source/generated and homepage snapshot hash rechecks after the Worker package.", "A full green format check; current evidence shows existing style mismatches and an unmatched pattern outside the authorized repair."],
+    "required_board_updates": ["Record T125 as approved with full_outcome_complete false.", "Create exactly one next Worker using the worker_package verbatim and keep it as the sole active write task.", "Require proof that only package.json changed and that the corrected tests/docs-components.test.ts assertion remains untouched.", "Preserve central-only Fumadocs, escaped fallback, provenance/search/raw routes, homepage authority, unchanged snapshots, zero-advisory posture, and all external/legal/factual blockers."]
+  }
+}

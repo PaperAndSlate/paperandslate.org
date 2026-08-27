@@ -1,0 +1,103 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T008",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T003 proves only Phase 0: the app builds, but the homepage remains a local placeholder with no route family, shared design foundation, navigation, or content registry. The largest safe next slice is the plan-backed Phase 1 foundation plus an initial public-site vertical slice. The workspace is not a git checkout, so preservation must rely on filesystem checks. External activation and unsupported public claims remain out of scope.",
+    "worker_package": {
+      "objective": "Implement the next coherent local milestone: Paper & Slate semantic design tokens, an accessible responsive public shell, a validated local content registry, and working routes for /, /foundation and its mission/principles/people/funding/roadmap/reports/contact pages, /projects, /projects/[slug], /search, /docs, /governance, and /news. Replace the Phase 0 placeholder with plan-backed, explicitly planned or unreleased, truthful copy; preserve supplied logo artwork; keep docs, governance, and news landing states intentionally minimal until their dedicated slices. Do not add authentication, databases, providers, remote fetches, or external actions.",
+      "allowed_files": [
+        "package.json",
+        "pnpm-lock.yaml",
+        "apps/web/package.json",
+        "apps/web/next.config.ts",
+        "apps/web/src/app/layout.tsx",
+        "apps/web/src/app/page.tsx",
+        "apps/web/src/app/globals.css",
+        "apps/web/src/app/(public)/layout.tsx",
+        "apps/web/src/app/(public)/page.tsx",
+        "apps/web/src/app/(public)/foundation/page.tsx",
+        "apps/web/src/app/(public)/foundation/mission/page.tsx",
+        "apps/web/src/app/(public)/foundation/principles/page.tsx",
+        "apps/web/src/app/(public)/foundation/people/page.tsx",
+        "apps/web/src/app/(public)/foundation/funding/page.tsx",
+        "apps/web/src/app/(public)/foundation/roadmap/page.tsx",
+        "apps/web/src/app/(public)/foundation/reports/page.tsx",
+        "apps/web/src/app/(public)/foundation/contact/page.tsx",
+        "apps/web/src/app/(public)/projects/page.tsx",
+        "apps/web/src/app/(public)/projects/[slug]/page.tsx",
+        "apps/web/src/app/(public)/search/page.tsx",
+        "apps/web/src/app/(public)/governance/page.tsx",
+        "apps/web/src/app/(public)/news/page.tsx",
+        "apps/web/src/app/(docs)/docs/layout.tsx",
+        "apps/web/src/app/(docs)/docs/page.tsx",
+        "apps/web/src/components/brand-logo.tsx",
+        "apps/web/src/components/mobile-navigation.tsx",
+        "apps/web/src/components/page-primitives.tsx",
+        "apps/web/src/components/project-card.tsx",
+        "apps/web/src/components/site-footer.tsx",
+        "apps/web/src/components/site-header.tsx",
+        "apps/web/src/components/hero-illustration.tsx",
+        "apps/web/public/brand/paper-and-slate-horizontal-light.svg",
+        "packages/design-system/package.json",
+        "packages/design-system/tsconfig.json",
+        "packages/design-system/src/index.ts",
+        "packages/design-system/src/tokens.css",
+        "packages/content/package.json",
+        "packages/content/tsconfig.json",
+        "packages/content/src/models.ts",
+        "packages/content/src/registry.ts",
+        "packages/content/src/foundation.ts",
+        "packages/content/src/index.ts",
+        "tests/public-site.test.ts"
+      ],
+      "verify": [
+        "pnpm install --frozen-lockfile",
+        "pnpm format:check",
+        "pnpm lint",
+        "pnpm typecheck",
+        "pnpm test",
+        "pnpm build",
+        "$hits = rg -n -i 'next-auth|prisma|drizzle-orm|postgres|valkey|rabbitmq|qdrant|keycloak|aws-sdk|@aws-sdk|s3' package.json apps packages; if ($hits) { $hits; exit 1 }",
+        "$source = (Get-FileHash -Algorithm SHA256 -LiteralPath '.\\plans\\assets\\logos\\paper-and-slate-horizontal-light.svg').Hash; $copy = (Get-FileHash -Algorithm SHA256 -LiteralPath '.\\apps\\web\\public\\brand\\paper-and-slate-horizontal-light.svg').Hash; if ($source -ne $copy) { Write-Error 'Supplied light logo artwork changed'; exit 1 }"
+      ],
+      "stop_if": [
+        "Any write is needed outside allowed_files, including plans, docs/goals, parent directories, or sibling repositories.",
+        "The work requires commits, pushes, pull requests, repository creation, Tower/Coolify, DNS, credentials, provider activation, authentication, databases, or remote content fetching.",
+        "A public claim about people, funding, adoption, endorsements, legal status, source repositories, releases, or standards maturity cannot be supported by the planning pack or current repository.",
+        "The supplied logo cannot be copied byte-for-byte or production imagery would require unverified licensing or provenance.",
+        "The route shell requires implementing documentation ingestion, search providers, newsletter delivery, governance registries, news feeds, or other later-phase systems.",
+        "Existing files outside allowed_files would be overwritten or unrelated filesystem changes cannot be preserved.",
+        "A verification command fails twice for the same in-scope cause, or the required routes do not compile in the production build."
+      ]
+    },
+    "evidence": [
+      "docs/goals/paperandslate-public-site-docs/notes/T003-receipt.json: Phase 0 bootstrap, shell, tooling, tests, and production build all passed; the homepage and external work remain deferred.",
+      "plans/11-implementation/01-phased-implementation-plan.md: Phase 1 requires brand/design foundation; Phase 2 requires homepage, foundation, projects, governance, news, and utility route work.",
+      "plans/02-information-architecture/01-site-map.md and 03-route-catalog.md: authoritative navigation and route families.",
+      "plans/02-information-architecture/02-navigation-and-wayfinding.md: responsive header, mobile navigation, footer, and wayfinding requirements.",
+      "plans/07-design-system/01-brand-guide.md, 02-design-tokens.md, 03-component-inventory.md, and 04-responsive-and-layout-system.md: semantic palette, typography, component, responsive, and accessibility direction.",
+      "plans/03-public-site/01-homepage-specification.md and 02-foundation-pages.md: homepage hierarchy, truthful copy rules, project cards, and foundation content requirements.",
+      "The supplied brand board, desktop homepage mockup, and mobile homepage mockup were inspected as visual references; mockup media remains reference-only.",
+      "The copied dark logo SHA-256 matches the supplied source. Current format, lint, typecheck, and test commands pass; T003 receipt records a passing build.",
+      "web and its immediate parent directories contain no .git repository, so git dirty status is unavailable; generated node_modules, .next, .turbo, and tsconfig.tsbuildinfo directories/files are present."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {"safe": false, "reason": "This package modifies the existing app shell, manifests, and shared route foundation; it must run as the sole write Worker."},
+    "blocked_tasks": [],
+    "missing_evidence": [
+      "The initial public-site route slice is not implemented.",
+      "No browser, responsive, accessibility, Lighthouse, or visual regression evidence exists.",
+      "Documentation ingestion, project versioning, unified search, publishing/feeds, governance registries, hardening, and external deployment remain incomplete.",
+      "No repository-backed dirty diff or remote activation evidence is available."
+    ],
+    "required_board_updates": [
+      "Record T008 as done with this receipt.",
+      "Copy worker_package objective, allowed_files, verify, and stop_if verbatim into T004.",
+      "Activate only T004; keep T005, T006, and T007 queued because disjoint parallel write safety is not established.",
+      "Preserve T003 receipt and record current verification passes plus unavailable git dirty-state evidence in the board checks."
+    ]
+  }
+}

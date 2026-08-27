@@ -1,0 +1,52 @@
+{
+  "task_id": "T033",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "The unified-search vertical slice is implemented and its focused search/index, lint, typecheck retry, focused Vitest, and full test checks pass. The required browser evidence could not start because the existing Windows standalone .next tree throws a scandir UNKNOWN error before the app launches; the exact e2e command failed twice, so the worker stopped under the task contract.",
+  "evidence": [
+    "Normalized validated search records, deterministic ranking, RFC/property/requirement matching, facets, preview isolation, bounds, cache, timeout/cancellation handling, optional explicitly configured Typesense support, API/page/dialog wiring, generated records, and truthful health readiness were implemented within the task scope.",
+    "pnpm search:index passed.",
+    "pnpm lint passed.",
+    "pnpm typecheck first failed on an import issue and passed on retry after the in-scope fix.",
+    "pnpm exec vitest run tests/search.test.ts passed.",
+    "pnpm test passed.",
+    "pnpm e2e failed twice before tests ran because apps/web/.next/standalone/apps/web/node_modules/next produced a Windows scandir UNKNOWN error."
+  ],
+  "missing_evidence": [
+    "A real dedicated-port browser run for the new search surface.",
+    "The downstream a11y and build verification for this task's final generated tree."
+  ],
+  "changed_files": [
+    "config/search.yml",
+    "packages/config/src/env.ts",
+    "packages/search/src/types.ts",
+    "packages/search/src/index.ts",
+    "packages/search/src/ranking.ts",
+    "packages/search/src/static-provider.ts",
+    "packages/search/src/typesense-provider.ts",
+    "packages/search/src/records.ts",
+    "scripts/search-index.ts",
+    "apps/web/src/lib/search.ts",
+    "apps/web/src/app/api/search/route.ts",
+    "apps/web/src/app/(public)/search/page.tsx",
+    "apps/web/src/components/search-dialog.tsx",
+    "apps/web/src/app/health/route.ts",
+    "tests/search.test.ts",
+    ".generated/search/search-records.json"
+  ],
+  "commands": [
+    { "cmd": "pnpm search:index", "status": "pass" },
+    { "cmd": "pnpm lint", "status": "pass" },
+    { "cmd": "pnpm typecheck (retry)", "status": "pass" },
+    { "cmd": "pnpm exec vitest run tests/search.test.ts", "status": "pass" },
+    { "cmd": "pnpm test", "status": "pass" },
+    { "cmd": "pnpm e2e (first attempt)", "status": "fail" },
+    { "cmd": "pnpm e2e (retry)", "status": "fail" }
+  ],
+  "remaining_blockers": [
+    "pnpm e2e cannot start Next because apps/web/.next/standalone/apps/web/node_modules/next produces a Windows scandir UNKNOWN error."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": "The same required verification command failed twice."
+}

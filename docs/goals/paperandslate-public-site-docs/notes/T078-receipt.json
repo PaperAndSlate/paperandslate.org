@@ -1,0 +1,39 @@
+{
+  "task_id": "T078",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "The bounded system-Chrome audit passed all runtime checks and produced fresh diagnostic artifacts, but the full homepage/design and original brief remain uncomplete pending reference-fidelity review, provenance evidence, and broader workstreams.",
+  "changed_files": [
+    "test-results/t075-system-chrome/browser-audit.mjs",
+    "test-results/t075-system-chrome/preflight.json",
+    "test-results/t075-system-chrome/server.stdout.log",
+    "test-results/t075-system-chrome/server.stderr.log",
+    "test-results/t075-system-chrome/http.json",
+    "test-results/t075-system-chrome/browser.json",
+    "test-results/t075-system-chrome/axe.json",
+    "test-results/t075-system-chrome/homepage-light-desktop.png",
+    "test-results/t075-system-chrome/homepage-mobile.png",
+    "test-results/t075-system-chrome/homepage-dark.png",
+    "test-results/t075-system-chrome/integrity.json"
+  ],
+  "commands": [
+    { "cmd": "node --check browser-audit.mjs", "status": "pass" },
+    { "cmd": "node browser-audit.mjs", "status": "pass" },
+    { "cmd": "HTTP routes", "status": "pass", "count": "5/5 status 200" },
+    { "cmd": "strict browser contexts", "status": "pass", "count": "3/3" },
+    { "cmd": "Axe violations", "status": "pass", "count": "0; serious/critical 0" },
+    { "cmd": "screenshots", "status": "pass", "count": "3/3 present" },
+    { "cmd": "server lifecycle", "status": "pass", "output": "owned server stopped; port free" },
+    { "cmd": "integrity/scope", "status": "pass", "output": "protected hashes unchanged; .next reparses 0; unexpected artifacts/outside writes 0" }
+  ],
+  "summary": "Replaced unsupported textbox.isFocused() with expect(textbox).toBeFocused(), including the required Playwright expect import. The bounded system-Chrome audit passed routes, strict homepage assertions, Axe, all three screenshots, owned-server cleanup, port release, integrity hashes, and artifact-scope checks.",
+  "deviations": ["Added the missing expect import because the required supported assertion was not previously imported."],
+  "remaining_blockers": [
+    "Fresh screenshot/reference fidelity review is still required.",
+    "Repository-backed raster-media provenance and truthful font-loading evidence remain absent.",
+    "Full original brief completion across docs-ingestion, search, governance, hardening, operations, and external activation remains absent."
+  ],
+  "verification_attempts": 1,
+  "stopped_because": null
+}

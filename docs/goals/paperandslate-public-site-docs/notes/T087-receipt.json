@@ -1,0 +1,77 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T087",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "The warning is caused by T086's server environment: next.config.ts requires PAPER_SLATE_BUILD_MODE=verification, but the harness supplied only NODE_ENV=production. T068 already proves the verification build boundary and current .next is non-standalone, stable, and reparse-free. One sole artifact-only rerun is safe. integrity.json is required to complete the declared evidence contract. Homepage evidence and the broader goal remain incomplete.",
+    "worker_package": {
+      "objective": "Repair only the T080 diagnostic harness environment and integrity contract, then perform exactly one production-output-first artifact rerun. Run pnpm build:verify as the final build-producing command; launch the resolved Next CLI directly from apps/web with shell:false and PAPER_SLATE_BUILD_MODE=verification; capture truthful preflight, HTTP, browser, Axe, full-page screenshots, server logs, and integrity.json; prove protected hashes and .next remain unchanged after owned-server cleanup. Preserve all source, configuration, tests, snapshots, baselines, content, provenance, and external state. Do not run visual:update, baseline approval, browser installation, pnpm e2e, pnpm a11y, or next dev.",
+      "allowed_files": [
+        "apps/web/.next",
+        "test-results/t080-homepage-fidelity/browser-audit.mjs",
+        "test-results/t080-homepage-fidelity/preflight.json",
+        "test-results/t080-homepage-fidelity/server.stdout.log",
+        "test-results/t080-homepage-fidelity/server.stderr.log",
+        "test-results/t080-homepage-fidelity/http.json",
+        "test-results/t080-homepage-fidelity/browser.json",
+        "test-results/t080-homepage-fidelity/axe.json",
+        "test-results/t080-homepage-fidelity/homepage-light-desktop.png",
+        "test-results/t080-homepage-fidelity/homepage-mobile.png",
+        "test-results/t080-homepage-fidelity/homepage-dark.png",
+        "test-results/t080-homepage-fidelity/integrity.json"
+      ],
+      "verify": [
+        "node --check test-results/t080-homepage-fidelity/browser-audit.mjs",
+        "pnpm build:verify as the final build-producing command before the artifact runner",
+        "node test-results/t080-homepage-fidelity/browser-audit.mjs",
+        "Require the server spawn environment to record PAPER_SLATE_BUILD_MODE=verification, use the resolved Next CLI directly with shell:false from apps/web, and produce no standalone-output warning",
+        "Require BUILD_ID, exact .next real path, zero reparses, free port 3101, known system Chrome, HTTP 200-399 for /, /health, /docs, /projects, /search, strict homepage assertions, owned cleanup, and truthful failure metadata",
+        "Require browser.json, axe.json, integrity.json, and all three full-page screenshots with 0 serious/critical Axe violations",
+        "Require integrity.json to record the artifact set, BUILD_ID, output path/hash, protected before/after hashes, final cleanup state, and reparse results without unverifiable claims",
+        "Compare screenshots with supplied references only as diagnostic evidence; do not update visual baselines, snapshots, or assertions",
+        "Require .next and protected source/configuration/snapshot/Docker hashes unchanged during the runner and after server cleanup; require no artifacts outside the allowed files",
+        "Do not run pnpm e2e or pnpm a11y after build:verify"
+      ],
+      "stop_if": [
+        "build:verify fails, lacks BUILD_ID, creates reparses or standalone output, or violates the non-standalone verification boundary",
+        "The exact PAPER_SLATE_BUILD_MODE=verification environment cannot be applied or the standalone-output warning appears in either server log",
+        "Direct Next CLI resolution, port 3101, known system Chrome, server ownership, or cleanup cannot be established",
+        "integrity.json is missing, incomplete, inconsistent with the other artifacts, or cannot prove protected and .next stability",
+        "The final .next hash changes during the runner or after cleanup, or any protected hash changes",
+        "Any write occurs outside the listed allowed files, including source, config, tests, snapshots, baselines, content, provenance, reports, or external systems",
+        "Any visual:update, baseline approval, assertion weakening, browser installation, pnpm e2e, pnpm a11y, next dev, hidden failure, or retry beyond this single final rerun"
+      ]
+    },
+    "evidence": [
+      "T086 receipt: build:verify passed with non-standalone output, but the artifact runner emitted Next's standalone-output warning and omitted integrity.json.",
+      "apps/web/next.config.ts:6-11 selects output: undefined only when PAPER_SLATE_BUILD_MODE equals verification; scripts/build-boundary.ts:100-114 sets that mode and verifies non-standalone output.",
+      "T086 browser-audit.mjs:119-121 starts the server with NODE_ENV=production only, explaining the warning.",
+      "Current preflight, HTTP, browser, Axe, screenshots, cleanup, and hash evidence show the other diagnostics passed: 5/5 routes, strict assertions, 0 serious/critical Axe violations, 3/3 screenshots, owned cleanup, and unchanged .next.",
+      "Current apps/web/.next has a BUILD_ID, no standalone tree, and no reparses; integrity.json is absent.",
+      "T082 previously produced the complete artifact set including integrity.json using a production-output-first harness.",
+      "Current browser reference comparison is dimension/full-page metadata only; no visual baseline or snapshot was changed.",
+      "T084 homepage source changes are present in page.tsx and globals.css, including mobile hero copy, project/principle/news sections, and responsive footer rules."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "This package shares apps/web/.next, port 3101, system Chrome, and the sole T080 artifact directory. Run it as one exclusive Worker with no parallel implementation."
+    },
+    "blocked_tasks": ["T084"],
+    "missing_evidence": [
+      "A fresh production server run with PAPER_SLATE_BUILD_MODE=verification and no standalone-output warning.",
+      "A truthful integrity.json covering the complete artifact and protected-hash contract.",
+      "Current visual/reference-fidelity review beyond dimension and capture metadata; snapshots and baselines remain unapproved.",
+      "Repository-backed raster-media and font provenance evidence.",
+      "Completion of the broader documentation, search, governance, hardening, operations, and external-activation requirements."
+    ],
+    "required_board_updates": [
+      "Record T087 as done with this receipt.",
+      "Create exactly one sole Worker task by copying the worker_package verbatim.",
+      "Keep T084 blocked pending corrected diagnostics and reference review.",
+      "Keep the full goal active with full_outcome_complete false."
+    ]
+  }
+}

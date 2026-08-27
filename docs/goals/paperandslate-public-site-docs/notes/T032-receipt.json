@@ -1,0 +1,48 @@
+{
+  "task_id": "T032",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T031 proves the local build, content/feed/release/route/search checks, typecheck, and 20-test suite pass. The public milestone remains incomplete: route coverage and validation are shallow, project presentation omits required metadata, newsletter is disabled-only, and search is static-only without normalized records or Typesense architecture.",
+  "evidence": [
+    "T031 records passing build, content, feeds, releases, routes, search generation, typecheck, and full tests.",
+    "packages/search/src and scripts/search-index.ts contain only static project/document/news/governance records; no Typesense provider or schema-property/requirement indexing exists.",
+    "The current search UI/API does not expose the full provider-neutral contract with exact RFC/property/requirement ranking, facets, bounded cancellation, and cache behavior.",
+    "Newsletter remains disabled-only; external providers and Lighthouse remain pending."
+  ],
+  "missing_evidence": [
+    "Complete route/content validation and rich project metadata/presentation.",
+    "Complete newsletter mock/provider behavior.",
+    "Typesense integration and full search UX/evidence.",
+    "Design-system, Lighthouse, and full hardening evidence."
+  ],
+  "worker_package": {
+    "objective": "Implement the local unified-search vertical slice with normalized validated records, complete static fallback, optional Typesense adapter, exact RFC/property/requirement ranking, facets, preview isolation, bounded cancellation and caching, search API/page/dialog wiring, mock tests, regenerated records, and truthful health/readiness updates.",
+    "verify": [
+      "pnpm search:index",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm exec vitest run tests/search.test.ts",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm build"
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files.",
+      "External credentials, live provider calls, Tower, Kit, DNS, or activation is required.",
+      "The work expands into design-system, public-content repair, docs-ingestion, newsletter, or broad hardening.",
+      "Source-backed search records cannot be produced without inventing facts.",
+      "The same verification command fails twice."
+    ]
+  },
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Search package, generated records, environment, health, UI, API, and tests share one runtime contract."
+  },
+  "required_board_updates": [
+    "Record T032 done with not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker task from worker_package.",
+    "Keep design-system, public-content repair, hardening, and external activation separate."
+  ]
+}

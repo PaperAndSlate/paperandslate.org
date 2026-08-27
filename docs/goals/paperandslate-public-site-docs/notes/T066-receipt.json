@@ -1,0 +1,34 @@
+{
+  "task_id": "T066",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Safe exact cleanup removed all 27 symbolic links and the generated root. E2E 4/4 and accessibility 4/4 passed; visual diagnostics ran with unchanged snapshots. The final build exited 1 on the generated standalone scandir error and the build touched out-of-scope Turbo logs, so the task is blocked.",
+  "changed_files": [
+    "apps/web/.next",
+    "test-results",
+    "apps/web/.turbo/turbo-build.log",
+    "packages/config/.turbo/turbo-build.log",
+    "packages/docs-ingestion/.turbo/turbo-build.log"
+  ],
+  "commands": [
+    { "cmd": "cleanup", "status": "pass", "count": "27 symbolic links removed, zero reparse points, exact root removed" },
+    { "cmd": "port 3101 before e2e", "status": "pass", "count": "FREE" },
+    { "cmd": "pnpm e2e", "status": "pass", "count": "4/4" },
+    { "cmd": "port 3101 before a11y", "status": "pass", "count": "FREE" },
+    { "cmd": "pnpm a11y", "status": "pass", "count": "4/4" },
+    { "cmd": "port 3101 before visual:check", "status": "pass", "count": "FREE" },
+    { "cmd": "pnpm visual:check", "status": "fail", "count": "3/3 diagnostic mismatches", "output": "Snapshots unchanged" },
+    { "cmd": "pnpm build", "status": "fail", "count": "exit 1", "output": "standalone scandir UNKNOWN error" },
+    { "cmd": "scope/hash audit", "status": "fail", "output": "Out-of-scope Turbo logs observed; snapshot hashes unchanged" }
+  ],
+  "summary": "Safe cleanup succeeded. E2E and accessibility passed. Visual diagnostics found unchanged baseline mismatches. Final build failed with an actual exit status of 1 while scanning generated standalone output. Build also touched Turbo logs outside the allowed roots, so the task is blocked.",
+  "deviations": [],
+  "remaining_blockers": [
+    "Production build failure at .next standalone node_modules/next scandir.",
+    "Out-of-scope Turbo log writes observed.",
+    "Source/config baseline hash comparison was not persisted."
+  ],
+  "verification_attempts": 1,
+  "stopped_because": "Required final build failed and verification observed writes outside apps/web/.next and test-results."
+}

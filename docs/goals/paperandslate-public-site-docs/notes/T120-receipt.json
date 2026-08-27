@@ -1,0 +1,25 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T120",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["apps/web/.next", "test-results/.last-run.json"],
+    "commands": [
+      {"cmd": "Validate exact apps/web/.next path and reparse points", "status": "pass", "count": 1, "output": "Exact target validated; no reparse points."},
+      {"cmd": "Verify 127.0.0.1:3101 free", "status": "pass", "count": 1, "output": "Direct diagnostic confirmed count=0."},
+      {"cmd": "SHA256 baseline protected files", "status": "pass", "count": 1, "output": "14 protected files hashed."},
+      {"cmd": "pnpm build:verify", "status": "pass", "count": 1, "output": "Verified non-standalone production output; 102 static pages generated."},
+      {"cmd": "Verify 127.0.0.1:3101 remains free", "status": "pass", "count": 1, "output": "Direct diagnostic confirmed count=0."},
+      {"cmd": "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "status": "pass", "count": 1, "output": "7 passed in 17.2s."},
+      {"cmd": "SHA256 post-run protected-file comparison", "status": "pass", "count": 1, "output": "Protected hashes unchanged: 14 files."},
+      {"cmd": "Final target/reparse/port validation", "status": "pass", "count": 1, "output": "Target, reparse, and port checks passed; test-results contains only .last-run.json."}
+    ],
+    "summary": "Recovered the exact generated .next target, completed build:verify, and ran docs-core, smoke, and accessibility tests sequentially. Build passed and all 7 browser tests passed. All 14 T118 protected source/generated files and homepage snapshots remained byte-identical. No visual update or external action was performed.",
+    "deviations": ["The exact PowerShell port-guard command returned a host-level nonzero with empty output on both checks; direct Get-NetTCPConnection diagnostics confirmed zero listeners on port 3101 each time."],
+    "remaining_blockers": ["Full outcome remains incomplete: external deployment, DNS/TLS, provider, credential, production, Lighthouse, SBOM, and accepted visual-QA evidence remain pending."],
+    "verification_attempts": 1,
+    "stopped_because": null,
+    "evidence": ["Exact apps/web/.next target validated with no reparse points before and after recovery.", "Port 127.0.0.1:3101 confirmed free before build, after build, and after browser execution.", "pnpm build:verify passed with non-standalone production output.", "Playwright docs-core, smoke, and accessibility suite passed 7/7.", "SHA256 comparison passed for 14 protected files.", "test-results contained only test-results/.last-run.json.", "No visual update or external action was performed."],
+    "full_outcome_complete": false
+  }
+}

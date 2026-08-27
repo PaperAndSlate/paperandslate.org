@@ -1,0 +1,50 @@
+{
+  "task_id": "T065",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "Homepage source work exists, but design acceptance remains unproven. T064 could not remove generated reparse-point links; browser, accessibility, visual, and final build evidence are still missing. Prior visual checks materially mismatched unchanged baselines. Approve one safe Windows-specific cleanup package.",
+  "worker_package": {
+    "objective": "Use Windows cmd.exe rmdir /q on each individually validated symbolic-link entry beneath the exact apps/web/.next path, without recursion or link following; remove the root only after a no-follow rescan confirms zero reparse points, then run e2e, accessibility, visual diagnostics, and the production build last. Preserve source, snapshots, reports, content, provenance, and unrelated workstreams.",
+    "allowed_files": ["apps/web/.next", "test-results"],
+    "verify": [
+      "Guard exact absolute target apps/web/.next; reject missing target or reparse-point root.",
+      "Inspect 127.0.0.1:3101 before every Playwright command; proceed only when FREE or owned by this workspace, recording PID and command line.",
+      "Enumerate recursively only through non-reparse directories; for each validated SymbolicLink child run cmd.exe /d /c rmdir /q on that exact child path, never rmdir /s on a link or root.",
+      "Rescan without following links; only when zero reparse points remain may the exact .next root be removed recursively.",
+      "Run pnpm e2e, pnpm a11y, and pnpm visual:check; record visual mismatches diagnostically without visual:update or snapshot changes.",
+      "Run pnpm build last and record its actual exit status.",
+      "Confirm writes are limited to apps/web/.next and test-results; verify tests/browser/snapshots and source/configuration hashes remain unchanged."
+    ],
+    "stop_if": [
+      "Target is not exactly apps/web/.next, root is a reparse point, or any reparse entry cannot be classified and removed as a link object.",
+      "cmd.exe rmdir /q returns an error, access is denied, or any operation would require following a junction or symlink.",
+      "Port 3101 is occupied by an unknown process or ownership cannot be established.",
+      "A required browser or build command fails twice for the same cause, or build cannot provide an actual successful exit status.",
+      "Any source, snapshot, report, content, provenance, configuration, documentation, search, governance, operations, or external-system change is required.",
+      "visual:update runs, snapshots change, assertions are weakened, or mismatched baselines are approved.",
+      "Any deletion or write affects a path outside apps/web/.next or test-results."
+    ]
+  },
+  "evidence": [
+    "T064 exact target/root guard passed but Windows denied unlinking reparse-point children; browser and build checks were not run.",
+    "Current apps/web/.next contains 27 SymbolicLink reparse entries and 28 non-reparse directories.",
+    "fsutil confirms representative links use Microsoft Symbolic Link reparse tag 0xa000000c and target workspace node_modules outside .next.",
+    "Prior exact-target cleanups succeeded; T056 then found material light, mobile, and dark visual mismatches.",
+    "Current 127.0.0.1:3101 is FREE and visual:update is separate from visual:check."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Generated output, test-results, Playwright server ownership, and build/browser verification share one runtime boundary; run one sole Worker."
+  },
+  "blocked_tasks": ["T060", "T062", "T064"],
+  "missing_evidence": [
+    "Post-cleanup e2e and accessibility results.",
+    "Fresh light desktop, 390px mobile, and dark visual diagnostics with unchanged snapshots.",
+    "Production build with an actual successful exit status.",
+    "Persisted fresh screenshot/diff evidence.",
+    "Repository-backed raster-media provenance and truthful font-loading evidence.",
+    "Full homepage acceptance against supplied references.",
+    "Completion evidence for documentation ingestion, search, governance, hardening, operations, and external activation."
+  ]
+}

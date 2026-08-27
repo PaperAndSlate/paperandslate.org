@@ -1,0 +1,24 @@
+{
+  "task_id": "T076",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Preflight, HTTP routes, owned server lifecycle, system Chrome launch, and integrity checks succeeded. The artifact audit stopped during homepage dialog assertions because Locator.isFocused is unavailable in the installed Playwright API. Required screenshots, browser evidence, and Axe output were not produced.",
+  "changed_files": [
+    "test-results/t075-system-chrome/browser-audit.mjs",
+    "test-results/t075-system-chrome/preflight.json",
+    "test-results/t075-system-chrome/server.stdout.log",
+    "test-results/t075-system-chrome/server.stderr.log",
+    "test-results/t075-system-chrome/http.json",
+    "test-results/t075-system-chrome/integrity.json"
+  ],
+  "commands": [
+    { "cmd": "node --check test-results/t075-system-chrome/browser-audit.mjs", "status": "pass" },
+    { "cmd": "node test-results/t075-system-chrome/browser-audit.mjs", "status": "fail", "output": "Locator.isFocused unavailable during dialog assertions; stopped before screenshots/Axe" }
+  ],
+  "summary": "Preflight, HTTP routes, owned server lifecycle, Chrome launch, and integrity checks succeeded. Audit stopped during homepage dialog assertions because Locator.isFocused is unavailable in the installed Playwright API. Required screenshots, browser evidence, and Axe output were not produced.",
+  "deviations": ["Used process.execPath with the pnpm.mjs entrypoint and shell:false because direct pnpm.cmd spawning returned Windows EINVAL; recorded the requested pnpm command line."],
+  "remaining_blockers": ["Replace textbox.isFocused() with a supported focus assertion and rerun the bounded audit."],
+  "verification_attempts": 2,
+  "stopped_because": "Artifact script failure remained after two fix attempts; contract requires stopping."
+}

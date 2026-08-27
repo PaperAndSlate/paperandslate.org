@@ -1,0 +1,42 @@
+{
+  "task_id": "T018",
+  "result": "blocked",
+  "changed_files": [
+    "../standards",
+    "config/docs-sources.yml",
+    "packages/docs-ingestion/src",
+    "scripts/docs-ingest.ts",
+    "scripts/docs-check.ts",
+    "apps/web/src/app/(docs)",
+    "apps/web/src/components",
+    "EXTERNAL_ACTIVATION.md",
+    "MISSING_PUBLIC_FACTS.md",
+    "docs/adr/0002-documentation-source-contract.md",
+    ".generated/docs"
+  ],
+  "commands": [
+    {"cmd": "pnpm install --frozen-lockfile", "status": "pass"},
+    {"cmd": "pnpm docs:ingest", "status": "pass"},
+    {"cmd": "pnpm docs:validate", "status": "pass"},
+    {"cmd": "pnpm search:index", "status": "pass"},
+    {"cmd": "pnpm format:check", "status": "pass"},
+    {"cmd": "pnpm lint", "status": "pass"},
+    {"cmd": "pnpm typecheck", "status": "pass"},
+    {"cmd": "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts", "status": "pass"},
+    {"cmd": "pnpm test", "status": "pass"},
+    {"cmd": "pnpm build", "status": "fail"},
+    {"cmd": "pnpm build (retry)", "status": "fail"},
+    {"cmd": "excluded dependency scan", "status": "pass"},
+    {"cmd": "required artifact existence", "status": "pass"}
+  ],
+  "summary": "Implemented local sibling standards sources, ingestion provenance and safety metadata, versioned routes, raw Markdown, taxonomy/navigation, provenance panels, anchors, no-JavaScript details UI, facts artifacts, and generated documentation/search outputs. All focused checks and tests pass. The required production build failed twice with the existing generated .next standalone scandir error.",
+  "deviations": [
+    "Sibling standards projects use distinct route namespaces to prevent collisions with existing fixture routes.",
+    "The excluded-dependency scan produced no matches but returned rg's no-match exit status; it is recorded as a semantic pass."
+  ],
+  "remaining_blockers": [
+    "pnpm build fails twice with UNKNOWN scandir at apps/web/.next/standalone/apps/web/node_modules/next; generated build output is outside T018's allowed_files and was not modified."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": "Required build verification failed twice for the same generated-output cause."
+}

@@ -1,0 +1,22 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T109",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T108's TS2322 is reproducible at docs-renderer.tsx:5: the Fumadocs result may be Promise<ReactNode>, while JSX requires ReactNode. An in-memory compiler check passed for the minimal async server-component repair: await renderCentralMdx(doc) only in the reviewed-central branch. The escaped fallback and all source/data boundaries remain unchanged. Fresh repository verification, browser, visual, and build evidence are still missing.",
+    "worker_package": {
+      "objective": "Modify only apps/web/src/components/docs-renderer.tsx: make DocsRenderer an async server component and await renderCentralMdx(doc) before placing the reviewed-central result inside JSX. Leave the escaped fallback branch unchanged. Then run the complete fresh documentation-foundation verification.",
+      "allowed_files": ["apps/web/src/components/docs-renderer.tsx"],
+      "verify": ["pnpm install --frozen-lockfile --strict-peer-dependencies", "pnpm audit --prod --json", "pnpm why react @types/react @types/react-dom @phosphor-icons/react --recursive", "pnpm routes:check", "pnpm content:validate", "pnpm docs:validate", "pnpm seo:check", "pnpm security:check", "pnpm lint", "pnpm typecheck", "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-components.test.ts tests/design-system.test.ts", "pnpm test", "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "pnpm visual:check", "pnpm build:verify"],
+      "stop_if": ["Any source, manifest, lockfile, generated output, report, plan, snapshot, infrastructure, or external-system change is needed outside the single allowed file.", "The exact async/await repair does not clear TS2322 or introduces another type error.", "Fixture, sibling-local, future Git-imported, or otherwise untrusted documents cross the Fumadocs renderer or execute unsafe MDX behavior.", "Escaped fallback, ingestion, provenance, static search, raw routes, truthful public pages, SEO, security headers, or existing visual snapshots regress.", "Any production advisory appears.", "Browser verification collides with an unrelated server or visual verification requires updating snapshots.", "Any verification command fails twice for the same in-scope cause."]
+    },
+    "evidence": ["The exact current error is TS2322 at docs-renderer.tsx:5: Promise<ReactNode> is not assignable to ReactNode.", "An in-memory TypeScript compilation of the proposed one-file async/await variant passed.", "The central Fumadocs adapter remains gated to two reviewed IDs and the escaped fallback remains for all other records.", "T108's install, audit, dependency, route, content, docs, SEO, security, and lint gates passed; browser, visual, and build evidence remain missing."],
+    "subgoal_contract": null,
+    "parallel_safety": {"safe": false, "reason": "The Worker changes the shared application rendering boundary and must run as the sole active Worker."},
+    "blocked_tasks": ["T108"],
+    "missing_evidence": ["Fresh post-repair typecheck and complete verification.", "Fresh browser/accessibility, visual, and build evidence.", "Verified MDX component wiring and Fumadocs behavior beyond the checked central boundary.", "Production, deployment, provider, legal, factual, provenance, and external acceptance evidence."],
+    "required_board_updates": ["Record T109 as done with decision approved and full_outcome_complete false.", "Create exactly one Worker task from worker_package and keep it as the sole active write task.", "Keep T108 as historical blocked evidence until fresh verification passes.", "Preserve zero-advisory, central-only Fumadocs, escaped fallback, ingestion/provenance/static-search/raw-route, truthful-content, and snapshot constraints."]
+  }
+}

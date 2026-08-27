@@ -1,0 +1,71 @@
+version: 1
+sources:
+  - id: central
+    kind: central
+    project: paper-and-slate
+    title: Paper & Slate
+    root: content/docs
+    versions:
+      - id: next
+        label: Next
+        status: draft
+        ref: working-tree
+  - id: file-system
+    kind: fixture
+    project: file-system
+    title: File System
+    root: tests/fixtures/docs-source/projects/file-system
+    versions:
+      - id: next
+        label: Next
+        status: draft
+        ref: fixture-next
+        docs: docs
+      - id: v1
+        label: v1 (historical)
+        status: historical
+        ref: fixture-v1
+        docs: docs-v1
+        routeVersion: "1.0"
+  - id: standards-file-system
+    kind: sibling-local
+    project: standards-file-system
+    title: File System standard
+    root: ../standards/projects/file-system
+    versions:
+      - { id: next, label: Next, status: draft, ref: local-sibling, docs: docs }
+  - id: standards-discovery
+    kind: sibling-local
+    project: standards-discovery
+    title: .well-known Education Discovery
+    root: ../standards/projects/discovery
+    versions:
+      - { id: next, label: Next, status: draft, ref: local-sibling, docs: docs }
+  - id: standards-organization-schema
+    kind: sibling-local
+    project: standards-organization-schema
+    title: Organization Schema
+    root: ../standards/projects/organization-schema
+    versions:
+      - { id: next, label: Next, status: draft, ref: local-sibling, docs: docs }
+  - id: standards-course-schema
+    kind: sibling-local
+    project: standards-course-schema
+    title: Course and Catalog Schema
+    root: ../standards/projects/course-schema
+    versions:
+      - { id: next, label: Next, status: draft, ref: local-sibling, docs: docs }
+  - id: standards-curriculum-standards
+    kind: sibling-local
+    project: standards-curriculum-standards
+    title: Curriculum Standards Schema
+    root: ../standards/projects/curriculum-standards
+    versions:
+      - { id: next, label: Next, status: draft, ref: local-sibling, docs: docs }
+  - id: standards-tools
+    kind: sibling-local
+    project: standards-tools-and-libraries
+    title: Tools and Libraries
+    root: ../standards/projects/tools-and-libraries
+    versions:
+      - { id: next, label: Next, status: draft, ref: local-sibling, docs: docs }

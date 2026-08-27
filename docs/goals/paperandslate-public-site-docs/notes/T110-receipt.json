@@ -1,0 +1,32 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T110",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["apps/web/src/components/docs-renderer.tsx"],
+    "commands": [
+      {"cmd": "pnpm install --frozen-lockfile --strict-peer-dependencies", "status": "pass", "count": 1, "output": "Frozen install passed."},
+      {"cmd": "pnpm audit --prod --json", "status": "pass", "count": 1, "output": "0 vulnerabilities."},
+      {"cmd": "pnpm why react @types/react @types/react-dom @phosphor-icons/react --recursive", "status": "pass", "count": 1, "output": "Expected dependency resolutions confirmed."},
+      {"cmd": "pnpm routes:check", "status": "pass", "count": 1, "output": "23 public routes and 2 redirects validated."},
+      {"cmd": "pnpm content:validate", "status": "pass", "count": 1, "output": "12 content records validated."},
+      {"cmd": "pnpm docs:validate", "status": "pass", "count": 1, "output": "12 documentation pages validated."},
+      {"cmd": "pnpm seo:check", "status": "pass", "count": 1, "output": "SEO checks passed."},
+      {"cmd": "pnpm security:check", "status": "pass", "count": 1, "output": "Security checks passed."},
+      {"cmd": "pnpm lint", "status": "pass", "count": 1, "output": "Six workspace lint tasks passed."},
+      {"cmd": "pnpm typecheck", "status": "pass", "count": 1, "output": "Six workspace typecheck tasks passed."},
+      {"cmd": "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-components.test.ts tests/design-system.test.ts", "status": "pass", "count": 1, "output": "4 files and 10 tests passed."},
+      {"cmd": "pnpm test", "status": "pass", "count": 1, "output": "14 files and 27 tests passed."},
+      {"cmd": "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "status": "fail", "count": 2, "output": "Both runs failed with createContext only works in Client Components from docs-navigation.tsx/@phosphor-icons/react; central docs navigation, accessibility, and route-catalog checks failed."},
+      {"cmd": "pnpm visual:check", "status": "skipped", "count": 0, "output": "Skipped after twice-failed browser blocker."},
+      {"cmd": "pnpm build:verify", "status": "skipped", "count": 0, "output": "Skipped after twice-failed browser blocker."}
+    ],
+    "summary": "The one-file async/await repair remains applied and the escaped fallback is unchanged. All non-browser gates passed. Browser/accessibility verification failed twice on the same out-of-scope docs-navigation Client Component context error, so visual/build gates were not run.",
+    "deviations": [],
+    "remaining_blockers": ["docs-navigation.tsx/@phosphor-icons/react Client Component error is outside the one-file T110 scope.", "Visual and build verification remain unrun."],
+    "verification_attempts": 2,
+    "stopped_because": "Browser verification failed twice for the same out-of-scope cause.",
+    "evidence": ["DocsRenderer is async and awaits renderCentralMdx(doc) only for reviewed-central documents.", "The escaped renderMarkdown/dangerouslySetInnerHTML fallback is unchanged.", "Install, audit, dependency, route, content, docs, SEO, security, lint, typecheck, focused tests, and full tests passed.", "No snapshots or generated artifacts were updated."],
+    "full_outcome_complete": false
+  }
+}

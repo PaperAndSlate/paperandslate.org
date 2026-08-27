@@ -1,0 +1,65 @@
+{
+  "task_id": "T057",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "Not complete. T056 proves cleanup, 4 E2E, and 4 accessibility passes, but visual checks failed all three targets: 5,548 light pixels, 36% mobile difference with 390x3579 expected versus 6630 actual, and 8,183 dark pixels; build was not run. The current output still has provenance-pending generic media and materially different responsive composition. Existing snapshots are stale and unapproved. Raster/font provenance and the broader brief remain incomplete.",
+  "worker_package": {
+    "objective": "Implement one homepage source-fidelity slice aligning the existing truthful homepage data with the supplied desktop, mobile, dark-mode, and brand references. Correct hero, audience, project, principles, news, newsletter, header, footer, card treatment, spacing, responsive behavior, and dark-theme styling while retaining deterministic provenance-pending media placeholders. Do not add facts, raster media, fonts, registries, snapshots, external URLs, or unrelated workstreams.",
+    "allowed_files": [
+      "apps/web/src/app/page.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/components/hero-illustration.tsx",
+      "apps/web/src/components/project-card.tsx",
+      "apps/web/src/components/site-header.tsx",
+      "apps/web/src/components/site-footer.tsx",
+      "apps/web/.next",
+      "test-results"
+    ],
+    "verify": [
+      "Before each Playwright command: inspect 127.0.0.1:3101 and proceed only when FREE or owned by this workspace.",
+      "pnpm exec prettier --check apps/web/src/app/page.tsx apps/web/src/app/globals.css apps/web/src/components/hero-illustration.tsx apps/web/src/components/project-card.tsx apps/web/src/components/site-header.tsx apps/web/src/components/site-footer.tsx",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:check",
+      "pnpm build",
+      "Compare fresh light desktop, 390px mobile, dark-mode, and brand-board output with supplied plans/assets references; do not run visual:update or approve mismatched baselines.",
+      "Confirm writes are limited to the listed source files, apps/web/.next, and test-results."
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files, especially content registries, design-system tokens, plans, reports, snapshots, docs-ingestion, search, hardening, operations, or external systems.",
+      "Raster media, font loading, licenses, GitHub URLs, news, project facts, or institutional claims would need to be invented or inferred.",
+      "The worker runs visual:update, modifies snapshots, weakens assertions, or treats stale-baseline mismatch as acceptance.",
+      "Fresh output introduces material responsive overflow, accessibility, functional, logo, or dark-mode regression against the supplied references.",
+      "Port 3101 is occupied by an unknown process or generated-output cleanup would traverse a symlink or broader directory.",
+      "A required command fails twice for the same in-scope cause."
+    ]
+  },
+  "evidence": [
+    "T056 cleanup passed; pnpm e2e passed 4 tests and pnpm a11y passed 4 tests, while visual:check failed all 3 targets.",
+    "T056 visual results: light 5,548 differing pixels; mobile expected 390x3579 versus actual 390x6630 with 36% difference; dark 8,183 pixels.",
+    "Fresh test-results contains actual, expected, and diff images; desktop and dark captures are 1280x720.",
+    "Current homepage renders existing publicProjects and publishedNews with provenance-pending media slots, but differs from the reference composition.",
+    "Current project and hero components use generic deterministic placeholders; the header lacks the reference GitHub action and the footer is simpler.",
+    "The supplied homepage specification requires up to six image-led projects, responsive one-column mobile cards, a dark principles panel, news cards, and a complete public-institution footer.",
+    "apps/web/public contains only dark/light SVG logos; no repository-backed raster media or font files are present."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Homepage markup, shared stylesheet, shell components, generated runtime output, browser server ownership, and visual evidence are one coupled boundary; use one sole Worker."
+  },
+  "blocked_tasks": ["T054", "T056"],
+  "missing_evidence": [
+    "Source-fidelity corrections verified against supplied desktop, mobile, dark, and brand references.",
+    "Passing production build after T056 cleanup.",
+    "Fresh visual evidence that is not confused with stale snapshot baselines.",
+    "Repository-backed provenance and licensing for raster media.",
+    "Truthful evidence for loading Bodoni Moda, Inter, or IBM Plex Mono.",
+    "Full homepage acceptance at specified responsive widths, including footer and newsletter states.",
+    "Full original brief completion across docs-ingestion, search, hardening/operations, governance, and external activation."
+  ]
+}

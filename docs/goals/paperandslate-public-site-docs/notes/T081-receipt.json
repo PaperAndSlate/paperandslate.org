@@ -1,0 +1,62 @@
+{
+  "task_id": "T081",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T080 source, static, E2E, accessibility, and build-boundary checks passed, but required post-change full-page browser, Axe, and screenshot artifacts are absent. Later next-dev checks replaced the production .next output and removed BUILD_ID; the artifact runner also depended on pnpm exec, which could not resolve next. Homepage/design and the broader brief remain incomplete.",
+  "worker_package": {
+    "objective": "Repair only the T080 diagnostic harness and rerun diagnostics in production-output-first order: run pnpm build:verify as the final build-producing command, preflight BUILD_ID, invoke the resolved apps/web/node_modules/next/dist/bin/next directly with shell:false from apps/web, and produce truthful full-page diagnostics. Preserve T080 source, next.config.ts, Playwright config, snapshots, canonical baselines, default standalone/Docker behavior, provenance-pending media, and unrelated outputs.",
+    "allowed_files": [
+      "apps/web/.next",
+      "test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "test-results/t080-homepage-fidelity/preflight.json",
+      "test-results/t080-homepage-fidelity/server.stdout.log",
+      "test-results/t080-homepage-fidelity/server.stderr.log",
+      "test-results/t080-homepage-fidelity/http.json",
+      "test-results/t080-homepage-fidelity/browser.json",
+      "test-results/t080-homepage-fidelity/axe.json",
+      "test-results/t080-homepage-fidelity/homepage-light-desktop.png",
+      "test-results/t080-homepage-fidelity/homepage-mobile.png",
+      "test-results/t080-homepage-fidelity/homepage-dark.png",
+      "test-results/t080-homepage-fidelity/integrity.json"
+    ],
+    "verify": [
+      "node --check test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "pnpm build:verify as the final build-producing command before the artifact runner.",
+      "node test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "Require BUILD_ID, exact .next real path, zero reparses, free port 3101, known system Chrome, direct resolved Next CLI, cwd apps/web, shell:false, and owned-server cleanup.",
+      "Require HTTP 200-399 for /, /health, /docs, /projects, /search plus strict homepage assertions.",
+      "Require browser.json, axe.json, full-page light desktop/mobile/dark screenshots, 0 serious/critical Axe violations, and truthful failure metadata.",
+      "Compare screenshots with supplied references without visual:update, baseline approval, snapshot changes, or assertion weakening.",
+      "Capture post-build .next hash and require it unchanged after next start cleanup; protected source/configuration/snapshot/Docker hashes unchanged and no artifacts outside allowed files.",
+      "Do not run pnpm e2e or pnpm a11y after build:verify."
+    ],
+    "stop_if": [
+      "build:verify fails/does not produce BUILD_ID/creates reparses/violates non-standalone boundary.",
+      "Direct Next CLI cannot resolve safely, port 3101 occupied, Chrome unavailable, or server ownership/cleanup cannot be established.",
+      "Final production .next changes during artifact runner or post-run integrity cannot prove unchanged.",
+      "Any source/configuration/snapshot/canonical baseline/Docker/content/provenance/unrelated generated-output change.",
+      "Artifact outside listed T080 paths, hidden/falsified failed artifact, repeated browser/HTTP/Axe/assertion/scope failure, visual:update, baseline approval, browser install, assertion weakening, or post-build next-dev execution."
+    ]
+  },
+  "evidence": [
+    "T080 passed prettier, lint, typecheck, unit tests, build:verify (80/80), E2E (4/4), and a11y (4/4), but its artifact runner could not start output because BUILD_ID was absent.",
+    "T080 server logs report pnpm recursive exec failure: Command next not found.",
+    "T080 current .next was dev-style after later next-dev checks and no longer had BUILD_ID.",
+    "T068 direct build-boundary script already resolves the web Next CLI and forces non-standalone verification mode.",
+    "T078 produced system-Chrome/Axe/screenshot evidence before later source work, proving the browser path is available when invoked correctly.",
+    "Canonical snapshots remain unchanged and unapproved."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Worker rebuilds shared .next, owns port 3101, launches system Chrome, and writes the sole T080 artifact set."
+  },
+  "blocked_tasks": ["T060", "T062", "T064", "T066", "T070", "T072", "T074", "T076", "T078", "T080"],
+  "missing_evidence": [
+    "Fresh post-T080 full-page light desktop, mobile, and dark screenshots.",
+    "Fresh browser.json and AxeBuilder result.",
+    "Proof production .next remains unchanged during runtime diagnostics.",
+    "Current reference-fidelity review after T080.",
+    "Repository-backed raster-media/font provenance, additional truthful news, verified GitHub destination, and full broader brief completion."
+  ]
+}

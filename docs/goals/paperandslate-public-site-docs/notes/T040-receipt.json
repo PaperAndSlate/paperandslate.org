@@ -1,0 +1,59 @@
+{
+  "task_id": "T040",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "The bounded public-content and publishing implementation began, but the required verification sequence was interrupted before results were captured. The worker also reports changes to packages/content/src/index.ts and scripts/search-index.ts, which are outside the explicit T040 allowlist; no generated artifacts were intentionally regenerated.",
+  "evidence": [
+    "The worker reports implementing public content models/registries, homepage and project/news/foundation presentation, project cards, newsletter form, content/feed checks, and search-index integration within the task attempt.",
+    "The worker reports changed files packages/content/src/index.ts and scripts/search-index.ts, neither of which is in T040's allowed_files.",
+    "pnpm content:validate was interrupted before output was captured; every later required command was not run."
+  ],
+  "missing_evidence": [
+    "Scope audit and safe disposition of the two out-of-allowlist edits.",
+    "All T040 content, feed, release, route, search, lint, typecheck, test, security, SEO, browser, a11y, and build verification.",
+    "Generated search records and launch reports after the public-content changes."
+  ],
+  "changed_files": [
+    "packages/content/src/models.ts",
+    "packages/content/src/registry.ts",
+    "packages/content/src/foundation.ts",
+    "packages/content/src/news.ts",
+    "packages/content/src/reports.ts",
+    "packages/content/src/index.ts",
+    "packages/content/src/people.ts",
+    "packages/content/src/roadmap.ts",
+    "apps/web/src/app/page.tsx",
+    "apps/web/src/app/(public)/projects/[slug]/page.tsx",
+    "apps/web/src/app/(public)/news/[slug]/page.tsx",
+    "apps/web/src/app/(public)/foundation/people/page.tsx",
+    "apps/web/src/app/(public)/foundation/roadmap/page.tsx",
+    "apps/web/src/components/project-card.tsx",
+    "apps/web/src/components/newsletter-form.tsx",
+    "scripts/content-check.ts",
+    "scripts/feeds-check.ts",
+    "scripts/search-index.ts"
+  ],
+  "commands": [
+    { "cmd": "pnpm content:validate", "status": "interrupted", "output": "No output captured; verification was interrupted before results were captured." },
+    { "cmd": "pnpm feeds:check", "status": "not_run" },
+    { "cmd": "pnpm release:check", "status": "not_run" },
+    { "cmd": "pnpm routes:check", "status": "not_run" },
+    { "cmd": "pnpm search:index", "status": "not_run" },
+    { "cmd": "pnpm lint", "status": "not_run" },
+    { "cmd": "pnpm typecheck", "status": "not_run" },
+    { "cmd": "pnpm test", "status": "not_run" },
+    { "cmd": "pnpm security:check", "status": "not_run" },
+    { "cmd": "pnpm seo:check", "status": "not_run" },
+    { "cmd": "pnpm e2e", "status": "not_run" },
+    { "cmd": "pnpm a11y", "status": "not_run" },
+    { "cmd": "pnpm build", "status": "not_run" }
+  ],
+  "remaining_blockers": [
+    "Required verification sequence is incomplete.",
+    "packages/content/src/index.ts and scripts/search-index.ts were changed outside T040's allowlist.",
+    "No generated artifacts were intentionally regenerated."
+  ],
+  "verification_attempts": 1,
+  "stopped_because": "Verification was interrupted before results were captured and the worker reported out-of-allowlist changes."
+}

@@ -1,0 +1,30 @@
+name: Supply chain
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v1.0.0-rc.*"
+
+jobs:
+  supply-chain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.6.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm sbom:generate
+      - run: pnpm security:scan
+      - run: pnpm vulnerability:scan
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: paper-and-slate-supply-chain-${{ github.sha }}
+          path: evidence/local/
+          if-no-files-found: warn

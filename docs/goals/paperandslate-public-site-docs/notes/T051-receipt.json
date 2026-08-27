@@ -1,0 +1,88 @@
+{
+  "task_id": "T051",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T050 proves formatting, lint, typecheck, unit tests, and E2E only. Accessibility was interrupted after a 3101-port collision; visual update/check, build, and reference comparison were not run. Only homepage.png exists; named mobile and dark snapshots remain absent. Current design files provide fallback font stacks but no loaded-font provenance. The design milestone and full outcome therefore remain unproven.",
+  "worker_package": {
+    "objective": "Recover T048 as one sole design-system verification slice: establish and record ownership of dedicated port 3101, complete accessibility verification, generate or update exactly the named light desktop, 390px mobile, and dark-mode snapshots, run visual checks and build verification, and make only minimal in-scope corrections required by observed failures. Preserve assertions, supplied artwork, and truthful font/image/license provenance. Keep content, docs-ingestion, search, hardening/operations, and external activation separate.",
+    "allowed_files": [
+      "packages/design-system/src/index.ts",
+      "packages/design-system/src/tokens.css",
+      "packages/design-system/package.json",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/page.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/app/(public)/layout.tsx",
+      "apps/web/src/app/(docs)/docs/layout.tsx",
+      "apps/web/src/components/brand-logo.tsx",
+      "apps/web/src/components/site-header.tsx",
+      "apps/web/src/components/site-footer.tsx",
+      "apps/web/src/components/page-primitives.tsx",
+      "apps/web/src/components/project-card.tsx",
+      "apps/web/src/components/mobile-navigation.tsx",
+      "apps/web/src/components/docs-navigation.tsx",
+      "apps/web/src/components/docs-project-selector.tsx",
+      "apps/web/src/components/version-selector.tsx",
+      "tests/browser/visual.spec.ts",
+      "tests/browser/snapshots/homepage.png",
+      "tests/browser/snapshots/homepage-mobile.png",
+      "tests/browser/snapshots/homepage-dark.png",
+      "tests/design-system.test.ts",
+      "apps/web/.next",
+      "test-results"
+    ],
+    "verify": [
+      "Before each Playwright command: inspect 127.0.0.1:3101 with Get-NetTCPConnection and record listener PID, process name, command line, or FREE; terminate only an attributable orphan from this workspace's prior run.",
+      "pnpm exec prettier --check apps/web/src/app/page.tsx",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:update",
+      "pnpm visual:check",
+      "pnpm build",
+      "Compare generated light, mobile, and dark screenshots with plans/assets/brand/paper-and-slate-brand-board.png, plans/assets/mockups/01-home-desktop.png, plans/assets/mockups/13-home-mobile.png, and plans/assets/mockups/12-dark-mode-home.png."
+    ],
+    "stop_if": [
+      "Any write is needed outside the allowed_files.",
+      "Port 3101 is occupied by an unknown or unrelated process, or ownership cannot be established without killing it.",
+      "The work requires changing content registries/routes, docs-ingestion/source artifacts, generated docs, search-provider code or configuration, middleware/CSP, Docker/Tower/monitoring files, credentials, providers, or production activation.",
+      "Font, image, or license provenance is unavailable; do not invent provenance or substitute supplied artwork.",
+      "A required command fails twice for the same in-scope cause.",
+      "Visual comparison reveals a material responsive, dark-mode, logo, functional, or accessibility regression; do not weaken assertions or accept a misleading baseline.",
+      "The exact named snapshot paths differ, or generated output remains stale or prevents a truthful local run.",
+      "Reports would claim unrun browser, accessibility, visual, Lighthouse, production, provider, or external results."
+    ]
+  },
+  "evidence": [
+    "T050 receipt records format, lint, typecheck, 23 unit tests, and 4 E2E tests passing.",
+    "T050 records a11y interrupted after a 127.0.0.1:3101 already-used collision; visual update/check, build, and screenshot comparison were not run.",
+    "playwright.config.ts fixes baseURL and webServer to 127.0.0.1:3101 with reuseExistingServer false.",
+    "visual.spec.ts names homepage.png, homepage-mobile.png, and homepage-dark.png; inventory contains only homepage.png.",
+    "test-results contains failed .last-run.json and two a11y trace archives, not complete accessibility evidence.",
+    "Current homepage snapshot visibly differs from the supplied light reference, including the light logo treatment and substantially different page composition."
+  ],
+  "blocked_tasks": ["T050"],
+  "missing_evidence": [
+    "Complete current accessibility run.",
+    "Named mobile and dark snapshot generation and visual-check results.",
+    "Current production build result.",
+    "Reference comparison evidence.",
+    "Dedicated-port ownership output proving the listener was attributable or absent.",
+    "Truthful loaded-font provenance for Bodoni Moda, Inter, and IBM Plex Mono."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Run one sole Worker. Shared design sources, visual snapshots, .next output, test-results, and dedicated port 3101 form one verification boundary."
+  },
+  "required_board_updates": [
+    "Record T051 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker using this worker_package verbatim.",
+    "Preserve T050's passing checks as focused evidence only.",
+    "Treat all three named snapshots as generated evidence after the recovery run.",
+    "Keep content, docs-ingestion, search, hardening/operations, and external activation as separate future packages."
+  ]
+}

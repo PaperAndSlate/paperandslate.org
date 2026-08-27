@@ -1,0 +1,30 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T084",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "apps/web/src/app/page.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/.next"
+    ],
+    "commands": [
+      "pnpm exec prettier --check apps/web/src/app/page.tsx apps/web/src/app/globals.css: pass",
+      "pnpm lint: pass",
+      "pnpm typecheck: pass",
+      "pnpm test: pass",
+      "pnpm e2e: pass",
+      "pnpm a11y: pass",
+      "pnpm build:verify: pass",
+      "node --check test-results/t080-homepage-fidelity/browser-audit.mjs: blocked, file missing",
+      "node test-results/t080-homepage-fidelity/browser-audit.mjs: blocked, file missing"
+    ],
+    "summary": "Implemented supporting project copy, responsive mobile hero copy, explicit principles contrast/layout, and two-column mobile footer styling. All source, test, accessibility, and build checks passed. Required browser-audit.mjs is absent, so fresh diagnostics and task-correct metadata could not be produced.",
+    "deviations": [],
+    "remaining_blockers": [
+      "Required test-results/t080-homepage-fidelity/browser-audit.mjs is missing and may not be created or modified under task scope."
+    ],
+    "verification_attempts": 1,
+    "stopped_because": "Required browser audit harness was missing; stopped without creating it."
+  }
+}

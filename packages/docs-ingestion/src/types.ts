@@ -1,0 +1,75 @@
+export type SourceKind = "central" | "fixture" | "sibling-local" | "git";
+export type VersionStatus = "draft" | "supported" | "historical";
+export type DocsVersion = {
+  id: string;
+  label: string;
+  status: VersionStatus;
+  ref: string;
+  docs?: string;
+  gitSha?: string;
+  routeVersion?: string;
+};
+export type DocsSource = {
+  id: string;
+  kind: SourceKind;
+  project: string;
+  title: string;
+  root: string;
+  versions: DocsVersion[];
+  approved?: boolean;
+};
+export type Frontmatter = {
+  title: string;
+  description?: string;
+  order?: number;
+  draft?: boolean;
+  slug?: string;
+  taxonomy?: string[];
+  standards?: Record<string, unknown>;
+};
+export type DocsDocument = Frontmatter & {
+  id: string;
+  route: string;
+  canonicalRoute: string;
+  aliases: string[];
+  project: string;
+  version: string;
+  sourceId: string;
+  sourcePath: string;
+  content: string;
+  headings: string[];
+  hash: string;
+  status: VersionStatus;
+  ref: string;
+  sourceMode: SourceKind;
+  sourceHash: string;
+  requirementAnchors: string[];
+  taxonomy: string[];
+  assets: string[];
+};
+export type Provenance = {
+  sourceId: string;
+  project: string;
+  path: string;
+  ref: string;
+  resolvedSha?: string;
+  contentHash: string;
+  hashAlgorithm: "sha256";
+  sourceKind: SourceKind;
+  sourceMode: SourceKind;
+  editable: boolean;
+  lockType: "git-sha" | "content-hash";
+  deterministicId: string;
+  files: { path: string; contentHash: string }[];
+  recordedAt: "build-time";
+};
+export type DocsBundle = {
+  documents: DocsDocument[];
+  provenance: Provenance[];
+  pageTree: Record<string, unknown>;
+  projectIndex: Record<string, unknown>[];
+  searchRecords: Record<string, unknown>[];
+  redirects: Record<string, string>;
+  lock: Record<string, unknown>;
+  assets: Record<string, unknown>[];
+};

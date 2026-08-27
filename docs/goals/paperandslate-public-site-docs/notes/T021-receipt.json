@@ -1,0 +1,49 @@
+{
+  "task_id": "T021",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T018/T020 verified a local fixture/sibling docs slice and passing build/tests, but the documentation/source contract remains incomplete: canonical default and historical routes, functional version selection, explicit adapters, deterministic locks, and full normalization/safety stages are missing.",
+  "evidence": [
+    "T020 docs validation, typecheck, focused tests, full tests, build, and route-tree assertion passed.",
+    "Generated bundle contains 12 documents from central, fixture, and six sibling-local sources; standards content is truthfully Planned/Experimental.",
+    "Built routes include /docs/file-system/next and /docs/file-system/v1, but omit /docs/file-system and /docs/file-system/v/1.0.",
+    "No explicit adapters, deterministic lock stage, asset/include/link-rewrite stage, or diff stage exists.",
+    "VersionSelector has an inert onChange handler; interactive docs are limited to a details-based anchor list.",
+    "Implementation and launch reports contain stale T019 build-failure evidence."
+  ],
+  "missing_evidence": [
+    "Required public route families remain missing, including reports/[year], releases, news category/tag, governance policy routes, privacy, terms, and top-level accessibility.",
+    "Full validated content schemas, Typesense, schema-property indexing, design-system assets/fonts/dark mode, complete CI/security/observability/performance/visual evidence, and external activation remain incomplete."
+  ],
+  "worker_package": {
+    "objective": "Complete the local documentation/source vertical slice with explicit local, fixture, and approved-Git adapters; honest deterministic locks and provenance; safe link, asset, include, collision, and anchor validation; canonical default, /next, /v/[version], and raw routes; functional taxonomy and version/source controls; JavaScript-free fallbacks; focused tests and generated artifacts.",
+    "verify": [
+      "pnpm docs:ingest",
+      "pnpm docs:validate",
+      "pnpm search:index",
+      "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-source-adapters.test.ts",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm build"
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files, including ../standards.",
+      "Remote credentials, external activation, fabricated Git SHAs, or unsupported public facts are required.",
+      "The work expands into public content/routes, Typesense, Kit, design-system redesign, or launch hardening.",
+      "The same verification command fails twice or route collisions cannot be resolved within scope.",
+      "Existing T018/T020 behavior or unrelated changes would be overwritten."
+    ]
+  },
+  "parallel_safety": {
+    "safe": false,
+    "reason": "The package overlaps the existing docs ingestion and docs route surface; only one write Worker is authorized."
+  },
+  "required_board_updates": [
+    "Record T021 as done with not_complete and full_outcome_complete false.",
+    "Create one Worker task by copying the worker_package fields verbatim.",
+    "Keep public-site, search, design, hardening, and external-activation work separate."
+  ]
+}

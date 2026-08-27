@@ -1,0 +1,35 @@
+{
+  "task_id": "T048",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Explicit light desktop, 390px mobile, and dark-mode snapshot names were added. Scoped formatting passed. The prescribed format:check failed on apps/web/src/app/page.tsx, which is outside T048's allowlist; fixing it would violate scope. Remaining verification and baseline generation were not run.",
+  "summary": "Explicit light desktop, 390px mobile, and dark-mode snapshot names were added. Scoped formatting passed. The prescribed format:check failed on apps/web/src/app/page.tsx, which is outside T048's allowlist; fixing it would violate scope. Remaining verification and baseline generation were not run.",
+  "changed_files": [
+    "packages/design-system/package.json",
+    "apps/web/src/app/globals.css",
+    "apps/web/src/components/brand-logo.tsx",
+    "apps/web/src/components/page-primitives.tsx",
+    "apps/web/src/components/project-card.tsx",
+    "apps/web/src/components/docs-navigation.tsx",
+    "apps/web/src/components/docs-project-selector.tsx",
+    "apps/web/src/components/version-selector.tsx",
+    "tests/browser/visual.spec.ts"
+  ],
+  "commands": [
+    { "cmd": "pnpm exec prettier --check T048 files", "status": "fail", "output": "Formatting issues found in scoped files; corrected within scope." },
+    { "cmd": "pnpm exec prettier --write T048 files", "status": "pass" },
+    { "cmd": "pnpm exec prettier --check T048 files", "status": "pass" },
+    { "cmd": "pnpm format:check", "status": "blocked", "output": "apps/web/src/app/page.tsx is not formatted" }
+  ],
+  "deviations": [
+    "Applied scoped Prettier formatting to T048 allowlisted files after the required check identified formatting issues."
+  ],
+  "remaining_blockers": [
+    "pnpm format:check fails because apps/web/src/app/page.tsx is outside the T048 allowlist and requires formatting.",
+    "Browser/IAB local inspection was unavailable because the local server refused connection due stale .next state.",
+    "Browser, a11y, visual baseline, and build verification were not run."
+  ],
+  "verification_attempts": 1,
+  "stopped_because": "Required verification exposed an out-of-scope formatting write requirement; stopped before further commands or snapshot generation."
+}

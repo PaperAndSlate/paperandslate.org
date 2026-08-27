@@ -1,0 +1,22 @@
+{
+  "task_id": "T074",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Preflight passed: port 3101 was free, .next was normal with zero reparse descendants, and system Chrome was present. The first inline Node attempt failed syntax validation; the corrected inline command was rejected by the shell safety layer before server launch. No source, configuration, snapshots, Docker, or .next files changed.",
+  "changed_files": ["test-results/t073-system-chrome/preflight.json"],
+  "commands": [
+    { "cmd": "preflight", "status": "pass", "output": "port FREE; .next normal with zero reparse descendants; system Chrome present" },
+    { "cmd": "inline Node attempt", "status": "fail", "output": "syntax validation failed before server launch" },
+    { "cmd": "corrected inline Node attempt", "status": "blocked", "output": "rejected by shell safety layer before execution" },
+    { "cmd": "post-check", "status": "pass", "output": "port 3101 FREE" }
+  ],
+  "summary": "Preflight passed and wrote only preflight.json. The inline runtime command failed first from a missing async wrapper; the corrected command was rejected by the shell safety layer before launch. No server, browser, Axe, screenshots, hashes, or runtime artifacts were produced. Source, configuration, snapshots, Docker, and .next were not modified.",
+  "deviations": [],
+  "remaining_blockers": [
+    "Shell safety layer rejected the required inline Node command.",
+    "Browser, Axe, screenshot, route, server-log, and integrity evidence remain unavailable."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": "Required inline command could not execute within the allowed attempts; continuing would exceed the two-attempt limit."
+}

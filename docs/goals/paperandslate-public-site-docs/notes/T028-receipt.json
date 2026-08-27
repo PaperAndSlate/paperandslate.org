@@ -1,0 +1,57 @@
+{
+  "task_id": "T028",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T026/T027 prove passing local ingestion, generated artifacts, tests, and production build, but the docs/source contract and broader brief remain incomplete. Public routes and content models are sparse, governance/legal utilities are missing, and several readiness artifacts contain stale or placeholder truth. Approve one sole Worker for the public content, governance, utility, route, feed, and validation milestone. Keep Typesense, design-system completion, hardening, and external activation separate.",
+  "evidence": [
+    "T026 passed docs ingestion, validation, search indexing, focused docs tests, lint, typecheck, and 18 tests; T027 restored the production build.",
+    "Generated docs contain 12 pages, 8 configured sources, 9 source-version locks, and 8 project-index entries.",
+    "Git SHA resolution checks object existence but reads the current worktree; no true SHA fixture test exists.",
+    "Sibling standards manifests contain only id, name, status, and description.",
+    "Current route tree lacks report-year, release, news category/tag, privacy, terms, top-level accessibility, several governance policy routes, and app-level 404/error routes.",
+    "Content models are sparse type-only objects; health reports sourceCount 2 and local-content-lock despite 8 sources and generated lock data."
+  ],
+  "missing_evidence": [
+    "Complete immutable Git source resolution and full source-registry metadata validation.",
+    "Complete Zod content validation for projects, maturity/health, news, reports, roadmap, governance, and policies.",
+    "Complete public route catalog and useful non-invented content surfaces.",
+    "Feed category support, alternate-link metadata, and comprehensive newsletter POST/provider tests.",
+    "Typesense, schema-property indexing, design-system completion, full hardening, Lighthouse, and production evidence.",
+    "Tower, DNS, credentials, remote repositories, legal review, and factual approvals remain external pending."
+  ],
+  "worker_package": {
+    "objective": "Implement the local public-site/content milestone with Zod-validated truthful registries; complete foundation, project, release, report, governance, news, legal, accessibility, 404, utility, feed, and category/tag routes; add project metadata, filters, status legends, redirects, machine-readable projects output, validated feed/newsletter behavior, supplied media where provenance permits, regenerated search records, tests, and truthful reports.",
+    "verify": [
+      "pnpm install --frozen-lockfile",
+      "pnpm content:validate",
+      "pnpm feeds:check",
+      "pnpm release:check",
+      "pnpm routes:check",
+      "pnpm search:index",
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm exec vitest run tests/public-site.test.ts tests/public-routes.test.ts tests/publishing.test.ts tests/governance.test.ts tests/newsletter.test.ts tests/redirects.test.ts",
+      "pnpm test",
+      "pnpm build"
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files.",
+      "The work expands into docs-ingestion, Typesense, design-system completion, hardening, Tower, DNS, credentials, remote repositories, or external providers.",
+      "Truthful public content cannot be produced without inventing people, funding, legal status, adoption, endorsement, releases, or maturity.",
+      "Supplied media lacks local provenance or licensing support.",
+      "A required route conflicts, loops, or requires misleading placeholder content.",
+      "The same verification command fails twice for the same in-scope cause."
+    ]
+  },
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Shared public registries, routes, navigation, feeds, generated search records, and reports require one sole Worker."
+  },
+  "required_board_updates": [
+    "Record T028 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker task from worker_package.",
+    "Keep Typesense, design-system, hardening, and external activation separate."
+  ]
+}

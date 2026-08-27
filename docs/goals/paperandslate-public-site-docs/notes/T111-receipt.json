@@ -1,0 +1,22 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T111",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T110 isolated the remaining blocker: all non-browser gates passed, but Playwright failed twice with createContext only works in Client Components from docs-navigation.tsx via @phosphor-icons/react; visual and build checks were skipped. Adding only a top-level use-client directive is safe because navigation has no server-only imports or hooks and receives serializable data from the server layout. The full goal remains incomplete pending fresh verification and broader launch evidence.",
+    "worker_package": {
+      "objective": "Add only a top-level \"use client\" directive to apps/web/src/components/docs-navigation.tsx so its existing @phosphor-icons/react import is evaluated in a client boundary. Preserve all existing props, computations, links, icon usage, markup, server-only Fumadocs rendering, escaped fallback, ingestion, provenance, search, raw routes, truthful content, dependencies, reports, and snapshots. Then run complete fresh documentation-foundation verification.",
+      "allowed_files": ["apps/web/src/components/docs-navigation.tsx"],
+      "verify": ["pnpm exec prettier --check apps/web/src/components/docs-navigation.tsx", "pnpm install --frozen-lockfile --strict-peer-dependencies", "pnpm audit --prod --json", "pnpm why react @types/react @types/react-dom @phosphor-icons/react --recursive", "pnpm routes:check", "pnpm content:validate", "pnpm docs:validate", "pnpm seo:check", "pnpm security:check", "pnpm lint", "pnpm typecheck", "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-components.test.ts tests/design-system.test.ts", "pnpm test", "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "pnpm visual:check", "pnpm build:verify"],
+      "stop_if": ["Any file outside apps/web/src/components/docs-navigation.tsx must change.", "The repair requires dependency changes, peer overrides, unsafe MDX, snapshot updates, generated-output changes, report changes, or process reconfiguration.", "The exact client directive does not clear the createContext error or introduces another type or runtime error.", "Server-only central Fumadocs rendering, escaped fallback for fixture/sibling/Git-imported documents, ingestion, provenance, static search, raw routes, truthful content, SEO, security, or existing snapshots regress.", "Browser verification collides with an unrelated server; do not stop or modify that process.", "Any production advisory appears.", "Any verification command fails twice for the same in-scope cause."]
+    },
+    "evidence": ["T110 records all non-browser gates passing and Playwright failing twice with the client-context error; visual and build checks were skipped.", "docs-navigation.tsx imports @phosphor-icons/react without a client directive and contains no server-only imports or React hooks.", "The server docs layout passes serializable DocsDocument data into DocsNavigation.", "The async DocsRenderer and reviewed-central Fumadocs gate preserve escaped fallback behavior for untrusted documents."],
+    "subgoal_contract": null,
+    "parallel_safety": {"safe": false, "reason": "The repair touches the shared documentation navigation boundary and requires app-wide browser, visual, and build verification; run exactly one sole Worker."},
+    "blocked_tasks": ["T110"],
+    "missing_evidence": ["Fresh post-repair Playwright and accessibility evidence.", "Fresh visual and build verification.", "Fresh confirmation that server/client and untrusted-document boundaries remain intact.", "Full deployment, provider, legal, factual, provenance, and production acceptance evidence."],
+    "required_board_updates": ["Record T111 as done with decision approved and full_outcome_complete false.", "Create exactly one Worker task from worker_package and keep it as the sole active write task.", "Keep T110 as historical blocked evidence until fresh verification passes.", "Preserve zero-advisory evidence, central-only Fumadocs rendering, escaped fallback behavior, ingestion/provenance/search/raw-route behavior, truthful pages, and existing snapshots."]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "task_id": "T075",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "The homepage/browser milestone is not complete. T068 verified the non-standalone build boundary and T072 verified 5/5 HTTP routes, but bundled Chromium prevented browser/Axe evidence. T074 preflight passed while its corrected inline runner was rejected by shell safety. Prior visual checks also recorded material mismatches. System Chrome is present and configured, so approve one bounded artifact-only runner.",
+  "worker_package": {
+    "objective": "Run one sole post-T068 homepage diagnostics pass against existing apps/web/.next using the configured system Chrome path, with a bounded Node script stored only under test-results/t075-system-chrome. Start and stop an owned next start server on 127.0.0.1:3101, execute HTTP smoke and strict homepage assertions, run AxeBuilder, capture 1440x900 light, 390x844 mobile, and 1440x900 dark screenshots, and persist integrity hashes. Preserve source, build boundary, default standalone/Docker configuration, browser tests, snapshots, and hashes.",
+    "allowed_files": [
+      "test-results/t075-system-chrome/browser-audit.mjs",
+      "test-results/t075-system-chrome/preflight.json",
+      "test-results/t075-system-chrome/server.stdout.log",
+      "test-results/t075-system-chrome/server.stderr.log",
+      "test-results/t075-system-chrome/http.json",
+      "test-results/t075-system-chrome/browser.json",
+      "test-results/t075-system-chrome/axe.json",
+      "test-results/t075-system-chrome/homepage-light-desktop.png",
+      "test-results/t075-system-chrome/homepage-mobile.png",
+      "test-results/t075-system-chrome/homepage-dark.png",
+      "test-results/t075-system-chrome/integrity.json"
+    ],
+    "verify": [
+      "node --check test-results/t075-system-chrome/browser-audit.mjs",
+      "node test-results/t075-system-chrome/browser-audit.mjs",
+      "Use shell:false process spawning, the configured PLAYWRIGHT_EXECUTABLE_PATH fallback, existing next start output, and no inline -e command.",
+      "Require port 3101 FREE, exact .next target, zero reparse descendants, and known Chrome executable before launch.",
+      "Require successful responses for /, /health, /docs, /projects, /search and mirror existing smoke assertions for title, h1, skip-link, health status, search, and dialog semantics.",
+      "Persist all Axe violations while failing on any serious or critical homepage violation.",
+      "Capture all three screenshots diagnostically without snapshot comparison, baseline writes, or visual:update.",
+      "In finally stop only the owned server, verify port FREE, source/configuration/browser-test/snapshot/Docker/.next hashes unchanged, no reparse points, and all new files beneath the allowed directory."
+    ],
+    "stop_if": [
+      "Port 3101 is occupied by unknown process or ownership cannot be established.",
+      "apps/web/.next is missing/reparse root/has reparse descendants or next start requires cleanup/build/config changes.",
+      "Known system Chrome is missing or cannot launch; do not install/substitute a browser.",
+      "Artifact script fails syntax, writes outside allowed paths, or cannot stop owned server safely.",
+      "Any browser, Axe, HTTP, or assertion failure repeats for same cause; preserve artifacts and stop.",
+      "Any source, configuration, .next, Docker, test, snapshot, content, report, or generated-output hash changes.",
+      "pnpm e2e, pnpm a11y, pnpm visual:check, visual:update, snapshot approval, assertion weakening, or baseline modification is attempted."
+    ]
+  },
+  "evidence": [
+    "T068 records build:verify passing twice with preserved default standalone/Docker behavior and unchanged source/configuration hashes.",
+    "T072 records next start and HTTP smoke 5/5, but bundled Chromium was missing and Axe was not run.",
+    "T074 preflight passed with port free, normal .next, and system Chrome present; its inline runner was rejected before launch.",
+    "Current test-results/t073-system-chrome contains preflight/server logs but no browser/Axe artifacts.",
+    "Playwright config targets 127.0.0.1:3101 with the known system Chrome fallback; prior Scout T012 recorded successful launch."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Worker owns port 3101, reads shared .next, launches browser, and writes one diagnostic artifact boundary; no parallel runtime/build/browser/snapshot work is safe."
+  },
+  "blocked_tasks": ["T060", "T062", "T064", "T066", "T070", "T072", "T074"],
+  "missing_evidence": [
+    "Fresh post-T068 system-Chrome homepage browser assertions.",
+    "Fresh homepage AxeBuilder result.",
+    "Fresh light desktop, mobile, and dark visual artifacts.",
+    "Post-run integrity proof covering source, configuration, tests, snapshots, Docker, and .next.",
+    "Resolution or current reassessment of known visual mismatch against homepage intent.",
+    "Repository-backed media provenance and truthful font-loading evidence.",
+    "Full brief completion across documentation ingestion, search, governance, operations, hardening, and external activation."
+  ]
+}

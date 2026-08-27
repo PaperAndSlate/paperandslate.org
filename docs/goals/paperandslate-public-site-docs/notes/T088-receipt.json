@@ -1,0 +1,32 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T088",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "apps/web/.next",
+      "test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "test-results/t080-homepage-fidelity/preflight.json",
+      "test-results/t080-homepage-fidelity/server.stdout.log",
+      "test-results/t080-homepage-fidelity/server.stderr.log",
+      "test-results/t080-homepage-fidelity/http.json",
+      "test-results/t080-homepage-fidelity/browser.json",
+      "test-results/t080-homepage-fidelity/axe.json",
+      "test-results/t080-homepage-fidelity/homepage-light-desktop.png",
+      "test-results/t080-homepage-fidelity/homepage-mobile.png",
+      "test-results/t080-homepage-fidelity/homepage-dark.png",
+      "test-results/t080-homepage-fidelity/integrity.json"
+    ],
+    "commands": [
+      { "cmd": "node --check test-results/t080-homepage-fidelity/browser-audit.mjs", "status": "pass" },
+      { "cmd": "pnpm build:verify", "status": "pass", "count": "80/80 pages, non-standalone output" },
+      { "cmd": "node test-results/t080-homepage-fidelity/browser-audit.mjs", "status": "pass" },
+      { "cmd": "post-run audit", "status": "pass", "count": "5/5 HTTP routes, strict homepage assertions, Axe serious/critical 0, 3/3 full-page screenshots, owned cleanup, port free" }
+    ],
+    "summary": "Repaired the diagnostic harness to record verification build mode, use the resolved Next CLI with shell:false, reject standalone warnings, include integrity.json, and preserve truthful failure/log/hash evidence. One production-output-first rerun passed. BUILD_ID 7AJSDuhBGIcBo7lsDRab6, zero reparses, protected hashes unchanged, .next unchanged after cleanup, and no extra artifacts were created.",
+    "deviations": [],
+    "remaining_blockers": [],
+    "verification_attempts": 1,
+    "stopped_because": null
+  }
+}

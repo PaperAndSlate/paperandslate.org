@@ -1,0 +1,40 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T134",
+    "decision": "not_complete",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [],
+    "commands": [
+      {"cmd": "Scope preflight", "status": "pass", "count": 1, "output": "Exact Paper & Slate workspace and board path confirmed."},
+      {"cmd": "Current local acceptance review", "status": "pass", "count": 1, "output": "Current format, routes, docs, content, feeds, releases, security, SEO, performance, rollback, tests, ESLint, and TypeScript evidence is passing."},
+      {"cmd": "Launch evidence and readiness review", "status": "pass", "count": 1, "output": "T132 generator-produced evidence is local-runtime-only, visual-unavailable, and retains all pending categories."},
+      {"cmd": "External-authority boundary review", "status": "blocked", "count": 1, "output": "No user authority, qualified approvals, provider credentials, remote repository/deployment state, accepted visual/Lighthouse results, SBOM, or production release identity is present in the checkout."
+      }
+    ],
+    "summary": "Local acceptance is complete for the available checkout. No safe reversible Worker package remains. Full outcome is incomplete solely at the external and approval boundary; newsletter and Typesense remain intentionally disabled without credentials, and visual snapshots remain unchanged baseline-drift evidence.",
+    "deviations": [],
+    "remaining_blockers": [
+      "Accepted current-source visual QA",
+      "Lighthouse measurement",
+      "Qualified legal, privacy, trademark, institutional, maintainer, funding, factual, and media approvals",
+      "Provider credentials and activation for Typesense, Kit, GlitchTip, Infisical, and related services",
+      "Tower/Coolify authority and activation",
+      "Remote repository, branch, pull request, DNS/TLS, deployment, monitoring, and rollback drill",
+      "External syndication, publication workflow, and production feed validation",
+      "SBOM and production release identity",
+      "full_outcome_complete remains false."
+    ],
+    "verification_attempts": 1,
+    "stopped_because": "Further progress requires explicit user or qualified approval, credentials, remote repository/deployment authority, or live external state; no safe local Worker package remains.",
+    "evidence": [
+      "T120: guarded 102-page build and 7/7 docs/smoke/accessibility checks with protected hashes unchanged.",
+      "T130: green formatting, focused docs/content checks, ESLint, and both TypeScript checks.",
+      "T132: refreshed generator-produced launch evidence and readiness reports without weakening pending categories.",
+      "Fumadocs remains restricted to three reviewed central documents; fixture and sibling documents retain escaped fallback rendering.",
+      "Static search fallback and provider-disabled newsletter behavior remain explicit and truthful.",
+      "No commit, push, deployment, provider activation, snapshot update, or external write occurred."
+    ],
+    "full_outcome_complete": false
+  }
+}

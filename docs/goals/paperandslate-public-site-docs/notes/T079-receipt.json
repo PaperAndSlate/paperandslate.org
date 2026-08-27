@@ -1,0 +1,70 @@
+{
+  "task_id": "T079",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T078 proves runtime, browser assertions, zero Axe violations, screenshots, cleanup, and integrity preservation. Fresh visual review shows the desktop hero is materially too tall, while fixable source gaps remain in principles layout, footer logo treatment, newsletter disabled behavior, ARIA semantics, responsive rhythm, and full-page evidence. Media, fonts, additional news, and GitHub destination facts remain gated and must not be invented.",
+  "worker_package": {
+    "objective": "Implement and verify one bounded homepage source-fidelity closure slice: correct demonstrated hero and mobile rhythm, audience-strip mobile treatment, principles-panel layout and contrast ambiguity, light-footer logo treatment, project-status ARIA semantics, and the newsletter's visibly disabled/noninteractive state. Preserve exact truthful copy, six registry-driven projects, the single published news record, provenance-pending media slots, fallback fonts, existing standalone/Docker behavior, and immutable snapshots. Then capture fresh full-page light desktop, mobile, and dark diagnostics with task-correct metadata.",
+    "allowed_files": [
+      "apps/web/src/app/globals.css",
+      "apps/web/src/components/project-card.tsx",
+      "apps/web/src/components/newsletter-form.tsx",
+      "apps/web/.next",
+      "test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "test-results/t080-homepage-fidelity/preflight.json",
+      "test-results/t080-homepage-fidelity/server.stdout.log",
+      "test-results/t080-homepage-fidelity/server.stderr.log",
+      "test-results/t080-homepage-fidelity/http.json",
+      "test-results/t080-homepage-fidelity/browser.json",
+      "test-results/t080-homepage-fidelity/axe.json",
+      "test-results/t080-homepage-fidelity/homepage-light-desktop.png",
+      "test-results/t080-homepage-fidelity/homepage-mobile.png",
+      "test-results/t080-homepage-fidelity/homepage-dark.png",
+      "test-results/t080-homepage-fidelity/integrity.json"
+    ],
+    "verify": [
+      "pnpm exec prettier --check apps/web/src/app/globals.css apps/web/src/components/project-card.tsx apps/web/src/components/newsletter-form.tsx",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm build:verify",
+      "pnpm e2e",
+      "pnpm a11y",
+      "node --check test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "node test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "Compare fresh full-page light desktop, mobile, and dark output against supplied references without visual:update or snapshot approval.",
+      "Confirm all media remains data-media-slot=provenance-pending and no raster, font, news, external URL, content registry, snapshot, or report files are added."
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files, including content registries, page source, snapshots, reports, plans, documentation, provenance records, generated media, fonts, or external systems.",
+      "Verified GitHub destination, raster license/provenance, font provenance, or additional truthful news record is required; preserve the gap instead of inventing it.",
+      "Any visual:update, baseline approval, snapshot modification, assertion weakening, external activation, or invented copy/fact is attempted.",
+      "Port ownership, exact .next target, system Chrome launch, server cleanup, full-page capture, or artifact-scope verification cannot be established safely.",
+      "A focused check, build, browser assertion, Axe check, or integrity check fails twice for the same in-scope cause.",
+      "New run changes protected source/configuration/browser-test/snapshot/Docker hashes, touches T075 artifacts, leaves port occupied, or produces Axe serious/critical violations."
+    ]
+  },
+  "evidence": [
+    "T078: 5/5 HTTP routes, 3/3 browser contexts, 0 serious/critical Axe violations, 3/3 screenshots, clean server shutdown, and unchanged protected hashes.",
+    "T078 Axe artifact reports 0 violations but two incomplete checks around ARIA-prohibited attributes and contrast in project statuses/principles.",
+    "T078 screenshots were viewport-only without fullPage, so lower-section visual acceptance remains unproven.",
+    "Fresh light/dark captures show the hero occupying nearly the full 900px viewport versus the supplied reference's audience strip and project section in the initial composition.",
+    "Current homepage has the required hero, audience, six-project map, four principles, single truthful news record, and newsletter structure.",
+    "Current media slots are provenance-pending and public assets contain only SVG logos; no raster/font claims can be made."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "The package edits shared homepage source, rebuilds .next, launches port 3101, and writes full-page diagnostics; no parallel Worker is safe."
+  },
+  "blocked_tasks": ["T054", "T056", "T058", "T060", "T062", "T064", "T066", "T070", "T072", "T074", "T076", "T078"],
+  "missing_evidence": [
+    "Fresh full-page post-change light desktop, mobile, and dark screenshots.",
+    "Post-change proof principles contrast/prohibited ARIA attribute are resolved.",
+    "Post-change proof newsletter is visibly disabled and noninteractive.",
+    "Current source-backed comparison of project grid/cards, news/newsletter, footer, and mobile composition beyond viewport crop.",
+    "Repository-backed raster-media license/provenance and optimized production media.",
+    "Truthful local loading evidence or provenance for Bodoni Moda, Inter, and IBM Plex Mono.",
+    "Additional published news records and verified GitHub destination."
+  ]
+}

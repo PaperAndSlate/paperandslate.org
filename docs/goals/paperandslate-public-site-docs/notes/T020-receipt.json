@@ -1,0 +1,29 @@
+{
+  "task_id": "T020",
+  "result": "done",
+  "changed_files": [
+    "apps/web/src/app/(docs)/docs/[...slug]/raw/route.ts",
+    "apps/web/src/app/(docs)/docs/raw/[...slug]/route.ts",
+    "apps/web/src/app/(docs)/docs/[...slug]/page.tsx",
+    "apps/web/src/middleware.ts",
+    "apps/web/src/components/version-selector.tsx",
+    "apps/web/.next"
+  ],
+  "commands": [
+    {"cmd": "Remove only apps/web/.next with exact-target Node filesystem cleanup", "status": "pass"},
+    {"cmd": "Remove only apps/web/.next with exact-target Node filesystem cleanup (retry)", "status": "pass"},
+    {"cmd": "pnpm build (retry)", "status": "pass"},
+    {"cmd": "pnpm docs:validate", "status": "pass"},
+    {"cmd": "pnpm typecheck", "status": "pass"},
+    {"cmd": "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts (5 tests)", "status": "pass"},
+    {"cmd": "pnpm test (14 tests)", "status": "pass"},
+    {"cmd": "Route-tree assertion", "status": "pass"}
+  ],
+  "summary": "Moved raw Markdown to terminal /docs/raw/[...slug], preserved legacy /docs/<slug>/raw through middleware rewrite, and added a visible raw link. Build and all required docs, typecheck, focused, and full tests pass.",
+  "deviations": [
+    "Made VersionSelector a client component to resolve an existing prerender event-handler failure revealed after the route fix."
+  ],
+  "remaining_blockers": [],
+  "verification_attempts": 2,
+  "stopped_because": null
+}

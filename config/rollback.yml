@@ -1,0 +1,7 @@
+version: 1
+strategy: immutable-artifact-redeploy
+steps:
+  - stop-current-release
+  - redeploy-last-known-good-artifact
+  - verify-health-and-static-routes
+activation: pending

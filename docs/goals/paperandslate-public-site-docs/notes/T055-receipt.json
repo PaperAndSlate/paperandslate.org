@@ -1,0 +1,56 @@
+{
+  "task_id": "T055",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T054's homepage slice is present: six projects, published news, newsletter, approach, and shell alignment; focused checks passed. Existing snapshots predate the source edits and cannot serve as evidence. The .next tree contains stale nested standalone output and a symlinked Next path matching the repeated scandir failure. Prior exact-target cleanups recovered equivalent failures. Keep source unchanged for one generated-output/browser recovery package; homepage fidelity and the full brief remain unverified.",
+  "worker_package": {
+    "objective": "Recover homepage browser, accessibility, visual-check, and production-build evidence by cleaning only the generated apps/web/.next directory and test-results outputs. Make no source, snapshot, content, provenance, documentation, search, hardening, operations, or external changes. Do not approve or rewrite mismatched baselines.",
+    "allowed_files": ["apps/web/.next", "test-results"],
+    "verify": [
+      "Inspect 127.0.0.1:3101 before each Playwright command; proceed only when FREE or owned by this workspace.",
+      "node -e \"const fs=require('fs'),path=require('path'); const p=path.resolve('apps/web/.next'); if (p !== path.resolve(process.cwd(),'apps/web/.next')) throw new Error('unexpected target'); fs.rmSync(p,{recursive:true,force:true});\"",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:check",
+      "pnpm build",
+      "Compare fresh browser output and visual diffs with supplied desktop, mobile, dark-mode, and brand-board references without running visual:update or approving existing baselines.",
+      "Confirm writes are limited to apps/web/.next and test-results."
+    ],
+    "stop_if": [
+      "The cleanup target is not exactly apps/web/.next or would traverse a symlink target or broader directory.",
+      "Port 3101 is occupied by an unknown process or ownership cannot be established.",
+      "Any source, snapshot, content-registry, report, docs-ingestion, search, hardening/operations, or external-system change is required.",
+      "Raster media or font provenance must be invented, inferred, or claimed without repository evidence.",
+      "A required recovery command fails twice for the same cause.",
+      "Visual output shows a material regression or mismatch; do not weaken assertions, rewrite, or approve baselines."
+    ]
+  },
+  "evidence": [
+    "T054 receipt records focused formatting, lint, typecheck, and 23 unit tests passing, while e2e and build both fail at apps/web/.next/standalone/apps/web/node_modules/next with UNKNOWN scandir.",
+    "Current homepage source and components were modified after the existing homepage snapshots; the snapshots are stale relative to the source.",
+    "Current source maps publicProjects and publishedNews, renders the newsletter and approach sections, and marks media slots provenance-pending.",
+    "The current .next tree contains nested standalone output from earlier timestamps and a symlinked standalone Next package.",
+    "Prior successful exact-target cleanups recovered equivalent failures and passed build/browser checks.",
+    "Supplied mockups remain implementation references; raster mockup media and loaded-font claims remain provenance-gated."
+  ],
+  "blocked_tasks": ["T054"],
+  "missing_evidence": [
+    "Passing post-T054 real-app e2e evidence.",
+    "A passing pnpm a11y result.",
+    "Fresh visual-check and production-build results after exact-target cleanup.",
+    "Fresh desktop, mobile, and dark homepage comparison against supplied references.",
+    "Repository-backed provenance/license evidence for raster media and truthful evidence for any loaded fonts.",
+    "Full original brief completion across docs-ingestion, search, hardening/operations, governance, and external activation."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Generated .next output, Playwright server ownership, test-results, visual comparison, and build evidence share one runtime boundary; run one sole Worker."
+  },
+  "required_board_updates": [
+    "Record T055 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker using this evidence-recovery package.",
+    "Preserve existing snapshots as unapproved evidence; do not run visual:update.",
+    "Keep docs-ingestion, search, hardening/operations, and external activation on separate task boundaries."
+  ]
+}

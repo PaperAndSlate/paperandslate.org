@@ -1,0 +1,60 @@
+{
+  "task_id": "T037",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "The failure is a runtime CSP/hydration defect, not a test-contract mismatch or dialog accessibility defect. The trace records React Refresh failing on blocked unsafe-eval before the click; current source and generated bundles contain the correctly labelled dialog. Preserve the focused assertions and repair development CSP behavior without weakening production CSP.",
+  "worker_package": {
+    "objective": "Fix the development-only CSP incompatibility that blocks Next React Refresh/client hydration during dedicated browser runs, preserving strict production CSP and the existing SearchDialog markup and browser/a11y assertions; rerun focused verification and update launch evidence truthfully.",
+    "allowed_files": [
+      "apps/web/src/middleware.ts",
+      "apps/web/.next",
+      "test-results",
+      "IMPLEMENTATION_REPORT.md",
+      "LAUNCH_READINESS.md",
+      ".generated/launch/launch-evidence.json"
+    ],
+    "verify": [
+      "Node exact-target cleanup of apps/web/.next",
+      "pnpm security:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm build"
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files.",
+      "The fix adds unsafe-eval to production CSP or weakens production security headers.",
+      "The focused browser or a11y assertions are removed, weakened, or changed to bypass the dialog contract.",
+      "The work changes SearchDialog behavior/markup or expands into visual/design, public-content, docs-ingestion, broad hardening/operations, or external activation.",
+      "A dedicated browser run still reports CSP/hydration errors or the dialog locator failure after two attempts.",
+      "The same verification command fails twice."
+    ]
+  },
+  "evidence": [
+    "test-results/smoke-header-search-dialog-opens-and-links-to-results-chromium/trace.zip records a pageError: React Refresh evaluation violated the CSP because unsafe-eval was not allowed.",
+    "The trace shows the Open search button resolved and clicked, while the post-click DOM snapshot contains no dialog, consistent with blocked client hydration.",
+    "apps/web/src/components/search-dialog.tsx defines role=dialog, aria-modal=true, aria-labelledby=search-title, and the referenced heading text Search Paper & Slate.",
+    "apps/web/.next generated bundles contain the same dialog markup and accessible name, ruling out stale source/bundle contract drift.",
+    "apps/web/src/middleware.ts applies the CSP to the document with script-src self unsafe-inline and no unsafe-eval, while the development runtime requires React Refresh evaluation.",
+    "T036 passed cleanup, search indexing, lint, typecheck, and 21 tests; three smoke tests passed, but the dialog test failed twice and a11y/build were not run afterward."
+  ],
+  "blocked_tasks": ["T033", "T034", "T036"],
+  "missing_evidence": [
+    "Passing dedicated-port e2e coverage for the header dialog after the CSP fix.",
+    "Search-specific a11y and post-fix production build evidence.",
+    "Completion evidence for the broader design, content, docs-ingestion, operations, and external activation requirements."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Run as the sole Worker because middleware CSP, generated .next output, browser artifacts, and launch evidence share the same runtime-verification boundary."
+  },
+  "required_board_updates": [
+    "Record T037 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker task from worker_package.",
+    "Keep the existing focused browser and a11y assertions unchanged.",
+    "Treat the explicit T036 failure and trace as authoritative over stale aggregate pass text in launch reports."
+  ]
+}

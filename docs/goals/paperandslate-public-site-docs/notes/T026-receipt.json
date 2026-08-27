@@ -1,0 +1,47 @@
+{
+  "task_id": "T026",
+  "result": "blocked",
+  "changed_files": [
+    "packages/docs-ingestion/src/types.ts",
+    "packages/docs-ingestion/src/frontmatter.ts",
+    "packages/docs-ingestion/src/safety.ts",
+    "packages/docs-ingestion/src/adapters/local.ts",
+    "packages/docs-ingestion/src/adapters/git.ts",
+    "packages/docs-ingestion/src/locks.ts",
+    "packages/docs-ingestion/src/normalize.ts",
+    "packages/docs-ingestion/src/validate.ts",
+    "packages/docs-ingestion/src/assets.ts",
+    "packages/docs-ingestion/src/generate.ts",
+    "scripts/docs-ingest.ts",
+    "scripts/docs-check.ts",
+    "apps/web/src/lib/docs.ts",
+    "apps/web/src/components/docs-navigation.tsx",
+    "apps/web/src/components/docs-project-selector.tsx",
+    "apps/web/src/components/version-selector.tsx",
+    "apps/web/src/app/(docs)/docs/page.tsx",
+    "apps/web/src/app/(docs)/docs/[...slug]/page.tsx",
+    ".generated/docs",
+    ".generated/search/search-records.json"
+  ],
+  "commands": [
+    {"cmd": "pnpm docs:ingest", "status": "pass"},
+    {"cmd": "pnpm docs:validate", "status": "pass"},
+    {"cmd": "pnpm search:index", "status": "pass"},
+    {"cmd": "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-source-adapters.test.ts tests/docs-source-contract.test.ts (9 tests)", "status": "pass"},
+    {"cmd": "pnpm lint", "status": "pass"},
+    {"cmd": "pnpm typecheck", "status": "pass"},
+    {"cmd": "pnpm test (18 tests)", "status": "pass"},
+    {"cmd": "pnpm build (first attempt)", "status": "fail"},
+    {"cmd": "pnpm build (retry)", "status": "fail"}
+  ],
+  "summary": "Implemented bounded docs/source contract improvements including safe include resolution, per-file immutable provenance hashes, deterministic asset copying and manifests, stronger route/link/anchor validation, taxonomy metadata, canonical static params, project/version selectors, and no-JavaScript fallbacks. All checks passed except pnpm build, which failed twice on the existing Windows .next standalone scandir error.",
+  "deviations": [
+    "Git resolution now verifies the configured SHA object directly instead of comparing only against HEAD.",
+    "No remote, runtime network, credentials, database, or fabricated SHA was used."
+  ],
+  "remaining_blockers": [
+    "pnpm build fails twice with UNKNOWN scandir on apps/web/.next/standalone/apps/web/node_modules/next."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": "The same required verification command, pnpm build, failed twice with identical evidence."
+}

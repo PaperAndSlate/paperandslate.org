@@ -1,0 +1,12 @@
+provider: static
+maxQueryLength: 120
+maxResults: 20
+source: .generated/search/search-records.json
+timeoutMs: 750
+cacheTtlMs: 30000
+facets:
+  - type
+  - source
+typesense:
+  activation: explicit SEARCH_PROVIDER=typesense plus endpoint and key
+  collection: search_records

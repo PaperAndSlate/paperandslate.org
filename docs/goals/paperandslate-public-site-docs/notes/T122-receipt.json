@@ -1,0 +1,26 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T122",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["apps/web/src/lib/docs-fumadocs.ts", "apps/web/mdx-components.tsx", "scripts/docs-ingest.ts", "apps/web/.next", "test-results/.last-run.json"],
+    "commands": [
+      {"cmd": "pnpm format:check", "status": "fail", "count": 2, "output": "Existing Windows script quoting defect: '/docs/**/*.tsx was unexpected at this time.'"},
+      {"cmd": "pnpm docs:validate", "status": "pass", "count": 13, "output": "Validated 13 local documentation pages."},
+      {"cmd": "pnpm content:validate", "status": "pass", "count": 12, "output": "Validated 12 local content records."},
+      {"cmd": "pnpm exec eslint apps/web/src packages scripts tests --no-error-on-unmatched-pattern", "status": "pass", "count": 0, "output": ""},
+      {"cmd": "pnpm exec tsc -p apps/web --noEmit --incremental false", "status": "pass", "count": 0, "output": ""},
+      {"cmd": "pnpm exec tsc -p packages/design-system --noEmit --incremental false", "status": "pass", "count": 0, "output": ""},
+      {"cmd": "pnpm test", "status": "fail", "count": 27, "output": "26 passed; stale test expectation still expects two reviewed central documents, but T122 correctly admits all three."},
+      {"cmd": "pnpm build:verify", "status": "pass", "count": 102, "output": "Verified non-standalone production output with 102 static pages."},
+      {"cmd": "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "status": "pass", "count": 7, "output": "7 passed."}
+    ],
+    "summary": "Wired all three reviewed central documents to generated Fumadocs MDX bodies, connected Interactive, preserved escaped non-central rendering, and removed the unused docs-ingest import. Lint, typechecks, docs/content validation, build, and browser checks pass. Stopped because format:check fails twice on an existing uneditable Windows quoting defect and tests fail twice on an allowed but unupdated stale assertion.",
+    "deviations": ["Used React createElement because docs-fumadocs.ts is .ts, not .tsx.", "Deferred the generated Fumadocs server import until central rendering so Vitest can load boundary tests."],
+    "remaining_blockers": ["pnpm format:check has an existing package-script quoting failure outside T122 allowed_files.", "tests/docs-components.test.ts needs its expected reviewed-central count updated from 2 to 3, but execution stopped after the repeated failure boundary.", "Protected source/generated and homepage snapshot hash verification was not run."],
+    "verification_attempts": 3,
+    "stopped_because": "The same verification failures occurred twice: format:check script parsing and pnpm test stale assertion.",
+    "evidence": ["Fumadocs build generated and rendered the central collection successfully.", "pnpm build:verify passed with 102 static pages.", "Playwright docs-core, smoke, and accessibility suite passed 7/7.", "No snapshot update command was invoked.", "No external systems, commits, or pushes were used."],
+    "full_outcome_complete": false
+  }
+}

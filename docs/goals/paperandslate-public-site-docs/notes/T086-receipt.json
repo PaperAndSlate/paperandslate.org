@@ -1,0 +1,36 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T086",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "apps/web/.next",
+      "test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "test-results/t080-homepage-fidelity/preflight.json",
+      "test-results/t080-homepage-fidelity/server.stdout.log",
+      "test-results/t080-homepage-fidelity/server.stderr.log",
+      "test-results/t080-homepage-fidelity/http.json",
+      "test-results/t080-homepage-fidelity/browser.json",
+      "test-results/t080-homepage-fidelity/axe.json",
+      "test-results/t080-homepage-fidelity/homepage-light-desktop.png",
+      "test-results/t080-homepage-fidelity/homepage-mobile.png",
+      "test-results/t080-homepage-fidelity/homepage-dark.png"
+    ],
+    "commands": [
+      "node --check test-results/t080-homepage-fidelity/browser-audit.mjs: pass",
+      "pnpm build:verify: pass, 80/80 pages, non-standalone output",
+      "node test-results/t080-homepage-fidelity/browser-audit.mjs: pass after two harness fixes",
+      "post-run artifact audit: routes 5/5 HTTP 200, strict homepage pass, Axe serious/critical 0, screenshots 3/3, port free, owned cleanup, .next hash unchanged"
+    ],
+    "summary": "Diagnostics were generated successfully, but the server emitted Next's standalone-output warning because the harness did not set verification build mode when starting production output. This violates the required non-standalone boundary, so the result cannot be marked done.",
+    "deviations": [
+      "Did not create board-listed integrity.json because the user's explicit allowed-file list excluded it.",
+      "Reference comparison records PNG dimensions and full-page capture metadata; no baseline or snapshot changes were made."
+    ],
+    "remaining_blockers": [
+      "Set PAPER_SLATE_BUILD_MODE=verification for the direct production server launch and rerun diagnostics, subject to the two-fix-attempt limit."
+    ],
+    "verification_attempts": 2,
+    "stopped_because": "Production server emitted a standalone-output warning, violating the required non-standalone boundary; no further fix attempt was permitted."
+  }
+}

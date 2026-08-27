@@ -1,0 +1,59 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T101",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T100's security work passed strict install, zero production advisories, exact dependency pins, CI audit gates, and all pre-lint preservation checks. ESLint has one deterministic error at next-env.d.ts:3, while the generated file says not to edit. Use one exact-file ESLint override disabling only @typescript-eslint/triple-slash-reference with an inline bounded rationale. This keeps the generated file subject to other lint checks and preserves the security files. T100 lacks post-lint typecheck, browser, and build evidence, so the Worker must rerun them.",
+    "worker_package": {
+      "objective": "Add only a documented ESLint override for exactly apps/web/next-env.d.ts that disables @typescript-eslint/triple-slash-reference because Next.js owns this generated file. Do not edit the generated file, dependencies, lockfile, CI, ADR, ledger, or application source. Preserve T100's exact pins, zero-advisory result, CI audit gates, and behavior.",
+      "allowed_files": ["eslint.config.mjs"],
+      "verify": [
+        "pnpm exec prettier --check eslint.config.mjs",
+        "pnpm lint",
+        "pnpm audit --prod --json",
+        "pnpm why postcss yaml playwright --recursive",
+        "pnpm routes:check",
+        "pnpm content:validate",
+        "pnpm docs:validate",
+        "pnpm seo:check",
+        "pnpm security:check",
+        "pnpm typecheck",
+        "pnpm exec playwright test tests/browser/smoke.spec.ts",
+        "pnpm build:verify",
+        "rg -n -F \"pnpm audit --prod\" .github/workflows/ci.yml docs/adr/0003-dependency-security-floor.md"
+      ],
+      "stop_if": [
+        "Any write is needed outside eslint.config.mjs, including the generated file, manifests, lockfile, CI, ADR, ledger, reports, plans, or external systems.",
+        "The change broadens beyond an exact apps/web/next-env.d.ts override or disables rules other than @typescript-eslint/triple-slash-reference for that file.",
+        "Any moderate, high, or critical advisory remains, or the CI audit gate or approved dependency pins change.",
+        "Routes, content, docs, SEO, security, typecheck, browser smoke, or build verification regresses.",
+        "A verification command fails twice for the same in-scope cause.",
+        "The work expands into source refactors, Fumadocs, Tailwind, or unrelated dependency/tooling changes."
+      ]
+    },
+    "evidence": [
+      "apps/web/next-env.d.ts:3 contains the Next-generated triple-slash route reference; lines 5-6 state the file should not be edited.",
+      "eslint.config.mjs:4-8 applies typescript-eslint recommended rules and currently excludes only .next, node_modules, dist, and plans.",
+      "Focused ESLint reported one error at apps/web/next-env.d.ts:3: @typescript-eslint/triple-slash-reference; the same check with only that rule disabled exited 0.",
+      "T100 receipt records zero advisories and passed route/content/docs/SEO/security checks, with lint blocked.",
+      ".github/workflows/ci.yml and docs/adr/0003-dependency-security-floor.md retain the production audit gates and exact pins."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "The shared root ESLint configuration is the sole write surface and gates the completed dependency upgrade; run one Worker only."
+    },
+    "blocked_tasks": ["T096"],
+    "missing_evidence": [
+      "T100 stopped at lint, so current Next 16 typecheck, browser-smoke, and build verification are not recorded.",
+      "Full-goal Fumadocs/Tailwind parity and external production evidence remain deferred."
+    ],
+    "required_board_updates": [
+      "Record T101 as done with this receipt.",
+      "Create one sole Worker using the exact worker_package and keep T100 incomplete until its full verification passes.",
+      "Preserve T100's zero-advisory and CI-gate evidence; keep full_outcome_complete false and T096 blocked."
+    ]
+  }
+}

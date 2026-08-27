@@ -1,0 +1,27 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T108",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["packages/design-system/package.json", "pnpm-lock.yaml"],
+    "commands": [
+      {"cmd": "pnpm install --frozen-lockfile --strict-peer-dependencies", "status": "pass", "count": 1, "output": "Lockfile up to date; strict frozen install passed."},
+      {"cmd": "pnpm audit --prod --json", "status": "pass", "count": 1, "output": "0 info, low, moderate, high, and critical vulnerabilities."},
+      {"cmd": "pnpm why react @types/react @types/react-dom @phosphor-icons/react --recursive", "status": "pass", "count": 1, "output": "React 19.2.8 and @types/react 19.2.18 resolved; no added React DOM declarations."},
+      {"cmd": "pnpm routes:check", "status": "pass", "count": 1, "output": "Validated 23 public routes and 2 redirects."},
+      {"cmd": "pnpm content:validate", "status": "pass", "count": 1, "output": "Validated 12 local content records."},
+      {"cmd": "pnpm docs:validate", "status": "pass", "count": 1, "output": "Validated 12 local documentation pages."},
+      {"cmd": "pnpm seo:check", "status": "pass", "count": 1, "output": "Metadata, canonical, sitemap, robots, and structured data checks passed."},
+      {"cmd": "pnpm security:check", "status": "pass", "count": 1, "output": "Security headers and production-safe CSP verified."},
+      {"cmd": "pnpm lint", "status": "pass", "count": 1, "output": "Six workspace lint tasks passed."},
+      {"cmd": "pnpm typecheck", "status": "fail", "count": 2, "output": "Repeated TS2322 in apps/web/src/components/docs-renderer.tsx: ReactNode Promise type incompatibility."}
+    ],
+    "summary": "Added the exact React peer and @types/react dev declarations and corresponding lockfile importer entries. All prerequisite route, content, docs, SEO, security, lint, install, dependency, and audit gates passed; typecheck failed twice on the same app-level docs-renderer ReactNode incompatibility, so browser, visual, and build gates were not run.",
+    "deviations": ["pnpm canonicalized the React peer resolution into the design-system lockfile importer dependencies entry as required for frozen-lockfile validation."],
+    "remaining_blockers": ["apps/web/src/components/docs-renderer.tsx has a repeated TS2322 ReactNode incompatibility; fixing it is outside the two-file T108 scope.", "Browser, visual, and build verification remain unrun due to the required stop condition."],
+    "verification_attempts": 2,
+    "stopped_because": "A verification command failed twice for the same in-scope cause.",
+    "evidence": ["packages/design-system/package.json declares react 19.2.8 in peerDependencies and @types/react 19.2.18 in devDependencies.", "pnpm-lock.yaml contains matching design-system importer resolutions.", "Production audit reports zero advisories.", "No snapshots, source, reports, generated output, plans, infrastructure, or external systems were changed."],
+    "full_outcome_complete": false
+  }
+}

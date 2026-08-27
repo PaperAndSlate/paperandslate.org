@@ -1,0 +1,22 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T123",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "Both blockers are isolated and safely repairable: the root format script uses a Windows-invalid single-quoted route-group glob, and the reviewed central document set is demonstrably three documents while the test expects two. A sole two-file Worker can correct only these defects without touching docs, generated artifacts, routes, snapshots, or external systems.",
+    "worker_package": {
+      "objective": "Repair only the Windows-safe quoting of the existing root format:check route-group glob and update the reviewed-central expectation from two to three; preserve all other scripts, central-only Fumadocs behavior, escaped fallback rendering, provenance/search/raw routes, truthful content, homepage authority, snapshots, and zero-advisory posture.",
+      "allowed_files": ["package.json", "tests/docs-components.test.ts"],
+      "verify": ["pnpm format:check", "pnpm test -- tests/docs-components.test.ts tests/docs-ingestion.test.ts tests/docs-source-adapters.test.ts", "pnpm test", "pnpm docs:validate", "pnpm content:validate", "pnpm exec eslint apps/web/src packages scripts tests --no-error-on-unmatched-pattern", "pnpm exec tsc -p apps/web --noEmit --incremental false", "pnpm exec tsc -p packages/design-system --noEmit --incremental false"],
+      "stop_if": ["Any change is needed outside package.json or tests/docs-components.test.ts.", "The format-script repair changes the checked file set or any script other than format:check.", "The test requires changing Fumadocs source membership, generated documents, ingestion, routes, provenance, search, raw rendering, homepage code, snapshots, or content.", "Any snapshot update, generated-artifact rewrite, external write, provider action, deployment, legal/factual change, or advisory behavior is introduced.", "Any verification failure remains after one bounded correction or reveals a regression outside these two defects."]
+    },
+    "evidence": ["Current format:check reproduces the Windows parse error: '/docs/**/*.tsx was unexpected at this time.'", "Focused and full tests reproduce exactly one stale failure: received three central entries while expecting two; 26 of 27 tests pass.", "Generated documents contain 13 records: 3 central, 4 fixture, and 6 sibling-local.", "Current docs-fumadocs.ts allowlists exactly three central IDs; docs-renderer uses Fumadocs only for those and escaped markdown otherwise.", "docs:validate, content:validate, ESLint, and both requested typechecks currently pass.", "T122 recorded build verification and 7/7 docs, smoke, and accessibility browser checks passing with no snapshot update."],
+    "subgoal_contract": null,
+    "parallel_safety": {"safe": false, "reason": "The root package script and shared documentation-boundary test are the complete package; run one sole sequential Worker and do not parallelize with any writer or generated-output verification."},
+    "blocked_tasks": ["T112 visual snapshot mismatches remain baseline evidence and must stay unchanged.", "External repository, DNS/TLS, provider, credential, deployment, production, legal, factual, Lighthouse, SBOM, and production-acceptance evidence remain pending."],
+    "missing_evidence": ["Post-repair format:check and full-test success.", "Protected source/generated and homepage snapshot hashes have not been rechecked after the Worker package.", "Full original launch outcome remains incomplete."],
+    "required_board_updates": ["Record T123 as approved and keep full_outcome_complete false.", "Create exactly one Worker using the worker_package verbatim and keep it as the sole active write task.", "Require proof that only package.json and tests/docs-components.test.ts changed.", "Preserve all T122 boundaries, generated artifacts, provenance/search/raw routes, homepage snapshots, and external blockers."]
+  }
+}

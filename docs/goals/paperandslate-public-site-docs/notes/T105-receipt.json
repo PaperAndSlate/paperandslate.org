@@ -1,0 +1,47 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T105",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "not_complete",
+    "full_outcome_complete": false,
+    "rationale": "T104 established the dependency and formatting prerequisites, but its substantive route, content, docs, SEO, security, lint, typecheck, test, Playwright, visual, and build sequence was interrupted. The current source enforces Fumadocs only for two reviewed central IDs and retains escaped rendering elsewhere, but MDX component wiring and full parity remain unverified. The workspace is not a Git checkout, so an actual T104 diff cannot be independently inspected. One bounded verification/remediation Worker is safe; completion is rejected.",
+    "worker_package": {
+      "objective": "Complete the T104 documentation-foundation verification milestone and apply only narrowly necessary fixes within the listed T104 source, test, ledger, ADR, and readiness files. Preserve the central-only Fumadocs boundary, escaped fallback for fixture/sibling/Git-imported documents, existing ingestion/provenance/static-search/raw-route behavior, truthful public pages, zero-advisory posture, and existing snapshots. Do not claim MDX or Fumadocs parity beyond passing evidence.",
+      "allowed_files": [
+        "apps/web/next.config.ts", "apps/web/postcss.config.mjs", "apps/web/src/app/layout.tsx", "apps/web/src/app/globals.css", "apps/web/src/app/(docs)/docs/[...slug]/page.tsx", "apps/web/src/components/docs-renderer.tsx", "apps/web/src/components/docs-navigation.tsx", "apps/web/src/components/docs-page-actions.tsx", "apps/web/src/components/docs-table-of-contents.tsx", "apps/web/src/components/docs-callout.tsx", "apps/web/src/components/docs-code-block.tsx", "apps/web/src/components/docs-tabs.tsx", "apps/web/src/components/docs-requirement.tsx", "apps/web/src/components/mdx.tsx", "apps/web/src/lib/docs-fumadocs.ts", "packages/design-system/package.json", "packages/design-system/tsconfig.json", "packages/design-system/src/index.ts", "packages/design-system/src/tokens.css", "packages/design-system/src/lib/utils.ts", "packages/design-system/src/components/index.ts", "packages/design-system/src/components/button.tsx", "packages/design-system/src/components/badge.tsx", "packages/design-system/src/components/surface.tsx", "packages/design-system/src/components/callout.tsx", "packages/design-system/src/components/code-block.tsx", "packages/design-system/src/components/tabs.tsx", "packages/design-system/src/components/requirement.tsx", "tests/docs-components.test.ts", "tests/browser/docs-core.spec.ts", "tests/browser/a11y.spec.ts", "IMPLEMENTATION_LEDGER.md", "IMPLEMENTATION_REPORT.md", "LAUNCH_READINESS.md", "docs/adr/0004-fumadocs-tailwind-design-system.md"
+      ],
+      "verify": [
+        "pnpm install --frozen-lockfile --strict-peer-dependencies", "pnpm audit --prod --json", "pnpm why fumadocs-core fumadocs-ui fumadocs-mdx tailwindcss @tailwindcss/postcss postcss --recursive", "pnpm routes:check", "pnpm content:validate", "pnpm docs:validate", "pnpm seo:check", "pnpm security:check", "pnpm lint", "pnpm typecheck", "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-components.test.ts tests/design-system.test.ts", "pnpm test", "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "pnpm visual:check", "pnpm build:verify"
+      ],
+      "stop_if": [
+        "Any change is needed outside allowed_files, including package manifests, lockfile, generated output, content, ingestion, provenance, search, raw routes, plans, snapshots, infrastructure, or external systems.", "Any lockfile refresh, peer override, hidden install, registry replacement, or unrelated dependency churn is proposed.", "Any fixture, sibling-local, future Git-imported, or otherwise untrusted document would cross the Fumadocs renderer or execute MDX imports, exports, unsafe HTML, URLs, network access, or source-shadowing behavior.", "Existing public routes, content, ingestion, provenance, static search, raw routes, SEO, security headers, or zero-advisory posture regresses.", "Visual verification requires updating snapshots or generated artifacts to hide a regression.", "A verification command fails twice for the same in-scope cause, a browser server collides with an unrelated process, or evidence cannot be refreshed truthfully."
+      ]
+    },
+    "evidence": [
+      "T104 prerequisite receipt records strict frozen install passing after the allowed lock refresh, pinned metadata, zero production advisories, dependency graph, and scoped formatting.",
+      "T104 explicitly records the route/content/docs/SEO/security/lint/typecheck/test/Playwright/visual/build sequence as interrupted and incomplete.",
+      "The current Fumadocs adapter restricts central rendering to two reviewed IDs and the docs renderer retains escaped Markdown fallback elsewhere.",
+      "The docs source registry contains central, fixture, and sibling-local sources; the ingestion safety layer rejects imports/exports, unsafe markup, external or traversing URLs, duplicate headings, and unsupported assets.",
+      "The Fumadocs Next integration is installed globally, but custom MDX component wiring and full parity are not verified.",
+      "The workspace and its parent are not Git checkouts; the nearby well-known sibling is unrelated."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": { "safe": false, "reason": "The next package touches shared application rendering, docs routing, design-system exports, tests, and readiness artifacts. No disjoint parallel write scope is proven, and the missing Git diff requires one sole Worker." },
+    "blocked_tasks": ["T104"],
+    "missing_evidence": [
+      "Fresh command-level results for all interrupted verification gates.",
+      "Independent inspection of the actual T104 diff.",
+      "Browser, accessibility, visual, and build evidence for the current worktree.",
+      "Proof that custom MDX components are wired and that any central Fumadocs behavior is safe and intentional.",
+      "Truthfully refreshed implementation and launch-readiness reports.",
+      "Full original launch outcome, including external deployment, provider, legal, factual, and production evidence."
+    ],
+    "required_board_updates": [
+      "Record T105 as done with decision not_complete and full_outcome_complete false.",
+      "Create exactly one Worker task from worker_package and keep it as the sole active write task.",
+      "Preserve T104's completed prerequisite evidence separately from its interrupted substantive verification.",
+      "Do not claim Fumadocs parity, production readiness, or full-goal completion."
+    ]
+  }
+}

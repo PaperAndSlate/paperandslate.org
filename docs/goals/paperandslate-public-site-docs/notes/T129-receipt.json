@@ -1,0 +1,52 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T129",
+    "decision": "approved",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "summary": "Approved a bounded, sequential formatting-quality package. The eight files currently reported by format:check may be normalized, and package.json may receive only --no-error-on-unmatched-pattern so the existing checked file set remains intact while real style failures remain visible.",
+    "worker_package": {
+      "objective": "Run Prettier write only on the eight currently reported files, and modify only package.json by appending --no-error-on-unmatched-pattern to scripts.format:check while preserving every existing checked path and token.",
+      "allowed_files": [
+        "apps/web/src/components/newsletter-form.tsx",
+        "apps/web/src/components/search-dialog.tsx",
+        "tests/docs-source-adapters.test.ts",
+        "tests/governance.test.ts",
+        "tests/newsletter.test.ts",
+        "tests/publishing.test.ts",
+        "tests/redirects.test.ts",
+        "tests/search.test.ts",
+        "package.json"
+      ],
+      "verify": [
+        "pnpm exec prettier --write apps/web/src/components/newsletter-form.tsx apps/web/src/components/search-dialog.tsx tests/docs-source-adapters.test.ts tests/governance.test.ts tests/newsletter.test.ts tests/publishing.test.ts tests/redirects.test.ts tests/search.test.ts",
+        "pnpm exec prettier --check apps/web/src/components/newsletter-form.tsx apps/web/src/components/search-dialog.tsx tests/docs-source-adapters.test.ts tests/governance.test.ts tests/newsletter.test.ts tests/publishing.test.ts tests/redirects.test.ts tests/search.test.ts",
+        "pnpm format:check",
+        "Assert package.json retains all existing checked path tokens and contains --no-error-on-unmatched-pattern.",
+        "Run focused docs/content tests and validations, scoped ESLint, and both app/design-system TypeScript checks."
+      ],
+      "stop_if": [
+        "Any file outside the eight listed files and package.json changes.",
+        "Any package.json change beyond the single flag, or removal/reordering/alteration of an existing checked path/token.",
+        "A format failure remains beyond the documented package/file scope.",
+        "Any product, generated, snapshot, report, fact, Fumadocs boundary, external, commit, push, or deploy action is needed."
+      ]
+    },
+    "evidence": [
+      "Scope matched the Paper & Slate web workspace and exact board path.",
+      "Current format:check reported exactly eight style mismatches and one unmatched tests/**/*.tsx error.",
+      "Prettier 3.5.3 exposes --no-error-on-unmatched-pattern and a full-list simulation passed while preserving matched paths.",
+      "The package is sequential because package.json is shared and the formatting flag must remain paired with the explicit eight-file write."
+    ],
+    "parallel_safety": {
+      "safe": false,
+      "reason": "Do not parallelize the shared package.json and explicit formatting package."
+    },
+    "missing_evidence": [
+      "External repository, branch/PR, DNS, TLS, provider, deployment, monitoring, Lighthouse, and SBOM evidence.",
+      "Authoritative legal and factual content approvals.",
+      "Accepted browser/visual QA; existing snapshots remain unchanged baseline evidence."
+    ],
+    "full_outcome_complete": false
+  }
+}

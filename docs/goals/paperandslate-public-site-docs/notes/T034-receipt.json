@@ -1,0 +1,30 @@
+{
+  "task_id": "T034",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "The exact apps/web/.next cleanup passed, but the first required verification command regenerated .generated/search/search-records.json outside this task's explicit allowlist. The worker stopped immediately under the stop condition; no browser, a11y, or build result is claimed.",
+  "evidence": [
+    "The exact generated target apps/web/.next was cleaned successfully.",
+    "pnpm search:index attempted to generate 13 deterministic local search records and wrote .generated/search/search-records.json, which is outside T034's allowed_files.",
+    "The dedicated-port browser, a11y, and build checks were not run after the out-of-scope write condition was detected."
+  ],
+  "missing_evidence": [
+    "A successful search:index verification without an unapproved write, or an explicitly approved generated-record scope.",
+    "Dedicated-port e2e and a11y results for the search implementation.",
+    "A clean production build result after the search implementation."
+  ],
+  "changed_files": [
+    "apps/web/.next",
+    ".generated/search/search-records.json"
+  ],
+  "commands": [
+    { "cmd": "Node exact-target cleanup of apps/web/.next", "status": "pass" },
+    { "cmd": "pnpm search:index", "status": "fail" }
+  ],
+  "remaining_blockers": [
+    "T034's allowlist did not include the generated search record artifact required by pnpm search:index."
+  ],
+  "verification_attempts": 1,
+  "stopped_because": "A write outside the allowed files was needed. Exact output: Generated 13 deterministic local search records."
+}

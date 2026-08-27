@@ -1,0 +1,64 @@
+{
+  "task_id": "T083",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T082 runtime evidence is valid: BUILD_ID, system Chrome, 5/5 routes, full-page captures, cleanup, free port, and unchanged hashes. Axe reports zero violations including zero serious/critical, but one serious-impact contrast check is incomplete around the slate pseudo-element. Visual review finds the shell broadly coherent, yet project supporting copy, mobile footer composition, and principles contrast/layout remain fixable gaps. Gated media, fonts, extra news, and GitHub destination cannot be invented.",
+  "worker_package": {
+    "objective": "Implement and verify the remaining fixable homepage presentation slice: add reference-backed project-section supporting copy and responsive mobile hero copy treatment; make the four specified principles legible with determinate contrast and an intentional desktop/tablet/mobile layout; and give the mobile footer the specified two-column or accordion-like composition. Preserve truthful registry content, one published news item, eight provenance-pending media slots, fallback fonts, no unverified GitHub URL, disabled newsletter behavior, and immutable snapshots.",
+    "allowed_files": [
+      "apps/web/src/app/page.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/.next",
+      "test-results/t080-homepage-fidelity/preflight.json",
+      "test-results/t080-homepage-fidelity/server.stdout.log",
+      "test-results/t080-homepage-fidelity/server.stderr.log",
+      "test-results/t080-homepage-fidelity/http.json",
+      "test-results/t080-homepage-fidelity/browser.json",
+      "test-results/t080-homepage-fidelity/axe.json",
+      "test-results/t080-homepage-fidelity/homepage-light-desktop.png",
+      "test-results/t080-homepage-fidelity/homepage-mobile.png",
+      "test-results/t080-homepage-fidelity/homepage-dark.png",
+      "test-results/t080-homepage-fidelity/integrity.json"
+    ],
+    "verify": [
+      "pnpm exec prettier --check apps/web/src/app/page.tsx apps/web/src/app/globals.css",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm build:verify",
+      "node --check test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "node test-results/t080-homepage-fidelity/browser-audit.mjs",
+      "Compare fresh full-page light desktop, mobile, and dark renders against supplied references without visual:update or baseline approval.",
+      "Require truthful browser metadata, six projects, one published news record, eight provenance-pending media slots, disabled newsletter controls, zero serious/critical Axe violations, and unchanged protected/.next integrity."
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files, including content registries, news, media, fonts, provenance, snapshots, reports, plans, configuration, or external systems.",
+      "Verified media/font provenance, additional truthful news, or GitHub destination is required; preserve gap instead of inventing it.",
+      "Any visual:update, baseline approval, snapshot modification, assertion weakening, invented copy/fact/URL, or external activation is attempted.",
+      "Build, browser, route, Axe, port, system-Chrome, cleanup, full-page capture, or integrity verification fails twice for same in-scope cause.",
+      "Final runner changes protected source/configuration/test/snapshot/Docker hashes, leaves port occupied, produces serious/critical Axe violations, or writes outside listed artifacts."
+    ]
+  },
+  "evidence": [
+    "T082: production build, 5/5 HTTP routes, strict homepage assertions, 3/3 full-page screenshots, owned cleanup, and unchanged hashes passed.",
+    "browser.json: fullPage true for 1440 desktop, 390 mobile, and dark contexts; six projects, one news record, eight media slots, and disabled newsletter asserted.",
+    "axe.json: violations 0 and serious/critical 0; one serious-impact color-contrast check is incomplete because the slate pseudo-element obscures background determination.",
+    "Fresh PNG review: major sections and dark/mobile shell are present, but project supporting copy, mobile footer composition, and principles contrast/layout diverge from references.",
+    "Current source has four principles, one published registry news record, disabled newsletter controls, provenance-pending media slots, and fallback fonts."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Package changes shared homepage source/CSS, rebuilds .next, owns port 3101, and writes the sole diagnostic artifact set."
+  },
+  "blocked_tasks": ["T054", "T056", "T058", "T060", "T062", "T064", "T066", "T070", "T072", "T074", "T076", "T078", "T080", "T082"],
+  "missing_evidence": [
+    "Post-closure full-page visual, browser, Axe, and integrity artifacts.",
+    "Repository-backed raster-media license/provenance and optimized production media.",
+    "Truthful local loading evidence or provenance for Bodoni Moda, Inter, and IBM Plex Mono.",
+    "Additional published news records and a verified GitHub destination.",
+    "Completion of broader documentation, search, governance, hardening, operations, and external-activation brief."
+  ]
+}

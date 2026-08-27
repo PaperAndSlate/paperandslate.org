@@ -1,0 +1,36 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T118",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["apps/web/next.config.ts", "apps/web/source.config.ts", "apps/web/mdx-components.tsx", "apps/web/src/lib/docs-fumadocs.ts", "apps/web/src/components/docs-renderer.tsx", "apps/web/src/app/(docs)/docs/layout.tsx", "apps/web/src/app/globals.css", "content/docs/governance.md", ".generated/docs/documents.json", ".generated/docs/search-records.json", ".generated/search/search-records.json"],
+    "commands": [
+      {"cmd": "pnpm install --frozen-lockfile --strict-peer-dependencies", "status": "pass", "count": 1, "output": "Already up to date."},
+      {"cmd": "pnpm docs:ingest", "status": "pass", "count": 2, "output": "Ingested 13 local documentation pages."},
+      {"cmd": "pnpm docs:validate", "status": "pass", "count": 2, "output": "Validated 13 local documentation pages."},
+      {"cmd": "pnpm search:index", "status": "pass", "count": 2, "output": "Generated 17 deterministic local search records."},
+      {"cmd": "pnpm routes:check", "status": "pass", "count": 1, "output": "Validated 23 public routes and 2 redirects."},
+      {"cmd": "pnpm content:validate", "status": "pass", "count": 1, "output": "Validated 12 local content records."},
+      {"cmd": "pnpm feeds:check", "status": "pass", "count": 1, "output": "Validated 1 feed records."},
+      {"cmd": "pnpm release:check", "status": "pass", "count": 1, "output": "Validated 2 project release records."},
+      {"cmd": "pnpm security:check", "status": "pass", "count": 1, "output": "Security headers and production-safe CSP verified."},
+      {"cmd": "pnpm seo:check", "status": "pass", "count": 1, "output": "Metadata, canonical, sitemap, robots, and structured data checks passed."},
+      {"cmd": "pnpm performance:check", "status": "pass", "count": 1, "output": "Local static budget check passed."},
+      {"cmd": "pnpm rollback:check", "status": "pass", "count": 1, "output": "Rollback artifacts identified and locally checkable."},
+      {"cmd": "pnpm format:check", "status": "fail", "count": 1, "output": "Windows command parsing rejected the quoted apps/web/'(docs)'/docs/**/*.tsx glob before Prettier ran."},
+      {"cmd": "pnpm lint", "status": "pass", "count": 1, "output": "6 packages successful."},
+      {"cmd": "pnpm typecheck", "status": "pass", "count": 1, "output": "6 packages successful."},
+      {"cmd": "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-components.test.ts tests/design-system.test.ts", "status": "pass", "count": 1, "output": "4 files, 10 tests passed."},
+      {"cmd": "pnpm test", "status": "pass", "count": 1, "output": "14 files, 27 tests passed."},
+      {"cmd": "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "status": "fail", "count": 2, "output": "First run 6/7 passed; second run 5/7 passed. Repeated .next/dev manifest/Turbopack runtime corruption caused browser failures."},
+      {"cmd": "pnpm build:verify", "status": "fail", "count": 2, "output": "Repeated ENOTEMPTY errors removing apps/web/.next/dev directories."}
+    ],
+    "summary": "Implemented the bounded central Fumadocs configuration, explicit MDX component wiring, Fumadocs UI body, branded docs shell, print rules, and truthful Governance page. Ingestion, static checks, lint, typecheck, focused tests, and full Vitest passed. Browser and build verification failed twice from repeated concurrent .next/dev corruption, so the worker stopped per T118 stop conditions.",
+    "deviations": ["next/font was not added because no reviewed local font assets were available; typography remains locally supportable through the declared system fallback stacks."],
+    "remaining_blockers": ["Required Playwright verification failed twice due .next/dev manifest and Turbopack runtime corruption.", "Required build:verify failed twice due ENOTEMPTY errors in .next/dev.", "The remaining exact unsafe-rendering scan commands were not run because the repeated browser/build failures triggered the mandatory stop condition."],
+    "verification_attempts": 2,
+    "stopped_because": "Required browser and production-boundary build checks failed twice for the same .next/dev corruption/contention cause.",
+    "evidence": ["Frozen install passed.", "docs:ingest, docs:validate, search:index, routes:check, content:validate, feeds:check, release:check, security:check, seo:check, performance:check, and rollback:check passed.", "Lint, typecheck, focused Vitest, and full Vitest passed.", "Playwright central docs, homepage, accessibility, and most smoke tests passed before repeated .next/dev corruption failures.", "No snapshots, plans, manifests, lockfiles, or external systems were intentionally changed."],
+    "full_outcome_complete": false
+  }
+}

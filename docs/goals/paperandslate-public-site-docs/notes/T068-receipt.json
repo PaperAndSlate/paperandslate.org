@@ -1,0 +1,30 @@
+{
+  "task_id": "T068",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "Added a cross-platform direct Next.js verification build with explicit non-standalone mode. Safe .next cleanup, source/configuration/Dockerfile hash checks, actual exit propagation, and output guards passed twice. Default production configuration remains standalone and Dockerfile is unchanged. Full homepage and brief acceptance remain incomplete.",
+  "changed_files": [
+    "package.json",
+    "apps/web/next.config.ts",
+    "scripts/build-boundary.ts",
+    "apps/web/.next"
+  ],
+  "commands": [
+    { "cmd": "pnpm format:check", "status": "pass", "count": 1 },
+    { "cmd": "pnpm lint", "status": "pass", "count": "6/6" },
+    { "cmd": "pnpm typecheck", "status": "pass", "count": "6/6" },
+    { "cmd": "pnpm build:verify", "status": "pass", "count": 1 },
+    { "cmd": "pnpm build:verify (retry 1)", "status": "pass", "count": 1 }
+  ],
+  "summary": "Added a cross-platform direct Next.js verification build with explicit non-standalone mode. Safe .next cleanup, source/config/Dockerfile hash checks, actual exit propagation, and output guards passed. Default production config remains standalone and Dockerfile is unchanged.",
+  "deviations": [],
+  "remaining_blockers": [
+    "Fresh homepage browser/a11y/visual evidence after the build boundary is not yet recorded.",
+    "Visual snapshots remain unchanged and unapproved.",
+    "Repository-backed raster-media provenance and truthful font-loading evidence remain absent.",
+    "Full original brief completion across docs-ingestion, search, governance, hardening/operations, and external activation remains absent."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": null
+}

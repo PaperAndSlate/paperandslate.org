@@ -1,0 +1,40 @@
+{
+  "task_id": "T082",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "Repaired the T080 diagnostic harness to launch the resolved Next CLI directly with shell:false from apps/web. Production output had BUILD_ID, zero reparses, free port, system Chrome, HTTP 200 routes, strict homepage assertions, full-page screenshots, 0 serious/critical Axe violations, owned cleanup, and unchanged protected/.next hashes. Homepage/reference fidelity and the broader brief still require review.",
+  "changed_files": [
+    "apps/web/.next",
+    "test-results/t080-homepage-fidelity/browser-audit.mjs",
+    "test-results/t080-homepage-fidelity/preflight.json",
+    "test-results/t080-homepage-fidelity/server.stdout.log",
+    "test-results/t080-homepage-fidelity/server.stderr.log",
+    "test-results/t080-homepage-fidelity/http.json",
+    "test-results/t080-homepage-fidelity/browser.json",
+    "test-results/t080-homepage-fidelity/axe.json",
+    "test-results/t080-homepage-fidelity/homepage-light-desktop.png",
+    "test-results/t080-homepage-fidelity/homepage-mobile.png",
+    "test-results/t080-homepage-fidelity/homepage-dark.png",
+    "test-results/t080-homepage-fidelity/integrity.json"
+  ],
+  "commands": [
+    { "cmd": "node --check browser-audit.mjs", "status": "pass", "count": "3/3" },
+    { "cmd": "pnpm build:verify", "status": "pass", "count": "80/80 pages, 3/3 build tasks" },
+    { "cmd": "node browser-audit.mjs", "status": "pass", "count": "full runner completed after two harness-fix attempts" },
+    { "cmd": "HTTP routes", "status": "pass", "count": "5/5 status 200" },
+    { "cmd": "strict homepage assertions", "status": "pass" },
+    { "cmd": "Axe", "status": "pass", "count": "0 serious/critical violations" },
+    { "cmd": "full-page screenshots", "status": "pass", "count": "light desktop, mobile, dark: 3/3" },
+    { "cmd": "server lifecycle/integrity", "status": "pass", "output": "owned cleanup; port free; protected/.next hashes unchanged; zero reparses" }
+  ],
+  "summary": "Repaired the diagnostic harness to launch the resolved Next CLI directly with shell:false from apps/web. Production output had BUILD_ID, zero reparses, free port, system Chrome, HTTP 200 routes, strict homepage assertions, full-page screenshots, 0 serious/critical Axe violations, owned cleanup, and unchanged protected/.next hashes.",
+  "deviations": ["Windows realpath resolves the workspace Next symlink to pnpm's store path; the resolved target was invoked directly."],
+  "remaining_blockers": [
+    "Fresh full-page screenshots still require visual/reference-fidelity review; baselines remain unchanged and unapproved.",
+    "Repository-backed raster-media provenance and truthful font-loading evidence remain absent.",
+    "Full original brief completion across documentation, search, governance, hardening, operations, and external activation remains absent."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": null
+}

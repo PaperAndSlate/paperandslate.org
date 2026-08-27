@@ -1,0 +1,100 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T104",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "package.json",
+      "pnpm-lock.yaml",
+      "components.json",
+      "apps/web/package.json",
+      "apps/web/next.config.ts",
+      "apps/web/postcss.config.mjs",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/app/(docs)/docs/[...slug]/page.tsx",
+      "apps/web/src/components/docs-renderer.tsx",
+      "apps/web/src/components/docs-navigation.tsx",
+      "apps/web/src/components/docs-page-actions.tsx",
+      "apps/web/src/components/docs-table-of-contents.tsx",
+      "apps/web/src/components/docs-callout.tsx",
+      "apps/web/src/components/docs-code-block.tsx",
+      "apps/web/src/components/docs-tabs.tsx",
+      "apps/web/src/components/docs-requirement.tsx",
+      "apps/web/src/components/mdx.tsx",
+      "apps/web/src/lib/docs-fumadocs.ts",
+      "packages/design-system/package.json",
+      "packages/design-system/tsconfig.json",
+      "packages/design-system/src/index.ts",
+      "packages/design-system/src/tokens.css",
+      "packages/design-system/src/lib/utils.ts",
+      "packages/design-system/src/components/index.ts",
+      "packages/design-system/src/components/button.tsx",
+      "packages/design-system/src/components/badge.tsx",
+      "packages/design-system/src/components/surface.tsx",
+      "packages/design-system/src/components/callout.tsx",
+      "packages/design-system/src/components/code-block.tsx",
+      "packages/design-system/src/components/tabs.tsx",
+      "packages/design-system/src/components/requirement.tsx",
+      "tests/docs-components.test.ts",
+      "tests/browser/docs-core.spec.ts",
+      "tests/browser/a11y.spec.ts",
+      "IMPLEMENTATION_LEDGER.md",
+      "docs/adr/0004-fumadocs-tailwind-design-system.md"
+    ],
+    "commands": [
+      {
+        "cmd": "pnpm install --frozen-lockfile --strict-peer-dependencies",
+        "status": "failed_then_passed",
+        "count": 2,
+        "output": "The first run found the lockfile stale after in-scope manifest edits; the lockfile was refreshed in-scope and the second exact run passed."
+      },
+      {
+        "cmd": "pnpm view pinned peer/version metadata",
+        "status": "pass",
+        "count": 6,
+        "output": "Pinned metadata resolved; strict-peer compatibility passed with an optional fumadocs-mdx Vite peer warning."
+      },
+      {
+        "cmd": "pnpm audit --prod --json",
+        "status": "pass",
+        "count": 1,
+        "output": "0 info, 0 low, 0 moderate, 0 high, 0 critical."
+      },
+      {
+        "cmd": "pnpm why fumadocs-core fumadocs-ui fumadocs-mdx tailwindcss @tailwindcss/postcss postcss --recursive",
+        "status": "pass",
+        "count": 1,
+        "output": "Pinned dependency graph resolved."
+      },
+      {
+        "cmd": "pnpm exec prettier --check listed changed package/source/test files",
+        "status": "failed_then_passed_scoped",
+        "count": 2,
+        "output": "The exact PowerShell glob form did not resolve parenthesized docs and TSX globs; an equivalent scoped check over allowed files passed."
+      },
+      {
+        "cmd": "pnpm routes:check; pnpm content:validate; pnpm docs:validate; pnpm seo:check; pnpm security:check; pnpm lint; pnpm typecheck; targeted vitest",
+        "status": "interrupted",
+        "count": 0,
+        "output": "The parent agent interrupted the worker before this verification sequence could return reliable command-level results."
+      }
+    ],
+    "summary": "Implemented the authorized T104 Fumadocs/Tailwind/design-system foundation and completed dependency, peer metadata, audit, dependency graph, and scoped formatting checks. The remaining verification gates were not completed.",
+    "evidence": [
+      "Strict frozen install passed after the allowed lockfile refresh.",
+      "Production audit reported zero advisories.",
+      "Only reviewed central document IDs cross the Fumadocs server-rendering adapter; fixture, sibling-local, and future Git-imported records retain the escaped renderer.",
+      "No snapshots were updated and no external writes, commits, pushes, deployments, or provider actions were performed."
+    ],
+    "deviations": [
+      "The exact broad Prettier glob form was not portable in the worker shell; the allowed-file equivalent passed."
+    ],
+    "remaining_blockers": [
+      "Routes, content, docs, SEO, security, lint, typecheck, targeted tests, full tests, Playwright, visual, and build verification remain incomplete."
+    ],
+    "verification_attempts": 2,
+    "stopped_because": "Parent agent interrupted the worker after the initial in-scope implementation and prerequisite checks to obtain a bounded receipt; remaining verification was not run.",
+    "full_outcome_complete": false
+  }
+}

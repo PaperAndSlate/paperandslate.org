@@ -1,0 +1,29 @@
+{
+  "task_id": "T016",
+  "result": "blocked",
+  "changed_files": [
+    "IMPLEMENTATION_REPORT.md",
+    "LAUNCH_READINESS.md",
+    "scripts/launch-report.ts",
+    ".generated/launch/launch-evidence.json"
+  ],
+  "commands": [
+    {"cmd": "Port 3110 check", "status": "pass"},
+    {"cmd": "docker build -f infrastructure/docker/Dockerfile -t paper-and-slate-web:local .", "status": "pass"},
+    {"cmd": "docker run ...3110...", "status": "pass"},
+    {"cmd": "Invoke-WebRequest http://127.0.0.1:3110/health", "status": "fail"},
+    {"cmd": "docker rm -f paper-and-slate-web-local", "status": "pass"},
+    {"cmd": "pnpm launch:report", "status": "pass"},
+    {"cmd": "Final port/container check", "status": "pass"}
+  ],
+  "summary": "The Docker image build passed on explicitly free port 3110, but both detached launches exited before /health could respond. Existing services were untouched and cleanup left no temporary container. Reports preserve browser, axe, and visual passes while recording Docker runtime failure and Lighthouse as pending.",
+  "deviations": [
+    "Retried the exact Docker launch once after confirming the first --rm container had exited; no alternate port was needed because 3110 was free."
+  ],
+  "remaining_blockers": [
+    "Docker container runtime does not expose /health; the exact exit cause is unavailable because --rm removed the exited container before logs could be collected.",
+    "Lighthouse remains unavailable and pending."
+  ],
+  "verification_attempts": 2,
+  "stopped_because": "Docker could not run and expose /health; per task stop condition, returned blocked without fabricating success."
+}

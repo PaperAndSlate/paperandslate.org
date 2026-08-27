@@ -1,0 +1,212 @@
+[
+  {
+    "id": "decision:dec-001",
+    "title": "Use local registries for this milestone",
+    "summary": "Publishing data remains build-time and reviewable in the repository.",
+    "text": "The project will keep content in typed local registries for this milestone. Remote providers and request-time network access remain out of scope.",
+    "route": "/governance/decisions/dec-001",
+    "type": "decision",
+    "source": "governance",
+    "date": "2026-08-18",
+    "visibility": "public"
+  },
+  {
+    "id": "file-system:v1:index",
+    "title": "File System v1",
+    "summary": "The immutable historical fixture.",
+    "text": "\n# File System v1\n\nThis page is retained under the immutable **v1** fixture ref.\n",
+    "route": "/docs/file-system/v/1.0",
+    "type": "documentation",
+    "source": "docs",
+    "visibility": "public"
+  },
+  {
+    "id": "file-system:v1:reference/metadata",
+    "title": "Metadata reference",
+    "summary": "Historical metadata fields.",
+    "text": "\n# Metadata reference\n\nMetadata in v1 is documented from a fixed local fixture.\n",
+    "route": "/docs/file-system/v/1.0/reference/metadata",
+    "type": "documentation",
+    "source": "docs",
+    "visibility": "public"
+  },
+  {
+    "id": "news:local-publishing-foundations",
+    "title": "A local foundation for open publishing",
+    "summary": "The Paper & Slate public site now records reviewed updates and project context in version-controlled local registries.",
+    "text": "This milestone establishes a small, reviewable publishing foundation. It does not claim adoption, sponsorship, or a finished standard.",
+    "route": "/news/local-publishing-foundations",
+    "type": "news",
+    "source": "news",
+    "date": "2026-08-20",
+    "properties": [
+      "implementation"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "person:maintainers",
+    "title": "Paper & Slate maintainers",
+    "summary": "Maintainer role",
+    "text": "The responsible role is recorded without inventing individual public profiles.",
+    "route": "/foundation/people",
+    "type": "governance",
+    "source": "content",
+    "visibility": "public"
+  },
+  {
+    "id": "policy:contribution-policy",
+    "title": "Contribution policy",
+    "summary": "How proposed changes are reviewed in this public project.",
+    "text": "Contributions are reviewed in the open repository process. This page describes project practice for this milestone and is not legal advice.",
+    "route": "/governance/policies/contribution-policy",
+    "type": "policy",
+    "source": "governance",
+    "date": "2026-08-18",
+    "visibility": "public"
+  },
+  {
+    "id": "policy:documentation-license",
+    "title": "Documentation license",
+    "summary": "The license notice for published documentation.",
+    "text": "Published documentation is provided under the terms stated in the repository license files. Review the repository notices for the authoritative text.",
+    "route": "/governance/policies/documentation-license",
+    "type": "policy",
+    "source": "governance",
+    "date": "2026-08-18",
+    "visibility": "public"
+  },
+  {
+    "id": "project:course-catalog-schema",
+    "title": "Course and Catalog Schema",
+    "summary": "A planned vocabulary for course and catalog data.",
+    "text": "This project is planned for future work.",
+    "route": "/projects/course-catalog-schema",
+    "type": "project",
+    "source": "content",
+    "properties": [
+      "schema",
+      "courses"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "project:curriculum-standards-schema",
+    "title": "Curriculum Standards Schema",
+    "summary": "A planned structure for making curriculum standards easier to exchange.",
+    "text": "This project has not reached a public release.",
+    "route": "/projects/curriculum-standards-schema",
+    "type": "project",
+    "source": "content",
+    "properties": [
+      "schema",
+      "standards"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "project:file-system",
+    "title": "File System",
+    "summary": "A planned foundation for describing education files and their relationships.",
+    "text": "This project is planned; specifications and implementation are not yet released.",
+    "route": "/projects/file-system",
+    "type": "project",
+    "source": "content",
+    "properties": [
+      "files",
+      "interoperability"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "project:organization-schema",
+    "title": "Organization Schema",
+    "summary": "An unreleased shared vocabulary for describing education organizations.",
+    "text": "This work is unreleased; the public registry records its intent, not adoption.",
+    "route": "/projects/organization-schema",
+    "type": "project",
+    "source": "content",
+    "properties": [
+      "schema",
+      "organizations"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "project:tools-and-libraries",
+    "title": "Tools and Libraries",
+    "summary": "A future home for small tools that help teams work with open education formats.",
+    "text": "Tooling is planned; no package is currently released from this site.",
+    "route": "/projects/tools-and-libraries",
+    "type": "project",
+    "source": "content",
+    "properties": [
+      "tooling",
+      "libraries"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "project:well-known-discovery",
+    "title": ".well-known Discovery",
+    "summary": "A planned way for education services to make useful capabilities discoverable.",
+    "text": "This project is planned and has no released implementation.",
+    "route": "/projects/well-known-discovery",
+    "type": "project",
+    "source": "content",
+    "properties": [
+      "discovery",
+      "interoperability"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "rfc:1",
+    "title": "RFC 1: Stable identifiers for public records",
+    "summary": "A proposal for durable identifiers across local public records.",
+    "text": "This RFC proposes stable, human-readable identifiers for published records. It is an accepted project decision, not a claim of an external standard.",
+    "route": "/governance/rfcs/1",
+    "type": "rfc",
+    "source": "governance",
+    "date": "2026-08-18",
+    "aliases": [
+      "rfc 1",
+      "rfc:1",
+      "1"
+    ],
+    "requirements": [
+      "Stable identifiers for public records"
+    ],
+    "visibility": "public"
+  },
+  {
+    "id": "roadmap:community-tooling",
+    "title": "Community governance and tooling",
+    "summary": "Consider future participation and tooling after the project scope is established.",
+    "text": "Consider future participation and tooling after the project scope is established.",
+    "route": "/foundation/roadmap",
+    "type": "governance",
+    "source": "content",
+    "visibility": "public"
+  },
+  {
+    "id": "roadmap:docs-and-specifications",
+    "title": "Specifications and documentation",
+    "summary": "Develop reviewed project specifications and documentation sources when ready.",
+    "text": "Develop reviewed project specifications and documentation sources when ready.",
+    "route": "/foundation/roadmap",
+    "type": "governance",
+    "source": "content",
+    "visibility": "public"
+  },
+  {
+    "id": "roadmap:public-foundation",
+    "title": "Public foundation and local registries",
+    "summary": "Keep the public shell, content records, and publishing checks reviewable.",
+    "text": "Keep the public shell, content records, and publishing checks reviewable.",
+    "route": "/foundation/roadmap",
+    "type": "governance",
+    "source": "content",
+    "visibility": "public"
+  }
+]

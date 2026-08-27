@@ -1,0 +1,62 @@
+{
+  "task_id": "T035",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T033's scoped search implementation is locally present and its recorded index, lint, typecheck, focused Vitest, and full-test checks pass. T034 stopped because search:index rewrote .generated/search/search-records.json outside its allowlist. Search evidence remains incomplete: browser specs do not exercise search, and no final search-specific browser, a11y, or build receipt exists. The broader brief also remains incomplete across design, content, ingestion, operations, and external activation.",
+  "worker_package": {
+    "objective": "Recover and complete the search evidence milestone by explicitly regenerating the local search artifact, adding focused browser coverage for the search page and dialog, running dedicated-port e2e/a11y/build verification, and updating launch evidence truthfully without changing search implementation or activating external services.",
+    "allowed_files": [
+      "apps/web/.next",
+      ".generated/search/search-records.json",
+      "tests/browser/smoke.spec.ts",
+      "tests/browser/a11y.spec.ts",
+      "IMPLEMENTATION_REPORT.md",
+      "LAUNCH_READINESS.md",
+      ".generated/launch/launch-evidence.json"
+    ],
+    "verify": [
+      "Node exact-target cleanup of apps/web/.next",
+      "pnpm search:index",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm build"
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files.",
+      "search:index writes any generated artifact other than .generated/search/search-records.json.",
+      "The dedicated-port browser run is not a real Paper & Slate app or cannot launch.",
+      "A browser failure requires changing search implementation or expanding the allowlist.",
+      "External credentials, provider calls, Tower, Kit, DNS, or production activation appears.",
+      "The same verification command fails twice."
+    ]
+  },
+  "evidence": [
+    "T033 records passing local search/index, lint, typecheck, focused tests, and full tests.",
+    "T033 records e2e failing twice before app startup at the Windows standalone .next tree.",
+    "T034 records successful .next cleanup, then an out-of-scope search artifact write.",
+    "Existing browser smoke/a11y specs cover homepage and health, not search.",
+    "General browser/axe/Docker evidence is not search-specific; Lighthouse remains pending."
+  ],
+  "missing_evidence": [
+    "Search artifact regeneration with explicit allowlist coverage.",
+    "Dedicated-port search-page and dialog browser evidence.",
+    "Search-specific a11y and keyboard evidence.",
+    "Clean post-T033 production build evidence.",
+    "Remaining design-system, public-content, docs-ingestion, hardening/operations, and external activation requirements."
+  ],
+  "blocked_tasks": ["T033", "T034"],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "The generated search artifact, .next tree, browser tests, reports, and launch evidence share one verification boundary; run as the sole Worker."
+  },
+  "required_board_updates": [
+    "Record T035 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker task from worker_package.",
+    "Keep design-system, public-content, docs-ingestion, hardening/operations, and external activation separate.",
+    "Do not treat general browser or Docker receipts as search-specific acceptance evidence."
+  ]
+}

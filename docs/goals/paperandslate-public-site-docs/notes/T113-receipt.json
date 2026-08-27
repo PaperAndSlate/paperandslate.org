@@ -1,0 +1,17 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T113",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "not_complete",
+    "full_outcome_complete": false,
+    "rationale": "No safe source-fidelity package is authorized. Existing artifacts prove material light, mobile, and dark mismatches, but the current truthful homepage uses current registries, provenance-pending media, disabled newsletter behavior, and a different layout than the older snapshots. Planning mockups are implementation references, not pixel-perfect contracts. Updating snapshots is forbidden, and another diagnostic rerun would repeat an already-proven blocker. PM/owner authority is required to decide whether current source or baselines govern.",
+    "worker_package": null,
+    "evidence": ["T112 passed install, audit, routes/content/docs, SEO/security, lint, typecheck, tests, browser/accessibility, and build; visual:check failed twice without snapshot changes.", "Current homepage maps publicProjects and publishedNews and contains truthful provenance-pending media plus explicit disabled-newsletter behavior.", "Canonical homepage light, mobile, and dark snapshots differ materially from current artifacts in layout, media, content count, and page height.", "The planning pack states mockups are implementation references, not pixel-perfect contracts, and prohibits using mockup screenshots as the website.", "The visual configuration uses 127.0.0.1:3101 with reuseExistingServer:false; T112 records one collision and two mismatch failures, while the current port is free."],
+    "subgoal_contract": null,
+    "parallel_safety": {"safe": false, "reason": "No Worker is safe until baseline authority is resolved. Source edits could regress truthful content, provenance boundaries, responsive behavior, or docs safety; diagnostic reruns share the existing baselines."},
+    "blocked_tasks": ["T112"],
+    "missing_evidence": ["Explicit PM/owner decision whether current truthful source or existing snapshots are authoritative.", "Accepted visual criteria for reconciling current source with canonical baselines without concealing regressions.", "Full external deployment, provider, legal, factual, provenance, and production-acceptance evidence."],
+    "required_board_updates": ["Record T113 as done with decision not_complete and full_outcome_complete false.", "Keep T112 as historical blocked evidence; do not activate a Worker.", "Record the baseline-authority decision as a prerequisite before any source-fidelity or snapshot action.", "Preserve existing snapshots, docs foundation, central-only Fumadocs safety, escaped fallback, routes/content/ingestion/provenance/search/raw behavior, truthful pages, and zero-advisory evidence."]
+  }
+}

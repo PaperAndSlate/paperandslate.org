@@ -1,0 +1,27 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T107",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T106's blocker is reproducible: the isolated design-system typecheck fails with TS7016/TS7026 because its TSX source imports React types and JSX while its manifest declares neither the React peer boundary nor @types/react. The app already pins compatible React 19.2.8 and @types/react 19.2.18, and the current production audit reports zero advisories. A manifest plus required lockfile-importer repair is bounded and reversible. Full outcome remains incomplete pending browser, visual, build, and broader launch evidence.",
+    "worker_package": {
+      "objective": "Add only the exact React package boundary required by the existing design-system TSX exports: declare react 19.2.8 as a peerDependency and @types/react 19.2.18 as a devDependency in packages/design-system/package.json, update only the corresponding pnpm-lock.yaml importer entries, then rerun the documentation-foundation verification. Preserve central-only Fumadocs rendering, escaped fallback for fixture/sibling/Git-imported documents, ingestion/provenance/static-search/raw-route behavior, truthful public pages, zero-advisory evidence, and existing visual snapshots. Do not add React DOM, overrides, hidden installs, registry replacements, or unrelated dependencies.",
+      "allowed_files": ["packages/design-system/package.json", "pnpm-lock.yaml"],
+      "verify": ["pnpm install --frozen-lockfile --strict-peer-dependencies", "pnpm audit --prod --json", "pnpm why react @types/react @types/react-dom @phosphor-icons/react --recursive", "pnpm routes:check", "pnpm content:validate", "pnpm docs:validate", "pnpm seo:check", "pnpm security:check", "pnpm lint", "pnpm typecheck", "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-components.test.ts tests/design-system.test.ts", "pnpm test", "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "pnpm visual:check", "pnpm build:verify"],
+      "stop_if": ["Any file outside the two allowed files must change.", "The repair requires React DOM, @types/react-dom, peer overrides, hidden installs, registry replacement, or unrelated dependency churn.", "The lockfile changes beyond the design-system importer and package-resolution entries required by the two exact declarations.", "Any production advisory appears, including info, low, moderate, high, or critical.", "The central-only Fumadocs boundary, escaped fallback, ingestion, provenance, static search, raw routes, truthful content, or existing snapshots regress.", "A verification command fails twice for the same in-scope cause.", "Browser verification collides with an unrelated server or visual verification requires updating snapshots.", "Any source, report, generated output, plan, snapshot, infrastructure, or external-system change is needed."]
+    },
+    "evidence": [
+      "The isolated typecheck fails with TS7016 and TS7026 in design-system TSX files because the package declares neither react nor @types/react.",
+      "The app already pins React 19.2.8 and @types/react 19.2.18; Fumadocs/Tailwind pins are installed and production audit reports zero advisories.",
+      "T106 passed install, audit, routes, content, docs, SEO, security, lint, focused tests, and full tests before the repeated declaration blocker; browser docs and visual evidence remain incomplete.",
+      "Central-only Fumadocs and escaped fallback boundaries were preserved, and existing snapshots were not updated."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": { "safe": false, "reason": "The root lockfile is shared workspace state and the design-system manifest affects the app consumer; run this as one sole Worker package." },
+    "blocked_tasks": ["T106"],
+    "missing_evidence": ["Post-repair typecheck and strict frozen-install results.", "Fresh browser, accessibility, visual, and build verification.", "Verified custom MDX component wiring and Fumadocs parity.", "Full launch evidence for deployment, providers, legal review, factual review, provenance, and production acceptance."],
+    "required_board_updates": ["Record T107 as done with decision approved and full_outcome_complete false.", "Create exactly one Worker task from worker_package and keep it as the sole active write task.", "Keep T106 as historical blocked evidence until the manifest repair and full revalidation complete.", "Preserve the zero-advisory gate, central-only Fumadocs boundary, escaped fallback, and existing snapshots.", "Do not claim Fumadocs parity, production readiness, or full-goal completion."]
+  }
+}

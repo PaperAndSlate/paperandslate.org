@@ -1,0 +1,218 @@
+[
+  {
+    "id": "central:next:concepts/provenance",
+    "route": "/docs/paper-and-slate/concepts/provenance",
+    "legacyRoute": "/docs/paper-and-slate/next/concepts/provenance",
+    "title": "Provenance and local source state",
+    "description": "How this documentation slice records where each page came from.",
+    "sourceId": "central",
+    "version": "next",
+    "taxonomy": [
+      "concepts"
+    ],
+    "anchors": [
+      "provenance",
+      "historical-pages"
+    ],
+    "text": "\n Provenance\n\nGenerated records expose the effective source repository label, relative path, local ref, and SHA-256 content hash. A hash is evidence about these bytes; it is not presented as a Git commit SHA.\n\n Historical pages\n\nHistorical fixture pages use a separate immutable version identifier and never follow the working tree.\n"
+  },
+  {
+    "id": "central:next:getting-started/welcome",
+    "route": "/docs/paper-and-slate/getting-started/welcome",
+    "legacyRoute": "/docs/paper-and-slate/next/getting-started/welcome",
+    "title": "Welcome to Paper & Slate docs",
+    "description": "A local, reviewable starting point for the Paper & Slate documentation system.",
+    "sourceId": "central",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "welcome",
+      "start-here"
+    ],
+    "text": "\n Welcome\n\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\n\n Start here\n\n- Read the [provenance guide](/docs/paper-and-slate/next/concepts/provenance).\n- Browse the [File System project](/docs/file-system/next).\n"
+  },
+  {
+    "id": "central:next:governance",
+    "route": "/docs/paper-and-slate/governance",
+    "legacyRoute": "/docs/paper-and-slate/next/governance",
+    "title": "Governance",
+    "description": "The documented boundaries for reviewing and publishing Paper & Slate documentation.",
+    "sourceId": "central",
+    "version": "next",
+    "taxonomy": [
+      "governance"
+    ],
+    "anchors": [
+      "governance",
+      "source-review",
+      "versions-and-provenance",
+      "honest-status"
+    ],
+    "text": "\n Governance\n\nPaper & Slate publishes documentation from a local, reviewable source set. This page records the boundaries that are\ncurrently evidenced by the documentation system; it is not a claim of institutional approval or production status.\n\n Source review\n\nCentral pages are reviewed repository-owned Markdown. Each ingested page retains its source path, local ref, and\ncontent hash. Fixture, sibling-local, and future Git-imported pages remain separated from the reviewed central rendering\npath.\n\n Versions and provenance\n\nSupported and historical versions remain independent records. A content hash identifies the recorded bytes; it is not\npresented as a Git commit SHA. Raw Markdown routes remain available for source inspection.\n\n Honest status\n\nLocal checks can establish source shape, route behavior, rendering boundaries, and generated artifacts. They do not by\nthemselves establish deployment, legal review, provider activation, production monitoring, or factual approval.\n"
+  },
+  {
+    "id": "file-system:next:guides/publish",
+    "route": "/docs/file-system/guides/publish",
+    "legacyRoute": "/docs/file-system/next/guides/publish",
+    "title": "Publish a file-system document",
+    "description": "A safe local publishing walkthrough.",
+    "sourceId": "file-system",
+    "version": "next",
+    "taxonomy": [
+      "guides"
+    ],
+    "anchors": [
+      "publish"
+    ],
+    "text": "\n Publish\n\nReview the normalized document, then generate the static artifacts.\n"
+  },
+  {
+    "id": "file-system:next:index",
+    "route": "/docs/file-system",
+    "legacyRoute": "/docs/file-system/next",
+    "title": "File System",
+    "description": "The current File System project documentation.",
+    "sourceId": "file-system",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "file-system",
+      "publish"
+    ],
+    "text": "\n File System\n\nThis is the next local documentation version.\n\n Publish\n\nRead the [publishing guide](/docs/file-system/next/guides/publish).\n"
+  },
+  {
+    "id": "file-system:v1:index",
+    "route": "/docs/file-system/v/1.0",
+    "legacyRoute": "/docs/file-system/v/1.0",
+    "title": "File System v1",
+    "description": "The immutable historical fixture.",
+    "sourceId": "file-system",
+    "version": "v1",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "file-system-v1"
+    ],
+    "text": "\n File System v1\n\nThis page is retained under the immutable v1 fixture ref.\n"
+  },
+  {
+    "id": "file-system:v1:reference/metadata",
+    "route": "/docs/file-system/v/1.0/reference/metadata",
+    "legacyRoute": "/docs/file-system/v/1.0/reference/metadata",
+    "title": "Metadata reference",
+    "description": "Historical metadata fields.",
+    "sourceId": "file-system",
+    "version": "v1",
+    "taxonomy": [
+      "reference"
+    ],
+    "anchors": [
+      "metadata-reference"
+    ],
+    "text": "\n Metadata reference\n\nMetadata in v1 is documented from a fixed local fixture.\n"
+  },
+  {
+    "id": "standards-course-schema:next:index",
+    "route": "/docs/standards-course-schema",
+    "legacyRoute": "/docs/standards-course-schema/next",
+    "title": "Course and Catalog Schema",
+    "description": "Planned course and catalog metadata.",
+    "sourceId": "standards-course-schema",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "course-and-catalog-schema"
+    ],
+    "text": "\n Course and Catalog Schema\n\nStatus: Planned. A course record could describe title, summary, audience, prerequisites, and catalog relationships. It must not imply enrollment, credit, accreditation, or completion without separately verified facts.\n"
+  },
+  {
+    "id": "standards-curriculum-standards:next:index",
+    "route": "/docs/standards-curriculum-standards",
+    "legacyRoute": "/docs/standards-curriculum-standards/next",
+    "title": "Curriculum Standards Schema",
+    "description": "Experimental curriculum alignment metadata.",
+    "sourceId": "standards-curriculum-standards",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "curriculum-standards-schema"
+    ],
+    "text": "\n Curriculum Standards Schema\n\nStatus: Experimental. A future record may link learning materials to an identified framework, jurisdiction, or version. Alignment is a review claim and must remain explicit; no official conformance is asserted here.\n"
+  },
+  {
+    "id": "standards-discovery:next:index",
+    "route": "/docs/standards-discovery",
+    "legacyRoute": "/docs/standards-discovery/next",
+    "title": ".well-known Education Discovery",
+    "description": "Experimental discovery metadata conventions.",
+    "sourceId": "standards-discovery",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "well-known-education-discovery",
+      "safety-boundary"
+    ],
+    "text": "\n .well-known Education Discovery\n\nStatus: Experimental. A future discovery document could identify education resources, ownership, and documentation routes. This local proposal does not publish a network endpoint or assert ecosystem support.\n\n Safety boundary\n\nConsumers should treat discovery as descriptive metadata and verify source provenance before relying on it.\n"
+  },
+  {
+    "id": "standards-file-system:next:index",
+    "route": "/docs/standards-file-system",
+    "legacyRoute": "/docs/standards-file-system/next",
+    "title": "File System",
+    "description": "Planned file and publication conventions.",
+    "sourceId": "standards-file-system",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "file-system",
+      "ownership"
+    ],
+    "text": "\n File System\n\nStatus: Planned. This proposal describes a stable place for educational files and their review metadata. It has no normative adoption.\n\n Ownership\n\nEach document should retain its source path, version, edit date, and local content hash. Publication is a generated local artifact, not a request-time import.\n"
+  },
+  {
+    "id": "standards-organization-schema:next:index",
+    "route": "/docs/standards-organization-schema",
+    "legacyRoute": "/docs/standards-organization-schema/next",
+    "title": "Organization Schema",
+    "description": "Planned organization metadata fields.",
+    "sourceId": "standards-organization-schema",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "organization-schema"
+    ],
+    "text": "\n Organization Schema\n\nStatus: Planned. A possible organization record may include a display name, public URL, contact route, and provenance. Legal identity, registration, affiliation, and endorsement remain unverified facts.\n"
+  },
+  {
+    "id": "standards-tools:next:index",
+    "route": "/docs/standards-tools-and-libraries",
+    "legacyRoute": "/docs/standards-tools-and-libraries/next",
+    "title": "Tools and Libraries",
+    "description": "Planned tool inventory conventions.",
+    "sourceId": "standards-tools",
+    "version": "next",
+    "taxonomy": [
+      "getting-started"
+    ],
+    "anchors": [
+      "tools-and-libraries"
+    ],
+    "text": "\n Tools and Libraries\n\nStatus: Planned. An inventory entry may record a name, purpose, version, license reference, and review date. It should distinguish descriptive listing from endorsement and retain source provenance.\n"
+  }
+]

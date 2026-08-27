@@ -1,0 +1,35 @@
+{
+  "task_id": "T050",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Formatted the explicitly allowlisted homepage source and removed stale apps/web/.next. Formatting, lint, typecheck, unit tests, and E2E passed. Accessibility was interrupted after the first test during the second attempt, and visual snapshot generation, visual checks, build, and required reference comparison were not run.",
+  "summary": "Formatted the explicitly allowlisted homepage source and removed stale apps/web/.next. Formatting, lint, typecheck, unit tests, and E2E passed. Accessibility was interrupted after the first test during the second attempt, and visual snapshot generation, visual checks, build, and required reference comparison were not run.",
+  "changed_files": [
+    "apps/web/src/app/page.tsx",
+    "apps/web/.next",
+    "test-results"
+  ],
+  "commands": [
+    { "cmd": "pnpm exec prettier --check apps/web/src/app/page.tsx", "status": "pass" },
+    { "cmd": "pnpm format:check", "status": "pass" },
+    { "cmd": "pnpm lint", "status": "pass" },
+    { "cmd": "pnpm typecheck", "status": "pass" },
+    { "cmd": "pnpm test", "status": "pass", "output": "13 files, 23 tests passed" },
+    { "cmd": "pnpm e2e", "status": "pass", "output": "4 tests passed" },
+    { "cmd": "pnpm a11y", "status": "aborted", "output": "First run exceeded shell wait; retry reported http://127.0.0.1:3101 already used; second run reached one passing test before interruption." },
+    { "cmd": "pnpm visual:update", "status": "not_run" },
+    { "cmd": "pnpm visual:check", "status": "not_run" },
+    { "cmd": "pnpm build", "status": "not_run" },
+    { "cmd": "Compare screenshots", "status": "not_run" }
+  ],
+  "deviations": [],
+  "remaining_blockers": [
+    "T050 verification is incomplete.",
+    "a11y output: first attempt exceeded shell wait; retry reported http://127.0.0.1:3101 already used; second attempt reached one passing test before interruption.",
+    "Named mobile and dark snapshots were not generated or verified.",
+    "No screenshot comparison evidence exists."
+  ],
+  "verification_attempts": 1,
+  "stopped_because": "The ongoing accessibility verification was interrupted before the remaining required steps."
+}

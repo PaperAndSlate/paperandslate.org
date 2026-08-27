@@ -1,0 +1,97 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T095",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "T092/T094 is approved as a source and focused-verification route slice: generated docs and content registries are used, empty states are explicit, all 23 route checks, focused tests, lint, typecheck, content, docs, SEO, and formatting checks pass. Current build and browser evidence is stale because .next predates the route files. Continue with the larger unresolved local documentation-core milestone; this is not production or full-goal approval.",
+    "worker_package": {
+      "objective": "Implement the Phase 3 documentation-core milestone on top of the existing generated document registry and restricted ingestion pipeline: integrate pinned Fumadocs Core/UI/MDX locally, preserve static fallback/search, and provide the docs shell, navigation, TOC, project/version selectors, page actions, provenance, code blocks, callouts, tabs, requirements, print styling, and accessible browser-tested rendering. Do not invent content, replace the existing registries, activate providers, add authentication/database infrastructure, change media/fonts, or update visual snapshots.",
+      "allowed_files": [
+        "package.json",
+        "pnpm-lock.yaml",
+        "apps/web/package.json",
+        "apps/web/next.config.ts",
+        "apps/web/src/app/globals.css",
+        "apps/web/src/app/(docs)/docs/layout.tsx",
+        "apps/web/src/app/(docs)/docs/page.tsx",
+        "apps/web/src/app/(docs)/docs/[...slug]/page.tsx",
+        "apps/web/src/components/docs-navigation.tsx",
+        "apps/web/src/components/docs-project-selector.tsx",
+        "apps/web/src/components/docs-renderer.tsx",
+        "apps/web/src/components/docs-interactive.tsx",
+        "apps/web/src/components/source-provenance.tsx",
+        "apps/web/src/components/version-selector.tsx",
+        "apps/web/src/components/docs-table-of-contents.tsx",
+        "apps/web/src/components/docs-page-actions.tsx",
+        "apps/web/src/components/docs-code-block.tsx",
+        "apps/web/src/components/docs-callout.tsx",
+        "apps/web/src/components/docs-tabs.tsx",
+        "apps/web/src/lib/docs-fumadocs.ts",
+        "tests/docs-routes.test.ts",
+        "tests/docs-ingestion.test.ts",
+        "tests/docs-components.test.ts",
+        "tests/browser/docs-core.spec.ts",
+        "apps/web/.next",
+        ".turbo",
+        "test-results/.last-run.json"
+      ],
+      "verify": [
+        "pnpm install --frozen-lockfile",
+        "pnpm exec prettier --check all listed changed package/source/test files",
+        "pnpm routes:check",
+        "pnpm content:validate",
+        "pnpm docs:validate",
+        "pnpm seo:check",
+        "pnpm lint --force",
+        "pnpm typecheck --force",
+        "pnpm test",
+        "pnpm exec playwright test tests/browser/docs-core.spec.ts",
+        "pnpm e2e",
+        "pnpm a11y",
+        "pnpm build:verify"
+      ],
+      "stop_if": [
+        "Any write is needed outside allowed_files, including generated documentation/search artifacts, plans, reports, assets, snapshots, or external systems.",
+        "Fumadocs packages cannot be pinned and used with the current Next.js/React versions using official documented APIs.",
+        "The work requires replacing the existing generated registries, restricted ingestion safety, static search fallback, raw Markdown routes, or truthful empty-state behavior.",
+        "The work requires Tailwind, shadcn, Phosphor icons, new media/fonts, providers, remote fetches, repositories, credentials, deployment, authentication, databases, ORM, queues, object storage, or other excluded infrastructure.",
+        "A route collision, wrong existing server, unrelated port ownership, or browser failure requires modifying or stopping an unrelated process.",
+        "Verification fails twice for the same in-scope cause, the build output changes source/configuration unexpectedly, or docs routes do not render from existing generated documents."
+      ]
+    },
+    "evidence": [
+      "T090 receipt: homepage milestone is verified, while route/template parity, design-system parity, CI/operations, and broader launch evidence remain incomplete.",
+      "T089 receipt: homepage approval is explicitly scoped and full_outcome_complete remains false.",
+      "Original brief lines 447-502 require the missing docs taxonomy, governance utility, and news category/tag routes.",
+      "Original brief lines 692-725 require a complete distinct documentation experience with taxonomy, navigation, selectors, labels, and provenance.",
+      "plans/02-information-architecture/03-route-catalog.md defines /docs/**, governance, news category/tag, and redirect route behavior.",
+      "Current route inventory has no dedicated docs taxonomy, news category/tag, or governance nested utility route files before T092.",
+      "Current verification passed for the route slice: routes, content, docs, SEO, formatting, focused tests, full test suite 25/25, lint, and typecheck; current .next predates the route files.",
+      "Original brief and planning documents require Fumadocs Core/UI/MDX and interactive documentation."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "Run as the sole Worker. The package changes the shared documentation shell, renderer, dependencies, CSS, and browser/build surfaces; no disjoint parallel write scope is established."
+    },
+    "blocked_tasks": ["T084", "T092"],
+    "missing_evidence": [
+      "Post-T094 dedicated-port HTTP/browser evidence for the new routes.",
+      "A production build verification after the route repairs; current .next output is stale.",
+      "Behavioral assertions for taxonomy filtering, news filtering, sitemap membership, and empty-state rendering.",
+      "Fumadocs Core/UI/MDX parity, complete docs component coverage, schema-property reference, requirement-ID search, and full docs accessibility/print validation.",
+      "Lighthouse, full accessibility matrix, 320px/200% zoom, SBOM/dependency review, operational drills, and final launch-readiness mapping.",
+      "Typesense, Kit, Tower/Coolify, Infisical, GlitchTip, DNS/TLS, remote repositories, production deployment, and production monitoring.",
+      "Qualified legal, privacy, trademark, factual, media licensing, and exact font provenance approval."
+    ],
+    "required_board_updates": [
+      "Record T095 as done with this receipt.",
+      "Preserve T092 as historical blocked evidence and T094 as its completed repair.",
+      "Create exactly one Worker task using this worker_package verbatim and keep it as the sole active write task.",
+      "Keep full_outcome_complete false.",
+      "Retain external activation, legal/factual approval, media/font provenance, and excluded-infrastructure blockers explicitly in subsequent receipts and readiness artifacts."
+    ]
+  }
+}

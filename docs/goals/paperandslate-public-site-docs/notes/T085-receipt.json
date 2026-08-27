@@ -1,0 +1,72 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T085",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "not_complete",
+    "full_outcome_complete": false,
+    "rationale": "T084's source and focused checks passed, but its required post-change browser audit could not run. The T080 artifact directory and runner are absent; checkout-wide search found no recoverable copy. T082 records prior behavior and results, but not executable contents. Approve one artifact-only Worker to restore the runner and capture fresh diagnostics. Source, tests, snapshots, baselines, content, provenance, and external work remain out of scope.",
+    "worker_package": {
+      "objective": "Repair only the T080 diagnostic harness and rerun diagnostics in production-output-first order: run pnpm build:verify as the final build-producing command, preflight BUILD_ID, invoke the resolved apps/web/node_modules/next/dist/bin/next directly with shell:false from apps/web, and produce truthful full-page diagnostics. Preserve T080 source, next.config.ts, Playwright config, snapshots, canonical baselines, default standalone/Docker behavior, provenance-pending media, and unrelated outputs.",
+      "allowed_files": [
+        "apps/web/.next",
+        "test-results/t080-homepage-fidelity/browser-audit.mjs",
+        "test-results/t080-homepage-fidelity/preflight.json",
+        "test-results/t080-homepage-fidelity/server.stdout.log",
+        "test-results/t080-homepage-fidelity/server.stderr.log",
+        "test-results/t080-homepage-fidelity/http.json",
+        "test-results/t080-homepage-fidelity/browser.json",
+        "test-results/t080-homepage-fidelity/axe.json",
+        "test-results/t080-homepage-fidelity/homepage-light-desktop.png",
+        "test-results/t080-homepage-fidelity/homepage-mobile.png",
+        "test-results/t080-homepage-fidelity/homepage-dark.png",
+        "test-results/t080-homepage-fidelity/integrity.json"
+      ],
+      "verify": [
+        "node --check test-results/t080-homepage-fidelity/browser-audit.mjs",
+        "pnpm build:verify as the final build-producing command before the artifact runner.",
+        "node test-results/t080-homepage-fidelity/browser-audit.mjs",
+        "Require BUILD_ID, exact .next real path, zero reparses, free port 3101, known system Chrome, direct resolved Next CLI, cwd apps/web, shell:false, and owned-server cleanup.",
+        "Require HTTP 200-399 for /, /health, /docs, /projects, /search plus strict homepage assertions.",
+        "Require browser.json, axe.json, full-page light desktop/mobile/dark screenshots, 0 serious/critical Axe violations, and truthful failure metadata.",
+        "Compare screenshots with supplied references without visual:update, baseline approval, snapshot changes, or assertion weakening.",
+        "Capture post-build .next hash and require it unchanged after next start cleanup; protected source/configuration/snapshot/Docker hashes unchanged and no artifacts outside allowed files.",
+        "Do not run pnpm e2e or pnpm a11y after build:verify."
+      ],
+      "stop_if": [
+        "build:verify fails/does not produce BUILD_ID/creates reparses/violates non-standalone boundary.",
+        "Direct Next CLI cannot resolve safely, port 3101 occupied, Chrome unavailable, or server ownership/cleanup cannot be established.",
+        "Final production .next changes during artifact runner or post-run integrity cannot prove unchanged.",
+        "Any source/configuration/snapshot/canonical baseline/Docker/content/provenance/unrelated generated-output change.",
+        "Artifact outside listed T080 paths, hidden/falsified failed artifact, repeated browser/HTTP/Axe/assertion/scope failure, visual:update, baseline approval, browser install, assertion weakening, or post-build next-dev execution."
+      ]
+    },
+    "evidence": [
+      "T084 receipt: page.tsx and globals.css changed; prettier, lint, typecheck, unit tests, e2e, a11y, and build:verify passed; browser-audit.mjs was missing.",
+      "T082 receipt: prior runner passed using the resolved Next CLI with shell:false and produced three screenshots, browser metadata, Axe, and integrity results, but those files no longer survive.",
+      "Current apps/web/.next/BUILD_ID exists.",
+      "Current test-results contains only .last-run.json; test-results/t080-homepage-fidelity is absent.",
+      "Checkout-wide search found no browser-audit.mjs copy.",
+      "Current source contains the T084 mobile hero copy, project supporting copy, four principles, and responsive footer/principle rules.",
+      "T083 and T084 identify remaining provenance gaps and broader documentation, search, governance, hardening, operations, and external-activation work."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "The Worker rebuilds shared .next, owns port 3101 and system Chrome, and writes the sole T080 diagnostic artifact set; no disjoint parallel implementation scope is safe."
+    },
+    "blocked_tasks": ["T084"],
+    "missing_evidence": [
+      "Recoverable executable browser-audit.mjs contents.",
+      "Fresh post-T084 preflight, HTTP, browser, Axe, full-page light/mobile/dark screenshots, and integrity artifacts.",
+      "Current visual/reference-fidelity review after T084 source changes.",
+      "Repository-backed raster-media and font provenance, plus the broader original brief and external activation evidence."
+    ],
+    "required_board_updates": [
+      "Record T085 as done with this receipt.",
+      "Create one sole Worker task by copying the worker_package fields verbatim.",
+      "Keep T084 blocked until fresh task-correct diagnostics and reference review exist.",
+      "Keep the full goal active with full_outcome_complete false."
+    ]
+  }
+}

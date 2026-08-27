@@ -1,0 +1,2 @@
+source: packages/content/src/releases.ts
+policy: "Only explicitly available releases may use a releasedOn date."

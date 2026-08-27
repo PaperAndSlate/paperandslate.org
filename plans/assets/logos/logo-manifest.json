@@ -1,0 +1,32 @@
+{
+  "wordmark": "Custom outlined high-contrast serif wordmark; source artwork is converted to paths.",
+  "descriptor": "Inter Display Medium, tracked uppercase, converted to paths.",
+  "themes": {
+    "dark": "For light/cream backgrounds.",
+    "light": "For dark/slate backgrounds."
+  },
+  "files": [
+    "paper-and-slate-horizontal-dark.png",
+    "paper-and-slate-horizontal-dark.svg",
+    "paper-and-slate-horizontal-light.png",
+    "paper-and-slate-horizontal-light.svg",
+    "paper-and-slate-icon-dark-180.png",
+    "paper-and-slate-icon-dark-192.png",
+    "paper-and-slate-icon-dark-32.png",
+    "paper-and-slate-icon-dark-512.png",
+    "paper-and-slate-icon-dark-64.png",
+    "paper-and-slate-icon-dark.png",
+    "paper-and-slate-icon-dark.svg",
+    "paper-and-slate-icon-light-180.png",
+    "paper-and-slate-icon-light-192.png",
+    "paper-and-slate-icon-light-32.png",
+    "paper-and-slate-icon-light-512.png",
+    "paper-and-slate-icon-light-64.png",
+    "paper-and-slate-icon-light.png",
+    "paper-and-slate-icon-light.svg",
+    "paper-and-slate-stacked-dark.png",
+    "paper-and-slate-stacked-dark.svg",
+    "paper-and-slate-stacked-light.png",
+    "paper-and-slate-stacked-light.svg"
+  ]
+}

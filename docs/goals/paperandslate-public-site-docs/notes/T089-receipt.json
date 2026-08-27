@@ -1,0 +1,40 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T089",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "Approved for the homepage/design milestone. Fresh captures were visually inspected against the mockups and brand board: they preserve the editorial Paper/Slate hierarchy, texture, layout, dark treatment, responsive stacking, and two-column mobile footer. Differences are intentional and truthful: eight media slots remain provenance-pending, one published news item renders, newsletter controls are disabled, and no unverified GitHub URL or font/media claim is introduced. T088 runtime and integrity evidence is internally consistent. This is not pixel-parity or production-launch approval.",
+    "worker_package": null,
+    "evidence": [
+      "T088 receipt: build verification passed for 80/80 pages, 5/5 HTTP routes, strict homepage assertions, 0 serious/critical Axe violations, 3/3 full-page captures, owned cleanup, free port, and unchanged hashes.",
+      "Fresh artifacts visually reviewed: test-results/t080-homepage-fidelity/homepage-light-desktop.png, homepage-mobile.png, and homepage-dark.png.",
+      "plans/07-design-system/06-mockup-index.md:3,39,45-55 defines mockups as implementation references rather than pixel-perfect contracts.",
+      "plans/assets/README.md:11-30 requires provenance and licensing before raster media is used in production.",
+      "apps/web/src/app/page.tsx:14-21,50-59,63-102,104-143 verifies supporting copy, responsive hero copy, four principles, one rendered news section, and disabled newsletter composition.",
+      "apps/web/src/app/globals.css:876-905,1051-1087 verifies determinate principles contrast/layout and two-column mobile footer behavior.",
+      "packages/content/src/registry.ts:3-14 and packages/content/src/news.ts:2-9 verify six public projects and one published news item.",
+      "apps/web/src/components/hero-illustration.tsx:4-8, apps/web/src/components/project-card.tsx:7-10, and page.tsx:116-119 account for eight provenance-pending media slots at runtime.",
+      "apps/web/src/components/newsletter-form.tsx:17-25,35-36 verifies disabled controls and explanatory privacy copy.",
+      "preflight.json, browser.json, http.json, axe.json, and integrity.json consistently record verification mode, shell:false, 5/5 routes, full-page captures, zero serious/critical Axe findings, unchanged output/protected hashes, cleanup, and zero reparses."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "No follow-up Worker is selected. Any future artifact rerun shares the sole .next output, port 3101, system Chrome, and T080 artifact directory and must remain exclusive."
+    },
+    "blocked_tasks": ["T084"],
+    "missing_evidence": [
+      "The broader original oracle remains incomplete across documentation, search, governance, operations, external providers, deployment, and legal/factual approval.",
+      "Production raster-media and exact font provenance/licensing remain unavailable; placeholders and fallback stacks are intentionally preserved.",
+      "The harness records Axe results for the audited light desktop page; separate mobile/dark Axe artifacts are not present.",
+      "No pixel-diff or canonical visual-baseline approval is claimed."
+    ],
+    "required_board_updates": [
+      "Record T089 as done with this receipt.",
+      "Reconcile T084's prior blocked state as superseded by T088's corrected artifact evidence without rewriting its historical receipt.",
+      "Keep the overall goal active with full_outcome_complete false and continue the broader oracle."
+    ]
+  }
+}

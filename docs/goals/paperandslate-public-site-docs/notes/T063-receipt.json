@@ -1,0 +1,51 @@
+{
+  "task_id": "T063",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "Homepage source closure exists, but design acceptance is unsupported. The generated .next tree contains standalone reparse-point links and T062 reproduced the failure after the production build. Prior cleanup followed by browser checks can pass, while visual baselines still materially mismatch. Standalone is production-only and required by the Docker packaging path, so no configuration change is justified. Approve one sole reordered verification package.",
+  "worker_package": {
+    "objective": "Restore truthful post-T060 runtime evidence using exact reparse-point-aware cleanup, then run Playwright smoke, accessibility, and visual diagnostics before the production build. Run the production build last so the newly generated standalone tree cannot poison subsequent browser startup. Preserve all source, configuration, snapshots, reports, content, provenance, and unrelated workstreams; treat visual mismatches as diagnostic only.",
+    "allowed_files": ["apps/web/.next", "test-results"],
+    "verify": [
+      "Guard exact apps/web/.next target, reject a reparse-point root, recursively remove only children without following reparse points, then remove exact root.",
+      "Before each Playwright command inspect 127.0.0.1:3101; proceed only when FREE or owned by this workspace and record PID/command line.",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:check; record baseline mismatch diagnostics and continue without visual:update or snapshot changes.",
+      "pnpm build as the final runtime command and record actual exit status.",
+      "Confirm writes are limited to apps/web/.next and test-results and snapshots remain unchanged."
+    ],
+    "stop_if": [
+      "Cleanup target is not exactly apps/web/.next, root is a reparse point, or cleanup would follow any reparse point.",
+      "Port 3101 is occupied by an unknown process or ownership cannot be established.",
+      "Standalone reparse-point scan recurs during browser startup after exact cleanup; do not retry repeatedly.",
+      "Build wrapper hangs, fails, or cannot provide an actual successful exit status; do not infer success from generated files alone.",
+      "Any source, configuration, snapshot, report, content, provenance, docs-ingestion, search, governance, hardening/operations, or external-system write is required.",
+      "Worker runs visual:update, modifies snapshots, weakens assertions, or approves mismatched baselines.",
+      "Any write affects a path outside apps/web/.next or test-results."
+    ]
+  },
+  "evidence": [
+    "T060 static checks passed, while E2E and build failed twice on generated .next reparse-point scanning; a11y and visual were not run.",
+    "T061 found 27 reparse-point entries, including standalone/apps/web/node_modules/next and react; prior exact cleanup recovered browser/a11y evidence.",
+    "T062 exact cleanup passed, but build wrapper hung after output and all three Playwright commands failed on the generated standalone scan.",
+    "Current .next is a normal directory with standalone symlink directories targeting the workspace pnpm store.",
+    "Current Playwright uses dedicated port 3101 with reuseExistingServer false; snapshots remain unapproved.",
+    "next.config.ts keeps standalone output production-only; T017 recorded successful standalone Docker build and /health runtime."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Generated output, Playwright server ownership, browser artifacts, and build behavior share one runtime boundary; run one sole Worker."
+  },
+  "blocked_tasks": ["T060", "T062"],
+  "missing_evidence": [
+    "Post-cleanup browser smoke and accessibility results after reordered cleanup.",
+    "Completed production build with an actual successful exit status.",
+    "Fresh desktop, 390px mobile, and dark visual diagnostics without snapshot updates or approval.",
+    "Persisted fresh actual/diff screenshot evidence.",
+    "Repository-backed raster-media provenance and truthful font-loading evidence.",
+    "Full homepage acceptance against supplied references.",
+    "Completion evidence for docs-ingestion, search, governance, hardening/operations, and external activation."
+  ]
+}

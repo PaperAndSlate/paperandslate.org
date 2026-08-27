@@ -1,0 +1,7 @@
+version: 1
+status: manifest-only
+monitors:
+  - id: local-health
+    path: /health
+    expected: status-ok
+    activation: pending

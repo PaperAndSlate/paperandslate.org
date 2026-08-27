@@ -1,0 +1,5 @@
+version: 1
+provider: tower-coolify
+status: intent-only
+application: paper-and-slate-web
+activation: pending

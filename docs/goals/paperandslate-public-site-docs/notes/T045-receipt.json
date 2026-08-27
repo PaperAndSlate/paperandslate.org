@@ -1,0 +1,73 @@
+{
+  "task_id": "T045",
+  "result": "done",
+  "decision": "not_complete",
+  "full_outcome_complete": false,
+  "rationale": "T044 closes the local public-content runtime gate: real-app E2E 4/4, a11y 4/4, build 3/3 with 80 static pages, and launch-evidence validation passed. Overall completion is not justified. Design-system fidelity remains materially incomplete, while docs ingestion, search completeness, hardening/operations, external activation, Lighthouse, production, and legal review remain separate gaps.",
+  "worker_package": {
+    "objective": "Implement and verify the Paper & Slate design-system and visual-foundation vertical slice: replace the design-system marker with semantic tokens, required typography, light/dark themes, source-owned primitives, and responsive public/docs shell wiring using the supplied logo and visual references. Cover 390px layouts, reduced motion, dark-logo selection, and representative visual/a11y regression evidence. Do not change content data, docs ingestion, search providers, hardening/operations, or external activation.",
+    "allowed_files": [
+      "packages/design-system/src/index.ts",
+      "packages/design-system/src/tokens.css",
+      "packages/design-system/package.json",
+      "apps/web/src/app/layout.tsx",
+      "apps/web/src/app/globals.css",
+      "apps/web/src/app/(public)/layout.tsx",
+      "apps/web/src/app/(docs)/docs/layout.tsx",
+      "apps/web/src/components/brand-logo.tsx",
+      "apps/web/src/components/site-header.tsx",
+      "apps/web/src/components/site-footer.tsx",
+      "apps/web/src/components/page-primitives.tsx",
+      "apps/web/src/components/project-card.tsx",
+      "apps/web/src/components/mobile-navigation.tsx",
+      "apps/web/src/components/docs-navigation.tsx",
+      "apps/web/src/components/docs-project-selector.tsx",
+      "apps/web/src/components/version-selector.tsx",
+      "tests/browser/visual.spec.ts",
+      "tests/browser/snapshots/homepage.png",
+      "tests/design-system.test.ts"
+    ],
+    "verify": [
+      "pnpm format:check",
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm e2e",
+      "pnpm a11y",
+      "pnpm visual:update",
+      "pnpm visual:check",
+      "pnpm build"
+    ],
+    "stop_if": [
+      "Any write is needed outside allowed_files.",
+      "The work requires changing content registries/routes, docs-ingestion/source artifacts, generated docs, search-provider code or configuration, middleware/CSP, Docker/Tower/monitoring files, credentials, providers, or production activation.",
+      "A missing font, image, license, or visual reference would require inventing provenance or altering supplied artwork.",
+      "A required verification command fails twice for the same in-scope cause.",
+      "Visual or browser verification reveals functional, accessibility, responsive, or dark-mode regressions that require weakening existing assertions.",
+      "The design-system package cannot be wired without changing unrelated feature or data behavior."
+    ]
+  },
+  "evidence": [
+    "T044 receipt: guarded .next cleanup passed; real Paper & Slate E2E passed 4/4, a11y passed 4/4, build passed 3/3 with 80 static pages, and launch evidence validated.",
+    "T039 receipt: public-content work remained skeletal before T040, but design-system usage was largely absent, tokens diverged from the brand guide, globals used Georgia/system fonts and hardcoded colors, and dark-theme/component-library work remained.",
+    "T042 receipt: content, feeds, releases, routes, search indexing, lint, typecheck, tests, security, and SEO passed after recovery.",
+    "Current inventory contains packages/design-system, public/docs shells, visual snapshots, and supplied brand/mockup references; no receipt proves the required design-system implementation or fidelity."
+  ],
+  "missing_evidence": [
+    "Local design-system implementation: Bodoni Moda, Inter, IBM Plex Mono, semantic tokens, dark mode, primitives, icon treatment, texture rules, responsive behavior, and visual regression coverage.",
+    "Local documentation requirements: Fumadocs-based shell/components, complete source registry, immutable SHA provenance, version/archive behavior, Markdown and llms outputs, and full ingestion safety/link/asset validation.",
+    "Local search requirements: complete content-type coverage, exact property/RFC queries, preview isolation, zero-result privacy handling, analytics, and rollback evidence.",
+    "Local hardening requirements: Lighthouse budgets, full WCAG/screen-reader/320px/200% zoom review, bundle/CWV evidence, SBOM/dependency review, active observability, synthetic monitors, and rollback drills.",
+    "External evidence: Typesense, Kit, Tower/Coolify, Infisical, GlitchTip, DNS/TLS, production deployment/monitoring, launch SHA/index IDs, and qualified legal/factual approval."
+  ],
+  "parallel_safety": {
+    "safe": false,
+    "reason": "Use one sole Worker. Shared tokens, global styles, layouts, navigation, primitives, and visual baselines affect public and documentation routes; disjoint parallel safety cannot be proven."
+  },
+  "required_board_updates": [
+    "Record T045 as done with decision not_complete and full_outcome_complete false.",
+    "Create exactly one sole Worker using this worker_package verbatim.",
+    "Keep docs-ingestion, search, hardening/operations, and external activation as separate future packages.",
+    "Retain T044 as local public-content/runtime evidence; do not treat it as overall launch acceptance."
+  ]
+}

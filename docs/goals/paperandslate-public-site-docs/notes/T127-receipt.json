@@ -1,0 +1,45 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T127",
+    "decision": "not_complete",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [],
+    "commands": [
+      {
+        "cmd": "Scope preflight and board inspection",
+        "status": "pass",
+        "count": 1,
+        "output": "Location and resolved board matched C:\\Users\\Callum\\Documents\\GitHub\\paperandslate\\web and docs/goals/paperandslate-public-site-docs/state.yaml."
+      },
+      {
+        "cmd": "pnpm format:check",
+        "status": "fail",
+        "count": 1,
+        "output": "Prettier reached the intended file set; eight files have style warnings and tests/**/*.tsx has no matching files."
+      },
+      {
+        "cmd": "Read-only data-platform package inspection",
+        "status": "pass",
+        "count": 1,
+        "output": "Sibling data-platform/package.json is a separate workspace with its own @paper-slate/data-platform format script; no change was made or reverted."
+      }
+    ],
+    "summary": "Confirmed T126 is invalid because its worker report belongs to the sibling data-platform board and contains unrelated commands. The Paper & Slate web manifest already contains the approved wildcard token, but that current state cannot be attributed to T126 provenance. No duplicate package.json write is safe; the next step is a broader read-only audit to select a real local package.",
+    "deviations": [],
+    "remaining_blockers": [
+      "T126 has no valid Paper & Slate worker provenance.",
+      "format:check remains non-green due eight existing style mismatches and the unmatched tests/**/*.tsx pattern.",
+      "Visual baseline drift, external activation, legal/factual review, provider credentials, deployment, Lighthouse, SBOM, and production acceptance remain pending.",
+      "full_outcome_complete remains false."
+    ],
+    "verification_attempts": 1,
+    "stopped_because": "Audit complete; a duplicate package.json repair would be a no-op and cannot repair T126 provenance.",
+    "evidence": [
+      "package.json line 19 contains apps/web/src/app/*/docs/**/*.tsx.",
+      "The T126 report references C:\\Users\\Callum\\Documents\\GitHub\\paperandslate\\data-platform\\docs\\goals\\paper-slate-education-data-platform\\state.yaml.",
+      "The web workspace has no .git checkout; no commit, push, deploy, or external write occurred."
+    ],
+    "full_outcome_complete": false
+  }
+}

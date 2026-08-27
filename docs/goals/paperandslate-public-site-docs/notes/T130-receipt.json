@@ -1,0 +1,47 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T130",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "apps/web/src/components/newsletter-form.tsx",
+      "apps/web/src/components/search-dialog.tsx",
+      "tests/docs-source-adapters.test.ts",
+      "tests/governance.test.ts",
+      "tests/newsletter.test.ts",
+      "tests/publishing.test.ts",
+      "tests/redirects.test.ts",
+      "tests/search.test.ts",
+      "package.json"
+    ],
+    "commands": [
+      {"cmd": "Prettier --write eight approved files", "status": "pass", "count": 8, "output": "All eight formatted."},
+      {"cmd": "Prettier --check eight approved files", "status": "pass", "count": 8, "output": "All matched files use Prettier code style."},
+      {"cmd": "pnpm format:check", "status": "pass", "count": 1, "output": "All matched files use Prettier code style."},
+      {"cmd": "Package script assertion", "status": "pass", "count": 44, "output": "All existing checked tokens retained in order; --no-error-on-unmatched-pattern appears exactly once."},
+      {"cmd": "pnpm test -- tests/docs-components.test.ts tests/docs-ingestion.test.ts tests/docs-source-adapters.test.ts", "status": "pass", "count": 9, "output": "3 test files, 9 tests passed."},
+      {"cmd": "pnpm docs:validate", "status": "pass", "count": 13, "output": "Validated 13 local documentation pages."},
+      {"cmd": "pnpm content:validate", "status": "pass", "count": 12, "output": "Validated 12 local content records."},
+      {"cmd": "pnpm exec eslint apps/web/src packages scripts tests --no-error-on-unmatched-pattern", "status": "pass", "count": 1, "output": "No errors."},
+      {"cmd": "pnpm exec tsc -p apps/web --noEmit --incremental false", "status": "pass", "count": 1, "output": "No errors."},
+      {"cmd": "pnpm exec tsc -p packages/design-system --noEmit --incremental false", "status": "pass", "count": 1, "output": "No errors."},
+      {"cmd": "Exact scope audit", "status": "pass", "count": 9, "output": "Only the nine approved paths were targeted."}
+    ],
+    "summary": "Completed the approved bounded formatting-quality package. The eight reported source/test files are formatted and package.json format:check retains all checked paths while adding exactly one --no-error-on-unmatched-pattern flag. All required focused checks passed. This does not complete the public-site/docs goal.",
+    "deviations": [],
+    "remaining_blockers": [
+      "Full outcome remains incomplete: external repository/DNS/TLS/provider/deployment/monitoring/Lighthouse/SBOM evidence and authoritative legal/factual/visual approvals are pending.",
+      "Reports and launch evidence need a post-T130 freshness audit before final handoff.",
+      "No commit, push, external write, provider activation, snapshot update, or deployment occurred."
+    ],
+    "verification_attempts": 1,
+    "stopped_because": null,
+    "evidence": [
+      "Exact workspace and board preflight passed.",
+      "Package assertion retained 44 existing checked tokens in order with one flag.",
+      "Focused tests, docs/content validation, ESLint, and both TypeScript checks passed.",
+      "No out-of-scope write was targeted."
+    ],
+    "full_outcome_complete": false
+  }
+}

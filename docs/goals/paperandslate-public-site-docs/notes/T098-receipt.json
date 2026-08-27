@@ -1,0 +1,38 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T098",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": [
+      "apps/web/package.json",
+      "pnpm-lock.yaml",
+      "IMPLEMENTATION_LEDGER.md",
+      "docs/adr/0002-framework-compatibility-floor.md",
+      "apps/web/.next",
+      ".turbo",
+      "test-results/.last-run.json"
+    ],
+    "commands": [
+      { "cmd": "pnpm install --frozen-lockfile --strict-peer-dependencies", "status": "pass" },
+      { "cmd": "pnpm view next@15.5.24 peerDependencies --json", "status": "pass" },
+      { "cmd": "pnpm view fumadocs-core@15.8.5 peerDependencies --json", "status": "pass" },
+      { "cmd": "pnpm view fumadocs-ui@15.8.5 peerDependencies --json", "status": "pass" },
+      { "cmd": "pnpm view fumadocs-mdx@14.3.2 peerDependencies --json", "status": "pass" },
+      { "cmd": "pnpm exec prettier --check apps/web/package.json IMPLEMENTATION_LEDGER.md docs/adr/0002-framework-compatibility-floor.md", "status": "pass" },
+      { "cmd": "pnpm routes:check", "status": "pass" },
+      { "cmd": "pnpm content:validate", "status": "pass" },
+      { "cmd": "pnpm docs:validate", "status": "pass" },
+      { "cmd": "pnpm seo:check", "status": "pass" },
+      { "cmd": "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts", "status": "pass", "count": "6 tests" },
+      { "cmd": "pnpm lint", "status": "pass" },
+      { "cmd": "pnpm typecheck", "status": "pass" },
+      { "cmd": "pnpm exec playwright test tests/browser/smoke.spec.ts", "status": "pass", "count": "5 tests" },
+      { "cmd": "pnpm build:verify", "status": "pass", "count": "101 static pages; non-standalone output verified" }
+    ],
+    "summary": "Upgraded exactly to Next.js 15.5.24, React 19.2.8, React DOM 19.2.8, @types/react 19.2.18, and @types/react-dom 19.2.5. Preserved the custom renderer, ingestion, static search/fallback, raw routes, and truthful content. Recorded the renderer as the local fallback and deferred Fumadocs/Tailwind integration.",
+    "deviations": [],
+    "remaining_blockers": ["Fumadocs/Tailwind integration remains deferred pending separate approval."],
+    "verification_attempts": 1,
+    "stopped_because": null
+  }
+}

@@ -1,0 +1,765 @@
+{
+  "name": "Paper & Slate Public Website and Documentation System Plan",
+  "generated": "2026-08-26",
+  "fileCount": 151,
+  "markdownCount": 88,
+  "imageCount": 41,
+  "svgCount": 6,
+  "files": [
+    {
+      "path": "00-overview/01-executive-summary.md",
+      "bytes": 6007,
+      "sha256": "8460ef3c86778b03426483ec30565675a62db704d0a1dfb320918727279e2eb3"
+    },
+    {
+      "path": "00-overview/02-key-decisions.md",
+      "bytes": 5214,
+      "sha256": "c10b38e0571ca2818f3b948373755fe131d7b9d498134260c0bde537cd36de43"
+    },
+    {
+      "path": "00-overview/03-scope-and-non-goals.md",
+      "bytes": 3140,
+      "sha256": "f499c5828da791f2e2944d88c62e03b459c0c2612d09eaea53e77bd2137f6d77"
+    },
+    {
+      "path": "00-overview/04-success-metrics.md",
+      "bytes": 3014,
+      "sha256": "ef14d41aa992be52cb303173aa103105b8e1bc816d22ea868695fc1b3992de3c"
+    },
+    {
+      "path": "00-overview/05-risk-register.md",
+      "bytes": 2661,
+      "sha256": "aac76ff35bf5341beea43b4fa8cdde42035a143c785c1862802364a0dd36e6f6"
+    },
+    {
+      "path": "01-strategy/01-audiences-and-positioning.md",
+      "bytes": 5568,
+      "sha256": "9e0f375022b982ff520c169c4a145d1349d9462cd92bf8de88b4d3732bde3d14"
+    },
+    {
+      "path": "01-strategy/02-foundation-principles.md",
+      "bytes": 4575,
+      "sha256": "76c5952c4ebe42c2b2aa54e48c618a3424d1350ef554eac6b998cdbc1b5f4d21"
+    },
+    {
+      "path": "01-strategy/03-content-voice-and-style.md",
+      "bytes": 3472,
+      "sha256": "b4845c8fa6647808df20968553f967d9e240894c416a331401520df7eadeaade"
+    },
+    {
+      "path": "01-strategy/04-legal-status-and-public-trust.md",
+      "bytes": 3163,
+      "sha256": "d59281d421a1b46f318dfa145494e7e6d929708e506f863c2c441d0a7a4efc38"
+    },
+    {
+      "path": "01-strategy/05-product-experience-principles.md",
+      "bytes": 2372,
+      "sha256": "49d24ad3bec868a1bfef75cdf247c7d07ae7fe071aa8c32e42a78ff8d5a4a239"
+    },
+    {
+      "path": "02-information-architecture/01-site-map.md",
+      "bytes": 4413,
+      "sha256": "697c72ce9cfa06f55041dc621a689ba3b1c90c48fbf95da9b24a8a7d6c463860"
+    },
+    {
+      "path": "02-information-architecture/02-navigation-and-wayfinding.md",
+      "bytes": 3379,
+      "sha256": "319a4be8ab8cb9927cf47572ee63c2234d66684394d513475bfb2be22850b98e"
+    },
+    {
+      "path": "02-information-architecture/03-route-catalog.md",
+      "bytes": 3650,
+      "sha256": "0938ed0188afb75d69ed9dc6c9c6ae3971c993dc1c670a65707e1c0e865dfdf2"
+    },
+    {
+      "path": "02-information-architecture/04-content-models.md",
+      "bytes": 3944,
+      "sha256": "be699b9b7ee4af23f198981d4dbb89607a467bebc955ef89f57320b3d08d0aab"
+    },
+    {
+      "path": "02-information-architecture/05-page-template-matrix.md",
+      "bytes": 2682,
+      "sha256": "62e057c01e5beb2d89bcf719c86d76abebc058676e2e16671a16c2f96889c7cb"
+    },
+    {
+      "path": "03-public-site/01-homepage-specification.md",
+      "bytes": 4064,
+      "sha256": "2106ad90144915ba2744892947a6adf48274bea6256630e8a2f44063d48bc736"
+    },
+    {
+      "path": "03-public-site/02-foundation-pages.md",
+      "bytes": 3352,
+      "sha256": "55cb572698f58ba3cc48fff771d4d5cc74d430e9ca3ea15f4db08032f225a485"
+    },
+    {
+      "path": "03-public-site/03-project-registry-and-project-pages.md",
+      "bytes": 2797,
+      "sha256": "2fe8fc9932392a28d7a644a51ba80401ddbd8fb98dad5d5583bb6590afd67a9d"
+    },
+    {
+      "path": "03-public-site/04-governance-pages.md",
+      "bytes": 2266,
+      "sha256": "5048b4776db14420e43e094176eac7b4cf8042b9a50c584842b0ab1fb7a5ee55"
+    },
+    {
+      "path": "03-public-site/05-news-and-update-pages.md",
+      "bytes": 2356,
+      "sha256": "bac747733df9f162ee778a3afcd5e2590d5a3e3c626646eb574039db31e65e85"
+    },
+    {
+      "path": "03-public-site/06-roadmap-people-funding-and-reports.md",
+      "bytes": 2462,
+      "sha256": "0ed2c52b6edc04fe112e0a0d49e27d000bdc5c8dc147938e9c5f46486fe5b9f3"
+    },
+    {
+      "path": "03-public-site/07-legal-trust-and-utility-pages.md",
+      "bytes": 2171,
+      "sha256": "b050e1887527100d86550daad6539560b96d8a0d37f236ca9732ea1f8674ddac"
+    },
+    {
+      "path": "04-documentation-system/01-documentation-product-strategy.md",
+      "bytes": 4109,
+      "sha256": "e0bf43110090687e79cf6ee4bbe922d58969797daace15137910e51121fb28ab"
+    },
+    {
+      "path": "04-documentation-system/02-documentation-taxonomy.md",
+      "bytes": 3394,
+      "sha256": "fd266545c16e9426ebadde0d0312b4b0e65f842338965c5197858854f922c9a6"
+    },
+    {
+      "path": "04-documentation-system/03-source-ownership-and-repository-contract.md",
+      "bytes": 3483,
+      "sha256": "876286ffeaf2d41542cab182feac1ff0a1b1fb70e9c0c5f30dec027134f42dec"
+    },
+    {
+      "path": "04-documentation-system/04-docs-aggregation-pipeline.md",
+      "bytes": 4766,
+      "sha256": "b405bf8a1179ee55e928d4dafa2fac40eb702d5601aadf0cbf8aeabdb021044d"
+    },
+    {
+      "path": "04-documentation-system/05-versioning-and-archives.md",
+      "bytes": 2858,
+      "sha256": "410a3a53be23b2df97f1340f6c07d87f95a4bd579163ce097f0929e68ec8c788"
+    },
+    {
+      "path": "04-documentation-system/06-normative-specifications-and-guides.md",
+      "bytes": 2240,
+      "sha256": "1be3339a44d10f6f343100b41aef1e80ec49802271cc6792d1a59edd46ed8bed"
+    },
+    {
+      "path": "04-documentation-system/07-documentation-search.md",
+      "bytes": 3126,
+      "sha256": "9f7d1b530b43120f83c28b533497d6a9d38904d0175c7741e9539077c42499a6"
+    },
+    {
+      "path": "04-documentation-system/08-interactive-documentation.md",
+      "bytes": 2437,
+      "sha256": "a00524a66d04beeb4ab725d41275af33e8b547d78f6e3a818f3d58084998883b"
+    },
+    {
+      "path": "04-documentation-system/09-future-api-and-auth-documentation.md",
+      "bytes": 2061,
+      "sha256": "9b7be35e54ef3c9bbe9753e421c18270a33ba206ba2c4d201c9a9b9e2c17603e"
+    },
+    {
+      "path": "04-documentation-system/10-docs-design-and-dark-mode.md",
+      "bytes": 2235,
+      "sha256": "c3d82765c2efa39a65d22c9bece6c57cf4ad2487463d88c524f5982d74df215c"
+    },
+    {
+      "path": "04-documentation-system/11-standards-monorepo-structure.md",
+      "bytes": 3201,
+      "sha256": "10dd74ab24deacc9d6a91489615111adb4ad63d546297687e5309557c1078ba8"
+    },
+    {
+      "path": "05-content-and-publishing/01-content-repository-structure.md",
+      "bytes": 2944,
+      "sha256": "df2a7e80b2720e303a0e535e0d66d36839df16205da9cfecb79df8337502490e"
+    },
+    {
+      "path": "05-content-and-publishing/02-news-publishing-workflow.md",
+      "bytes": 2473,
+      "sha256": "cd164c74629e2c99ec71b59673737ad1af2d70bf17622efdbf941aaabd2b8689"
+    },
+    {
+      "path": "05-content-and-publishing/03-kit-newsletter-integration.md",
+      "bytes": 2209,
+      "sha256": "9c6dfb06910e245fbaf4375747d391beceaef6ba24ecfb8ab87d7f0f25b3d2c5"
+    },
+    {
+      "path": "05-content-and-publishing/04-feeds-and-content-syndication.md",
+      "bytes": 1775,
+      "sha256": "daf3d76aeb0137367f3ba0998c8ce4d75b20836760f68995def8bf239d7cb5c0"
+    },
+    {
+      "path": "05-content-and-publishing/05-content-templates.md",
+      "bytes": 2346,
+      "sha256": "afbb39bf1b587b700074f540c8bd8a9c956c415d0dbcaf8b1c7b9ae34a121d3f"
+    },
+    {
+      "path": "05-content-and-publishing/06-media-workflow.md",
+      "bytes": 1864,
+      "sha256": "ae9ea2c91adc8206f9dfc3856e92382641930a0c0b5b7eaf976ee50551e94ff4"
+    },
+    {
+      "path": "06-governance/01-governance-model.md",
+      "bytes": 3908,
+      "sha256": "f279f7b132361a8e48244b2aa36e378b1ab8da075e3333c231b8a0974c3f4891"
+    },
+    {
+      "path": "06-governance/02-rfc-system.md",
+      "bytes": 3409,
+      "sha256": "114b081e06b79dd7413feb9dd6b564464422719893ff00d8628e7dca198078bc"
+    },
+    {
+      "path": "06-governance/03-project-lifecycle.md",
+      "bytes": 3130,
+      "sha256": "2d886394bf0fd7050d33c78cff0824c160057641889fbd171b20b155334ee730"
+    },
+    {
+      "path": "06-governance/04-contribution-and-maintainer-model.md",
+      "bytes": 2646,
+      "sha256": "3f959be32ff8a8f9dbd44b6412102ecb94db5c25e9d47504cd2468647f54b94a"
+    },
+    {
+      "path": "06-governance/05-policies-licenses-and-trademarks.md",
+      "bytes": 2857,
+      "sha256": "c93f4402909efcabcc2f202b14671ef515404e0494f1caa04ad020a994905079"
+    },
+    {
+      "path": "07-design-system/01-brand-guide.md",
+      "bytes": 5644,
+      "sha256": "d1d6a023b4d7be7634a96a30aeab84c59243f4b0608877b5e931e445dfd0604d"
+    },
+    {
+      "path": "07-design-system/02-design-tokens.md",
+      "bytes": 2879,
+      "sha256": "be50fc172fc5a2139ae371abf3e38bdec63040564f8f15f3421e3bd0b0757cbc"
+    },
+    {
+      "path": "07-design-system/03-component-inventory.md",
+      "bytes": 2689,
+      "sha256": "7e429f55c81111284d2af0f88c36d99225f36491f9057cce95f6bd7a4699e634"
+    },
+    {
+      "path": "07-design-system/04-responsive-and-layout-system.md",
+      "bytes": 2141,
+      "sha256": "edefe5c18b17cf25ab46b93ca27d1e9f2e5521179a28984846b846d13439ba81"
+    },
+    {
+      "path": "07-design-system/05-imagery-and-illustration-system.md",
+      "bytes": 2178,
+      "sha256": "b0e148d62ae266b1593fd1dc2dd5efa6f2bf4241c6e16ec8a2fa5598e058d88b"
+    },
+    {
+      "path": "07-design-system/06-mockup-index.md",
+      "bytes": 2519,
+      "sha256": "1ab9b416f078bd348363f89c610be67db652504b24e7c231bae25a64c7ad5a09"
+    },
+    {
+      "path": "08-technical-architecture/00-framework-evaluation.md",
+      "bytes": 3853,
+      "sha256": "a26966ad9968c4a203d7f8afc7c70025100a5a5687af502c38333a5b2866e4ad"
+    },
+    {
+      "path": "08-technical-architecture/01-technology-stack.md",
+      "bytes": 3387,
+      "sha256": "d62c01ccc345d11704abd692c48c822f9b57e1050caf2dd4ab64ca44a43964a2"
+    },
+    {
+      "path": "08-technical-architecture/02-repository-architecture.md",
+      "bytes": 3651,
+      "sha256": "5002ed7c042604a3e735cf2609118bc497eba18329df6de4e3c02b8689f20379"
+    },
+    {
+      "path": "08-technical-architecture/03-nextjs-application-architecture.md",
+      "bytes": 2987,
+      "sha256": "cd82d362e51132ed3066a46498f8456f9f23eb0e90c97aa6e5b9129cd67c185e"
+    },
+    {
+      "path": "08-technical-architecture/04-content-pipeline-implementation.md",
+      "bytes": 2658,
+      "sha256": "0d16fdeb7e39b244c66a40a945da97b78432e54267245c358b5e360c4af37c55"
+    },
+    {
+      "path": "08-technical-architecture/05-search-technical-architecture.md",
+      "bytes": 2571,
+      "sha256": "afebc3870b23d7d5171a259bdd0dc20ecb3dbb3ce745b92698082bc96ee6d614"
+    },
+    {
+      "path": "08-technical-architecture/06-security-architecture.md",
+      "bytes": 3160,
+      "sha256": "a44b9c24f459af8773f70fafc51b628fb09f8312b2acd30bc0872a9b8ba2c72c"
+    },
+    {
+      "path": "08-technical-architecture/07-performance-and-caching.md",
+      "bytes": 2262,
+      "sha256": "dce41ae1a991ddbc0ff4deaf2ececce281dd6268f47b44e6a28442668ba274f3"
+    },
+    {
+      "path": "08-technical-architecture/08-observability-and-analytics.md",
+      "bytes": 2221,
+      "sha256": "7ebb4f2107e39ad1dc2dc1a54c5983003e0a71c46f84f107eab20865accd1830"
+    },
+    {
+      "path": "09-infrastructure-and-deployment/01-tower-development-infrastructure.md",
+      "bytes": 3592,
+      "sha256": "7faf3fbff4e8b5a2a4f714af103a51663899d1d73a68d45d2d469af3f1ed4670"
+    },
+    {
+      "path": "09-infrastructure-and-deployment/02-deployment-architecture.md",
+      "bytes": 2650,
+      "sha256": "b999197e835be28ec2bfd203b325227d756a94804dc0ee15a84178f2434934b7"
+    },
+    {
+      "path": "09-infrastructure-and-deployment/03-ci-cd-and-preview-workflows.md",
+      "bytes": 2631,
+      "sha256": "7789bca45a26882cea02888c8c43d97d13370ef5d4a93e6d76bc8e20379b7fc5"
+    },
+    {
+      "path": "09-infrastructure-and-deployment/04-github-and-forgejo-strategy.md",
+      "bytes": 2148,
+      "sha256": "26d23ff383f02fa4ba31ebfb8012a5ae3111e74243f99ec17bc8005b45a5e7f7"
+    },
+    {
+      "path": "09-infrastructure-and-deployment/05-secrets-and-environments.md",
+      "bytes": 1899,
+      "sha256": "9bd21ff98b938b8e8e70db5885b612e50c17a2d2d5788eb5eb44b238f380aee8"
+    },
+    {
+      "path": "09-infrastructure-and-deployment/06-infrastructure-cost-and-scaling.md",
+      "bytes": 2033,
+      "sha256": "0a696c1a3408dae1295c9fdef893a2a105031d4fba38dc6e2812a4b651812434"
+    },
+    {
+      "path": "10-quality-and-operations/01-accessibility-plan.md",
+      "bytes": 3295,
+      "sha256": "9d860e1ceef1ca739ae239a6dc6e4050e198ce970479f9ad757663ce44e7319a"
+    },
+    {
+      "path": "10-quality-and-operations/02-seo-and-discoverability.md",
+      "bytes": 3012,
+      "sha256": "d637cf9368d197bc5d5b728767d50506888d0013249c6bca83ef0c9fe1071069"
+    },
+    {
+      "path": "10-quality-and-operations/03-testing-strategy.md",
+      "bytes": 2761,
+      "sha256": "eb16493d885a6a4e0ad581cd9249129344e091ca189ef9b8cec71f725863d816"
+    },
+    {
+      "path": "10-quality-and-operations/04-content-quality-and-review.md",
+      "bytes": 2366,
+      "sha256": "8a2db6b1998b1c7624aaa13ce97290226db149d821c738bc0edd184fa057ece8"
+    },
+    {
+      "path": "10-quality-and-operations/05-operations-runbook.md",
+      "bytes": 2582,
+      "sha256": "25bfd573a35874a5a9f59a49e2b83a5295e24ff79af6ef455dd6b86de73756b3"
+    },
+    {
+      "path": "11-implementation/01-phased-implementation-plan.md",
+      "bytes": 5724,
+      "sha256": "3825d81cbefad9ce1518b350f6669dd8a5b66af750f2f189ce3abe9c10bb4f66"
+    },
+    {
+      "path": "11-implementation/02-epics-and-task-breakdown.md",
+      "bytes": 3424,
+      "sha256": "57bce1a50d251812579fa7fbea4e177fed426d65332056dc1268974ca39fa036"
+    },
+    {
+      "path": "11-implementation/03-acceptance-criteria.md",
+      "bytes": 2648,
+      "sha256": "af75174dd85ce29ee370909bcde8b2bee58fc1cc738cc539c4cbe5e0eb543506"
+    },
+    {
+      "path": "11-implementation/04-launch-checklist.md",
+      "bytes": 3343,
+      "sha256": "87163c45eb7632c284ccdc0f5a8082d15cd141582339429236fc1b823254192e"
+    },
+    {
+      "path": "11-implementation/05-master-implementation-prompt.md",
+      "bytes": 5145,
+      "sha256": "828a9cc78d9ac4f0a8e32d9eaa88d9de2a09a9b0512e7bbba787e68a7718d373"
+    },
+    {
+      "path": "11-implementation/06-post-launch-roadmap.md",
+      "bytes": 1568,
+      "sha256": "8af2d1f717880da238c78b94de3e93926ffd1d145a22a901273d013b4d99fe6b"
+    },
+    {
+      "path": "12-reference/01-project-registry-example.md",
+      "bytes": 2314,
+      "sha256": "556709165109f92bcf22861b12823c9b40bcfc80c42e9151e2242226099a6ef0"
+    },
+    {
+      "path": "12-reference/02-docs-source-registry-example.md",
+      "bytes": 1825,
+      "sha256": "493b505d2d0d4b5084d1c9e77fa088505dde98b7063b144e5bf0d85fd936f0cc"
+    },
+    {
+      "path": "12-reference/03-frontmatter-schemas.md",
+      "bytes": 2051,
+      "sha256": "e5a2ad86d16fcb993ffd01c356c0eff2d4018fc329dc76d5b7e64d11573c071d"
+    },
+    {
+      "path": "12-reference/04-tower-manifest-example.md",
+      "bytes": 1421,
+      "sha256": "7ca613361bedc2fdcde2c0281a35ca736b2cec036762f844a79e2ead81164e63"
+    },
+    {
+      "path": "12-reference/05-environment-variables.md",
+      "bytes": 2515,
+      "sha256": "f9435bd5706f410b415e824dbc5500b51d114507a639bb4d2ee5ad145010deba"
+    },
+    {
+      "path": "12-reference/06-architecture-decision-records.md",
+      "bytes": 1730,
+      "sha256": "cf646f1c2148e86900ea465309101853797b021ca4a8c6d392a20a31393106ad"
+    },
+    {
+      "path": "12-reference/07-official-technical-sources.md",
+      "bytes": 1697,
+      "sha256": "b43de3cadbb4cea8580181b4ea1c3fd2cb49b25c9a59d81a74dacce1c1d71597"
+    },
+    {
+      "path": "12-reference/08-file-and-directory-deliverable-index.md",
+      "bytes": 1054,
+      "sha256": "b1687570d7b0c88b17ae0beb930f79b8fa8eaefdd5c287de536be84512647ce9"
+    },
+    {
+      "path": "12-reference/09-public-repository-readme-template.md",
+      "bytes": 1272,
+      "sha256": "728c3189e44f81bd09af9a6631d8bd03b6e78e176178371f0a2d038d9ccd9ad7"
+    },
+    {
+      "path": "12-reference/10-standards-repository-readme-template.md",
+      "bytes": 1182,
+      "sha256": "0580cd62c5f2f91a62eb047da38c798792207d42a8499fb48e09eed509492237"
+    },
+    {
+      "path": "README.md",
+      "bytes": 5199,
+      "sha256": "9a7acbb359a3e64e71ea4abfb869068240082a283bc77fc640efd6ed5dcfbd0a"
+    },
+    {
+      "path": "assets/README.md",
+      "bytes": 1091,
+      "sha256": "dc4e43a6bc95ae6df0efda91fa68c04ca93ec0a9b60620a027948aecdf50f474"
+    },
+    {
+      "path": "assets/brand/brand-board.html",
+      "bytes": 9105,
+      "sha256": "eec05310471848a1123e364b5b57deb7408fa0c740aa4bb87cd6734d4ef2b3ec"
+    },
+    {
+      "path": "assets/brand/paper-and-slate-brand-board.png",
+      "bytes": 546634,
+      "sha256": "a4b1019d5ac58c0841e571a93b65aebaf658ccf324d0757d1e885fdd16e8382e"
+    },
+    {
+      "path": "assets/generated-concepts/concept-board-01.png",
+      "bytes": 2114246,
+      "sha256": "452cb14955bb8efa8888f74f45124370b578d0845ceb56621322b260e1903ff4"
+    },
+    {
+      "path": "assets/generated-concepts/concept-board-02.png",
+      "bytes": 2112160,
+      "sha256": "cd5dd42b31f5e7c975f14cac419dd8f0ccdc81f98f3f6a9d3a478c0fe685bdb7"
+    },
+    {
+      "path": "assets/logos/logo-manifest.json",
+      "bytes": 1203,
+      "sha256": "5094fe49d51a7da39d1284da91a8e7663730474713b6c512c0c80b95bacf1cb2"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-horizontal-dark.png",
+      "bytes": 58641,
+      "sha256": "9cd1d1ae0e37cc8ec26bbf21bf2d0740a21ef77596946125e2f2f97c49ad1e83"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-horizontal-dark.svg",
+      "bytes": 13045,
+      "sha256": "f49e2c1a758c7b35aece7a09b977145aee35b492c96f001014196c3c7b57f6e2"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-horizontal-light.png",
+      "bytes": 52928,
+      "sha256": "fa9cf70c36f4b27ad722dbeffffbb26afc6e494c822cb3f2b901dc30980382aa"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-horizontal-light.svg",
+      "bytes": 13045,
+      "sha256": "ad0c7643e73e9608e2fd0d78d0c5f2decd62d4591880d45b3d1eb88e7c25b6b3"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-dark-180.png",
+      "bytes": 1845,
+      "sha256": "ce835e181ff7b2064980392ce90e5740bf218942f5dd2b33f84a679db5d1eef1"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-dark-192.png",
+      "bytes": 2275,
+      "sha256": "963dc4130aed69ff5d02743856a7bae44bb539faeadeaa5a8cb785b88f4067bf"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-dark-32.png",
+      "bytes": 506,
+      "sha256": "5db2707bef2f3dd3d67d95e5a8a8b086113aa1be5c0a27eb9bce08756cb37f92"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-dark-512.png",
+      "bytes": 6266,
+      "sha256": "ce354f591eb5afc78b453afb10727ae1529daab3a806e914985222611035aa26"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-dark-64.png",
+      "bytes": 858,
+      "sha256": "bed8bca024968b0fcf56f70d4749b92ed69c53e7a952285ad56279673a011023"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-dark.png",
+      "bytes": 13889,
+      "sha256": "c8cfd1a8bd4db4d7a1743b09aea681bc78443bd955de502faf06e4c2e4fbf9f8"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-dark.svg",
+      "bytes": 902,
+      "sha256": "d8c76094e9edd73e901e1865ca4a1b0f148abeefb7e90cb95be6b94204c606bf"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-light-180.png",
+      "bytes": 1751,
+      "sha256": "9169595e1e6b204c725edd7612843092d6cb2f344a0f7108587161edc0b52686"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-light-192.png",
+      "bytes": 2137,
+      "sha256": "a2b9e375597f0155ead8fb1b71313abf2b681a9a942bcc1ce10cb90c63a2ccf3"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-light-32.png",
+      "bytes": 482,
+      "sha256": "89ce4bd98d596cc6c4f8f08eeecf4d198032064b7df16f08dde98108eebda459"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-light-512.png",
+      "bytes": 5906,
+      "sha256": "4c4bbde9e97ab8259d3273c8b80fbe3967907be70dce90f4e9810514e494bb13"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-light-64.png",
+      "bytes": 838,
+      "sha256": "aa7437d6ad27d208775f9c331302618c4d9dee9bd2aa2dc221c8ee64f4f907af"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-light.png",
+      "bytes": 13342,
+      "sha256": "e56cd4233119847e2c2db2e0982423c4eff3e5c3a0cfb7d0146adfe0b46c08fe"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-icon-light.svg",
+      "bytes": 902,
+      "sha256": "1534ced75e7a64e39f618061ed985d64314d553026a02f256278f8d8ab7b3268"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-stacked-dark.png",
+      "bytes": 67337,
+      "sha256": "9e4ac6f0df75199569dd804d7c04ee31865b5aeeb48cb89c36ebc8f1346ca56f"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-stacked-dark.svg",
+      "bytes": 14229,
+      "sha256": "4b29560ff7e8d1bc06872786fbb1162cbc2f5c31fd6b040c1f70ba357f49aab4"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-stacked-light.png",
+      "bytes": 61238,
+      "sha256": "794c7a8eac615402b10e727544443ebb9bc65d5e44821a1577e5d4c59cd10a07"
+    },
+    {
+      "path": "assets/logos/paper-and-slate-stacked-light.svg",
+      "bytes": 14229,
+      "sha256": "0188d7640e5d7ee93145eb2315c4e4dcf20c12e27ee2cd8c26a37af75a08e2e9"
+    },
+    {
+      "path": "assets/mockups/01-home-desktop.png",
+      "bytes": 914201,
+      "sha256": "42f63388fc9c4dfc41e68f3069bdb33e7e22d642c05c46593551086ca7b1d742"
+    },
+    {
+      "path": "assets/mockups/02-foundation-mission.png",
+      "bytes": 367442,
+      "sha256": "d3fc70e4b4b248efd6f005850805e26f39524ba36bb15608e740f42a00025862"
+    },
+    {
+      "path": "assets/mockups/03-projects-index.png",
+      "bytes": 502314,
+      "sha256": "0303ac81fa3b93e94092dc2acf213b799eac30fab6db460d82069094a1b16b78"
+    },
+    {
+      "path": "assets/mockups/04-project-detail.png",
+      "bytes": 336711,
+      "sha256": "5d5267fc85ca47d2c6e95fb939947a99567ef09014b3bb427ca43ad24c37d28f"
+    },
+    {
+      "path": "assets/mockups/05-governance.png",
+      "bytes": 295540,
+      "sha256": "e16868aff4775996b79b8e11237c31f0e5576214b2dbfb13fecbede45332bbca"
+    },
+    {
+      "path": "assets/mockups/06-news-index.png",
+      "bytes": 485810,
+      "sha256": "e5d739d9ff1041449d804f12629b75cf2e2c04bfc42b432478e269ef4ce7279a"
+    },
+    {
+      "path": "assets/mockups/07-news-article.png",
+      "bytes": 429519,
+      "sha256": "d42ff9368a20e2a153336fe225b08ff83230445aa6a71ba09cfd09deac5eb7d3"
+    },
+    {
+      "path": "assets/mockups/08-docs-home.png",
+      "bytes": 183275,
+      "sha256": "6364d9a1623a48fe5809c3da1e612d62b115eae8c59de930f730d8a2925130ed"
+    },
+    {
+      "path": "assets/mockups/09-docs-reference-page.png",
+      "bytes": 226843,
+      "sha256": "3cb593a8cc806e573c36ac15c54723a0db96503819de9d9d8dc6140444f241cc"
+    },
+    {
+      "path": "assets/mockups/10-global-search-overlay.png",
+      "bytes": 269090,
+      "sha256": "4c0aea2b5b106e8d096838e0270674f3d87952f9b95efc6c6800779f65715bfc"
+    },
+    {
+      "path": "assets/mockups/11-component-library.png",
+      "bytes": 290139,
+      "sha256": "e10f2e068219d85ae81039f95fabaf42a054319f56e72c8446be782ff298d8ca"
+    },
+    {
+      "path": "assets/mockups/12-dark-mode-home.png",
+      "bytes": 826822,
+      "sha256": "5f912db81e3759e54ba930b7eac2991faa2c93667c1833664012f8b5b5e03988"
+    },
+    {
+      "path": "assets/mockups/13-home-mobile.png",
+      "bytes": 221334,
+      "sha256": "b89c590c387a3314fe34891542fe2d276998f183d8213f9c482af5e0975b2796"
+    },
+    {
+      "path": "assets/mockups/media/hero-still-life.jpg",
+      "bytes": 118299,
+      "sha256": "b3ed4afa37898ee37f4a170335faadf529a66ce9a7a5b9162ad0d915d001dd8e"
+    },
+    {
+      "path": "assets/mockups/media/offering-apis.jpg",
+      "bytes": 120347,
+      "sha256": "37c0b15f09869c75acd921ac17d1851b87946e6e215183061909c54cd1731e31"
+    },
+    {
+      "path": "assets/mockups/media/offering-discovery.jpg",
+      "bytes": 144664,
+      "sha256": "3133db8d98d632e3b633a45cc3cfc1da63e3ad5ba1f8486f39708114b6f506b9"
+    },
+    {
+      "path": "assets/mockups/media/offering-docs.jpg",
+      "bytes": 133116,
+      "sha256": "3426d5ac03878d553fb3cadc3eb537b91ccadc4ce5675d8f81beec131bd1e0f8"
+    },
+    {
+      "path": "assets/mockups/media/offering-file-system.jpg",
+      "bytes": 138681,
+      "sha256": "2f2903de721cb79b551367553271064e89773ddf35caaecfdd0d4e7569ad8f96"
+    },
+    {
+      "path": "assets/mockups/media/offering-governance.jpg",
+      "bytes": 154672,
+      "sha256": "2d47142e8423e5d1df4b71e6cde3cfbc07d2309d9c99a48f6bd74706acce50cd"
+    },
+    {
+      "path": "assets/mockups/media/offering-news.jpg",
+      "bytes": 171497,
+      "sha256": "81a86e56a1f22b5694ba21c6b7ac69a46af510391494145595aea3f631cafa64"
+    },
+    {
+      "path": "assets/mockups/media/offering-schemas.jpg",
+      "bytes": 149843,
+      "sha256": "c5229236ba30f626d9ec3e917df538675503565b1fa98da6e08fc17f2b1cfcb2"
+    },
+    {
+      "path": "assets/mockups/media/offering-standards.jpg",
+      "bytes": 147771,
+      "sha256": "33bf409e070ce6a13011f4d273e63e67f002b6a0fdb95359ff6fd5adc6506413"
+    },
+    {
+      "path": "assets/mockups/source/components.html",
+      "bytes": 5112,
+      "sha256": "f8e3aa293d4f6f4164a6e1a54e802c860e0976eba82c0b4569b754d496d121d1"
+    },
+    {
+      "path": "assets/mockups/source/docs-home.html",
+      "bytes": 3248,
+      "sha256": "fc9bd3eb5b6c5add97397b413c0025fed14ad674a618d0ecc9d6d0b009fde744"
+    },
+    {
+      "path": "assets/mockups/source/docs-page.html",
+      "bytes": 3573,
+      "sha256": "07e0126cb23042e53543621aca75c244061aa54cae787fadbe033b838c06cd36"
+    },
+    {
+      "path": "assets/mockups/source/foundation.html",
+      "bytes": 4938,
+      "sha256": "5aab9f951ff3688951c191209e064498ba6d7b8c7cb621f66efc267833b61067"
+    },
+    {
+      "path": "assets/mockups/source/governance.html",
+      "bytes": 5210,
+      "sha256": "fc32b2c8b8fbeb6dfa569a426bd86ccb30123568479cb73fa0e94bd05c7557b4"
+    },
+    {
+      "path": "assets/mockups/source/home-dark.html",
+      "bytes": 7410,
+      "sha256": "d61682ff06c89443806f79aff0d47a3357de7d2604393a19c2fdafa1ab3300c5"
+    },
+    {
+      "path": "assets/mockups/source/home-mobile.html",
+      "bytes": 1787,
+      "sha256": "60228ac58246a2b1411488d2881f59343f28d7182aa1f5105cc6460bea84c0a2"
+    },
+    {
+      "path": "assets/mockups/source/home.html",
+      "bytes": 7395,
+      "sha256": "898d394e91c5a1c43654bb2c49975275cf978a5b200c6547c7e593ad9a00b438"
+    },
+    {
+      "path": "assets/mockups/source/news-article.html",
+      "bytes": 3440,
+      "sha256": "3595e353471b89aad93b512e75a6dfc406aadf66bc1c66465d6a978242c5524f"
+    },
+    {
+      "path": "assets/mockups/source/news.html",
+      "bytes": 4705,
+      "sha256": "231385f133730eb7985e30ae430d3d5582a86f51b4ac22eecf1afb3cc5f7d1d4"
+    },
+    {
+      "path": "assets/mockups/source/project-detail.html",
+      "bytes": 3724,
+      "sha256": "614e11e3f1a863bdb7a60865f36a9417ef1c1810913dee97f94c77e84ffb3d8d"
+    },
+    {
+      "path": "assets/mockups/source/projects.html",
+      "bytes": 6083,
+      "sha256": "2c96e09fba15be0c330748b5b1dce6fd766c712c7292b0d245e019110070cdaf"
+    },
+    {
+      "path": "assets/mockups/source/search-overlay.html",
+      "bytes": 4684,
+      "sha256": "fb08d749e8c4a2539ed7c52cd8a565b1b68d2e5d190413f2774768ace4a2a12d"
+    },
+    {
+      "path": "assets/mockups/source/styles.css",
+      "bytes": 17635,
+      "sha256": "c4675f7e0aafcc00abc303120ad57c2c8f575f8dfac09a7266f9dc08b43a224d"
+    }
+  ]
+}

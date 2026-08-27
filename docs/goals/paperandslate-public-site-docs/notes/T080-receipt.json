@@ -1,0 +1,35 @@
+{
+  "task_id": "T080",
+  "result": "blocked",
+  "decision": "blocked",
+  "full_outcome_complete": false,
+  "rationale": "Implemented the bounded homepage fidelity, ARIA, footer, and disabled-newsletter changes. Focused, lint, typecheck, unit, build-boundary, E2E, and a11y checks passed. The artifact audit reached owned-server startup but could not become ready because the existing .next lacked BUILD_ID and pnpm exec could not resolve next; port cleanup and protected integrity passed.",
+  "changed_files": [
+    "apps/web/src/app/globals.css",
+    "apps/web/src/components/project-card.tsx",
+    "apps/web/src/components/newsletter-form.tsx",
+    "apps/web/.next",
+    "test-results/t080-homepage-fidelity/browser-audit.mjs",
+    "test-results/t080-homepage-fidelity/preflight.json",
+    "test-results/t080-homepage-fidelity/server.stdout.log",
+    "test-results/t080-homepage-fidelity/server.stderr.log",
+    "test-results/t080-homepage-fidelity/integrity.json"
+  ],
+  "commands": [
+    { "cmd": "prettier", "status": "pass" },
+    { "cmd": "pnpm lint", "status": "pass", "count": "6/6" },
+    { "cmd": "pnpm typecheck", "status": "pass", "count": "6/6" },
+    { "cmd": "pnpm test", "status": "pass", "count": "13 files, 23 tests" },
+    { "cmd": "pnpm build:verify", "status": "pass", "count": "80/80 pages" },
+    { "cmd": "pnpm e2e", "status": "pass", "count": "4/4" },
+    { "cmd": "pnpm a11y", "status": "pass", "count": "4/4" },
+    { "cmd": "node --check browser-audit.mjs", "status": "pass" },
+    { "cmd": "node browser-audit.mjs", "status": "blocked", "output": "0/5 routes; existing .next lacked BUILD_ID and pnpm exec could not resolve next" },
+    { "cmd": "port cleanup/protected integrity", "status": "pass" }
+  ],
+  "summary": "Implemented bounded homepage fidelity, ARIA, footer, and disabled-newsletter changes. Focused, lint, typecheck, unit, build-boundary, E2E, and a11y checks passed. Artifact audit reached owned-server startup but could not become ready because .next lacked BUILD_ID and pnpm exec could not resolve next; port cleanup and protected integrity passed.",
+  "deviations": ["Artifact runner uses current Node-local pnpm.mjs path to preserve shell:false on Windows.", "Mobile audience strip is hidden to match supplied mobile composition."],
+  "remaining_blockers": ["Fresh full-page browser screenshots, browser assertions, and Axe artifact were not produced.", "apps/web/.next is not startable because BUILD_ID is absent after build:verify/dev checks."],
+  "verification_attempts": 2,
+  "stopped_because": "Required browser-audit startup failed repeatedly after two runner-fix attempts; stopped per T080 stop conditions."
+}

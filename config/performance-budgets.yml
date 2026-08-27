@@ -1,0 +1,13 @@
+version: 1
+budgets:
+  javascriptKb: 250
+  cssKb: 100
+  imageKb: 500
+  requestCount: 80
+  lighthousePerformance: 0.9
+  accessibility: 0.95
+  bestPractices: 0.95
+  seo: 0.95
+  lcpMs: 2500
+  cls: 0.1
+  tbtMs: 200

@@ -1,0 +1,15 @@
+node_modules/
+.next/
+.turbo/
+dist/
+coverage/
+plans/
+docs/goals/
+tests/browser/snapshots/
+.generated/
+evidence/
+.lighthouseci/
+IMPLEMENTATION_LEDGER.md
+apps/web/.source/
+apps/web/tsconfig.tsbuildinfo
+pnpm-lock.yaml

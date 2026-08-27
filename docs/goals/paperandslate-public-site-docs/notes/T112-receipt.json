@@ -1,0 +1,33 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T112",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["apps/web/src/components/docs-navigation.tsx"],
+    "commands": [
+      {"cmd": "pnpm exec prettier --check apps/web/src/components/docs-navigation.tsx", "status": "pass", "count": 2, "output": "Passed after correcting directive quote style."},
+      {"cmd": "pnpm install --frozen-lockfile --strict-peer-dependencies", "status": "pass", "count": 1, "output": "Frozen install passed."},
+      {"cmd": "pnpm audit --prod --json", "status": "pass", "count": 1, "output": "0 vulnerabilities."},
+      {"cmd": "pnpm why react @types/react @types/react-dom @phosphor-icons/react --recursive", "status": "pass", "count": 1, "output": "Expected dependency resolutions confirmed."},
+      {"cmd": "pnpm routes:check", "status": "pass", "count": 1, "output": "23 public routes and 2 redirects validated."},
+      {"cmd": "pnpm content:validate", "status": "pass", "count": 1, "output": "12 local content records validated."},
+      {"cmd": "pnpm docs:validate", "status": "pass", "count": 1, "output": "12 documentation pages validated."},
+      {"cmd": "pnpm seo:check", "status": "pass", "count": 1, "output": "SEO checks passed."},
+      {"cmd": "pnpm security:check", "status": "pass", "count": 1, "output": "Security checks passed."},
+      {"cmd": "pnpm lint", "status": "pass", "count": 1, "output": "Six workspace lint tasks passed."},
+      {"cmd": "pnpm typecheck", "status": "pass", "count": 1, "output": "Six workspace typecheck tasks passed."},
+      {"cmd": "pnpm exec vitest run tests/docs-ingestion.test.ts tests/docs-routes.test.ts tests/docs-components.test.ts tests/design-system.test.ts", "status": "pass", "count": 1, "output": "4 files and 10 tests passed."},
+      {"cmd": "pnpm test", "status": "pass", "count": 1, "output": "14 files and 27 tests passed."},
+      {"cmd": "pnpm exec playwright test tests/browser/docs-core.spec.ts tests/browser/smoke.spec.ts tests/browser/a11y.spec.ts", "status": "pass", "count": 1, "output": "7 browser, smoke, and accessibility tests passed."},
+      {"cmd": "pnpm visual:check", "status": "fail", "count": 3, "output": "One attempt was blocked by port 3101 already being used. Two attempts failed unchanged homepage visual snapshots for light desktop, mobile, and dark mode. Snapshots were not updated."},
+      {"cmd": "pnpm build:verify", "status": "pass", "count": 1, "output": "Production boundary build passed."}
+    ],
+    "summary": "The one-file client-boundary repair remains applied. All formatting, install, audit, dependency, route/content/docs, SEO/security, lint, typecheck, focused test, full test, browser/accessibility, and build gates passed. Visual verification failed twice on unchanged homepage snapshot mismatches; no snapshots or other files were modified.",
+    "deviations": [],
+    "remaining_blockers": ["Visual baselines fail for unchanged homepage light, mobile, and dark snapshots."],
+    "verification_attempts": 3,
+    "stopped_because": "T112 stop_if condition: visual verification failed twice for the same unchanged snapshot-mismatch cause.",
+    "evidence": ["docs-navigation.tsx contains only the requested top-level use-client directive addition.", "Browser and accessibility verification passed after the repair.", "Build verification passed.", "No dependency, generated-output, report, snapshot, infrastructure, or external-system changes were made."],
+    "full_outcome_complete": false
+  }
+}

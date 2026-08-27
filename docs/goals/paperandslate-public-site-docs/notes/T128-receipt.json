@@ -1,0 +1,38 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T128",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "summary": "Scope matched. The implementation has the requested local public-site/docs foundation and evidence, but T126 is invalid and no duplicate package.json write is safe. The remaining actionable local quality gap is the bounded format:check failure; meaningful product gaps require authoritative content or external/legal/production authority and must remain explicit.",
+    "evidence": [
+      "Get-Location and board existence matched the Paper & Slate web workspace and exact state.yaml path.",
+      "Current package.json contains apps/web/src/app/*/docs/**/*.tsx; T126 cannot be credited because its worker report referenced the sibling data-platform board.",
+      "pnpm format:check reaches Prettier, reports eight style-mismatch files, and errors only on the unmatched tests/**/*.tsx pattern.",
+      "Current source includes public routes, typed content registries, static search with optional Typesense configuration, feeds, newsletter-disabled behavior, central-only Fumadocs, generated provenance/search/docs artifacts, reports, ADRs, and local build/browser evidence.",
+      "External repository/DNS/TLS/provider/deployment/monitoring/Lighthouse/SBOM/legal/factual/accepted-visual-QA evidence remains pending and cannot be invented or activated locally."
+    ],
+    "facts": [
+      "Exactly three reviewed central documents are currently allowlisted for Fumadocs rendering.",
+      "Visual snapshots remain unchanged baseline-drift evidence.",
+      "No source, generated artifact, report, plan, snapshot, external system, commit, or deployment was modified by T128."
+    ],
+    "contradictions": [
+      "The approved T126 wildcard token is present in the web manifest but has no valid T126 worker provenance.",
+      "The original brief expects a complete documentation system, while additional central public content cannot be authored without authoritative facts."
+    ],
+    "ambiguity_requiring_judge": [
+      "Whether a bounded formatting-only package may normalize the eight reported files and preserve the unmatched glob through a non-suppressive script treatment."
+    ],
+    "commands": [
+      "Get-Location and exact board existence check.",
+      "Read T120-T128 state/receipts and current source/report/generated inventories.",
+      "Inspect package scripts, Fumadocs configuration, content/search registries, and provenance/safety paths read-only.",
+      "pnpm format:check"
+    ],
+    "note_needed": false,
+    "decision": "not_complete",
+    "full_outcome_complete": false,
+    "next_worker": null,
+    "blocker": "No safe non-no-op feature package is established without authoritative facts or external authority; a Judge must gate the bounded local formatting-quality package before any write."
+  }
+}

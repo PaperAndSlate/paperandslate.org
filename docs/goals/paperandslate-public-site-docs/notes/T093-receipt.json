@@ -1,0 +1,55 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "done",
+    "task_id": "T093",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "decision": "approved",
+    "full_outcome_complete": false,
+    "rationale": "The failure is a deterministic one-level relative-import error in exactly two nested news pages. No alias or tsconfig change is needed. T092's route implementation remains truthful, uses existing registries and explicit empty states, and its changed-file list stays within T091's allowed scope. Approve the minimal two-file import repair and focused verification. Full goal completion remains unsupported.",
+    "worker_package": {
+      "objective": "Correct the component imports in the nested news category and tag pages so they resolve to apps/web/src/components without changing route behavior, content, aliases, dependencies, or scope.",
+      "allowed_files": [
+        "apps/web/src/app/(public)/news/category/[category]/page.tsx",
+        "apps/web/src/app/(public)/news/tag/[tag]/page.tsx"
+      ],
+      "verify": [
+        "pnpm exec prettier --check \"apps/web/src/app/(public)/news/category/[category]/page.tsx\" \"apps/web/src/app/(public)/news/tag/[tag]/page.tsx\"",
+        "pnpm routes:check",
+        "pnpm test -- tests/public-routes.test.ts tests/docs-routes.test.ts",
+        "pnpm lint",
+        "pnpm typecheck"
+      ],
+      "stop_if": [
+        "Any change is needed outside the two allowed page files, including tsconfig, aliases, dependencies, components, tests, generated output, reports, plans, or package manifests.",
+        "The corrected relative imports do not resolve or typecheck reports additional errors.",
+        "A verification command fails twice for the same in-scope cause.",
+        "The repair requires invented content, provider activation, Fumadocs replacement, or route-catalog expansion."
+      ]
+    },
+    "evidence": [
+      "pnpm typecheck exits 1 with TS2307 in category/page.tsx and tag/page.tsx for ../../../../components/page-primitives and ../../../../components/news-filtered-list.",
+      "The nested news routes have one extra directory level: ../../../../../components is required. Neighboring news and governance routes confirm the shallower relative conventions.",
+      "tsconfig.json has no paths aliases; apps/web/tsconfig.json only extends the root config.",
+      "news-filtered-list.tsx uses existing NewsArticle data and an explicit empty state; news.ts supplies publishedNews and newsCategories. Governance and docs pages use local registries or pending-state wording without fabricated claims.",
+      "Current pnpm routes:check passes with 23 routes; focused public/docs tests pass 5/5; focused Prettier check passes.",
+      "T092 receipt reports no deviations and lists only files within T091's allowed route/component/sitemap/script/test scope. The workspace is not a Git checkout, so historical diff provenance cannot be independently reconstructed.",
+      "The broader launch oracle remains incomplete, including full typecheck, build/e2e acceptance, Fumadocs parity, and external activation evidence."
+    ],
+    "subgoal_contract": null,
+    "parallel_safety": {
+      "safe": false,
+      "reason": "Both repairs share the same route slice and web typecheck; no disjoint parallel write scope is established."
+    },
+    "blocked_tasks": [],
+    "missing_evidence": [
+      "Post-repair typecheck success is not yet available.",
+      "Independent Git diff verification is unavailable because the workspace and parent are not Git repositories.",
+      "Full original-goal completion evidence remains open."
+    ],
+    "required_board_updates": [
+      "Record T093 as done with this receipt.",
+      "Create one Worker task using the worker_package values verbatim.",
+      "Preserve T092 as historical blocked evidence and keep full_outcome_complete false."
+    ]
+  }
+}

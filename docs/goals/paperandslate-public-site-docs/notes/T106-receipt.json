@@ -1,0 +1,16 @@
+{
+  "goalbuddy_receipt_v1": {
+    "result": "blocked",
+    "task_id": "T106",
+    "board_path": "docs/goals/paperandslate-public-site-docs/state.yaml",
+    "changed_files": ["apps/web/next.config.ts"],
+    "commands": [],
+    "summary": "No command is actively running. T106 is blocked after the same design-system React declaration failure occurred twice; package manifests and lockfile were explicitly out of scope. No snapshots or generated artifacts were updated.",
+    "deviations": ["Package manifests and lockfile were not edited per the explicit T106 boundary."],
+    "remaining_blockers": ["Design-system React/@types/react declaration resolution requires prohibited manifest or dependency-boundary changes.", "Browser docs evidence and visual checks remain failing."],
+    "verification_attempts": 2,
+    "stopped_because": "Repeated in-scope typecheck failure requiring changes outside the approved scope.",
+    "evidence": ["Install, audit, routes, content, docs, SEO, security, lint, focused tests, and full tests passed.", "Fumadocs central-only boundary and escaped fallback were preserved.", "No snapshots were updated."],
+    "full_outcome_complete": false
+  }
+}
