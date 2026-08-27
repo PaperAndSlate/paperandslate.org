@@ -1,6 +1,6 @@
 # Post-v1 platform integration boundary
 
-Status: intentionally deferred from the v1 closure task  
+Status: intentionally deferred from the v1 closure task
 Date: 2026-08-27
 
 The current task closes the public content/documentation shell and its release-readiness evidence. It does not start authentication, a user database, an ORM, an application API, school/platform integrations, identity federation, LMS interoperability, payments, or other transactional platform work.

@@ -1,6 +1,6 @@
 # Paper & Slate next-phase manual review and authority checklist
 
-Date: 2026-08-27  
+Date: 2026-08-27
 Purpose: identify the decisions, approvals, credentials, and operator authority that must come from the owner or a qualified reviewer before release closure
 
 This is an owner-run handoff, not an automated approval. The current local evidence is useful only when it is tied to the final source SHA and then repeated against authorized hosted staging. Never paste passwords, API keys, private keys, DSNs, personal data, legal contracts, or secret-manager values into this repository, Markdown, screenshots, or chat.

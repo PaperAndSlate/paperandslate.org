@@ -1,6 +1,6 @@
 # ADR 0005: Explicit publication clock and discovery filters
 
-Status: accepted for v1 release-candidate implementation  
+Status: accepted for v1 release-candidate implementation
 Date: 2026-08-27
 
 ## Decision

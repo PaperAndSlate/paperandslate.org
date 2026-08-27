@@ -1,6 +1,6 @@
 # ADR 0008: Human visual and media approval remains a release gate
 
-Status: accepted for v1 release-candidate implementation  
+Status: accepted for v1 release-candidate implementation
 Date: 2026-08-27
 
 ## Decision

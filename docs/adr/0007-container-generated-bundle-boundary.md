@@ -1,6 +1,6 @@
 # ADR 0007: Container builds consume the committed generated docs bundle
 
-Status: accepted for v1 release-candidate implementation  
+Status: accepted for v1 release-candidate implementation
 Date: 2026-08-27
 
 ## Decision
