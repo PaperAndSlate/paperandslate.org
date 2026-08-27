@@ -99,15 +99,18 @@ function launchChecks(): Check[] {
         : "Repository identity evidence is missing or failed.",
     evidence: [".generated/launch/repository-identity.json"],
   });
-  const verify = readJson<{ status?: string; completed?: string[] }>(
+  const verify = readJson<{ status?: string; completed?: string[]; skipExternal?: boolean }>(
     ".generated/launch/verify.json",
   );
+  const verifyDetail = verify?.skipExternal
+    ? `Local verification completed ${verify.completed?.length ?? 0} tasks; external Lighthouse, performance, and vulnerability checks were intentionally skipped.`
+    : `Full local verification completed ${verify?.completed?.length ?? 0} tasks, including production browser, visual capture, Lighthouse, container, SBOM, and security gates.`;
   checks.push(
     verify?.status === "passed"
       ? {
           id: "verify",
           status: "passed",
-          detail: `Full local verification completed ${verify.completed?.length ?? 0} tasks, including production browser, visual capture, Lighthouse, container, SBOM, and security gates.`,
+          detail: verifyDetail,
           evidence: [".generated/launch/verify.json"],
         }
       : {

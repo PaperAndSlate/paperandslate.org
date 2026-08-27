@@ -4,7 +4,11 @@ export function GET() {
   return NextResponse.json(
     {
       status: "ok",
-      deployment: process.env.VERCEL_ENV || "local",
+      deployment:
+        process.env.DEPLOYMENT_ENV ||
+        process.env.PAPER_SLATE_ENV ||
+        process.env.VERCEL_ENV ||
+        "local",
       releaseId: process.env.RELEASE_ID || "local-development",
       gitSha: process.env.GIT_SHA || "local-development",
       build: process.env.NEXT_BUILD_ID || process.env.RELEASE_ID || "local",

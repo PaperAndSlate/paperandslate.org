@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  DEPLOYMENT_ENV: z.enum(["local", "ci", "staging", "production"]).default("local"),
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
   KIT_ENABLED: z.enum(["true", "false"]).default("false"),
   KIT_API_KEY: z.string().optional(),

@@ -24,11 +24,13 @@ jobs:
         env:
           RELEASE_ID: ci-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
+          DEPLOYMENT_ENV: ci
       - run: pnpm sbom:generate
         env:
           RELEASE_ID: ci-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
-      - uses: actions/upload-artifact@v4
+          DEPLOYMENT_ENV: ci
+      - uses: https://code.forgejo.org/actions/upload-artifact@v4
         if: always()
         with:
           name: paper-and-slate-container-${{ github.sha }}

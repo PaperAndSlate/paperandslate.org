@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "status": "pending",
+  "capturedAt": null,
+  "capturedBy": "Tower structured/redacted APIs",
+  "project": {
+    "slug": "paper-and-slate-web",
+    "environment": "staging",
+    "applicationId": null,
+    "host": "https://paper-and-slate-web.dev.tower"
+  },
+  "source": null,
+  "repository": null,
+  "ci": null,
+  "staging": null,
+  "hostedLighthouse": null,
+  "providers": null,
+  "monitoring": null,
+  "artifact": null,
+  "rollback": null,
+  "publication": null,
+  "notes": "Replace pending fields only with redacted, structured Tower receipts. Never store credentials, tokens, DSNs, API keys, or private URLs here."
+}

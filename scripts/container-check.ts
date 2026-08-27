@@ -116,6 +116,8 @@ async function main() {
       `RELEASE_ID=${releaseId}`,
       "-e",
       `GIT_SHA=${gitSha}`,
+      "-e",
+      `DEPLOYMENT_ENV=${process.env.DEPLOYMENT_ENV ?? "local"}`,
       "-p",
       `${port}:3000`,
       image,
