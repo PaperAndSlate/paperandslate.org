@@ -1,9 +1,18 @@
 # External activation boundary
 
-Status: private repository and bounded Tower resource bootstrap completed; hosted application/provider activation and production remain pending
-Date: 2026-08-27
+Status: RC3 staging execution is partially active; exact-candidate verification, hosted artifact/provider activation, and production remain pending
+Date: 2026-08-28
 
 The current audit and owner procedure are [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md), [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md), and [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md).
+
+## Current RC3 execution state
+
+- Remote private Forgejo `release/v1-closure` is at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`; local follow-up fixes through `567ec04d0226a6e2ebfc907f156978b70fab1be0` are not pushed because `git.tower` is currently unreachable.
+- Coolify application `ngqtewtqeqhj88v1005a38va` accepted source deployment `lftxn28cksvcf76etxz6b6s7` for the exact candidate, but Tower status calls timed out before completion or health identity could be verified.
+- Staging non-secret release, canonical, and Typesense configuration variables reconciled healthy without exposing values. Typesense infrastructure is healthy but its authoritative collection still has zero documents; application-level search remains unverified.
+- Exact candidate CI is not green: container run 64 failed readiness, Lighthouse run 65 failed browser discovery, and quality run 66 was waiting at the last successful read.
+
+The historical activation notes below remain useful for context but are not proof of RC3 activation.
 
 ## Current non-secret state
 

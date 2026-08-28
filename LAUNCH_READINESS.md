@@ -1,9 +1,19 @@
 # Paper & Slate launch readiness
 
-Date: 2026-08-27
-Verdict: v1.0.0-rc.2 candidate is healthy in private staging and hosted machine evidence is partially green; not approved for final release or production
+Date: 2026-08-28
+Verdict: v1.0.0-rc.3 closure is blocked; no final release or production change is approved
 
-## Current candidate
+## Current RC3 execution snapshot
+
+- The private Forgejo `release/v1-closure` branch currently ends at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`.
+- Follow-up local fixes are committed at `567ec04d0226a6e2ebfc907f156978b70fab1be0` but are not remote evidence because the private `git.tower` endpoint is currently unreachable.
+- Candidate CI run 64/container failed at the health-readiness check, run 65/Lighthouse failed because CI Chromium was not discoverable by Lighthouse, and run 66/quality was waiting at the last successful read. The Lighthouse and container diagnostic fixes are therefore not yet CI-verified.
+- Staging deployment `lftxn28cksvcf76etxz6b6s7` was queued for the exact `c0c0b5d…` source, but its completion and `/health` identity could not be read after Tower timed out. The last healthy deployment remains the older source deployment.
+- RC1 remains unchanged at `031b5447786f9c619288c9044bb5bc65319a30d7`; RC3 has not been tagged. OCI, digest deployment, rollback, release-specific SLO, and human approvals remain open.
+
+The RC2 material below is retained as historical provenance. It is not current RC3 evidence.
+
+## Historical RC2 snapshot
 
 Candidate source `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` is deployed as `v1.0.0-rc.2` to `https://paper-and-slate-web.dev.tower` in Coolify deployment `zzpooecepztro4urk5sx6obv`. `/health` reports the exact staging deployment, release, and SHA. Immutable `v1.0.0-rc.1` remains unchanged at `031b5447786f9c619288c9044bb5bc65319a30d7`; `v1.0.0-rc.2` has not been tagged.
 

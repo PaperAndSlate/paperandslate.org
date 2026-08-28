@@ -1,13 +1,19 @@
 # Paper & Slate implementation report
 
-Date: 2026-08-27
-Status: v1.0.0-rc.2 candidate is verified in private staging; release closure remains blocked by CI, hosted artifact, provider, monitoring/rollback, and human-approval gates
+Date: 2026-08-28
+Status: RC3 execution is in progress; release closure remains blocked by exact-candidate CI, hosted artifact/provider, monitoring/rollback, and human-approval gates
 Current source of truth: [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md)
 Candidate evidence report: [`V1_RC_REPORT.md`](V1_RC_REPORT.md)
 
 This report records the implementation performed against AUDIT-001 through AUDIT-012. It is not a legal approval, production approval, provider receipt, or final release declaration.
 
-## Current candidate snapshot
+## Current RC3 execution snapshot
+
+The remote `release/v1-closure` branch is at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`. Local follow-up commits through `567ec04d0226a6e2ebfc907f156978b70fab1be0` add the CI Lighthouse browser-path fix, bounded container diagnostics, the regression test, and the RC3 status addendum, but they have not reached Forgejo because `git.tower` DNS is unavailable. Candidate run 64 failed at container health readiness, run 65 failed at Lighthouse Chrome discovery, and run 66 was waiting. Deployment `lftxn28cksvcf76etxz6b6s7` was queued for `c0c0b5d…` but has no final receipt. This report must not be read as an RC3 closure or as proof of production readiness.
+
+The RC2 implementation snapshot below is retained for historical provenance and requires receipt-bound regeneration after the RC3 candidate is verified.
+
+## Historical RC2 implementation snapshot
 
 The current candidate source is `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` on private Forgejo branch `release/v1-closure`, deployed to authorized staging as `v1.0.0-rc.2` at Coolify deployment `zzpooecepztro4urk5sx6obv` for application `ngqtewtqeqhj88v1005a38va`. Staging health reports `deployment=staging`, `releaseId=v1.0.0-rc.2`, and the exact SHA at `https://paper-and-slate-web.dev.tower`.
 
