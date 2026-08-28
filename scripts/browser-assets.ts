@@ -28,27 +28,52 @@ export async function waitForImages(
       : DEFAULT_IMAGE_WAIT_TIMEOUT_MS;
   const images = await page.evaluate(async (timeout) => {
     const candidates = [...document.images].filter((image) => image.currentSrc || image.src);
+    // Full-page captures and route checks must validate assets below the fold
+    // too. Promote discovered lazy images before waiting so the browser does
+    // not leave them permanently incomplete outside the viewport.
+    for (const image of document.images) image.loading = "eager";
     await Promise.all(
       candidates.map(
         (image) =>
           new Promise<void>((resolve) => {
             let timer = 0;
-            const done = () => {
-              window.clearTimeout(timer);
-              image.removeEventListener("load", done);
-              image.removeEventListener("error", done);
-              resolve();
-            };
+            let settled = false;
             if (image.complete) {
               resolve();
               return;
             }
-            timer = window.setTimeout(done, timeout);
-            image.addEventListener("load", done, { once: true });
-            image.addEventListener("error", done, { once: true });
+            timer = window.setTimeout(() => {
+              if (settled) return;
+              settled = true;
+              resolve();
+            }, timeout);
+            image.addEventListener(
+              "load",
+              () => {
+                if (settled) return;
+                settled = true;
+                window.clearTimeout(timer);
+                resolve();
+              },
+              { once: true },
+            );
+            image.addEventListener(
+              "error",
+              () => {
+                if (settled) return;
+                settled = true;
+                window.clearTimeout(timer);
+                resolve();
+              },
+              { once: true },
+            );
             // Close the race where the image completes between the initial
             // check and listener registration.
-            if (image.complete) done();
+            if (image.complete) {
+              settled = true;
+              window.clearTimeout(timer);
+              resolve();
+            }
           }),
       ),
     );
