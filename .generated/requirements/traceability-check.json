@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "status": "passed",
-  "generatedAt": "2026-08-28T18:18:28.670Z",
+  "generatedAt": "2026-08-28T18:55:21.767Z",
   "generatedBy": "pnpm traceability:check",
   "source": {
-    "commit": "8764493f21048df84f076d37dd167cb9f798e2b5",
-    "tree": "a4bf4baef56f7b963ae620fa35ab376b520b0abe",
+    "commit": "ed4540b29d8148a6ed3a5c9196ddbd42036344f4",
+    "tree": "0fd0fa473c85059ab1fcc768287844f452787cb3",
     "lockfileSha256": "4571472a300ed6fc44c27072c2fb809f21ab4338ac2c771e175c7deb8230f513",
     "worktreeClean": true,
     "dirtyPaths": [],
