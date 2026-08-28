@@ -1,3 +1,5 @@
+/* global module */
+
 /**
  * LHCI requires a puppeteerScript to activate its managed browser. The
  * Lighthouse runs connect to that browser by its debugger port; no page
