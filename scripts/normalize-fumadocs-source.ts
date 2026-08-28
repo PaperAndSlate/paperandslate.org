@@ -95,7 +95,3 @@ export function normalizeFumadocsSource(
     if (normalized !== source) writeFileSync(filePath, normalized, "utf8");
   }
 }
-
-if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  normalizeFumadocsSource();
-}

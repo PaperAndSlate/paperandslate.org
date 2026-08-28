@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "build": "next build",
-    "postbuild": "tsx ../../scripts/normalize-fumadocs-source.ts",
+    "postbuild": "tsx ../../scripts/normalize-fumadocs-source-cli.ts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
   },
