@@ -57,7 +57,7 @@ let activeDockerAbort: AbortController | undefined;
 let activeContainer: ChildProcess | undefined;
 let interrupted = false;
 
-async function run(args: string[], inherit = false) {
+async function run(args: string[], inherit = false, timeoutMs = commandTimeoutMs) {
   const controller = new AbortController();
   activeDockerAbort = controller;
   try {
@@ -65,7 +65,7 @@ async function run(args: string[], inherit = false) {
       cwd: process.cwd(),
       encoding: "utf8",
       maxBuffer: 20 * 1024 * 1024,
-      timeout: Number.isFinite(commandTimeoutMs) && commandTimeoutMs > 0 ? commandTimeoutMs : 0,
+      timeout: Number.isFinite(timeoutMs) && timeoutMs > 0 ? timeoutMs : 0,
       killSignal: "SIGTERM",
       signal: controller.signal,
       windowsHide: true,
@@ -75,13 +75,52 @@ async function run(args: string[], inherit = false) {
   } catch (error) {
     const details = error as NodeJS.ErrnoException & { killed?: boolean };
     if (details.code === "ETIMEDOUT" || details.killed)
-      throw new Error(
-        `Docker command timed out after ${commandTimeoutMs}ms: docker ${args.join(" ")}`,
-      );
+      throw new Error(`Docker command timed out after ${timeoutMs}ms: docker ${args.join(" ")}`);
     throw error;
   } finally {
     if (activeDockerAbort === controller) activeDockerAbort = undefined;
   }
+}
+
+function redactContainerDiagnostics(output: string) {
+  return output.replace(
+    /((?:api[_-]?key|token|password|secret|dsn|authorization|cookie)\s*(?:=|:)\s*)[^\s]+/gi,
+    "$1[redacted]",
+  );
+}
+
+async function containerDiagnostics() {
+  const diagnostics: string[] = [];
+  try {
+    diagnostics.push(
+      redactContainerDiagnostics(
+        (
+          await run(
+            [
+              "inspect",
+              "--format",
+              "status={{.State.Status}} exit={{.State.ExitCode}} error={{.State.Error}} started={{.State.StartedAt}} finished={{.State.FinishedAt}}",
+              container,
+            ],
+            false,
+            10_000,
+          )
+        ).trim(),
+      ),
+    );
+  } catch {
+    diagnostics.push("docker inspect could not read the check container");
+  }
+  try {
+    diagnostics.push(
+      `docker logs (tail 80):\n${redactContainerDiagnostics(
+        (await run(["logs", "--tail", "80", container], false, 10_000)).trim(),
+      )}`,
+    );
+  } catch {
+    diagnostics.push("docker logs could not read the check container");
+  }
+  return diagnostics.filter(Boolean).join("\n");
 }
 
 function stopProcess(child: ChildProcess | undefined) {
@@ -153,7 +192,6 @@ async function main() {
     docker,
     [
       "run",
-      "--rm",
       "--name",
       container,
       "-e",
@@ -195,6 +233,10 @@ async function main() {
       healthcheck: config.Healthcheck?.Test ?? null,
     });
     console.log(`Container check passed: ${image}, runtime uid ${identity}.`);
+  } catch (error) {
+    const details = await containerDiagnostics();
+    if (details && error instanceof Error) error.message = `${error.message}\n${details}`;
+    throw error;
   } finally {
     try {
       await run(["rm", "--force", container]);

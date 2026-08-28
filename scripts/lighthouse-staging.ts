@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { withLighthouseChrome } from "./lighthouse-chrome";
 
 const root = process.cwd();
 const stagingUrl = process.env.STAGING_URL;
@@ -162,12 +163,15 @@ async function main() {
   });
 
   try {
-    await runLighthouse(configPath, {
-      ...process.env,
-      LHCI_TEMP_DIR: tempDir,
-      TEMP: tempDir,
-      TMP: tempDir,
-    });
+    await runLighthouse(
+      configPath,
+      withLighthouseChrome({
+        ...process.env,
+        LHCI_TEMP_DIR: tempDir,
+        TEMP: tempDir,
+        TMP: tempDir,
+      }),
+    );
     const reportCount = (await readdir(outputDir)).filter(
       (entry) =>
         entry.endsWith(".report.json") || (entry.startsWith("lhr-") && entry.endsWith(".json")),

@@ -1,7 +1,7 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { access, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import path from "node:path";
+import { withLighthouseChrome } from "./lighthouse-chrome";
 const root = process.cwd();
 const port = process.env.LH_PORT ?? "3210";
 const baseUrl = `http://127.0.0.1:${port}`;
@@ -209,13 +209,16 @@ async function main() {
       throw new Error(
         `Production identity mismatch: expected ${releaseId}/${gitSha}, got ${health.releaseId ?? "missing"}/${health.gitSha ?? "missing"}`,
       );
-    await runLighthouse(configPath, {
-      ...process.env,
-      LH_PORT: port,
-      LHCI_TEMP_DIR: tempDir,
-      TEMP: tempDir,
-      TMP: tempDir,
-    });
+    await runLighthouse(
+      configPath,
+      withLighthouseChrome({
+        ...process.env,
+        LH_PORT: port,
+        LHCI_TEMP_DIR: tempDir,
+        TEMP: tempDir,
+        TMP: tempDir,
+      }),
+    );
     const reportCount = (await readdir(outputDir)).filter((entry) =>
       entry.endsWith(".report.json"),
     ).length;
