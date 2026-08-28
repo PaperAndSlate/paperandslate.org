@@ -8,17 +8,17 @@ This is the actionable handoff for the remaining gates. It separates repository 
 
 ## Current evidence boundary
 
-The current closure snapshot read back from Tower before this runbook edit was:
+The closure snapshot immediately before this handoff refresh was:
 
 - branch: `release/v1-closure`;
-- source SHA: `cdad2413c664cd210f6bb75bc07c2410220e89b5` (the final source SHA must always be re-read after the last push);
+- source chain: `0a519402ca5eb7bbce9d96640d957a3838703c2c` (identity checks) -> `c0686cc2473eef0d2699b8994ec22d9a90663c4e` (traceability refresh) -> `852b01528435467d3f7dda13bdff6ee5dfbd911b` (generated-only evidence-state fix) -> `83697c0` (corrected traceability receipt; exact SHA must be re-read after the final documentation push);
 - repository: private Forgejo `callum/paperandslate-web`;
 - immutable `v1.0.0-rc.1` remains unchanged; the candidate is not tagged;
 - the existing Coolify source-build workload is `ngqtewtqeqhj88v1005a38va`, with its latest successful deployment at `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6`; it is not an OCI image deployment and must not be treated as current-candidate image evidence.
 
-Tower produced exact-SHA runs 97 (`container.yml`), 98 (`lighthouse.yml`), and 99 (`quality.yml`) for `cdad2413c664cd210f6bb75bc07c2410220e89b5`, plus run 100 (`supply-chain.yml`) from one bounded manual dispatch. All four failed before a runner was assigned: their bounded job records contain no runner and no steps. This is a Tower/Forgejo scheduling or controller failure, not a passing or task-level application failure. The runner inventory reports one idle runner with labels `ubuntu-latest`, `node22`, `docker`, and `playwright`, but `lastOnline` is null and no usable heartbeat is present. Any later source commit requires a new exact-SHA run set.
+Tower produced exact-SHA runs 97 (`container.yml`), 98 (`lighthouse.yml`), and 99 (`quality.yml`) for the older `cdad2413c664cd210f6bb75bc07c2410220e89b5` revision, plus run 100 (`supply-chain.yml`) from one bounded manual dispatch. All four failed before a runner was assigned: their bounded job records contain no runner and no steps. This is a Tower/Forgejo scheduling or controller failure, not a passing or task-level application failure. The runner inventory reports one idle runner with labels `ubuntu-latest`, `node22`, `docker`, and `playwright`, but `lastOnline` is null and no usable heartbeat is present. The later source revisions require a new exact-SHA run set after the branch transfer.
 
-The current local source checks are green: 30 Vitest files / 80 tests, package and tool typecheck, lint, 12 Lighthouse reports across six URLs with performance budgets, production browser checks for 12 routes, and 13 production visual states. Visual evidence remains `human-review-pending`; local receipts are not hosted staging evidence. No hosted workflow has run successfully for the current revision.
+The latest complete local verifier passed all 37 configured tasks at `852b01528435467d3f7dda13bdff6ee5dfbd911b`, including 31 Vitest files / 86 tests, package and tool typecheck, lint, 12 Lighthouse reports across six URLs with performance budgets, production browser checks for 12 routes, 13 production visual states, SBOM, scan, launch report, and evidence bundle. The generated-only receipt commit `83697c0` and this documentation refresh each create a new exact evidence identity, so those receipts must be regenerated and re-read after the final push. Visual evidence remains `human-review-pending`; local receipts are not hosted staging evidence. No hosted workflow has run successfully for the current revision.
 
 The following are available but do not close the release:
 
