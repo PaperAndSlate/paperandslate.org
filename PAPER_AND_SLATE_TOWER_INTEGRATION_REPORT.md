@@ -1,6 +1,6 @@
 # Paper & Slate Tower / Forgejo Integration Report
 
-**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:13:58Z)
+**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:27:03Z)
 **Project:** `paper-and-slate-web`
 **Environment:** staging
 **Decision:** release closure remains open. This report records platform evidence and remediation; it does not authorize a production release.
@@ -67,6 +67,8 @@ The project has no manifest queue declarations and no observed queue. Tower expo
 
 The observability snapshot also queried retired host metrics (`host_cpu_percent` and `host_memory_percent`); the controller returned 422 `unknown_metric` and named the current approved catalog as `container_cpu`, `container_memory`, `ci_failures`, `request_rate`, and `request_error_rate`. The snapshot still summarized overall health as healthy. The snapshot implementation should stop issuing retired metric queries and should surface this instrumentation mismatch rather than masking it.
 
+No current Paper & Slate workflow has executed a step, so no current step log or artifact is available through Tower. The Tower CI reporter identity operation is available, but the checked workflows do not currently emit a Tower structured report; after runner repair, the acceptance plan must either capture the provider-backed run logs/artifacts or add an explicitly reviewed reporter/summary step. This is an evidence gap, not a reason to treat the pre-run records as application failures.
+
 The repository has no `.forgejo/workflows/tower-ci.yaml`. The existing workflows are the available real-workflow acceptance path. Forgejo’s official documentation says that a runner must be available for a workflow to execute and that artifacts should use v3 or a Forgejo-patched v4 action. The repository currently pins Forgejo’s hosted `upload-artifact` commit `c6a366c94c3e0affe28c06c8df20a878f24da3cf` with the comment `v3.2.2`. Because runs 143–145 stop before steps, the artifact action is not yet implicated.
 
 **Remediation plan**
@@ -124,6 +126,8 @@ The existing managed GlitchTip project is project id `2` and reports `dsnSecretR
 
 The bound Coolify application is `paper-and-slate-web-staging`, UUID `ngqtewtqeqhj88v1005a38va`, on branch `release/v1-closure`, with the active `.dev.tower` hostname `paper-and-slate-web.dev.tower`, health path `/health`, and port 3000. The latest app record is `running:healthy`; the staging hostname resolved to `192.168.0.11` and bounded HTTPS/HTTP probes returned 200. Cloudflare is not configured for this project.
 
+The latest bounded post-deploy sweep at `2026-08-28T21:27:03Z` observed deployment `b4c1jatqaidljtcpc4nly1yp` for commit `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6` as `finished` at the health-check stage, with 22 provider log entries and no reported latest error. The sweep summary was `observed/healthy` for that deployment, but its project components still reported degraded CI, unknown deployment-backed environment contract, one unresolved error, and one failed secret binding. This is a staging deployment-health pass only; it is not current-release or project release-closure evidence.
+
 The Forgejo branch currently points to `330ab498b4b2cd780fcaaab91bf70fbdc5a07e95`, is unprotected, has zero required approvals, and has status checks disabled. The local readiness candidate referenced for this snapshot was `5df3a6457a7121f56e7d0db6feb4c5ab9f32c126`; it was not pushed. Forgejo reports no releases for the repository. The remote RC1 tag remains a separate historical ref at `eb883af82ac8b4db60468f86b36f1bf44b6868c8`.
 
 **Remediation plan**
@@ -135,6 +139,8 @@ The Forgejo branch currently points to `330ab498b4b2cd780fcaaab91bf70fbdc5a07e95
 ### 5. Monitoring, errors, and rollback evidence
 
 All six manifest monitor targets currently have a latest healthy probe: `health`, `homepage`, `projects`, `docs`, `search`, and `rss`. The 24-hour SLO window is nevertheless degraded: availability is approximately `99.855%` against a 99% target, while latency p95 is approximately `2792–2901 ms` against a 2000 ms target. Six warning alerts are active for the SLO budgets. One unresolved GlitchTip error is also reported.
+
+The web manifest’s expected monitor paths are distinct: `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, and `/feeds/rss.xml`. If a future web revision materializes all six targets as `/`, the web-owned fix is to restore those explicit `path` values in `.tower/project.yaml` and rerun the focused manifest/monitor validation; Tower should not infer route paths. The current checked manifest contains the distinct paths.
 
 This distinction matters: a green last probe does not erase a degraded historical SLO window, and a healthy monitoring component does not prove release-specific performance. No production rollback was performed, and no release-specific A→B→A rollback evidence exists.
 

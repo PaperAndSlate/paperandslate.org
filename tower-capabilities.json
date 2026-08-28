@@ -2,7 +2,7 @@
   "snapshotType": "sanitized-tower-capability-snapshot",
   "project": "paper-and-slate-web",
   "environment": "staging",
-  "verifiedAt": "2026-08-28T21:19:54Z",
+  "verifiedAt": "2026-08-28T21:27:03Z",
   "revisionScope": "Timestamped platform capability snapshot; it does not certify the current unpushed source revision or any hosted workflow result.",
   "source": ".tower/project.yaml and Tower controller/plugin capability and health responses",
   "controller": {
@@ -116,7 +116,20 @@
     "currentRunnerHeartbeatVerified": false,
     "currentRunnerHostLogsAvailable": false,
     "currentGlobalSchedulerInspectionAvailable": false,
+    "reporterInjectionCapabilityAvailable": true,
+    "towerVisibleStructuredCiEvidenceVerified": false,
+    "currentPaperAndSlateWorkflowsUseReporter": false,
     "artifactActionGuidance": "Forgejo documents v3 or a Forgejo-patched v4; repository currently pins a Forgejo-hosted v3.2.2 commit"
+  },
+  "latestStagingDeploymentObservation": {
+    "uuid": "b4c1jatqaidljtcpc4nly1yp",
+    "commit": "06491dc57fa3f3a43c365a4ab24e07f21e7b04d6",
+    "status": "finished",
+    "stage": "health-check",
+    "providerLogEntries": 22,
+    "latestError": null,
+    "observedAt": "2026-08-28T21:27:03Z",
+    "projectReleaseHealth": "degraded"
   },
   "resources": {
     "managedKinds": ["typesense", "valkey", "s3"],

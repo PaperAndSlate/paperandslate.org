@@ -22,6 +22,7 @@ This file is the exact action list for work that requires provider, host, accoun
 4. Ask Codex to dispatch `container.yml` first, then `quality.yml`, `lighthouse.yml`, and `supply-chain.yml` as appropriate. The expected evidence is a task with a start time, runner assignment, steps, logs, and artifacts.
 5. When reading the result, use the internal `id` returned by `tower_ci_runs_list` with `tower_ci_run_get`; the displayed Forgejo run number is not currently a safe lookup key. The known mapping is Forgejo 143→Tower 152, 144→153, and 145→154.
 6. If assignment still fails, return the new run ids and scheduler/runner-host evidence to the platform operator. Do not create more release runs until the admission problem is understood.
+7. Once a job actually starts, Codex can retrieve bounded Tower CI metadata, provider-backed logs, artifacts, and (if the workflow is explicitly wired for it) a Tower structured reporter result. The current workflows have no executed-step evidence or reporter result, so do not claim Tower-visible log acceptance until a real run proves it.
 
 The existing Tower-owned control workflow `callum/tower-staging-validation/.forgejo/workflows/ci.yml` was dispatched as Tower run 155 (Forgejo display run 9) and reproduced the same one-second, unassigned failure. Use this as the first post-repair control test; its prior successful run 8 is useful historical comparison evidence.
 
@@ -75,7 +76,7 @@ Choose one consistent contract; do not do both.
 1. Define the production on-call owner and incident escalation path.
 2. Select the previous known-good image digest and document the rollback target.
 3. Ask Codex to capture a clean staging baseline, candidate window, SLO result, deployment annotation, and controlled staging rollback evidence.
-4. Review the current 24-hour SLO degradation: availability is about 99.855%, but p95 is about 2.78–2.894 seconds against a 2-second target. Decide whether the release window can meet the policy.
+4. Review the current 24-hour SLO degradation: availability is about 99.855%, but p95 is about 2.792–2.901 seconds against a 2-second target. Decide whether the release window can meet the policy.
 5. Review and disposition the unresolved GlitchTip error. Do not treat a healthy last probe as a clean historical SLO window.
 6. Approve any production rollback or release pause. Codex can perform a bounded rollback only after explicit authorization.
 
@@ -89,15 +90,25 @@ Choose one consistent contract; do not do both.
 
 ## 8. Complete qualified legal, factual, privacy, media, visual, and publication approval
 
-The owner/editor, not Codex, must obtain and record:
+### Visual and Lighthouse evidence
+
+1. Ask Codex to run the `playwright` workflow against the exact image-backed staging deployment after runner admission is repaired. Require the run SHA, URL, browser version, runner user, route/query set, run count, category scores, thresholds, and artifact paths.
+2. Ask Codex to rerun the local visual matrix and compare checksums for the 13 expected captures under `.generated/launch/visual/` against their references under `plans/assets/mockups/`.
+3. The owner/editor reviews every capture across the approved desktop/mobile/browser matrix, including responsive layout, focus, contrast, reduced motion, dark mode, empty/error/form states, docs rendering, and search overlays.
+4. Record capture ID, route/state, intentional deviation and reason, reviewer, approval ID, date, and next review/expiry. A screenshot hash proves capture identity, not visual fidelity or rights.
+
+Codex can run deterministic browser/Lighthouse checks, dispatch the workflow, retrieve verified artifacts, compare them to the exact commit, and fail the evidence packet when a required state or approval is absent. The owner/editor must make the visual/brand decision.
+
+### Qualified factual, legal, privacy, brand, and media approval
+
+The owner/editor, not Codex, must assign and record:
 
 - factual/source review for claims, dates, names, and citations;
 - legal/privacy review for personal data, disclosures, terms, and jurisdictional requirements;
 - media/brand rights for images, fonts, logos, screenshots, audio, and third-party materials, including license/source records;
-- visual/brand acceptance across the agreed desktop/mobile/browser matrix;
 - publication timing, canonical URL, feed contents, redirects, and takedown/rollback contact.
 
-For each approval, record reviewer name, role or qualification, scope, date, source/license reference, findings, and explicit disposition. Codex can assemble the evidence packet and automate link/XML/schema/HTTP checks; it cannot grant or substitute for these approvals.
+For each claim or asset, record the exact wording or asset ID, source/license reference, reviewer name, role or qualification, approval ID, scope, date, next review/expiry, findings, and explicit disposition. Codex can reconcile approved values against content models, metadata, JSON-LD, search records, feeds, sitemap, robots, and AI outputs; it cannot act as counsel, factual approver, rights holder, or substitute for consent.
 
 ## 9. Validate publication and feeds
 

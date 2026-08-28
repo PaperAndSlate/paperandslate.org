@@ -2,7 +2,7 @@
 
 **Status:** not release-closed
 **Environment checked:** staging
-**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:13:58Z)
+**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:27:03Z)
 **Primary technical report:** [PAPER_AND_SLATE_TOWER_INTEGRATION_REPORT.md](PAPER_AND_SLATE_TOWER_INTEGRATION_REPORT.md)
 **Owner action checklist:** [PAPER_AND_SLATE_WEB_OWNER_ACTIONS.md](PAPER_AND_SLATE_WEB_OWNER_ACTIONS.md)
 
@@ -21,22 +21,24 @@ The staging platform is reachable and the managed Valkey binding is healthy, but
 
 ## What is proven
 
-| Area                    | Current evidence                                                                                                     | State                          |
-| ----------------------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
-| Staging application     | `paper-and-slate-web-staging` is `running:healthy`; `/health` and `paper-and-slate-web.dev.tower` probes are healthy | partial pass                   |
-| Staging DNS/TLS         | `.dev.tower` hostname resolves and bounded HTTPS probes return 200                                                   | staging-only pass              |
-| Managed resources       | Valkey, Typesense, and S3 resource records are active/healthy                                                        | partial pass                   |
-| Valkey binding          | `VALKEY_URL` is stored server-side and reconciled; value excluded                                                    | pass                           |
-| Environment validator   | 9 required variables supplied; no missing/unexpected variables; values excluded                                      | syntactic pass only            |
-| Forgejo read access     | branches and read-only remote metadata are accessible                                                                | pass                           |
-| Registry policy         | immutable OCI repository, SBOM and vulnerability scan policy, 90-day/10-image retention                              | configured                     |
-| Monitoring              | six latest probes healthy                                                                                            | probe pass only                |
-| Provider contract suite | Tower full bounded contract run passed for Forgejo, Coolify, Tempo, LiteLLM, GlitchTip, and S3                       | provider pass; runner excluded |
+| Area                      | Current evidence                                                                                                                                            | State                          |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------ |
+| Staging application       | `paper-and-slate-web-staging` is `running:healthy`; `/health` and `paper-and-slate-web.dev.tower` probes are healthy                                        | partial pass                   |
+| Latest staging deployment | Deployment `b4c1jatqaidljtcpc4nly1yp` for `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6` finished health-check with 22 provider log entries and no latest error | deployment pass only           |
+| Staging DNS/TLS           | `.dev.tower` hostname resolves and bounded HTTPS probes return 200                                                                                          | staging-only pass              |
+| Managed resources         | Valkey, Typesense, and S3 resource records are active/healthy                                                                                               | partial pass                   |
+| Valkey binding            | `VALKEY_URL` is stored server-side and reconciled; value excluded                                                                                           | pass                           |
+| Environment validator     | 9 required variables supplied; no missing/unexpected variables; values excluded                                                                             | syntactic pass only            |
+| Forgejo read access       | branches and read-only remote metadata are accessible                                                                                                       | pass                           |
+| Registry policy           | immutable OCI repository, SBOM and vulnerability scan policy, 90-day/10-image retention                                                                     | configured                     |
+| Monitoring                | six latest probes healthy                                                                                                                                   | probe pass only                |
+| Provider contract suite   | Tower full bounded contract run passed for Forgejo, Coolify, Tempo, LiteLLM, GlitchTip, and S3                                                              | provider pass; runner excluded |
 
 ## What is not proven
 
 - A runner can accept `ubuntu-latest` or `playwright` jobs.
 - Any current release workflow reaches a job step or produces current artifacts.
+- Tower-visible executed-step logs or a structured CI reporter result for the current release workflows.
 - The staging application received `GLITCHTIP_DSN` from the managed secret source.
 - Typesense indexing/write-delete behavior works; the collection currently has zero documents.
 - The current exact release commit has a registry image, digest, SBOM, vulnerability result, provenance, and staging-by-digest deployment.
@@ -56,6 +58,10 @@ The single repository runner is `tower-docker-runner` id 1, version 13.0.0, labe
 Tower exposes repository-scoped CI records and enrollment/dispatch, but not the global Forgejo scheduler, global queue, stale-task controls, or runner-host service logs. The operator action is therefore recorded separately rather than being misrepresented as a Codex-verifiable pass.
 
 The observability snapshot returned 422 `unknown_metric` for legacy `host_cpu_percent` and `host_memory_percent` queries while still reporting an overall healthy summary. The approved current metric catalog is different; this snapshot path needs correction before it can be used as an unqualified platform-health signal.
+
+The latest staging post-deploy sweep observed deployment `b4c1jatqaidljtcpc4nly1yp` for commit `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6` as finished and health-checked, with 22 provider log entries and no latest error. The project-level result remains degraded because CI admission, deployment-backed contract state, historical errors, and the failed GlitchTip binding are separate gates.
+
+Tower’s monitor/resource APIs are responding, but route ownership remains in the web manifest. The expected `.tower/project.yaml` monitor paths are `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, and `/feeds/rss.xml`. If a web revision collapses all six targets to `/`, restore those explicit `path` values in the web repository and rerun focused manifest/monitor validation; do not treat a generic `/` probe as evidence for the other routes. The checked manifest currently contains the distinct paths.
 
 ## Managed staging binding status
 
