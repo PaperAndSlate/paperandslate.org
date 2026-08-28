@@ -1,6 +1,7 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { access, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
 import { withLighthouseChrome } from "./lighthouse-chrome";
 import { pnpmSpawnSpec } from "./pnpm-command";
 import { assertTcpPortFree, parseTcpPort } from "./port-check";
@@ -16,6 +17,7 @@ const standaloneServer =
 const outputDir = path.join(root, ".generated", "launch", "lighthouse");
 const tempDir = path.join(root, ".generated", "launch", `lighthouse-tmp-${process.pid}`);
 const configPath = path.join(root, ".generated", "launch", `lighthouse-config-${process.pid}.json`);
+const lockPath = path.join(root, ".generated", "launch", "lighthouse.lock");
 const runManifestPath = path.join(outputDir, "lighthouse-run.json");
 const releaseId = process.env.RELEASE_ID ?? "local-development";
 const gitSha = process.env.GIT_SHA ?? readSourceState(root).commit ?? "local-development";
@@ -146,6 +148,15 @@ function runLighthouse(config: string, env: NodeJS.ProcessEnv) {
 }
 
 async function main() {
+  const releaseLock = await acquireExclusiveRunLock(lockPath);
+  try {
+    await runLighthouseEvidence();
+  } finally {
+    await releaseLock();
+  }
+}
+
+async function runLighthouseEvidence() {
   const startedAt = new Date().toISOString();
   let configuredUrls: string[] = [];
   await mkdir(outputDir, { recursive: true });
@@ -251,6 +262,11 @@ async function main() {
 }
 
 main().catch(async (error) => {
+  if (error instanceof ExclusiveRunAlreadyActiveError) {
+    console.error(error.message);
+    process.exitCode = 1;
+    return;
+  }
   await writeRunManifest({
     schemaVersion: 1,
     status: "failed",

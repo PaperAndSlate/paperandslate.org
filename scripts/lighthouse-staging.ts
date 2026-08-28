@@ -1,6 +1,7 @@
 import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
 import { withLighthouseChrome } from "./lighthouse-chrome";
 import { pnpmSpawnSpec } from "./pnpm-command";
 
@@ -15,6 +16,7 @@ const configPath = path.join(
   `lighthouse-staging-config-${process.pid}.json`,
 );
 const manifestPath = path.join(outputDir, "lighthouse-run.json");
+const lockPath = path.join(root, ".generated", "launch", "lighthouse-staging.lock");
 const releaseId = process.env.RELEASE_ID ?? "unknown-release";
 const expectedGitSha = process.env.GIT_SHA ?? "";
 const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
@@ -106,6 +108,15 @@ function runLighthouse(config: string, env: NodeJS.ProcessEnv) {
 }
 
 async function main() {
+  const releaseLock = await acquireExclusiveRunLock(lockPath);
+  try {
+    await runHostedLighthouseEvidence();
+  } finally {
+    await releaseLock();
+  }
+}
+
+async function runHostedLighthouseEvidence() {
   const base = requireStagingUrl();
   if (!releaseId || !expectedGitSha || !/^[a-f0-9]{40}$/i.test(expectedGitSha))
     throw new Error("RELEASE_ID and a full GIT_SHA are required for hosted Lighthouse evidence");
@@ -217,6 +228,11 @@ async function main() {
 
 main().catch(async (error) => {
   const message = error instanceof Error ? error.message : String(error);
+  if (error instanceof ExclusiveRunAlreadyActiveError) {
+    console.error(message);
+    process.exitCode = 1;
+    return;
+  }
   try {
     const base = stagingUrl ? new URL(stagingUrl) : null;
     await writeManifest({
