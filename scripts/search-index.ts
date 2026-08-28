@@ -119,16 +119,23 @@ const records: SearchRecord[] = [
   })),
 ].sort((a, b) => a.id.localeCompare(b.id));
 const validated = normalizeRecords(records);
-fs.mkdirSync(".generated/search", { recursive: true });
-fs.writeFileSync(
-  ".generated/search/search-records.json",
-  `${JSON.stringify(validated, null, 2)}\n`,
-);
-if (process.argv.slice(2).includes("--publish-typesense")) {
-  const report = await publishTypesenseIndex(validated);
-  console.log(
-    `Published ${report.documentCount} Typesense records to ${report.alias} (${report.collection}); index ${report.indexId}.`,
+async function main() {
+  fs.mkdirSync(".generated/search", { recursive: true });
+  fs.writeFileSync(
+    ".generated/search/search-records.json",
+    `${JSON.stringify(validated, null, 2)}\n`,
   );
-} else {
-  console.log(`Generated ${validated.length} deterministic local search records.`);
+  if (process.argv.slice(2).includes("--publish-typesense")) {
+    const report = await publishTypesenseIndex(validated);
+    console.log(
+      `Published ${report.documentCount} Typesense records to ${report.alias} (${report.collection}); index ${report.indexId}.`,
+    );
+  } else {
+    console.log(`Generated ${validated.length} deterministic local search records.`);
+  }
 }
+
+main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : String(error));
+  process.exitCode = 1;
+});

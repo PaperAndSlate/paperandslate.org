@@ -41,10 +41,14 @@ test("public internal links resolve without 4xx/5xx responses", async ({
     visited.add(normalized);
 
     const response = await request.get(normalized);
-    if (!response.ok()) {
-      failures.push(`${normalized} -> ${response.status()}`);
-      continue;
+    let ok = false;
+    try {
+      ok = response.ok();
+      if (!ok) failures.push(`${normalized} -> ${response.status()}`);
+    } finally {
+      await response.dispose();
     }
+    if (!ok) continue;
 
     await page.goto(normalized, { waitUntil: "domcontentloaded" });
     const links = await page.locator("a[href]").evaluateAll((anchors) =>

@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "status": "passed",
+  "generatedAt": "2026-08-28T15:36:09.573Z",
+  "generatedBy": "pnpm traceability:check",
+  "source": {
+    "commit": "629dd341f67c3025ef27b3df9190f3a5c4a136e9",
+    "tree": "15fc54aeb4542801868e647291cca8ff1867bc5d",
+    "lockfileSha256": "4571472a300ed6fc44c27072c2fb809f21ab4338ac2c771e175c7deb8230f513",
+    "worktreeClean": true,
+    "dirtyPaths": [],
+    "generatedPaths": [
+      "IMPLEMENTATION_LEDGER.md",
+      ".generated/requirements/requirements.json",
+      ".generated/requirements/traceability-check.json"
+    ]
+  },
+  "plans": {
+    "files": 89,
+    "mappedFiles": 89,
+    "unmappedFiles": []
+  },
+  "requirements": {
+    "records": 1073,
+    "uniqueIds": 1073
+  },
+  "checks": [
+    "all planning Markdown files have a PLAN-REQ index row",
+    "requirement IDs are unique",
+    "statuses and required evidence fields are valid",
+    "declared repository paths do not escape the checkout",
+    "source commit, tree, and lockfile hash are recorded"
+  ]
+}

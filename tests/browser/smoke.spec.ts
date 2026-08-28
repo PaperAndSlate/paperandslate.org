@@ -4,8 +4,12 @@ test("homepage and health are reachable", async ({ page, request }) => {
   await expect(page).toHaveTitle(/Paper & Slate/);
   await expect(page.locator("h1")).toBeVisible();
   const health = await request.get("/health");
-  expect(health.ok()).toBeTruthy();
-  expect((await health.json()).status).toBe("ok");
+  try {
+    expect(health.ok()).toBeTruthy();
+    expect((await health.json()).status).toBe("ok");
+  } finally {
+    await health.dispose();
+  }
 });
 test("keyboard navigation reaches main content", async ({ page }) => {
   await page.goto("/");
@@ -51,13 +55,24 @@ test("route catalog landings are reachable on the dedicated test port", async ({
     "/governance/trademarks",
     "/governance/licenses",
   ];
-  for (const route of routes) expect((await request.get(route)).ok(), route).toBeTruthy();
+  for (const route of routes) {
+    const response = await request.get(route);
+    try {
+      expect(response.ok(), route).toBeTruthy();
+    } finally {
+      await response.dispose();
+    }
+  }
 });
 
 test("component library is intentionally noindex", async ({ request }) => {
   const response = await request.get("/design-system");
-  expect(response.ok()).toBeTruthy();
-  expect(await response.text()).toMatch(/noindex/);
+  try {
+    expect(response.ok()).toBeTruthy();
+    expect(await response.text()).toMatch(/noindex/);
+  } finally {
+    await response.dispose();
+  }
 });
 
 test("every public documentation project root is useful", async ({ request }) => {
@@ -71,7 +86,11 @@ test("every public documentation project root is useful", async ({ request }) =>
     "/docs/tools-and-libraries",
   ]) {
     const response = await request.get(route);
-    expect(response.ok(), route).toBeTruthy();
-    expect(await response.text(), route).toMatch(/<h1[^>]*>/);
+    try {
+      expect(response.ok(), route).toBeTruthy();
+      expect(await response.text(), route).toMatch(/<h1[^>]*>/);
+    } finally {
+      await response.dispose();
+    }
   }
 });
