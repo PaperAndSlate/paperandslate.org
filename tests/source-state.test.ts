@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { sourceDirtyPaths, sourceWorktreeClean } from "../scripts/source-state";
+import {
+  classifySourceWorktree,
+  sourceDirtyPaths,
+  sourceWorktreeClean,
+} from "../scripts/source-state";
 
 describe("source worktree state", () => {
   it("preserves the leading character of status paths", () => {
@@ -21,5 +25,18 @@ describe("source worktree state", () => {
       "apps/web/src/page.tsx",
       "scripts/new-check.ts",
     ]);
+  });
+
+  it("distinguishes an unavailable Git status from generated-only changes", () => {
+    expect(classifySourceWorktree(null)).toEqual({
+      available: false,
+      clean: false,
+      dirtyPaths: [],
+    });
+    expect(
+      classifySourceWorktree(
+        " M IMPLEMENTATION_LEDGER.md\n?? .generated\\requirements\\requirements.json\n",
+      ),
+    ).toEqual({ available: true, clean: true, dirtyPaths: [] });
   });
 });

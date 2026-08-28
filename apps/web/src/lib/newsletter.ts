@@ -82,11 +82,7 @@ function validAddress(value: string | null) {
  */
 export function clientAddress(request: Request, env: Env = parseEnv()) {
   if (env.TRUSTED_PROXY_MODE !== "coolify") return "anonymous";
-  return (
-    validAddress(request.headers.get("x-real-ip")) ??
-    validAddress(request.headers.get("x-forwarded-for")?.split(",", 1)[0] ?? null) ??
-    "anonymous"
-  );
+  return validAddress(request.headers.get("x-real-ip")) ?? "anonymous";
 }
 
 function objectFromEntries(entries: Iterable<[string, FormDataEntryValue | string]>) {

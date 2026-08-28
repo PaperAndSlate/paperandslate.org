@@ -4,6 +4,7 @@ import { access, cp, mkdir, rm, stat, writeFile } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
+import { waitForImages } from "./browser-assets";
 import { readSourceState } from "./source-state";
 
 const root = process.cwd();
@@ -225,18 +226,8 @@ async function prepareRuntime() {
 async function waitForHydration(page: Page) {
   await page.evaluate(async () => {
     await document.fonts?.ready;
-    await Promise.all(
-      [...document.images]
-        .filter((image) => image.currentSrc && !image.complete)
-        .map(
-          (image) =>
-            new Promise<void>((resolve) => {
-              image.addEventListener("load", () => resolve(), { once: true });
-              image.addEventListener("error", () => resolve(), { once: true });
-            }),
-        ),
-    );
   });
+  await waitForImages(page, Number(process.env.PRODUCTION_VISUAL_IMAGE_TIMEOUT_MS));
   await page.locator('[data-theme-mounted="true"]').first().waitFor({ state: "attached" });
   await page.locator("h1").first().waitFor({ state: "visible" });
   await page.waitForTimeout(100);

@@ -1,7 +1,13 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { createStaticSearchProvider, type SearchRecord } from "../packages/search/src";
+import {
+  createFallbackSearchProvider,
+  createStaticSearchProvider,
+  type SearchProvider,
+  type SearchRecord,
+} from "../packages/search/src";
+import { readSourceState } from "./source-state";
 
 const root = process.cwd();
 const reportPath = path.join(root, ".generated", "search", "typesense-index.json");
@@ -16,7 +22,7 @@ export type TypesenseIndexReport = {
   buildId: string;
   documentCount: number;
   indexedAt: string;
-  sourceSha: string | null;
+  sourceSha: string;
   keySeparation: {
     writeIndexStatus: "passed";
     searchStatus: "passed";
@@ -136,6 +142,14 @@ async function pointAlias(endpoint: string, apiKey: string, alias: string, colle
   });
   if (response.status !== 200)
     throw new Error(`Typesense alias update failed with HTTP ${response.status}`);
+  const current = await request(endpoint, apiKey, `/aliases/${encodeURIComponent(alias)}`);
+  if (current.status !== 200)
+    throw new Error(`Typesense alias read-back failed with HTTP ${current.status}`);
+  const body = jsonBody(current.body, "alias read-back");
+  if (body.collection_name !== collection)
+    throw new Error(
+      `Typesense alias read-back targeted ${String(body.collection_name ?? "missing")}, expected ${collection}`,
+    );
 }
 
 async function search(
@@ -192,8 +206,17 @@ async function assertSearchOnlyCannotWrite(
 async function assertStaticFallback(records: SearchRecord[]) {
   const expected = records.find((record) => record.type === "project") ?? records[0];
   if (!expected) throw new Error("Static search fallback cannot be verified without records");
-  const fallback = createStaticSearchProvider(records, 0);
+  const staticProvider = createStaticSearchProvider(records, 0);
+  const failingPrimary: SearchProvider = {
+    mode: "typesense",
+    async search() {
+      throw new Error("synthetic Typesense outage");
+    },
+  };
+  const fallback = createFallbackSearchProvider(failingPrimary, staticProvider);
   const result = await fallback.search(expected.title, { limit: 5 });
+  if (result.provider !== "static-fallback" || result.degraded !== true)
+    throw new Error("Static search fallback did not mark the simulated primary outage as degraded");
   if (!result.results.some((record) => record.id === expected.id))
     throw new Error("Static search fallback did not return the expected public record");
 }
@@ -281,12 +304,15 @@ export async function publishTypesenseIndex(
   const alias = process.env.TYPESENSE_COLLECTION_ALIAS ?? defaultAlias;
   const indexId = process.env.TYPESENSE_INDEX_ID ?? indexIdFor(records);
   const collection = `${baseCollection}__${indexId}`.replace(/[^A-Za-z0-9_-]/g, "_");
+  const sourceSha = process.env.GIT_SHA ?? readSourceState(root).commit;
   if (!endpoint || !adminApiKey || !searchApiKey)
     throw new Error(
       "Typesense publishing requires TYPESENSE_ENDPOINT, TYPESENSE_API_KEY, and TYPESENSE_SEARCH_API_KEY",
     );
   if (adminApiKey === searchApiKey)
     throw new Error("Typesense write and search keys must be different");
+  if (!sourceSha || !/^[a-f0-9]{40}$/i.test(sourceSha))
+    throw new Error("Typesense publishing requires an exact 40-character Git SHA");
 
   await assertStaticFallback(records);
   await ensureCollection(endpoint, adminApiKey, collection);
@@ -341,7 +367,7 @@ export async function publishTypesenseIndex(
     buildId: indexId,
     documentCount,
     indexedAt: new Date().toISOString(),
-    sourceSha: process.env.GIT_SHA ?? null,
+    sourceSha,
     keySeparation: {
       writeIndexStatus: "passed",
       searchStatus: "passed",

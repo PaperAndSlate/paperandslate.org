@@ -342,7 +342,7 @@ function successful(
 }
 
 export function towerRequirementOverrides(evidence: TowerEvidence | null) {
-  if (!evidence || evidence.status !== "passed") return {};
+  if (!evidence) return {};
   const exact = matchingSource(evidence);
   const overrides: Record<string, Record<string, unknown>> = {};
   const mark = (
@@ -367,13 +367,15 @@ export function towerRequirementOverrides(evidence: TowerEvidence | null) {
   );
   mark(
     "WEB-REQ-0006",
-    successful(evidence.ci) && evidence.ci?.sha === evidence.source?.sha,
+    successful(evidence.ci) && evidence.ci?.sha === evidence.source?.sha && exact,
     "verified-ci",
     "Forgejo CI passed for the exact release source SHA; run and artifact identifiers are retained in the redacted Tower receipt.",
   );
   mark(
     "WEB-REQ-0016",
-    successful(evidence.publication) && evidence.publication?.sourceSha === evidence.source?.sha,
+    successful(evidence.publication) &&
+      evidence.publication?.sourceSha === evidence.source?.sha &&
+      exact,
     "verified-staging",
     "Hosted staging publication, discovery routes, and feed validation passed for the exact source SHA.",
   );
@@ -511,6 +513,7 @@ export function towerRequirementOverrides(evidence: TowerEvidence | null) {
       evidence.artifact &&
         successful(evidence.artifact) &&
         evidence.artifact.tag === "v1.0.0-rc.2" &&
+        evidence.artifact.sourceSha === evidence.source?.sha &&
         exact,
     ),
     "verified-ci",

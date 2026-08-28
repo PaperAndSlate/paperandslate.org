@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { classifySourceWorktree } from "./source-state";
 
 type CommandResult = { value: string | null; error: string | null };
 
@@ -54,12 +55,15 @@ const branch = git(["branch", "--show-current"]);
 const remote = git(["remote", "get-url", "origin"]);
 const exactTag = git(["describe", "--tags", "--exact-match"]);
 const status = git(["status", "--porcelain", "--untracked-files=all"]);
+const worktree = classifySourceWorktree(status.value);
 const refs = remote.value
   ? git(["ls-remote", "--heads", "--tags", "origin"])
   : { value: null, error: null };
 const remoteRefs = parseRefs(refs.value);
-const worktreeClean = status.value !== null && status.value === "";
-const localIdentityPresent = Boolean(head.value && branch.value && remote.value);
+const worktreeClean = worktree.clean;
+const localIdentityPresent = Boolean(
+  head.value && branch.value && remote.value && worktree.available,
+);
 const remoteResolution = remote.value
   ? refs.value !== null
     ? "verified"
@@ -78,6 +82,8 @@ const evidence = {
     localSha: head.value,
     exactTag: exactTag.value,
     worktreeClean,
+    worktreeStatusAvailable: worktree.available,
+    dirtyPaths: worktree.dirtyPaths,
     remoteResolution,
     remoteRefs,
   },

@@ -16,6 +16,21 @@ export function sourceWorktreeClean(status: string) {
   return sourceDirtyPaths(status).length === 0;
 }
 
+export type SourceWorktreeStatus = {
+  available: boolean;
+  clean: boolean;
+  dirtyPaths: string[];
+};
+
+export function classifySourceWorktree(status: string | null): SourceWorktreeStatus {
+  const dirtyPaths = status === null ? [] : sourceDirtyPaths(status);
+  return {
+    available: status !== null,
+    clean: status !== null && dirtyPaths.length === 0,
+    dirtyPaths,
+  };
+}
+
 export type SourceState = {
   commit: string | null;
   tree: string | null;
@@ -37,11 +52,11 @@ function git(root: string, args: string[]) {
 
 export function readSourceState(root: string): SourceState {
   const status = git(root, ["status", "--porcelain", "--untracked-files=all"]);
-  const dirtyPaths = status === null ? [] : sourceDirtyPaths(status);
+  const worktree = classifySourceWorktree(status);
   return {
     commit: git(root, ["rev-parse", "HEAD"]),
     tree: git(root, ["rev-parse", "HEAD^{tree}"]),
-    worktreeClean: status !== null && dirtyPaths.length === 0,
-    dirtyPaths,
+    worktreeClean: worktree.clean,
+    dirtyPaths: worktree.dirtyPaths,
   };
 }

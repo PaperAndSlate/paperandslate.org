@@ -42,6 +42,17 @@ describe("newsletter safety", () => {
         TRUSTED_PROXY_MODE: "coolify",
       }),
     ).toBe("198.51.100.4");
+    expect(
+      clientAddress(
+        new Request("https://paper.example.test/api/newsletter", {
+          headers: { "x-forwarded-for": "203.0.113.8" },
+        }),
+        {
+          ...parseEnv(),
+          TRUSTED_PROXY_MODE: "coolify",
+        },
+      ),
+    ).toBe("anonymous");
   });
 
   it("bounds chunked bodies and supports JSON and URL-encoded forms", async () => {

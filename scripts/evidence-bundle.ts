@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { classifySourceWorktree } from "./source-state";
 
 const root = process.cwd();
 const releaseId = (
@@ -25,6 +26,7 @@ const git = (args: string[]) => {
 };
 const sourceSha = git(["rev-parse", "HEAD"]);
 const sourceStatus = git(["status", "--porcelain", "--untracked-files=all"]);
+const sourceWorktree = classifySourceWorktree(sourceStatus);
 const configuredCandidateSha = process.env.CANDIDATE_SHA || process.env.GIT_SHA || null;
 const candidateSha = configuredCandidateSha || sourceSha;
 const strictIdentity = Boolean(process.env.CANDIDATE_SHA) || /^v1\.0\.0-rc\./.test(releaseId);
@@ -182,8 +184,12 @@ if (
   identityMismatches.push(
     `configured container digest ${process.env.CONTAINER_IMAGE_DIGEST} does not match SBOM ${sbom.containerDigest}`,
   );
-if (strictIdentity && sourceStatus)
-  identityMismatches.push("strict candidate evidence requires a clean worktree");
+if (strictIdentity && !sourceWorktree.clean)
+  identityMismatches.push(
+    sourceWorktree.available
+      ? `strict candidate evidence requires a clean authored source worktree${sourceWorktree.dirtyPaths.length ? `; dirty paths: ${sourceWorktree.dirtyPaths.join(", ")}` : ""}`
+      : "strict candidate evidence requires Git worktree status to be available",
+  );
 const manifest = {
   schemaVersion: 2,
   status:
@@ -203,7 +209,9 @@ const manifest = {
     branch: git(["branch", "--show-current"]),
     remote: git(["remote", "get-url", "origin"]),
     exactTag: git(["describe", "--tags", "--exact-match"]),
-    worktreeClean: (sourceStatus ?? "") === "",
+    worktreeClean: sourceWorktree.clean,
+    worktreeStatusAvailable: sourceWorktree.available,
+    dirtyPaths: sourceWorktree.dirtyPaths,
   },
   build: {
     node: process.version,

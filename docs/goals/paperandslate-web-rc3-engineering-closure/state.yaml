@@ -65,7 +65,7 @@ visual_board:
     url: null
     command: "node C:/Users/Callum/.codex/plugins/cache/goalbuddy/goalbuddy/0.4.3/skills/goal-prep/surfaces/local-goal-board/scripts/local-goal-board.mjs --goal docs/goals/paperandslate-web-rc3-engineering-closure"
 
-active_task: T007
+active_task: T999
 
 tasks:
   - id: T001
@@ -352,7 +352,7 @@ tasks:
   - id: T007
     type: pm
     assignee: PM
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Add authoritative traceability validation and durable generated evidence, then close release-readiness gaps for deterministic generation and clean package-consumer smoke coverage and wire those checks into hosted CI without rebinding historical RC3 evidence."
     inputs:
@@ -387,11 +387,31 @@ tasks:
       - "Clean package installation resolves workspace files or changes pnpm-lock.yaml."
       - "Deterministic output differs and the cause is hidden rather than fixed or recorded as a real blocker."
       - "A hosted-only result would be manufactured locally."
-    receipt: null
+    receipt:
+      result: done
+      note: notes/T007-receipt.md
+      summary: "Added executable 194-file planning-pack traceability coverage, durable generated evidence, clean package-consumer smoke, deterministic generation checks, and receipt-driven current status. Portable local gates passed; aggregate verification remains honestly blocked at the local Docker boundary, and hosted/provider/human gates remain external."
+      evidence:
+        - "notes/T007-receipt.md"
+        - ".generated/requirements/traceability-check.json"
+        - "IMPLEMENTATION_LEDGER.md"
+        - ".generated/launch/package-smoke.json"
+        - ".generated/launch/reproducibility.json"
+      verification:
+        - "pnpm traceability:check passed for 89 plan files and 1,073 unique records"
+        - "pnpm package:smoke passed for five clean package consumers"
+        - "pnpm reproducibility:check passed with SHA-256 ee712fd1b3a3ed053024f6511f262b35a3059e382cf0d4488705658690a054d6"
+        - "Portable format, lint, typecheck, test, docs, build, browser, Lighthouse, SBOM, and secret checks passed"
+        - "pnpm verify failed closed at container:check after Docker build timeout; no container pass claimed"
+      remaining_blockers:
+        - "Exact hosted GitHub/Forgejo execution and CodeQL/dependency-review receipts"
+        - "Local Docker daemon availability for the container gate"
+        - "Provider, OCI, signing, staging, SLO, rollback, human, governance, IANA, interoperability, adoption, deployment, and stable-publication gates"
+      deviations: []
   - id: T999
     type: judge
     assignee: Judge
-    status: queued
+    status: active
     reasoning_hint: high
     objective: "Final skeptical audit of the complete RC3 hosted-validation-readiness outcome."
     inputs:
@@ -414,6 +434,16 @@ tasks:
 checks:
   dirty_fingerprint: unknown
   last_verification:
-    result: unknown
-    task: null
-    commands: []
+    result: partial-docker-blocked
+    task: T007
+    commands:
+      - "pnpm traceability:check"
+      - "pnpm package:smoke"
+      - "pnpm reproducibility:check"
+      - "pnpm format:check"
+      - "pnpm lint"
+      - "pnpm typecheck"
+      - "pnpm test"
+      - "pnpm build:verify"
+      - "pnpm release:check"
+      - "pnpm verify (failed closed at container:check: Docker build timeout)"

@@ -2,6 +2,7 @@ import { execFile } from "node:child_process";
 import fs from "node:fs";
 import { promisify } from "node:util";
 import { healthProbeCommand } from "./container-probe";
+import { redactSensitiveDiagnostics } from "./diagnostic-redaction";
 import { readSourceState } from "./source-state";
 
 const execFileAsync = promisify(execFile);
@@ -90,18 +91,11 @@ async function run(args: string[], inherit = false, timeoutMs = commandTimeoutMs
   }
 }
 
-function redactContainerDiagnostics(output: string) {
-  return output.replace(
-    /((?:api[_-]?key|token|password|secret|dsn|authorization|cookie)\s*(?:=|:)\s*)[^\s]+/gi,
-    "$1[redacted]",
-  );
-}
-
 async function containerDiagnostics() {
   const diagnostics: string[] = [];
   try {
     diagnostics.push(
-      redactContainerDiagnostics(
+      redactSensitiveDiagnostics(
         (
           await run(
             [
@@ -121,7 +115,7 @@ async function containerDiagnostics() {
   }
   try {
     diagnostics.push(
-      `docker logs (tail 80):\n${redactContainerDiagnostics(
+      `docker logs (tail 80):\n${redactSensitiveDiagnostics(
         (await run(["logs", "--tail", "80", container], false, 10_000)).trim(),
       )}`,
     );

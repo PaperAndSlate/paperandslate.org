@@ -161,12 +161,22 @@ function applyEvidence(requirements: Requirement[]) {
     if (!known.has(id)) throw new Error(`Evidence override references unknown requirement: ${id}`);
   for (const id of Object.keys(towerOverrides))
     if (!known.has(id)) throw new Error(`Tower evidence references unknown requirement: ${id}`);
-  return requirements.map((item) => ({
-    ...item,
-    ...(overrides[item.id] ?? {}),
-    ...(towerOverrides[item.id] ?? {}),
-    evidenceUpdatedAt: overrides[item.id]?.evidenceUpdatedAt ?? generatedAt,
-  }));
+  return requirements.map((item) => {
+    const localOverride = overrides[item.id] ?? {};
+    const towerOverride = towerOverrides[item.id] ?? {};
+    const localEvidenceUpdatedAt = localOverride.evidenceUpdatedAt;
+    const towerEvidenceUpdatedAt = towerOverride.evidenceUpdatedAt;
+    return {
+      ...item,
+      ...localOverride,
+      ...towerOverride,
+      evidenceUpdatedAt:
+        (typeof localEvidenceUpdatedAt === "string" ? localEvidenceUpdatedAt : undefined) ??
+        (typeof towerEvidenceUpdatedAt === "string" ? towerEvidenceUpdatedAt : undefined) ??
+        item.evidenceUpdatedAt ??
+        generatedAt,
+    };
+  });
 }
 
 function escape(value: string | null) {
