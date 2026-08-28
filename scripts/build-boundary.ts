@@ -4,6 +4,7 @@ import { lstat, readdir, readFile, realpath, rm, writeFile } from "node:fs/promi
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isMissingPathError } from "./fs-errors";
+import { normalizeFumadocsSource } from "./normalize-fumadocs-source";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const webRoot = resolve(root, "apps", "web");
@@ -134,6 +135,7 @@ const run = async () => {
       process.exitCode = exitStatus;
       return;
     }
+    normalizeFumadocsSource(root);
     await assertStable(before);
     await assertCleanOutput();
     process.stdout.write("[build:verify] verified non-standalone production output\n");
