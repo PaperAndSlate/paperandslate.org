@@ -7,6 +7,8 @@ import { chromium } from "@playwright/test";
  */
 export function withLighthouseChrome(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
   if (env.CHROME_PATH) return env;
+  if (env.PLAYWRIGHT_EXECUTABLE_PATH && existsSync(env.PLAYWRIGHT_EXECUTABLE_PATH))
+    return { ...env, CHROME_PATH: env.PLAYWRIGHT_EXECUTABLE_PATH };
   const playwrightChromePath = chromium.executablePath();
   return existsSync(playwrightChromePath) ? { ...env, CHROME_PATH: playwrightChromePath } : env;
 }
