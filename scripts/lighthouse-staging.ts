@@ -3,6 +3,7 @@ import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
 import { withLighthouseChrome } from "./lighthouse-chrome";
+import { withOwnedPuppeteerBrowser } from "./lighthouse-config";
 import { pnpmSpawnSpec } from "./pnpm-command";
 
 const root = process.cwd();
@@ -124,7 +125,7 @@ async function runHostedLighthouseEvidence() {
     throw new Error("STAGING_DEPLOYMENT_ID is required to bind hosted Lighthouse evidence");
   const startedAt = new Date().toISOString();
   await rm(outputDir, { recursive: true, force: true });
-  await rm(tempDir, { recursive: true, force: true });
+  await rm(tempDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
   await mkdir(outputDir, { recursive: true });
   await writeManifest({
     schemaVersion: 2,
@@ -162,6 +163,7 @@ async function runHostedLighthouseEvidence() {
   };
   const configuredUrls = template.ci.collect.url.map((url) => targetUrlForPath(base, url));
   template.ci.collect.url = configuredUrls;
+  template.ci.collect = withOwnedPuppeteerBrowser(template.ci.collect, tempDir);
   template.ci.upload.outputDir = outputDir;
   await writeFile(configPath, `${JSON.stringify(template, null, 2)}\n`, "utf8");
   await writeManifest({
@@ -222,7 +224,7 @@ async function runHostedLighthouseEvidence() {
     );
   } finally {
     await rm(configPath, { force: true });
-    await rm(tempDir, { recursive: true, force: true });
+    await rm(tempDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
   }
 }
 

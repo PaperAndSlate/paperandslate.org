@@ -4,6 +4,7 @@ import path from "node:path";
 import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
 import { isMissingPathError } from "./fs-errors";
 import { withLighthouseChrome } from "./lighthouse-chrome";
+import { withOwnedPuppeteerBrowser } from "./lighthouse-config";
 import { normalizeFumadocsSource } from "./normalize-fumadocs-source";
 import { pnpmSpawnSpec } from "./pnpm-command";
 import { assertTcpPortFree, parseTcpPort } from "./port-check";
@@ -83,7 +84,7 @@ function stopServer(server: ChildProcess) {
 
 async function removeTemporaryDirectory(directory: string) {
   try {
-    await rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 250 });
+    await rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 500 });
   } catch (error) {
     // Lighthouse/Puppeteer can retain a Windows handle after writing valid reports.
     console.warn(`Could not remove temporary Lighthouse directory ${directory}: ${String(error)}`);
@@ -162,6 +163,7 @@ async function writeRunConfig() {
     const parsed = new URL(url);
     return `${baseUrl}${parsed.pathname}${parsed.search}`;
   });
+  template.ci.collect = withOwnedPuppeteerBrowser(template.ci.collect, tempDir);
   template.ci.upload.outputDir = outputDir;
   await writeFile(configPath, `${JSON.stringify(template, null, 2)}\n`, "utf8");
 }

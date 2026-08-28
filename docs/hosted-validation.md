@@ -55,6 +55,10 @@ diagnostics. Run `pnpm build:web` before invoking a browser script directly;
 `pnpm verify` already performs that build immediately before `e2e`, `a11y:rc`,
 `links`, and `visual:check`. `PLAYWRIGHT_PORT` may select another validated
 local TCP port when parallel local work requires it.
+The local and hosted Lighthouse wrappers use LHCI's Puppeteer-managed browser
+with a process-scoped, caller-owned profile. This avoids the Windows cleanup
+race in the transitive `chrome-launcher` process path; Lighthouse collection
+and its configured assertions remain unchanged.
 
 CodeQL runs on push, pull request, schedule, and manual dispatch with only the
 permissions needed to read source and upload security results. Dependency
