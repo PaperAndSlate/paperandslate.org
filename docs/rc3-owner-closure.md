@@ -8,30 +8,69 @@ This is the actionable handoff for the remaining gates. It separates repository 
 
 ## Current evidence boundary
 
-The closure snapshot immediately before this handoff refresh was:
+The current candidate identity is deliberately recorded in generated receipts,
+not copied into this handoff where a later evidence-only commit could make it
+stale. Read the exact `HEAD`, source tree, lockfile hash, authored worktree
+state, and receipt status from these files together:
 
-- branch: `release/v1-closure`;
-- source chain: `0a519402ca5eb7bbce9d96640d957a3838703c2c` (identity checks) -> `c0686cc2473eef0d2699b8994ec22d9a90663c4e` (traceability refresh) -> `852b01528435467d3f7dda13bdff6ee5dfbd911b` (generated-only evidence-state fix) -> `83697c0` (corrected traceability receipt) -> `09d3dcc31df8a7606b997270faac63db42fb3ff3` (vanishing-output handling) -> `2f48deae22bd6a44746d9d45779c77eda76f1db1` (configured-identity checks; exact SHA must be re-read after the final documentation push);
-- repository: private Forgejo `callum/paperandslate-web`;
-- immutable `v1.0.0-rc.1` remains unchanged; the candidate is not tagged;
-- the existing Coolify source-build workload is `ngqtewtqeqhj88v1005a38va`, with its latest successful deployment at `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6`; it is not an OCI image deployment and must not be treated as current-candidate image evidence.
+- `.generated/requirements/traceability-check.json`;
+- `.generated/launch/verify.json`;
+- `.generated/launch/launch-evidence.json`; and
+- `.generated/launch/repository-identity.json`.
 
-Tower produced exact-SHA runs 97 (`container.yml`), 98 (`lighthouse.yml`), and 99 (`quality.yml`) for the older `cdad2413c664cd210f6bb75bc07c2410220e89b5` revision, plus run 100 (`supply-chain.yml`) from one bounded manual dispatch. All four failed before a runner was assigned: their bounded job records contain no runner and no steps. This is a Tower/Forgejo scheduling or controller failure, not a passing or task-level application failure. The runner inventory reports one idle runner with labels `ubuntu-latest`, `node22`, `docker`, and `playwright`, but `lastOnline` is null and no usable heartbeat is present. The later source revisions require a new exact-SHA run set after the branch transfer.
+The source branch is `release/v1-closure` and the repository remote is the
+private Forgejo project `callum/paperandslate-web`. The immutable
+`v1.0.0-rc.1` tag remains unchanged; no RC3 tag exists and the candidate is not
+published. The existing Coolify source-build workload is
+`ngqtewtqeqhj88v1005a38va`, with its latest successful deployment at
+`06491dc57fa3f3a43c365a4ab24e07f21e7b04d6`; it is not an OCI image deployment
+and must not be treated as current-candidate image evidence.
 
-The latest complete local verifier passed all 37 configured tasks at `09d3dcc31df8a7606b997270faac63db42fb3ff3`, including 32 Vitest files / 88 tests, package and tool typecheck, lint, 12 Lighthouse reports across six URLs with performance budgets, production browser checks for 12 routes, 13 production visual states, SBOM, scan, launch report, and evidence bundle. The subsequent `2f48deae22bd6a44746d9d45779c77eda76f1db1` identity checks passed directly, and the pending Lighthouse build-recovery hardening must be included in the next exact candidate pass. Every source or generated-only commit creates a new evidence identity, so receipts must be regenerated and re-read after the final push. Visual evidence remains `human-review-pending`; local receipts are not hosted staging evidence. No hosted workflow has run successfully for the current revision.
+The pre-refresh read-only Tower snapshot produced exact-SHA runs 134
+(`container.yml`), 135 (`lighthouse.yml`), and 136 (`quality.yml`) for
+`a318bba836b8494de655bc48ece50559b8a3e881`. All three failed before a runner
+was assigned: their bounded job records have no runner, timestamps, or task
+steps. This is a Tower/Forgejo scheduling or controller failure, not a passing
+or task-level application failure. No current-candidate `supply-chain.yml`
+receipt is available. The runner inventory reports one idle runner (ID `1`)
+with labels `ubuntu-latest`, `node22`, `docker`, and `playwright`, but
+`lastOnline` is null and no usable heartbeat is present. Any later source or
+evidence commit requires a fresh exact-SHA run set; these pre-run failures
+cannot be reused.
 
-The managed Tower transfer created the local commits but the latest push was rejected because the checkout's stored HTTPS Forgejo credential was expired. Refresh that credential or provide an approved SSH-backed remote before treating the current local chain as repository-hosted evidence; do not paste a token into this repository or chat.
+The latest complete local verifier passed its 35 configured quality tasks;
+the final receipt then recorded the two aggregate tasks (`launch:report` and
+`evidence:bundle`) as completed. That pass includes traceability for 89 plan
+files and 1,073 requirements, package and tool typecheck, lint, 12 Lighthouse
+reports across six URLs with performance budgets, production browser checks for
+12 routes, 13 production visual states, SBOM, scan, launch report, and evidence
+bundle. Fumadocs source normalization and serialized production-output
+handling are part of the current implementation. Visual evidence remains
+`human-review-pending`; local receipts are not hosted staging evidence. No
+hosted workflow has run successfully for the current revision.
+
+The private Forgejo branch currently matches the local candidate at
+`a318bba836b8494de655bc48ece50559b8a3e881`; the earlier managed-transfer
+credential failure has recovered. This is repository-hosted staging evidence
+only. The final post-refresh branch and receipt identities must be read from
+the generated files listed above. Do not paste a token into this repository or
+chat, and do not treat the branch as production authority.
 
 The following are available but do not close the release:
 
 - local code gates: deterministic search generation, content validation, feed validation, workflow policy validation, browser checks, visual captures, and Lighthouse budget checks have passed during this remediation pass;
-- Tower resources: Typesense `search`, Valkey `cache`, and S3 `release-evidence` are active; the resource-level provider contract passed, but Typesense has zero documents and Valkey has no candidate-app behavior receipt;
+- Tower resources: Typesense `search`, Valkey `cache`, and S3 `release-evidence` are active; the resource-level provider contract passed, but Typesense has zero documents and Valkey has no candidate-app behavior receipt. The Typesense probe rejected a search-only write as expected, but the required write-key round trip has not been run;
 - six Tower monitors are active and their latest one-shot probes are healthy, but the available 24-hour SLO window is historical and degraded: latency p95 is approximately 2.7–2.9 seconds against a 2-second target;
 - the private registry policy exists and contains only a historical image (`sha-7aaa9b45ba0b6264d089eb530ecfd471a8e2008b`, digest `sha256:8e88472b8b55250cea13dd039d171d1c53d5722fba773f78bbea1c0010e29f1a`). Its SBOM and scan receipts exist, but the scan reports 49 high and 5 critical findings, provenance is only generated, and signing is `not-configured`; it is not current-candidate evidence;
 - GlitchTip project `2` has an older unresolved Tower diagnostic event; there is no exact-candidate labeled event receipt;
-- the latest environment-contract validation is invalid with exactly two missing variables: `VALKEY_URL` and `GLITCHTIP_DSN`; values were excluded from the receipt. `KIT_*` remains an explicit optional/disabled decision, not a substitute for the required cache and error-tracking bindings.
+- the latest environment-contract validation is invalid with exactly two missing variables: `VALKEY_URL` and `GLITCHTIP_DSN`; values were excluded from the receipt. The active bindings also use the approved application names `TYPESENSE_API_KEY` and `TYPESENSE_SEARCH_API_KEY`, but must be revalidated with the candidate. `KIT_*` remains an explicit optional/disabled decision, not a substitute for the required cache and error-tracking bindings;
+- the staging Coolify application is still a source-build workload (`ngqtewtqeqhj88v1005a38va`) at `https://paper-and-slate-web.dev.tower`; its latest successful deployment is for `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6`, not the candidate image. The registry contains only the historical `sha-7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` image and its non-current scan/provenance receipts;
+- the six active monitors have healthy latest one-shot probes, while the available 24-hour SLO is historical/degraded at approximately 99.856% availability with p95 latency around 2.7–2.9 seconds against a 2-second target.
 
-Any commit made after the source SHA above creates a new candidate identity. Re-read `git rev-parse HEAD`, the Forgejo branch, and every hosted receipt after the final push; never copy the SHA above into a later receipt unless it is still the exact source.
+Any source or generated-only commit creates a new evidence identity. Re-read
+`git rev-parse HEAD` and all local receipts after each such commit; hosted
+receipts must be generated by the hosted system for the exact pushed revision
+and may not be inferred from these local results.
 
 ## 1. Restore hosted CI scheduling
 
@@ -44,7 +83,7 @@ Any commit made after the source SHA above creates a new candidate identity. Re-
 
 ### Codex can then
 
-1. Dispatch each workflow against the final exact branch SHA. The current candidate's runs 97–100 are pre-run failures and cannot be reused after the runner is repaired.
+1. Dispatch each workflow against the final exact branch SHA. The current candidate's runs 134–136 are pre-run failures and cannot be reused after the runner is repaired; a current supply-chain run is also required.
 2. Inspect run, job, step, log, and artifact receipts and reject any run that has no assigned runner or no task steps.
 3. Confirm `quality.yml` runs the bounded production verification, `container.yml` proves the image runtime, and `lighthouse.yml` proves the performance thresholds.
 4. Attach redacted run IDs, artifact names, SHA, timestamps, and conclusions to the release evidence bundle.
@@ -123,7 +162,7 @@ Codex can run the Tower environment-contract validation, verify that no secret i
 3. Return only redacted identifiers: image digest, tag, CI run, SBOM object keys, scan result, provenance verification, signature verification, and byte size.
 4. Resolve or formally waive any high/critical finding with an owner, reason, scope, and expiry. Do not hide development-tool advisories by changing the scan policy.
 
-Codex can generate local CycloneDX/SPDX lockfile SBOMs, run the repository scan, compare checksums, validate digest syntax, and reconcile the redacted hosted receipts. The available Tower registry report records one historical image with a successful SBOM/scan artifact but unresolved severity and no configured signature; it cannot build, push, scan, sign, or create the image workload. Until an authorized platform/operator performs those actions for the final SHA, no current hosted OCI evidence may be claimed.
+Tower v4 reports hosted OCI build, immutable push, image inspection, CycloneDX SBOM, Trivy scan, in-toto provenance, and staging deploy-by-digest capabilities. Signing is not controller-managed, so the owner/operator must provide the approved signer and verification path. Codex can dispatch or inspect the authorized workflow, generate local CycloneDX/SPDX lockfile SBOMs, run the repository scan, compare checksums, validate digest syntax, and reconcile redacted hosted receipts once a live runner and registry authority exist. The available registry report records only one historical image with a successful SBOM/scan artifact, unresolved severity, generated-only provenance, and no configured signature; it is not current-candidate evidence. Until the final SHA has a hosted image, digest, SBOM, scan, provenance, signature decision, and image-backed staging receipt, no hosted OCI closure may be claimed.
 
 The final identity equality check is:
 
