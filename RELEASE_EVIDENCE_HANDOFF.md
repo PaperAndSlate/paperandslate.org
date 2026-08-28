@@ -1,7 +1,7 @@
 # Paper & Slate release-evidence handoff
 
-Date: 2026-08-27
-Status: v1.0.0-rc.2 staging candidate evidence is partially green; closure still requires passing private CI, hosted artifact identity, provider/SLO/rollback evidence, and owner/qualified-reviewer decisions
+Date: 2026-08-28
+Status: RC3 execution is incomplete; closure still requires passing exact-candidate CI, completed staging identity, provider/SLO/rollback evidence, hosted artifact identity, and owner/qualified-reviewer decisions
 Related audit: [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md)
 
 This file is the current action list for work that cannot be truthfully completed from the local workspace alone. It states the purpose, the exact owner/reviewer action, the evidence to return, and what Codex can do after that evidence or authority exists.
@@ -17,24 +17,30 @@ Never put passwords, API keys, private keys, personal data, legal contracts, or 
 
 Codex can inventory, draft, automate, validate, capture, compare, and assemble evidence. Codex cannot grant legal/factual/media approval, invent organizational facts, create authority, choose a provider policy on the owner's behalf, or silently perform production-impacting mutations.
 
-## Current closure snapshot
+## Current RC3 execution update
+
+As of the latest Tower reads on 2026-08-28 UTC, the private `release/v1-closure` branch and local `HEAD` agree at `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6`. RC1 remains immutable at `031b5447786f9c619288c9044bb5bc65319a30d7`; no RC3/final tag, production deployment, production DNS change, or public GitHub publication was made. Exact Forgejo runs 61/container, 62/Lighthouse, and 63/quality failed for the current SHA. Staging deployment `b4c1jatqaidljtcpc4nly1yp` completed as a direct source-build deployment with exact source import and a healthy replacement container; direct `/health` returned the exact candidate identity, but no immutable image digest is attached. Tower-side DNS and `/health` jobs passed without returning candidate identity. The full provider contract failed on Tempo HTTP 503; Typesense remained empty, and the historical SLO remained degraded.
+
+The live Tower capability report was controller `4.12.0` with recommended plugin `0.18.0`. It exposes provider-contract, artifact-inventory, deployment, monitor, SLO, and bounded observability operations, but reports Forgejo rerun unavailable and signing not controller-managed. The prompt-referenced Tower handoff files are not present in this checkout; the detailed, current execution findings and owner packets are in [`RC3_REMEDIATION_AND_OWNER_ACTION_PLAN.md`](RC3_REMEDIATION_AND_OWNER_ACTION_PLAN.md).
+
+## Historical RC2 closure snapshot
 
 This snapshot supersedes earlier execution notes in this handoff where they mention the old follow-up deployment, rejected canonical configuration, or earlier CI run numbers. The selected candidate source is `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` on `release/v1-closure`, deployed as `v1.0.0-rc.2` in Coolify deployment `zzpooecepztro4urk5sx6obv` for application `ngqtewtqeqhj88v1005a38va`. Staging `/health` reports the exact SHA, `releaseId=v1.0.0-rc.2`, and `deployment=staging` at `https://paper-and-slate-web.dev.tower`.
 
 Exact-SHA staging publication passed 12 routes and RSS/Atom/JSON Feed validation; hosted Lighthouse passed 12 reports across six routes; and visual capture produced 13 states with no runtime errors but remains human-review-pending. Latest exact-SHA Forgejo runs 25–27 failed and exposed no task-level jobs through Tower. Tower resource roundtrips for S3, Typesense, and Valkey pass, but Typesense is empty/static-fallback, app-level Valkey and final exact-SHA GlitchTip evidence are open, and Kit is disabled pending an owner decision. Fresh monitor probes pass, while the historical SLO window is degraded and monitor route materialization needs controller review. The private registry is empty, so OCI/SBOM/provenance/signature and A→B→A rollback are not claimed. RC1 remains immutable at `031b5447786f9c619288c9044bb5bc65319a30d7`; no final tag, production, production DNS/TLS, public GitHub, authentication, API, or platform integration was performed.
 
-Current non-secret state: a private Forgejo repository exists at `https://git.tower/callum/paperandslate-web.git`. Immutable tag `v1.0.0-rc.1` remains at `031b5447786f9c619288c9044bb5bc65319a30d7`; candidate source `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` is deployed in staging as `v1.0.0-rc.2` at deployment `zzpooecepztro4urk5sx6obv`. The managed HTTPS canonical staging output, publication routes, feeds, and hosted Lighthouse pass for that exact candidate. No passing Forgejo CI task receipt, hosted OCI image/SBOM/provenance/signature, complete provider acceptance, release-specific SLO, A→B→A rollback drill, qualified approval, production action, DNS/TLS change, public GitHub publication, or final release tag is claimed.
+Historical RC2 non-secret state: a private Forgejo repository exists at `https://git.tower/callum/paperandslate-web.git`. Immutable tag `v1.0.0-rc.1` remains at `031b5447786f9c619288c9044bb5bc65319a30d7`; candidate source `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` was deployed in staging as `v1.0.0-rc.2` at deployment `zzpooecepztro4urk5sx6obv`. The managed HTTPS canonical staging output, publication routes, feeds, and hosted Lighthouse pass for that historical candidate. No passing Forgejo CI task receipt, hosted OCI image/SBOM/provenance/signature, complete provider acceptance, release-specific SLO, A→B→A rollback drill, qualified approval, production action, DNS/TLS change, public GitHub publication, or final release tag was claimed for that snapshot.
 
 ## Immediate closure actions
 
 These are the exact current actions, in dependency order. Each item states who must supply the missing authority and what Codex can do afterward.
 
-1. **Resolve exact-SHA private CI (owner/operator):** open Forgejo runs 25–27, inspect complete task/job logs and artifacts, identify the provider/workflow cause, and make the smallest approved repair. Do not make another speculative workflow change. Codex can rerun the exact SHA and normalize a redacted receipt once the failure is understood.
+1. **Resolve exact-SHA private CI (owner/operator):** open Forgejo runs 61–63 for `06491dc…`, inspect complete task/job logs and artifacts, classify the container probe, root-Chrome sandbox, and quality failures, and make the smallest approved repair. Do not make another speculative workflow change. Codex can rerun the exact SHA and normalize a redacted receipt once the failure is understood.
 2. **Complete or defer providers (owner/provider operator):** decide Typesense indexing/alias/ranking/facets/preview scope, app-level Valkey tests, exact-SHA GlitchTip event, and Kit activation/privacy. Codex can run authorized scoped tests without receiving secret values.
-3. **Create hosted release identity (release/operator):** publish the reviewed source to the private immutable OCI registry, generate image and lockfile SBOMs, record provenance/signature/scan results, and verify deployed digest equality. The current registry is empty and Coolify is direct-build. Keep RC1 immutable and do not tag RC2 until technical gates pass.
+3. **Create hosted release identity (release/operator):** publish reviewed source `06491dc…` to the private immutable OCI registry, generate image and lockfile SBOMs, record provenance/signature/scan results, and verify deployed digest equality. The current registry has only an older image and Coolify is direct-build. Keep RC1 immutable and do not tag RC3 until technical gates pass.
 4. **Close monitoring and rollback (security/operations owner):** approve a release-specific SLO window, resolve the monitor-path/controller advisory, and authorize two healthy immutable staging deployments for A→B→A. Codex can run the bounded drill after both digests exist.
 5. **Complete human/publication gates (qualified reviewers and owner):** return legal/privacy/licensing/trademark, factual/institutional/people/project/funding, visual-deviation, media/font-rights, publication, and feed/syndication approvals. Codex can reconcile approved IDs and rerun checks; it cannot grant them.
-6. **Tag only after closure (release owner):** authorize the immutable `v1.0.0-rc.2` tag after CI, artifact, provider, monitoring, rollback, and human gates pass. Do not create final `v1.0.0` in this task.
+6. **Tag only after closure (release owner):** authorize the immutable `v1.0.0-rc.3` tag at the verified candidate SHA only after CI, artifact, provider, monitoring, rollback, and human gates pass. Do not create final `v1.0.0` in this task.
 
 ## 1. Appoint accountable reviewers
 
@@ -196,7 +202,7 @@ After receipt, Codex can validate propagation from multiple resolvers, HTTPS red
 
 Purpose: deploy a reviewed immutable artifact to the correct environment with attributable approvals.
 
-Current non-secret state: `.tower/project.yaml` and `infrastructure/tower/intent.yaml` describe staging only. The Tower controller has a staging server/target and the managed shared resources have been reconciled. Coolify application `ngqtewtqeqhj88v1005a38va` and deployment `zzpooecepztro4urk5sx6obv` are healthy on candidate `7aaa9b4...`; exact staging route/feed/publication and hosted Lighthouse checks pass. The deployment is still a direct Coolify build, so the private registry has no corresponding hosted image digest/SBOM receipt. Typesense is empty/static-fallback, app-level Valkey and final exact-SHA GlitchTip evidence remain open, and the required release-specific SLO and A→B→A rollback drill remain pending.
+Historical RC2 Tower/Coolify state: `.tower/project.yaml` and `infrastructure/tower/intent.yaml` describe staging only. Coolify application `ngqtewtqeqhj88v1005a38va` and deployment `zzpooecepztro4urk5sx6obv` were healthy on candidate `7aaa9b4...`; exact staging route/feed/publication and hosted Lighthouse checks passed for that historical candidate. The deployment was a direct Coolify build, so the private registry had no corresponding hosted image digest/SBOM receipt. Typesense was empty/static-fallback, app-level Valkey and final exact-SHA GlitchTip evidence remained open, and the required release-specific SLO and A→B→A rollback drill remained pending.
 
 Owner steps:
 

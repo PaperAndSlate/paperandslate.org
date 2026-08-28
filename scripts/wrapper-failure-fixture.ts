@@ -1,19 +1,16 @@
 import { spawnSync } from "node:child_process";
 import path from "node:path";
-
-const command = process.platform === "win32" ? "cmd.exe" : "pnpm";
+import { pnpmSpawnSpec } from "./pnpm-command";
 const root = process.cwd();
 
 function expectFailure(script: string, extra: Record<string, string>) {
-  const args =
-    process.platform === "win32"
-      ? ["/d", "/s", "/c", `pnpm.cmd exec tsx "${script}"`]
-      : ["exec", "tsx", script];
-  const result = spawnSync(command, args, {
+  const invocation = pnpmSpawnSpec(["exec", "tsx", script]);
+  const result = spawnSync(invocation.command, invocation.args, {
     cwd: root,
     env: { ...process.env, ...extra },
     stdio: "pipe",
     encoding: "utf8",
+    shell: false,
   });
   if (result.error) throw result.error;
   if (result.status === 0) throw new Error(`${script} unexpectedly passed its failure fixture`);
@@ -26,3 +23,4 @@ expectFailure("scripts/lighthouse.ts", {
 expectFailure("scripts/container-check.ts", {
   CONTAINER_CHECK_DOCKERFILE: path.join(root, ".generated", "missing", "Dockerfile"),
 });
+expectFailure("scripts/ci-browser.ts", {});

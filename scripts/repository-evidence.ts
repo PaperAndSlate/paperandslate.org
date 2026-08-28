@@ -53,7 +53,7 @@ const head = git(["rev-parse", "HEAD"]);
 const branch = git(["branch", "--show-current"]);
 const remote = git(["remote", "get-url", "origin"]);
 const exactTag = git(["describe", "--tags", "--exact-match"]);
-const status = git(["status", "--porcelain"]);
+const status = git(["status", "--porcelain", "--untracked-files=all"]);
 const refs = remote.value
   ? git(["ls-remote", "--heads", "--tags", "origin"])
   : { value: null, error: null };

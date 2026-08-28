@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { sourceWorktreeClean } from "./source-state";
 
 type CheckStatus =
   | "passed"
@@ -33,6 +34,22 @@ function git(args: string[]) {
   }
 }
 
+function gitStatus() {
+  try {
+    return execFileSync(
+      process.platform === "win32" ? "git.exe" : "git",
+      ["status", "--porcelain", "--untracked-files=all"],
+      {
+        cwd: root,
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      },
+    ).trimEnd();
+  } catch {
+    return null;
+  }
+}
+
 function readJson<T>(relative: string): T | null {
   const file = path.join(root, relative);
   if (!fs.existsSync(file)) return null;
@@ -45,6 +62,30 @@ function readJson<T>(relative: string): T | null {
 
 function exists(relative: string) {
   return fs.existsSync(path.join(root, relative));
+}
+
+function currentSourceWorktreeClean() {
+  const status = gitStatus();
+  return status !== null && sourceWorktreeClean(status);
+}
+
+function sourceRevisionMatchesCurrent(
+  sourceCommit: string | null | undefined,
+  current: string | null,
+) {
+  if (!sourceCommit || !current) return false;
+  if (sourceCommit === current) return true;
+  const mergeBase = git(["merge-base", sourceCommit, current]);
+  if (mergeBase !== sourceCommit) return false;
+  const changed = (git(["diff", "--name-only", `${sourceCommit}..${current}`]) ?? "")
+    .split(/\r?\n/)
+    .filter(Boolean);
+  return (
+    changed.length > 0 &&
+    changed.every(
+      (file) => file === "IMPLEMENTATION_LEDGER.md" || file.startsWith(".generated/requirements/"),
+    )
+  );
 }
 
 function lockHash() {
@@ -79,34 +120,133 @@ function requirementsCheck(): Check {
   };
 }
 
+function traceabilityCheck(): Check {
+  const report = readJson<{
+    status?: string;
+    plans?: { files?: number; mappedFiles?: number; unmappedFiles?: string[] };
+    requirements?: { records?: number; uniqueIds?: number };
+    source?: { commit?: string; worktreeClean?: boolean };
+  }>(".generated/requirements/traceability-check.json");
+  const complete =
+    report?.status === "passed" &&
+    (report.plans?.files ?? 0) > 0 &&
+    report.plans?.files === report.plans?.mappedFiles &&
+    (report.plans?.unmappedFiles?.length ?? 0) === 0 &&
+    (report.requirements?.records ?? 0) === report.requirements?.uniqueIds;
+  const current = git(["rev-parse", "HEAD"]);
+  return {
+    id: "traceability",
+    status:
+      complete &&
+      report.source?.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(report.source?.commit, current)
+        ? "passed"
+        : "pending",
+    detail: complete
+      ? `Traceability covered ${report.plans?.files ?? 0} plan files and ${report.requirements?.records ?? 0} unique requirements at ${report.source?.commit ?? "unknown commit"}; source worktree is ${report.source?.worktreeClean ? "clean" : "dirty"}.`
+      : "Durable traceability evidence is missing, incomplete, or not bound to a clean source worktree.",
+    evidence: [
+      ".generated/requirements/traceability-check.json",
+      ".generated/requirements/requirements.json",
+      "IMPLEMENTATION_LEDGER.md",
+    ],
+  };
+}
+
+function generatedCheck(id: string, relative: string, description: string): Check {
+  const report = readJson<{
+    status?: string;
+    source?: { commit?: string; worktreeClean?: boolean };
+  }>(relative);
+  const current = git(["rev-parse", "HEAD"]);
+  const currentIdentity = Boolean(
+    report?.source?.commit &&
+      current &&
+      report.source.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(report.source.commit, current),
+  );
+  const status: CheckStatus =
+    report?.status === "failed"
+      ? "failed"
+      : report?.status === "passed" && currentIdentity
+        ? "passed"
+        : "pending";
+  return {
+    id,
+    status,
+    detail:
+      report?.status === "passed"
+        ? `${description} Source identity ${report.source?.commit ?? "missing"}${currentIdentity ? " matches" : " does not match"} the current clean source HEAD.`
+        : `${description} evidence is missing or failed.`,
+    evidence: [relative],
+  };
+}
+
 function launchChecks(): Check[] {
-  const checks: Check[] = [requirementsCheck()];
+  const checks: Check[] = [
+    requirementsCheck(),
+    traceabilityCheck(),
+    generatedCheck(
+      "package-smoke",
+      ".generated/launch/package-smoke.json",
+      "Clean package packing, type imports, and runtime imports passed.",
+    ),
+    generatedCheck(
+      "reproducibility",
+      ".generated/launch/reproducibility.json",
+      "Controlled deterministic generation passed.",
+    ),
+  ];
   const repository = readJson<{
     status?: string;
+    gitSha?: string;
     repository?: {
       remote?: string | null;
       branch?: string | null;
       localSha?: string | null;
+      worktreeClean?: boolean;
       remoteResolution?: string;
     };
   }>(".generated/launch/repository-identity.json");
+  const currentSha = git(["rev-parse", "HEAD"]);
+  const repositoryMatches = Boolean(
+    repository?.status === "passed" &&
+      currentSha &&
+      repository.gitSha === currentSha &&
+      repository.repository?.localSha === currentSha &&
+      repository.repository?.worktreeClean === true &&
+      currentSourceWorktreeClean(),
+  );
   checks.push({
     id: "repository",
-    status: repository?.status === "passed" ? "passed" : "pending",
-    detail:
-      repository?.status === "passed"
-        ? `Repository identity recorded for ${repository.repository?.remote ?? "unknown remote"} on ${repository.repository?.branch ?? "unknown branch"} at ${repository.repository?.localSha ?? "unknown SHA"}; remote refs ${repository.repository?.remoteResolution ?? "unknown"}.`
-        : "Repository identity evidence is missing or failed.",
+    status: repositoryMatches ? "passed" : "pending",
+    detail: repositoryMatches
+      ? `Repository identity recorded for ${repository?.repository?.remote ?? "unknown remote"} on ${repository?.repository?.branch ?? "unknown branch"} at ${repository?.repository?.localSha ?? "unknown SHA"}; remote refs ${repository?.repository?.remoteResolution ?? "unknown"}.`
+      : `Repository identity evidence is missing, failed, or historical (current HEAD is ${currentSha ?? "unknown"}; recorded SHA is ${repository?.repository?.localSha ?? "missing"}).`,
     evidence: [".generated/launch/repository-identity.json"],
   });
-  const verify = readJson<{ status?: string; completed?: string[]; skipExternal?: boolean }>(
-    ".generated/launch/verify.json",
+  const verify = readJson<{
+    status?: string;
+    completed?: string[];
+    skipExternal?: boolean;
+    gitSha?: string | null;
+    source?: { commit?: string | null; worktreeClean?: boolean };
+  }>(".generated/launch/verify.json");
+  const verifyIdentity = Boolean(
+    verify?.gitSha &&
+      verify.source?.commit &&
+      verify.gitSha === verify.source.commit &&
+      verify.source.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(verify.source.commit, currentSha),
   );
   const verifyDetail = verify?.skipExternal
     ? `Local verification completed ${verify.completed?.length ?? 0} tasks; external Lighthouse, performance, and vulnerability checks were intentionally skipped.`
     : `Full local verification completed ${verify?.completed?.length ?? 0} tasks, including production browser, visual capture, Lighthouse, container, SBOM, and security gates.`;
   checks.push(
-    verify?.status === "passed"
+    verify?.status === "passed" && verifyIdentity
       ? {
           id: "verify",
           status: "passed",
@@ -137,6 +277,8 @@ function launchChecks(): Check[] {
 
   const lighthouse = readJson<{
     status?: string;
+    gitSha?: string;
+    source?: { commit?: string | null; worktreeClean?: boolean };
     reportCount?: number;
     configuredUrls?: string[];
     error?: string;
@@ -144,58 +286,112 @@ function launchChecks(): Check[] {
   checks.push({
     id: "lighthouse",
     status:
-      lighthouse?.status === "passed"
+      lighthouse?.status === "passed" &&
+      lighthouse.gitSha === lighthouse.source?.commit &&
+      lighthouse.source?.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(lighthouse.source.commit, currentSha)
         ? "passed"
         : lighthouse?.status === "failed"
           ? "failed"
           : "pending",
     detail:
-      lighthouse?.status === "passed"
+      lighthouse?.status === "passed" &&
+      lighthouse.gitSha === lighthouse.source?.commit &&
+      lighthouse.source?.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(lighthouse.source.commit, currentSha)
         ? `Lighthouse ran ${lighthouse.reportCount ?? 0} reports across ${lighthouse.configuredUrls?.length ?? 0} configured routes and passed configured assertions.`
         : (lighthouse?.error ?? "Lighthouse run evidence is missing."),
     evidence: [".generated/launch/lighthouse/lighthouse-run.json", ".generated/launch/lighthouse/"],
   });
 
   const performance = readJson<{
+    source?: {
+      commit?: string | null;
+      worktreeClean?: boolean;
+      lighthouseGitSha?: string | null;
+    };
     reports?: Array<{ failures?: unknown[] }>;
     routeSummary?: unknown[];
   }>(".generated/launch/performance-summary.json");
-  const performanceFailures =
-    performance?.reports?.flatMap((report) => report.failures ?? []) ?? [];
+  const performanceReports = Array.isArray(performance?.reports) ? performance.reports : [];
+  const performanceFailures = performanceReports.flatMap((report) => report.failures ?? []);
+  const performanceIdentity = Boolean(
+    performance?.source?.commit &&
+      sourceRevisionMatchesCurrent(performance.source.commit, currentSha) &&
+      performance.source.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      performance.source.lighthouseGitSha === performance.source.commit,
+  );
   checks.push({
     id: "performance-budgets",
-    status: performance && performanceFailures.length === 0 ? "passed" : "pending",
+    status:
+      performanceReports.length > 0 &&
+      Array.isArray(performance?.routeSummary) &&
+      performance.routeSummary.length > 0 &&
+      performanceIdentity &&
+      performanceFailures.length === 0
+        ? "passed"
+        : "pending",
     detail:
-      performance && performanceFailures.length === 0
-        ? `All ${performance.reports?.length ?? 0} Lighthouse runs passed category, web-vitals, resource, and request budgets across ${performance.routeSummary?.length ?? 0} routes.`
+      performanceReports.length > 0 && performanceIdentity && performanceFailures.length === 0
+        ? `All ${performanceReports.length} Lighthouse runs passed category, web-vitals, resource, and request budgets across ${performance?.routeSummary?.length ?? 0} routes.`
         : "Performance budget evidence is missing or contains failures.",
     evidence: [".generated/launch/performance-summary.json", "config/performance-budgets.yml"],
   });
 
-  const browser = readJson<{ passed?: boolean; errors?: string[]; routes?: string[] }>(
-    ".generated/launch/production-browser.json",
+  const browser = readJson<{
+    passed?: boolean;
+    errors?: string[];
+    routes?: string[];
+    gitSha?: string;
+    source?: { commit?: string | null; worktreeClean?: boolean };
+  }>(".generated/launch/production-browser.json");
+  const browserIdentity = Boolean(
+    browser?.gitSha &&
+      browser.gitSha === browser.source?.commit &&
+      browser.source?.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(browser.source.commit, currentSha),
   );
   checks.push({
     id: "production-browser",
-    status: browser?.passed && (browser.errors?.length ?? 0) === 0 ? "passed" : "pending",
+    status:
+      browser?.passed && browserIdentity && (browser.errors?.length ?? 0) === 0
+        ? "passed"
+        : "pending",
     detail:
-      browser?.passed && (browser.errors?.length ?? 0) === 0
+      browser?.passed && browserIdentity && (browser.errors?.length ?? 0) === 0
         ? `Standalone production browser checks passed for ${browser.routes?.length ?? 0} routes with no CSP or runtime errors.`
         : "Standalone production browser evidence is missing or failed.",
     evidence: [".generated/launch/production-browser.json"],
   });
 
-  const visual = readJson<{ status?: string; captures?: unknown[]; errors?: string[] }>(
-    ".generated/launch/visual/manifest.json",
+  const visual = readJson<{
+    status?: string;
+    gitSha?: string;
+    captures?: unknown[];
+    errors?: string[];
+    source?: { commit?: string | null; worktreeClean?: boolean };
+  }>(".generated/launch/visual/manifest.json");
+  const visualIdentity = Boolean(
+    visual?.gitSha &&
+      visual.gitSha === visual.source?.commit &&
+      visual.source?.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(visual.source.commit, currentSha),
   );
   checks.push({
     id: "visual-evidence",
     status:
-      visual?.status === "human-review-pending" && (visual.errors?.length ?? 0) === 0
+      visual?.status === "human-review-pending" &&
+      visualIdentity &&
+      (visual.errors?.length ?? 0) === 0
         ? "human-review-pending"
         : "pending",
     detail:
-      visual?.status === "human-review-pending"
+      visual?.status === "human-review-pending" && visualIdentity
         ? `${visual.captures?.length ?? 0} clean production visual states were captured; comparison and final visual/media approval remain human decisions.`
         : "Production visual evidence is missing or failed.",
     evidence: [".generated/launch/visual/manifest.json", ".generated/launch/visual/"],
@@ -203,35 +399,62 @@ function launchChecks(): Check[] {
 
   const container = readJson<{
     status?: string;
+    gitSha?: string;
+    source?: { commit?: string | null; worktreeClean?: boolean };
     image?: string;
     imageId?: string | null;
     runtimeUid?: string | null;
     repoDigests?: string[];
   }>(".generated/launch/container-check.json");
+  const containerIdentity = Boolean(
+    container?.gitSha &&
+      container.gitSha === container.source?.commit &&
+      container.source?.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(container.source.commit, currentSha),
+  );
   checks.push({
     id: "container",
-    status: container?.status === "passed" && container.runtimeUid !== "0" ? "passed" : "pending",
+    status:
+      container?.status === "passed" && containerIdentity && container.runtimeUid !== "0"
+        ? "passed"
+        : "pending",
     detail:
-      container?.status === "passed"
+      container?.status === "passed" && containerIdentity
         ? `Container ${container.image ?? "unknown"} passed as uid ${container.runtimeUid ?? "unknown"}; image ID ${container.imageId ?? "not recorded"}.`
         : "Container acceptance evidence is missing or failed.",
     evidence: [".generated/launch/container-check.json", "infrastructure/docker/Dockerfile"],
   });
 
-  const sbom = readJson<{ releaseId?: string; packageCount?: number; containerDigest?: string }>(
-    ".generated/launch/sbom-manifest.json",
+  const sbom = readJson<{
+    releaseId?: string;
+    gitSha?: string;
+    lockHash?: string;
+    source?: { commit?: string | null; worktreeClean?: boolean };
+    packageCount?: number;
+    containerDigest?: string;
+  }>(".generated/launch/sbom-manifest.json");
+  const sbomIdentity = Boolean(
+    sbom?.gitSha &&
+      sbom.gitSha === sbom.source?.commit &&
+      sbom.source?.worktreeClean === true &&
+      currentSourceWorktreeClean() &&
+      sourceRevisionMatchesCurrent(sbom.source.commit, currentSha),
   );
   checks.push({
     id: "sbom",
     status:
       sbom &&
+      sbomIdentity &&
+      sbom.lockHash === lockHash() &&
       exists("evidence/local/sbom/cyclonedx.json") &&
       exists("evidence/local/sbom/spdx.json")
         ? "passed"
         : "pending",
-    detail: sbom
-      ? `CycloneDX and SPDX SBOMs cover ${sbom.packageCount ?? 0} locked packages for ${sbom.releaseId ?? releaseId}; container digest is ${sbom.containerDigest ?? "pending"}.`
-      : "SBOM evidence is missing.",
+    detail:
+      sbom && sbomIdentity && sbom.lockHash === lockHash()
+        ? `CycloneDX and SPDX SBOMs cover ${sbom.packageCount ?? 0} locked packages for ${sbom.releaseId ?? releaseId}; container digest is ${sbom.containerDigest ?? "pending"}.`
+        : "SBOM evidence is missing.",
     evidence: [
       ".generated/launch/sbom-manifest.json",
       "evidence/local/sbom/cyclonedx.json",
@@ -240,10 +463,13 @@ function launchChecks(): Check[] {
   });
 
   const vulnerability = readJson<{
+    source?: { lockfileSha256?: string | null };
     production?: { status?: string };
     tooling?: { status?: string; advisories?: unknown[] };
   }>("evidence/local/security/vulnerability-scan.json");
-  const vulnerabilityStatus = vulnerability?.production?.status === "passed";
+  const vulnerabilityStatus =
+    vulnerability?.production?.status === "passed" &&
+    vulnerability.source?.lockfileSha256 === lockHash();
   checks.push({
     id: "vulnerability-scan",
     status: vulnerabilityStatus

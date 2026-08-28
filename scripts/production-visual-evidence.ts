@@ -4,6 +4,7 @@ import { access, cp, mkdir, rm, stat, writeFile } from "node:fs/promises";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
+import { readSourceState } from "./source-state";
 
 const root = process.cwd();
 const port = Number(process.env.PRODUCTION_VISUAL_PORT ?? 3315);
@@ -396,6 +397,7 @@ async function main() {
         "Supplied mockups are references only; no pixel match or approval is claimed automatically.",
       captures,
       errors,
+      source: readSourceState(root),
     };
     await mkdir(path.dirname(manifestPath), { recursive: true });
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
@@ -413,7 +415,34 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
+main().catch(async (error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  try {
+    await mkdir(path.dirname(manifestPath), { recursive: true });
+    await writeFile(
+      manifestPath,
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          status: "failed",
+          releaseId,
+          gitSha: process.env.GIT_SHA ?? git(["rev-parse", "HEAD"]),
+          target: baseUrl,
+          generatedAt: new Date().toISOString(),
+          referencePolicy:
+            "Supplied mockups are references only; no pixel match or approval is claimed automatically.",
+          captures: [],
+          errors: [message],
+          source: readSourceState(root),
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+  } catch {
+    // Preserve the original visual failure when the evidence file cannot be written.
+  }
+  console.error(message);
   process.exitCode = 1;
 });

@@ -177,6 +177,10 @@ export function withinAbuseLimit(
 type RedisReply = string | number | null;
 type RedisResult = { ok: true; replies: RedisReply[] } | { ok: false };
 
+function namespacedKey(env: Env, kind: "rate" | "idempotency", value: string) {
+  return `${env.VALKEY_KEY_PREFIX}newsletter:${kind}:${value}`;
+}
+
 function command(parts: Array<string | number>) {
   return `*${parts.length}\r\n${parts
     .map((part) => {
@@ -265,16 +269,20 @@ async function valkeyRateLimit(key: string, limit: number, windowSeconds: number
   const env = parseEnv();
   if (!env.VALKEY_URL) return null;
   const url = new URL(env.VALKEY_URL);
-  const prefix = url.pathname.replace(/^\//, "") || "paper-slate";
-  const redisKey = `${prefix}:newsletter:rate:${key}`;
-  const increment = await valkeyCommands(url, [["INCR", redisKey]]);
+  const redisKey = namespacedKey(env, "rate", key);
+  // EXPIRE NX makes the counter/window initialization safe when two workers
+  // receive the first request concurrently. The key is always scoped to the
+  // application-owned Valkey prefix rather than the URL database pathname.
+  const increment = await valkeyCommands(url, [
+    ["INCR", redisKey],
+    ["EXPIRE", redisKey, windowSeconds, "NX"],
+  ]);
   if (!increment.ok) return null;
-  const count = typeof increment.replies[0] === "number" ? increment.replies[0] : limit + 1;
+  const count = increment.replies[0];
+  const expiry = increment.replies[1];
+  if (typeof count !== "number" || !Number.isSafeInteger(count)) return null;
+  if (typeof expiry !== "number" || (expiry !== 0 && expiry !== 1)) return null;
   if (count > limit) return false;
-  if (count === 1) {
-    const expiry = await valkeyCommands(url, [["EXPIRE", redisKey, windowSeconds]]);
-    if (!expiry.ok || expiry.replies[0] !== 1) return null;
-  }
   return true;
 }
 
@@ -282,10 +290,8 @@ async function valkeyClaim(key: string, ttlSeconds: number) {
   const env = parseEnv();
   if (!env.VALKEY_URL) return null;
   const url = new URL(env.VALKEY_URL);
-  const prefix = url.pathname.replace(/^\//, "") || "paper-slate";
-  const result = await valkeyCommands(url, [
-    ["SET", `${prefix}:newsletter:idempotency:${key}`, "1", "NX", "EX", ttlSeconds],
-  ]);
+  const redisKey = namespacedKey(env, "idempotency", key);
+  const result = await valkeyCommands(url, [["SET", redisKey, "1", "NX", "EX", ttlSeconds]]);
   if (!result.ok) return null;
   return result.replies[0] === null ? ("duplicate" as const) : ("claimed" as const);
 }
@@ -294,8 +300,7 @@ async function valkeyRelease(key: string) {
   const env = parseEnv();
   if (!env.VALKEY_URL) return;
   const url = new URL(env.VALKEY_URL);
-  const prefix = url.pathname.replace(/^\//, "") || "paper-slate";
-  await valkeyCommands(url, [["DEL", `${prefix}:newsletter:idempotency:${key}`]]);
+  await valkeyCommands(url, [["DEL", namespacedKey(env, "idempotency", key)]]);
 }
 
 export function kitConfigured(env: NodeJS.ProcessEnv | Env = process.env) {

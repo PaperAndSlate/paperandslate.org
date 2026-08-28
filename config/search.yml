@@ -10,3 +10,4 @@ facets:
 typesense:
   activation: explicit SEARCH_PROVIDER=typesense plus endpoint and search-only key
   collection: search_records
+  alias: search_records

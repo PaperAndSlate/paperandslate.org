@@ -1,12 +1,13 @@
-import { execFile, spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { execFile } from "node:child_process";
 import fs from "node:fs";
 import { promisify } from "node:util";
+import { healthProbeCommand } from "./container-probe";
+import { readSourceState } from "./source-state";
 
 const execFileAsync = promisify(execFile);
 const docker = process.platform === "win32" ? "docker.exe" : "docker";
 const image = process.env.CONTAINER_CHECK_IMAGE ?? "paper-and-slate-web:local";
 const container = `paper-and-slate-web-check-${process.pid}`;
-const port = Number(process.env.CONTAINER_CHECK_PORT ?? 3211);
 const dockerfile = process.env.CONTAINER_CHECK_DOCKERFILE ?? "infrastructure/docker/Dockerfile";
 const evidencePath = `${process.cwd()}/.generated/launch/container-check.json`;
 const positiveNumber = (value: string | undefined, fallback: number) => {
@@ -15,6 +16,7 @@ const positiveNumber = (value: string | undefined, fallback: number) => {
 };
 const commandTimeoutMs = positiveNumber(process.env.CONTAINER_CHECK_TIMEOUT_MS, 10 * 60_000);
 const healthTimeoutMs = positiveNumber(process.env.CONTAINER_CHECK_HEALTH_TIMEOUT_MS, 45_000);
+const defaultGitSha = readSourceState(process.cwd()).commit ?? "container-check";
 
 type ContainerEvidence = {
   schemaVersion: 1;
@@ -27,14 +29,21 @@ type ContainerEvidence = {
   repoDigests?: string[];
   runtimeUid?: string | null;
   healthcheckClient?: string | null;
+  healthProbeMode?: "network-dns" | "in-container" | null;
+  networkName?: string | null;
+  networkAlias?: string | null;
   health?: { releaseId?: string; gitSha?: string; status?: string } | null;
   healthcheck?: string[] | null;
   error?: string;
+  source?: ReturnType<typeof readSourceState>;
 };
 
 function writeEvidence(evidence: ContainerEvidence) {
   fs.mkdirSync(`${process.cwd()}/.generated/launch`, { recursive: true });
-  fs.writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
+  fs.writeFileSync(
+    evidencePath,
+    `${JSON.stringify({ ...evidence, source: readSourceState(process.cwd()) }, null, 2)}\n`,
+  );
 }
 
 function recoverAbandonedEvidence() {
@@ -54,7 +63,6 @@ function recoverAbandonedEvidence() {
 }
 
 let activeDockerAbort: AbortController | undefined;
-let activeContainer: ChildProcess | undefined;
 let interrupted = false;
 
 async function run(args: string[], inherit = false, timeoutMs = commandTimeoutMs) {
@@ -113,13 +121,6 @@ async function containerDiagnostics() {
   }
   try {
     diagnostics.push(
-      `docker port: ${(await run(["port", container], false, 10_000)).trim() || "no published ports"}`,
-    );
-  } catch {
-    diagnostics.push("docker port could not read the check container");
-  }
-  try {
-    diagnostics.push(
       `docker logs (tail 80):\n${redactContainerDiagnostics(
         (await run(["logs", "--tail", "80", container], false, 10_000)).trim(),
       )}`,
@@ -130,27 +131,36 @@ async function containerDiagnostics() {
   return diagnostics.filter(Boolean).join("\n");
 }
 
-function stopProcess(child: ChildProcess | undefined) {
-  if (!child?.pid) return;
-  if (process.platform === "win32")
-    spawnSync("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
-      stdio: "ignore",
-      windowsHide: true,
-    });
-  else child.kill("SIGTERM");
-}
-
-async function waitForHealth() {
+async function waitForHealth(healthcheckClient: string, networkName: string | null) {
   const deadline = Date.now() + healthTimeoutMs;
+  const networkAlias = `paper-and-slate-web-check-${process.pid}`;
+  const healthTarget = networkName
+    ? `http://${networkAlias}:3000/health`
+    : "http://127.0.0.1:3000/health";
+  const probe = healthProbeCommand(healthcheckClient, healthTarget);
+  const probeArgs = networkName
+    ? [
+        "run",
+        "--rm",
+        "--network",
+        networkName,
+        "--entrypoint",
+        "sh",
+        image,
+        "-c",
+        `${probe} 2>/dev/null || exit 1`,
+      ]
+    : ["exec", container, "sh", "-c", `${probe} 2>/dev/null || exit 1`];
   let lastFailure = "no response";
   while (Date.now() < deadline) {
     if (interrupted) throw new Error("Container check interrupted by process signal");
     try {
-      const response = await fetch(`http://127.0.0.1:${port}/health`, {
-        signal: AbortSignal.timeout(2_000),
-      });
-      if (response.ok) return response;
-      lastFailure = `HTTP ${response.status}: ${redactContainerDiagnostics((await response.text()).slice(0, 500))}`;
+      const response = await run(probeArgs, false, 3_000);
+      return JSON.parse(response) as {
+        releaseId?: string;
+        gitSha?: string;
+        status?: string;
+      };
     } catch (error) {
       lastFailure = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
     }
@@ -162,7 +172,7 @@ async function waitForHealth() {
 async function main() {
   if (!fs.existsSync(dockerfile)) throw new Error(`Dockerfile is missing: ${dockerfile}`);
   const releaseId = process.env.RELEASE_ID ?? "container-check";
-  const gitSha = process.env.GIT_SHA ?? "container-check";
+  const gitSha = process.env.GIT_SHA ?? defaultGitSha;
   recoverAbandonedEvidence();
   writeEvidence({
     schemaVersion: 1,
@@ -197,32 +207,40 @@ async function main() {
   ).trim();
   if (!healthcheckClient)
     throw new Error("Container image must include curl or wget for HTTP health probes");
-  const child = spawn(
-    docker,
-    [
-      "run",
-      "--name",
-      container,
-      "-e",
-      `RELEASE_ID=${releaseId}`,
-      "-e",
-      `GIT_SHA=${gitSha}`,
-      "-e",
-      `DEPLOYMENT_ENV=${process.env.DEPLOYMENT_ENV ?? "local"}`,
-      "-p",
-      `${port}:3000`,
-      image,
-    ],
-    { cwd: process.cwd(), stdio: "ignore", windowsHide: true },
+  let networkName = process.env.TOWER_CI_CONTAINER_NETWORK?.trim() || null;
+  let ownedNetwork = false;
+  const networkAlias = `paper-and-slate-web-check-${process.pid}`;
+  if (networkName && !/^[A-Za-z0-9][A-Za-z0-9_.-]{0,127}$/.test(networkName))
+    throw new Error(`Unexpected Tower CI container network name: ${networkName}`);
+  if (!networkName) {
+    const candidateNetwork = `paper-and-slate-web-check-network-${process.pid}`;
+    try {
+      await run(["network", "create", candidateNetwork], false, 10_000);
+      networkName = candidateNetwork;
+      ownedNetwork = true;
+    } catch {
+      // A restricted/local Docker daemon may not permit custom networks. Keep
+      // the in-container probe as the explicit bounded fallback in that case.
+      networkName = null;
+    }
+  }
+  const startArgs = ["run", "--detach", "--name", container];
+  if (networkName) startArgs.push("--network", networkName, "--network-alias", networkAlias);
+  startArgs.push(
+    "-e",
+    `RELEASE_ID=${releaseId}`,
+    "-e",
+    `GIT_SHA=${gitSha}`,
+    "-e",
+    `DEPLOYMENT_ENV=${process.env.DEPLOYMENT_ENV ?? "local"}`,
+    image,
   );
-  activeContainer = child;
+  let containerStarted = false;
   try {
-    const response = await waitForHealth();
-    const health = (await response.json()) as {
-      releaseId?: string;
-      gitSha?: string;
-      status?: string;
-    };
+    await run(startArgs);
+    containerStarted = true;
+    const health = await waitForHealth(healthcheckClient, networkName);
+    if (health.status !== "ok") throw new Error("Container health did not report status=ok");
     if (health.releaseId !== releaseId || health.gitSha !== gitSha)
       throw new Error("Container health identity does not match the check environment");
     const identity = (await run(["exec", container, "id", "-u"])).trim();
@@ -238,6 +256,9 @@ async function main() {
       repoDigests,
       runtimeUid: identity,
       healthcheckClient,
+      healthProbeMode: networkName ? "network-dns" : "in-container",
+      networkName,
+      networkAlias: networkName ? networkAlias : null,
       health,
       healthcheck: config.Healthcheck?.Test ?? null,
     });
@@ -248,19 +269,23 @@ async function main() {
     throw error;
   } finally {
     try {
-      await run(["rm", "--force", container]);
+      if (containerStarted) await run(["rm", "--force", container]);
     } catch {
       // The --rm container may already have exited.
     }
-    stopProcess(child);
-    if (activeContainer === child) activeContainer = undefined;
+    if (ownedNetwork && networkName) {
+      try {
+        await run(["network", "rm", networkName], false, 10_000);
+      } catch {
+        // The unique check network is best-effort cleanup after the receipt is written.
+      }
+    }
   }
 }
 
 const abortContainerCheck = () => {
   interrupted = true;
   activeDockerAbort?.abort();
-  stopProcess(activeContainer);
 };
 process.once("SIGINT", abortContainerCheck);
 process.once("SIGTERM", abortContainerCheck);
@@ -276,7 +301,7 @@ main().catch((error) => {
     status: "failed",
     generatedAt: new Date().toISOString(),
     releaseId: process.env.RELEASE_ID ?? "container-check",
-    gitSha: process.env.GIT_SHA ?? "container-check",
+    gitSha: process.env.GIT_SHA ?? defaultGitSha,
     image,
     error: message,
   });

@@ -80,18 +80,22 @@ spec:
       - DEPLOYMENT_ENV
       - PUBLICATION_AS_OF
     optional:
+      - KIT_ENABLED
+      - KIT_API_URL
+      - KIT_API_KEY
+      - KIT_FORM_ID
       - SEARCH_PROVIDER
       - TYPESENSE_ENDPOINT
       - TYPESENSE_COLLECTION
+      - TYPESENSE_COLLECTION_ALIAS
       - TYPESENSE_INDEX_ID
       - TRUSTED_PROXY_MODE
       - NEWSLETTER_BODY_LIMIT_BYTES
+      - VALKEY_KEY_PREFIX
     secret:
       - TYPESENSE_API_KEY
       - TYPESENSE_SEARCH_API_KEY
       - VALKEY_URL
-      - KIT_API_KEY
-      - KIT_FORM_ID
       - GLITCHTIP_DSN
     previewAllowed:
       - NEXT_PUBLIC_SITE_URL
@@ -117,16 +121,28 @@ spec:
     targets:
       - name: health
         url: https://paper-and-slate-web.dev.tower/health
+        path: /health
+        expectedStatus: 200
       - name: homepage
         url: https://paper-and-slate-web.dev.tower/
+        path: /
+        expectedStatus: 200
       - name: projects
         url: https://paper-and-slate-web.dev.tower/projects
+        path: /projects
+        expectedStatus: 200
       - name: docs
         url: https://paper-and-slate-web.dev.tower/docs/file-system/v/1.0
+        path: /docs/file-system/v/1.0
+        expectedStatus: 200
       - name: search
-        url: https://paper-and-slate-web.dev.tower/api/search?q=paper
+        url: https://paper-and-slate-web.dev.tower/api/search
+        path: /api/search
+        expectedStatus: 200
       - name: rss
         url: https://paper-and-slate-web.dev.tower/feeds/rss.xml
+        path: /feeds/rss.xml
+        expectedStatus: 200
     availabilityPercent: 99
     latencyP95Ms: 2000
   quotas:

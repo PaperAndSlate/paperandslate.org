@@ -2,6 +2,7 @@ import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { withLighthouseChrome } from "./lighthouse-chrome";
+import { pnpmSpawnSpec } from "./pnpm-command";
 
 const root = process.cwd();
 const stagingUrl = process.env.STAGING_URL;
@@ -83,11 +84,14 @@ async function waitForHealth(url: string) {
 
 function runLighthouse(config: string, env: NodeJS.ProcessEnv) {
   return new Promise<void>((resolve, reject) => {
-    const child = spawn(
-      process.platform === "win32" ? "pnpm.cmd" : "pnpm",
-      ["exec", "lhci", "autorun", `--config=${config}`],
-      { cwd: root, env, stdio: "inherit", shell: process.platform === "win32", windowsHide: true },
-    );
+    const invocation = pnpmSpawnSpec(["exec", "lhci", "autorun", `--config=${config}`]);
+    const child = spawn(invocation.command, invocation.args, {
+      cwd: root,
+      env,
+      stdio: "inherit",
+      shell: false,
+      windowsHide: true,
+    });
     child.once("error", reject);
     child.once("exit", (code, signal) => {
       if (code === 0) resolve();

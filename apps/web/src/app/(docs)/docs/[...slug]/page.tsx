@@ -26,6 +26,12 @@ export async function generateMetadata({
     title: doc.title,
     description: doc.description,
     alternates: { canonical: doc.canonicalRoute },
+    openGraph: {
+      type: "website",
+      url: doc.canonicalRoute,
+      title: doc.title,
+      description: doc.description,
+    },
     robots: doc.status === "draft" ? { index: false, follow: false } : undefined,
   };
 }

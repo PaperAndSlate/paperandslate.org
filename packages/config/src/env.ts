@@ -16,11 +16,16 @@ export const envSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/)
     .default("2026-08-27"),
   VALKEY_URL: z.string().url().optional(),
+  VALKEY_KEY_PREFIX: z
+    .string()
+    .regex(/^[A-Za-z0-9._-]{1,64}:$/)
+    .default("paper_and_slate_web_cache:"),
   SEARCH_PROVIDER: z.enum(["static", "typesense"]).default("static"),
   TYPESENSE_ENDPOINT: z.string().url().optional(),
   TYPESENSE_API_KEY: z.string().optional(),
   TYPESENSE_SEARCH_API_KEY: z.string().optional(),
   TYPESENSE_COLLECTION: z.string().default("search_records"),
+  TYPESENSE_COLLECTION_ALIAS: z.string().default("search_records"),
   TYPESENSE_INDEX_ID: z.string().optional(),
   GLITCHTIP_DSN: z.string().url().optional(),
   RELEASE_ID: z.string().default("local-development"),

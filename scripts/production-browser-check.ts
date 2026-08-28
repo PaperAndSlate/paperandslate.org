@@ -3,6 +3,7 @@ import { access, cp, mkdir, rm, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
+import { readSourceState } from "./source-state";
 
 const root = process.cwd();
 const port = Number(process.env.PRODUCTION_BROWSER_PORT ?? 3300);
@@ -35,6 +36,7 @@ const runtimeRoot = path.join(
 );
 const evidencePath = path.join(root, ".generated", "launch", "production-browser.json");
 const debug = process.env.PRODUCTION_BROWSER_DEBUG === "true";
+const localSourceSha = readSourceState(root).commit ?? "local-production-check";
 const systemChromeCandidates = [
   process.env.PLAYWRIGHT_EXECUTABLE_PATH,
   "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
@@ -50,6 +52,12 @@ type BrowserEvidence = {
   scriptCount: number;
   errors: string[];
   passed: boolean;
+  source: {
+    commit: string | null;
+    tree: string | null;
+    worktreeClean: boolean;
+    dirtyPaths: string[];
+  };
 };
 
 function stopServer(server: ChildProcess) {
@@ -157,7 +165,7 @@ async function main() {
           .filter(Boolean)
           .join(path.delimiter),
         RELEASE_ID: process.env.RELEASE_ID ?? "local-production-check",
-        GIT_SHA: process.env.GIT_SHA ?? "local-production-check",
+        GIT_SHA: process.env.GIT_SHA ?? localSourceSha,
       },
       stdio: "ignore",
       windowsHide: true,
@@ -192,7 +200,7 @@ async function main() {
       deployment?: string;
     };
     const expectedRelease = process.env.RELEASE_ID ?? "local-production-check";
-    const expectedSha = process.env.GIT_SHA ?? "local-production-check";
+    const expectedSha = process.env.GIT_SHA ?? localSourceSha;
     if (externalBaseUrl && (!process.env.RELEASE_ID || !process.env.GIT_SHA))
       throw new Error(
         "Hosted browser evidence requires RELEASE_ID and GIT_SHA for the exact candidate",
@@ -289,13 +297,14 @@ async function main() {
 
     const evidence: BrowserEvidence = {
       releaseId: process.env.RELEASE_ID ?? "local-production-check",
-      gitSha: process.env.GIT_SHA ?? "local-production-check",
+      gitSha: process.env.GIT_SHA ?? localSourceSha,
       baseUrl,
       routes,
       csp,
       scriptCount,
       errors,
       passed: true,
+      source: readSourceState(root),
     };
     await mkdir(path.dirname(evidencePath), { recursive: true });
     await writeFile(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`, "utf8");
@@ -309,7 +318,33 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
+main().catch(async (error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  try {
+    await mkdir(path.dirname(evidencePath), { recursive: true });
+    await writeFile(
+      evidencePath,
+      `${JSON.stringify(
+        {
+          schemaVersion: 1,
+          releaseId: process.env.RELEASE_ID ?? "local-production-check",
+          gitSha: process.env.GIT_SHA ?? localSourceSha,
+          baseUrl,
+          routes: [],
+          csp: "",
+          scriptCount: 0,
+          errors: [message],
+          passed: false,
+          source: readSourceState(root),
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+  } catch {
+    // Preserve the original browser failure when the evidence file cannot be written.
+  }
+  console.error(message);
   process.exitCode = 1;
 });

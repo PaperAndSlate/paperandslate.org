@@ -2,8 +2,9 @@ import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { loadRegistry, sourceDocsRoot } from "../packages/docs-ingestion/src/index";
+import { pnpmSpawnSpec } from "./pnpm-command";
+import { readSourceState } from "./source-state";
 
-const command = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
 const siblingDocsAvailable = (() => {
   try {
     return loadRegistry()
@@ -17,7 +18,8 @@ const siblingDocsAvailable = (() => {
 })();
 const docsTasks = siblingDocsAvailable ? ["docs:ingest", "docs:validate"] : ["docs:bundle:check"];
 const localTasks = [
-  "requirements:check",
+  "workflow:check",
+  "traceability:check",
   ...docsTasks,
   "search:index",
   "content:validate",
@@ -25,6 +27,7 @@ const localTasks = [
   "release:check",
   "routes:check",
   "security:check",
+  "license:check",
   "seo:check",
   "rollback:check",
   "format:check",
@@ -33,6 +36,8 @@ const localTasks = [
   "test",
   "build:verify",
   "build:web",
+  "package:smoke",
+  "reproducibility:check",
   "e2e",
   "a11y:rc",
   "links",
@@ -82,6 +87,7 @@ const writeEvidence = (
   error?: string,
 ) => {
   fs.mkdirSync(path.dirname(evidencePath), { recursive: true });
+  const source = readSourceState(process.cwd());
   fs.writeFileSync(
     evidencePath,
     `${JSON.stringify(
@@ -95,7 +101,8 @@ const writeEvidence = (
         completed,
         error: error ?? null,
         releaseId: process.env.RELEASE_ID ?? "local-development",
-        gitSha: process.env.GIT_SHA ?? null,
+        gitSha: process.env.GIT_SHA ?? source.commit,
+        source,
       },
       null,
       2,
@@ -128,11 +135,12 @@ function stopChild(child: ChildProcess | undefined) {
 
 function runTask(task: string): Promise<number> {
   return new Promise((resolve, reject) => {
-    const child = spawn(command, [task], {
+    const invocation = pnpmSpawnSpec([task]);
+    const child = spawn(invocation.command, invocation.args, {
       cwd: process.cwd(),
       stdio: "inherit",
       env: process.env,
-      shell: process.platform === "win32",
+      shell: false,
       windowsHide: true,
     });
     activeChild = child;
@@ -160,12 +168,12 @@ function runTask(task: string): Promise<number> {
   });
 }
 
-const abortVerification = (signal: NodeJS.Signals) => {
+const abortVerification = () => {
   interrupted = true;
   stopChild(activeChild);
 };
-process.once("SIGINT", () => abortVerification("SIGINT"));
-process.once("SIGTERM", () => abortVerification("SIGTERM"));
+process.once("SIGINT", abortVerification);
+process.once("SIGTERM", abortVerification);
 
 async function main() {
   for (const task of [...tasks, "launch:report", "evidence:bundle"]) {

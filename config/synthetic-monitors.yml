@@ -1,7 +1,41 @@
 version: 1
-status: manifest-only
+status: configured-intent
+environment: staging
+origin: https://paper-and-slate-web.dev.tower
 monitors:
-  - id: local-health
+  - id: health
+    method: GET
     path: /health
-    expected: status-ok
-    activation: pending
+    expectedStatus: 200
+    timeoutSeconds: 10
+    intervalSeconds: 60
+  - id: homepage
+    method: GET
+    path: /
+    expectedStatus: 200
+    timeoutSeconds: 10
+    intervalSeconds: 60
+  - id: projects
+    method: GET
+    path: /projects
+    expectedStatus: 200
+    timeoutSeconds: 10
+    intervalSeconds: 60
+  - id: docs
+    method: GET
+    path: /docs/file-system/v/1.0
+    expectedStatus: 200
+    timeoutSeconds: 10
+    intervalSeconds: 60
+  - id: search
+    method: GET
+    path: /api/search
+    expectedStatus: 200
+    timeoutSeconds: 10
+    intervalSeconds: 60
+  - id: rss
+    method: GET
+    path: /feeds/rss.xml
+    expectedStatus: 200
+    timeoutSeconds: 10
+    intervalSeconds: 60

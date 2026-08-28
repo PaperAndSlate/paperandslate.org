@@ -3,6 +3,8 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import YAML from "yaml";
+import { integrityToCycloneDxHash } from "./sbom-core";
+import { readSourceState } from "./source-state";
 
 type LockPackage = { resolution?: { integrity?: string }; dev?: boolean };
 type Lockfile = { packages?: Record<string, LockPackage> };
@@ -31,9 +33,7 @@ const componentFor = (item: (typeof packages)[number]) => ({
   name: item.name,
   version: item.version,
   "bom-ref": purl(item.name, item.version),
-  ...(item.integrity
-    ? { hashes: [{ alg: "SHA-512", content: item.integrity.replace(/^sha512-/, "") }] }
-    : {}),
+  ...(item.integrity ? { hashes: [integrityToCycloneDxHash(item.integrity)] } : {}),
   properties: [{ name: "pnpm:development", value: String(item.dev) }],
 });
 const resolvedGitSha = (() => {
@@ -101,6 +101,12 @@ const spdxPackages = packages.map((item) => ({
   copyrightText: "NOASSERTION",
   ...(item.integrity
     ? {
+        checksums: [
+          {
+            algorithm: "SHA512",
+            checksumValue: integrityToCycloneDxHash(item.integrity).content,
+          },
+        ],
         externalRefs: [
           {
             referenceCategory: "PACKAGE-MANAGER",
@@ -134,6 +140,7 @@ const manifest = {
   schemaVersion: 1,
   releaseId,
   gitSha,
+  source: readSourceState(root),
   lockHash,
   packageCount: packages.length,
   containerDigest,

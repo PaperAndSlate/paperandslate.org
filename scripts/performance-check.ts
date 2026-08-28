@@ -1,6 +1,8 @@
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import YAML from "yaml";
+import { sourceDirtyPaths, sourceWorktreeClean } from "./source-state";
 
 export type PerformanceBudgets = {
   javascriptKb: number;
@@ -146,10 +148,46 @@ function readBudgets(root: string) {
   return budgets;
 }
 
+function git(args: string[]) {
+  try {
+    return execFileSync(process.platform === "win32" ? "git.exe" : "git", args, {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    return null;
+  }
+}
+
+function sourceStatus(root: string) {
+  try {
+    return execFileSync(
+      process.platform === "win32" ? "git.exe" : "git",
+      ["status", "--porcelain", "--untracked-files=all"],
+      { cwd: root, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] },
+    ).trimEnd();
+  } catch {
+    return null;
+  }
+}
+
 function main() {
   const root = process.cwd();
   const budgets = readBudgets(root);
   const lighthouseDir = path.join(root, ".generated/launch/lighthouse");
+  const lighthouseManifestPath = path.join(lighthouseDir, "lighthouse-run.json");
+  const lighthouseManifest = fs.existsSync(lighthouseManifestPath)
+    ? (JSON.parse(fs.readFileSync(lighthouseManifestPath, "utf8")) as {
+        status?: string;
+        gitSha?: string;
+        reportCount?: number;
+      })
+    : null;
+  if (lighthouseManifest?.status !== "passed")
+    throw new Error(
+      "Lighthouse evidence must be a passed run before performance budgets are checked",
+    );
   const reports = fs.existsSync(lighthouseDir)
     ? fs
         .readdirSync(lighthouseDir)
@@ -157,6 +195,13 @@ function main() {
     : [];
   if (reports.length === 0)
     throw new Error("No Lighthouse JSON evidence found; run pnpm lighthouse first");
+  if (
+    lighthouseManifest.reportCount !== undefined &&
+    lighthouseManifest.reportCount !== reports.length
+  )
+    throw new Error(
+      `Lighthouse report count mismatch: manifest=${lighthouseManifest.reportCount}, files=${reports.length}`,
+    );
   const evaluated = reports.map((file) => {
     const reportPath = path.join(lighthouseDir, file);
     const result = JSON.parse(fs.readFileSync(reportPath, "utf8")) as LighthouseResult;
@@ -167,6 +212,15 @@ function main() {
     };
   });
   const failures = evaluated.flatMap((item) => item.failures);
+  const status = sourceStatus(root);
+  const currentSource = git(["rev-parse", "HEAD"]);
+  const source = {
+    commit: currentSource,
+    tree: git(["rev-parse", "HEAD^{tree}"]),
+    worktreeClean: status !== null && sourceWorktreeClean(status),
+    dirtyPaths: status === null ? [] : sourceDirtyPaths(status),
+    lighthouseGitSha: lighthouseManifest.gitSha ?? null,
+  };
   const routeSummary = Object.values(
     evaluated.reduce<Record<string, { runs: number; maximums: Partial<PerformanceMetrics> }>>(
       (summary, item) => {
@@ -194,7 +248,7 @@ function main() {
   );
   fs.writeFileSync(
     path.join(root, ".generated/launch/performance-summary.json"),
-    `${JSON.stringify({ schemaVersion: 1, budgets, reports: evaluated, routeSummary }, null, 2)}\n`,
+    `${JSON.stringify({ schemaVersion: 2, budgets, source, reports: evaluated, routeSummary }, null, 2)}\n`,
   );
   if (failures.length > 0) {
     throw new Error(

@@ -15,7 +15,11 @@ The application is intentionally static and infrastructure-free at this phase. F
 
 ## Verification
 
-Run `pnpm format:check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm build` locally. See [IMPLEMENTATION_LEDGER.md](IMPLEMENTATION_LEDGER.md) for the current scope and deferred work.
+Run `pnpm verify` for the aggregate local gate. It includes the focused
+format, lint, type, test, build, package, reproducibility, workflow, license,
+browser, and evidence checks; container, hosted, and provider checks remain
+environment-dependent. See [IMPLEMENTATION_LEDGER.md](IMPLEMENTATION_LEDGER.md)
+for the current scope and deferred work.
 
 ## Licensing and status
 

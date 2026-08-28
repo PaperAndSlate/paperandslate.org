@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ProjectCard } from "../components/project-card";
 import { NewsletterForm } from "../components/newsletter-form";
@@ -11,6 +12,11 @@ import {
 } from "@phosphor-icons/react/ssr";
 import { kitConfigured } from "../lib/newsletter";
 import Image from "next/image";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+  openGraph: { type: "website", url: "/", title: "Paper & Slate" },
+};
 
 const principles = [
   {

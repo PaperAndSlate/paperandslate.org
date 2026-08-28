@@ -3,37 +3,199 @@ name: CI
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PUBLICATION_AS_OF: 2026-08-27
+  NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3101
+  DEPLOYMENT_ENV: ci
 
 jobs:
-  verify:
-    runs-on: ubuntu-latest
+  quality:
+    name: quality / ${{ matrix.os }} / Node ${{ matrix.node }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            node: 20.x
+          - os: ubuntu-24.04
+            node: 22.x
+          - os: ubuntu-24.04
+            node: 24.x
+          - os: windows-latest
+            node: 22.x
+          - os: macos-latest
+            node: 22.x
+    env:
+      RELEASE_ID: ci-${{ github.sha }}
+      GIT_SHA: ${{ github.sha }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: 10.6.0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10.6.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm verify
+      - run: pnpm workflow:check
+      - run: pnpm traceability:check
+      - run: pnpm docs:bundle:check
+      - run: pnpm search:index
+      - run: pnpm content:validate
+      - run: pnpm feeds:check
+      - run: pnpm release:check
+      - run: pnpm routes:check
+      - run: pnpm security:check
+      - run: pnpm license:check
+      - run: pnpm seo:check
+      - run: pnpm rollback:check
+      - run: pnpm format:check
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm build:verify
+      - run: pnpm build:web
+      - run: pnpm package:smoke
+      - run: pnpm reproducibility:check
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: paper-and-slate-quality-${{ matrix.os }}-node-${{ matrix.node }}-${{ github.sha }}
+          path: |
+            evidence/
+            .generated/launch/
+            .generated/requirements/
+            .generated/docs/
+            .generated/search/
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  full-verify:
+    name: full verify / Ubuntu / Node 24
+    needs: quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10.6.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.x
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec tsx scripts/ci-browser.ts verify
         env:
-          NEXT_PUBLIC_SITE_URL: http://127.0.0.1:3101
+          CI: true
           RELEASE_ID: ci-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
-          PUBLICATION_AS_OF: 2026-08-27
-  launch-hardening:
-    runs-on: ubuntu-latest
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: paper-and-slate-full-verify-${{ github.sha }}
+          path: |
+            evidence/
+            .generated/launch/
+            .generated/requirements/
+            .generated/docs/
+            .generated/search/
+            playwright-report/
+            test-results/
+          if-no-files-found: warn
+          retention-days: 14
+
+  lighthouse:
+    name: Lighthouse / Ubuntu / Node 24
+    needs: quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: 10.6.0 }
-      - uses: actions/setup-node@v4
-        with: { node-version: 20, cache: pnpm }
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10.6.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.x
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm security:check
-      - run: pnpm seo:check
       - run: pnpm docs:bundle:check
       - run: pnpm search:index
       - run: pnpm build:web
-      - run: pnpm lighthouse
+      - run: pnpm exec playwright install --with-deps chromium
+      - run: pnpm exec tsx scripts/ci-browser.ts lighthouse
+        env:
+          CI: true
+          RELEASE_ID: ci-${{ github.sha }}
+          GIT_SHA: ${{ github.sha }}
       - run: pnpm performance:check
-      - run: pnpm rollback:check
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: paper-and-slate-lighthouse-${{ github.sha }}
+          path: .generated/launch/lighthouse/
+          if-no-files-found: warn
+          retention-days: 14
+
+  container:
+    name: container and SBOM / Ubuntu / Node 24
+    needs: quality
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10.6.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24.x
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm docs:bundle:check
+      - run: pnpm container:check
+        env:
+          RELEASE_ID: ci-${{ github.sha }}
+          GIT_SHA: ${{ github.sha }}
+      - run: pnpm sbom:generate
+        env:
+          RELEASE_ID: ci-${{ github.sha }}
+          GIT_SHA: ${{ github.sha }}
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: paper-and-slate-container-${{ github.sha }}
+          path: |
+            evidence/local/sbom/
+            .generated/launch/container-check.json
+            .generated/launch/docs-bundle-check.json
+          if-no-files-found: warn
+          retention-days: 14

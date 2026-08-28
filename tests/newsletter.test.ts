@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { parseEnv } from "../packages/config/src/env";
 import {
   allowedOrigin,
   clientAddress,
@@ -37,9 +38,9 @@ describe("newsletter safety", () => {
     expect(clientAddress(request)).toBe("anonymous");
     expect(
       clientAddress(request, {
-        ...({} as never),
+        ...parseEnv(),
         TRUSTED_PROXY_MODE: "coolify",
-      } as Parameters<typeof clientAddress>[1]),
+      }),
     ).toBe("198.51.100.4");
   });
 

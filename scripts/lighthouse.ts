@@ -2,8 +2,12 @@ import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { access, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { withLighthouseChrome } from "./lighthouse-chrome";
+import { pnpmSpawnSpec } from "./pnpm-command";
+import { assertTcpPortFree, parseTcpPort } from "./port-check";
+import { readSourceState } from "./source-state";
 const root = process.cwd();
 const port = process.env.LH_PORT ?? "3210";
+const portNumber = parseTcpPort(port);
 const baseUrl = `http://127.0.0.1:${port}`;
 const standaloneRoot = path.join(root, "apps", "web", ".next", "standalone");
 const runtimeRoot = path.join(root, ".generated", "launch", `lighthouse-runtime-${process.pid}`);
@@ -14,7 +18,7 @@ const tempDir = path.join(root, ".generated", "launch", `lighthouse-tmp-${proces
 const configPath = path.join(root, ".generated", "launch", `lighthouse-config-${process.pid}.json`);
 const runManifestPath = path.join(outputDir, "lighthouse-run.json");
 const releaseId = process.env.RELEASE_ID ?? "local-development";
-const gitSha = process.env.GIT_SHA ?? "local-development";
+const gitSha = process.env.GIT_SHA ?? readSourceState(root).commit ?? "local-development";
 
 type LighthouseRunManifest = {
   schemaVersion: 1;
@@ -29,11 +33,16 @@ type LighthouseRunManifest = {
   configuredUrls: string[];
   reportCount?: number;
   error?: string;
+  source?: ReturnType<typeof readSourceState>;
 };
 
 async function writeRunManifest(manifest: LighthouseRunManifest) {
   await mkdir(outputDir, { recursive: true });
-  await writeFile(runManifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  await writeFile(
+    runManifestPath,
+    `${JSON.stringify({ ...manifest, source: readSourceState(root) }, null, 2)}\n`,
+    "utf8",
+  );
 }
 
 async function waitForServer(url: string) {
@@ -51,15 +60,7 @@ async function waitForServer(url: string) {
 }
 
 async function assertPortIsFree() {
-  try {
-    const response = await fetch(`${baseUrl}/health`, { signal: AbortSignal.timeout(1_000) });
-    if (response.ok)
-      throw new Error(
-        `Refusing Lighthouse run: ${baseUrl} is already serving another health endpoint`,
-      );
-  } catch (error) {
-    if (error instanceof Error && error.message.startsWith("Refusing Lighthouse run")) throw error;
-  }
+  await assertTcpPortFree("127.0.0.1", portNumber);
 }
 
 function stopServer(server: ChildProcess) {
@@ -123,11 +124,14 @@ async function writeRunConfig() {
 
 function runLighthouse(config: string, env: NodeJS.ProcessEnv) {
   return new Promise<void>((resolve, reject) => {
-    const child = spawn(
-      process.platform === "win32" ? "pnpm.cmd" : "pnpm",
-      ["exec", "lhci", "autorun", `--config=${config}`],
-      { cwd: root, env, stdio: "inherit", shell: process.platform === "win32", windowsHide: true },
-    );
+    const invocation = pnpmSpawnSpec(["exec", "lhci", "autorun", `--config=${config}`]);
+    const child = spawn(invocation.command, invocation.args, {
+      cwd: root,
+      env,
+      stdio: "inherit",
+      shell: false,
+      windowsHide: true,
+    });
     child.once("error", reject);
     child.once("exit", (code, signal) => {
       if (code === 0) resolve();

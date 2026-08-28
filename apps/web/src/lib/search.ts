@@ -16,7 +16,7 @@ const configuredProvider =
     ? createTypesenseProvider({
         endpoint: env.TYPESENSE_ENDPOINT ?? "",
         apiKey: env.TYPESENSE_SEARCH_API_KEY ?? "",
-        collection: env.TYPESENSE_COLLECTION,
+        collection: env.TYPESENSE_COLLECTION_ALIAS,
         indexId: process.env.TYPESENSE_INDEX_ID,
       })
     : null;

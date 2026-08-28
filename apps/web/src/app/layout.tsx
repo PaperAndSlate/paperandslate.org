@@ -23,7 +23,6 @@ export const metadata: Metadata = {
     title: "Paper & Slate",
     description:
       "An open education initiative of Glasscow LLC building reusable infrastructure for connected education.",
-    url: "/",
   },
   icons: { icon: "/brand/paper-and-slate-icon-dark-32.png" },
   robots:

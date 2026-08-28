@@ -1,0 +1,7 @@
+# Hosted CI, release tooling, and security policy changes require maintainer review.
+/.github/ @callum
+/.forgejo/ @callum
+/scripts/ @callum
+/config/ @callum
+/docs/ @callum
+* @callum

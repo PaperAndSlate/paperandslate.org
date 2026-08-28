@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { lstat, readdir, readFile, realpath, rm } from "node:fs/promises";
+import { lstat, readdir, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,6 +10,7 @@ const outputRoot = resolve(webRoot, ".next");
 const sourceRoot = resolve(webRoot, "src");
 const configFile = resolve(webRoot, "next.config.ts");
 const dockerfile = resolve(root, "infrastructure", "docker", "Dockerfile");
+const nextEnvFile = resolve(webRoot, "next-env.d.ts");
 
 const fail = (message: string): never => {
   throw new Error(`[build:verify] ${message}`);
@@ -100,18 +101,32 @@ const assertCleanOutput = async () => {
 const run = async () => {
   await removeOutputSafely();
   const before = await snapshot();
-  const nextCli = await realpath(resolve(webRoot, "node_modules", "next", "dist", "bin", "next"));
-  const result = spawnSync(process.execPath, [nextCli, "build"], {
-    cwd: webRoot,
-    env: { ...process.env, NODE_ENV: "production", PAPER_SLATE_BUILD_MODE: "verification" },
-    stdio: "inherit",
+  const originalNextEnv = await readFile(nextEnvFile).catch((error: unknown) => {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    throw error;
   });
-  if (result.error) throw result.error;
-  if (result.status === null) fail("Next.js production build did not return an exit status");
-  if (result.status !== 0) process.exit(result.status);
-  await assertStable(before);
-  await assertCleanOutput();
-  process.stdout.write("[build:verify] verified non-standalone production output\n");
+  const nextCli = await realpath(resolve(webRoot, "node_modules", "next", "dist", "bin", "next"));
+  try {
+    const result = spawnSync(process.execPath, [nextCli, "build"], {
+      cwd: webRoot,
+      env: { ...process.env, NODE_ENV: "production", PAPER_SLATE_BUILD_MODE: "verification" },
+      stdio: "inherit",
+    });
+    if (result.error) throw result.error;
+    const exitStatus = result.status;
+    if (exitStatus === null)
+      throw new Error("[build:verify] Next.js production build did not return an exit status");
+    if (exitStatus !== 0) {
+      process.exitCode = exitStatus;
+      return;
+    }
+    await assertStable(before);
+    await assertCleanOutput();
+    process.stdout.write("[build:verify] verified non-standalone production output\n");
+  } finally {
+    if (originalNextEnv) await writeFile(nextEnvFile, originalNextEnv);
+    else await rm(nextEnvFile, { force: true });
+  }
 };
 
 run().catch((error: unknown) => {

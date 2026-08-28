@@ -35,13 +35,6 @@
       "generatedEvidence": [".generated/requirements/requirements.json"],
       "notes": "The workspace is a real Git worktree."
     },
-    "WEB-REQ-0005": {
-      "status": "verified-local",
-      "implementationFiles": [".git/config"],
-      "verificationCommands": ["git remote -v", "Tower Forgejo repository inspection"],
-      "generatedEvidence": [".generated/launch/repository-identity.json"],
-      "notes": "A private Forgejo repository is present under the scoped callum namespace; organization visibility was not assumed."
-    },
     "WEB-REQ-0037": {
       "externalDependencies": [
         "Authorized Tower staging workload",
@@ -295,14 +288,17 @@
       "notes": "Representative production routes and interaction states pass the RC accessibility suite; this is not a complete human audit."
     },
     "WEB-REQ-0027": {
-      "status": "verified-local",
+      "status": "partial",
       "implementationFiles": ["scripts/lighthouse.ts", "lighthouserc.json"],
       "verificationCommands": ["pnpm lighthouse", "pnpm performance:check"],
       "generatedEvidence": [
         ".generated/launch/lighthouse/lighthouse-run.json",
         ".generated/launch/performance-summary.json"
       ],
-      "notes": "Fresh Lighthouse runs pass the configured thresholds on six indexable routes; CI and hosted staging runs remain separate gates."
+      "externalDependencies": [
+        "Usable local or hosted Chromium runner for a fresh Lighthouse execution"
+      ],
+      "blocker": "The Lighthouse implementation and configured budgets are present, but the current local manifest is stale/running and the performance gate cannot accept it; a fresh bounded Lighthouse run is required."
     },
     "WEB-REQ-0028": {
       "status": "verified-local",
@@ -316,7 +312,7 @@
       "notes": "Nonce-based production CSP, hydration, headers, and representative interactivity pass against the standalone build."
     },
     "WEB-REQ-0029": {
-      "status": "verified-local",
+      "status": "partial",
       "implementationFiles": [
         "infrastructure/docker/Dockerfile",
         ".dockerignore",
@@ -324,17 +320,19 @@
       ],
       "verificationCommands": ["pnpm container:check"],
       "generatedEvidence": [".generated/launch/container-check.json"],
-      "notes": "The image builds from the committed generated documentation bundle and passes runtime acceptance locally."
+      "externalDependencies": ["Docker daemon or hosted Linux container runner"],
+      "blocker": "The image and runtime check are implemented, but the current Windows environment timed out during docker version before producing a runtime receipt."
     },
     "WEB-REQ-0030": {
-      "status": "verified-local",
+      "status": "partial",
       "implementationFiles": ["infrastructure/docker/Dockerfile", "scripts/container-check.ts"],
       "verificationCommands": ["pnpm container:check"],
       "generatedEvidence": [".generated/launch/container-check.json"],
-      "notes": "The container check records runtime uid 1000 rather than root."
+      "externalDependencies": ["Docker daemon or hosted Linux container runner"],
+      "blocker": "The non-root assertion is implemented but has no current local runtime receipt because the Docker daemon is unavailable."
     },
     "WEB-REQ-0031": {
-      "status": "verified-local",
+      "status": "partial",
       "implementationFiles": [
         "apps/web/src/app/health/route.ts",
         "infrastructure/docker/Dockerfile",
@@ -345,7 +343,8 @@
         ".generated/launch/container-check.json",
         ".generated/launch/production-browser.json"
       ],
-      "notes": "Container and standalone production health checks validate release/git identity and readiness."
+      "externalDependencies": ["Docker daemon or hosted Linux container runner"],
+      "blocker": "Standalone production health evidence exists, but the container health path cannot be revalidated locally until a Docker-capable runner is available."
     },
     "WEB-REQ-0032": {
       "status": "verified-local",

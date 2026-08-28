@@ -18,12 +18,13 @@ const git = (args: string[]) => {
       cwd: root,
       encoding: "utf8",
       stdio: ["ignore", "pipe", "ignore"],
-    }).trim();
+    }).trimEnd();
   } catch {
     return null;
   }
 };
 const sourceSha = git(["rev-parse", "HEAD"]);
+const sourceStatus = git(["status", "--porcelain", "--untracked-files=all"]);
 const configuredCandidateSha = process.env.CANDIDATE_SHA || process.env.GIT_SHA || null;
 const candidateSha = configuredCandidateSha || sourceSha;
 const strictIdentity = Boolean(process.env.CANDIDATE_SHA) || /^v1\.0\.0-rc\./.test(releaseId);
@@ -54,6 +55,7 @@ const lockfileSha256 = fs.existsSync(lockfile) ? sha256File(lockfile) : null;
 
 const sources = [
   [".generated/requirements/requirements.json", "traceability/requirements.json"],
+  [".generated/requirements/traceability-check.json", "traceability/traceability-check.json"],
   ["IMPLEMENTATION_LEDGER.md", "traceability/IMPLEMENTATION_LEDGER.md"],
   [".generated/docs", "content/generated-docs"],
   [".generated/search", "search/generated"],
@@ -67,6 +69,8 @@ const sources = [
   [".generated/launch/docs-bundle-check.json", "launch/docs-bundle-check.json"],
   [".generated/launch/sbom-manifest.json", "launch/sbom-manifest.json"],
   [".generated/launch/verify.json", "launch/verify.json"],
+  [".generated/launch/reproducibility.json", "launch/reproducibility.json"],
+  [".generated/launch/package-smoke.json", "packages/package-smoke.json"],
   [".generated/launch/repository-identity.json", "launch/repository-identity.json"],
   [".generated/launch/launch-evidence.json", "launch/launch-evidence.json"],
   ["evidence/local/sbom", "supply-chain/sbom"],
@@ -178,7 +182,7 @@ if (
   identityMismatches.push(
     `configured container digest ${process.env.CONTAINER_IMAGE_DIGEST} does not match SBOM ${sbom.containerDigest}`,
   );
-if (strictIdentity && git(["status", "--porcelain"]))
+if (strictIdentity && sourceStatus)
   identityMismatches.push("strict candidate evidence requires a clean worktree");
 const manifest = {
   schemaVersion: 2,
@@ -199,7 +203,7 @@ const manifest = {
     branch: git(["branch", "--show-current"]),
     remote: git(["remote", "get-url", "origin"]),
     exactTag: git(["describe", "--tags", "--exact-match"]),
-    worktreeClean: (git(["status", "--porcelain"]) ?? "") === "",
+    worktreeClean: (sourceStatus ?? "") === "",
   },
   build: {
     node: process.version,

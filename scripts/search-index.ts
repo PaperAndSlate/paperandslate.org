@@ -1,7 +1,6 @@
 import fs from "node:fs";
 import {
   publicProjects,
-  news,
   publishedNews,
   rfcs,
   decisions,
@@ -12,6 +11,7 @@ import {
 } from "../packages/content/src";
 import { normalizeRecords, type SearchRecord } from "../packages/search/src";
 import { docsForSearch } from "../apps/web/src/lib/docs";
+import { publishTypesenseIndex } from "./typesense-index";
 type Doc = {
   id: string;
   title: string;
@@ -124,4 +124,11 @@ fs.writeFileSync(
   ".generated/search/search-records.json",
   `${JSON.stringify(validated, null, 2)}\n`,
 );
-console.log(`Generated ${validated.length} deterministic local search records.`);
+if (process.argv.slice(2).includes("--publish-typesense")) {
+  const report = await publishTypesenseIndex(validated);
+  console.log(
+    `Published ${report.documentCount} Typesense records to ${report.alias} (${report.collection}); index ${report.indexId}.`,
+  );
+} else {
+  console.log(`Generated ${validated.length} deterministic local search records.`);
+}

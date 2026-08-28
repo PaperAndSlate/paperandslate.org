@@ -92,7 +92,7 @@ function main() {
         !source.files?.every(
           (file) =>
             Boolean(file.path) &&
-            Boolean(file.contentHash) &&
+            typeof file.contentHash === "string" &&
             /^[a-f0-9]{64}$/.test(file.contentHash),
         )
       )

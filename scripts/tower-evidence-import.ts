@@ -335,8 +335,10 @@ function matchingSource(evidence: TowerEvidence, sha = gitHead()) {
   return Boolean(evidence.source?.sha && sha && evidence.source.sha === sha);
 }
 
-function successful(value: { status?: TowerEvidenceStatus } | null | undefined) {
-  return value?.status === "passed";
+function successful(
+  value: TowerEvidenceStatus | { status?: TowerEvidenceStatus } | null | undefined,
+) {
+  return typeof value === "string" ? value === "passed" : value?.status === "passed";
 }
 
 export function towerRequirementOverrides(evidence: TowerEvidence | null) {
