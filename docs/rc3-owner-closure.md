@@ -49,12 +49,12 @@ handling are part of the current implementation. Visual evidence remains
 `human-review-pending`; local receipts are not hosted staging evidence. No
 hosted workflow has run successfully for the current revision.
 
-The private Forgejo branch currently matches the local candidate at
-`a318bba836b8494de655bc48ece50559b8a3e881`; the earlier managed-transfer
-credential failure has recovered. This is repository-hosted staging evidence
-only. The final post-refresh branch and receipt identities must be read from
-the generated files listed above. Do not paste a token into this repository or
-chat, and do not treat the branch as production authority.
+The earlier managed-transfer credential failure has recovered, but a branch
+ref match is not a hosted workflow receipt. Re-check the private Forgejo branch
+and hosted workflow results for the final candidate after any authorized
+transfer. The generated files listed above remain the authority for the local
+candidate identity. Do not paste a token into this repository or chat, and do
+not treat a branch match as production authority.
 
 The following are available but do not close the release:
 
