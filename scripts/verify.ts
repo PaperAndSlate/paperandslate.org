@@ -178,7 +178,7 @@ process.once("SIGINT", abortVerification);
 process.once("SIGTERM", abortVerification);
 
 async function main() {
-  for (const task of [...tasks, "launch:report", "evidence:bundle"]) {
+  for (const task of tasks) {
     console.log(`\n[verify] pnpm ${task}`);
     const status = await runTask(task);
     if (interrupted) throw new Error("Verification interrupted by process signal");
@@ -187,7 +187,19 @@ async function main() {
     completed.push(task);
     writeEvidence("running", completed);
   }
+
+  // The aggregate report needs to observe a completed verification receipt so it
+  // can verify the full run instead of treating its in-progress state as pending.
   writeEvidence("passed", completed);
+
+  for (const task of ["launch:report", "evidence:bundle"]) {
+    console.log(`\n[verify] pnpm ${task}`);
+    const status = await runTask(task);
+    if (interrupted) throw new Error("Verification interrupted by process signal");
+    if (status !== 0) throw new Error(`pnpm ${task} exited with ${status}`);
+    completed.push(task);
+    writeEvidence("passed", completed);
+  }
   console.log(`[verify] ${tasks.length} checks passed.`);
 }
 
