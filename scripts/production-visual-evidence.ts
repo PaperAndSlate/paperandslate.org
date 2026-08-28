@@ -8,7 +8,24 @@ import { chromium, type Browser, type Page } from "@playwright/test";
 const root = process.cwd();
 const port = Number(process.env.PRODUCTION_VISUAL_PORT ?? 3315);
 const localBaseUrl = `http://127.0.0.1:${port}`;
-const externalBaseUrl = process.env.PRODUCTION_VISUAL_BASE_URL?.replace(/\/$/, "");
+const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
+const externalBaseUrl = (() => {
+  const raw = process.env.PRODUCTION_VISUAL_BASE_URL;
+  if (!raw) return undefined;
+  const url = new URL(raw);
+  if (
+    url.origin !== hostedStagingOrigin ||
+    url.pathname !== "/" ||
+    url.search ||
+    url.hash ||
+    url.username ||
+    url.password
+  )
+    throw new Error(
+      `Hosted visual evidence is restricted to the exact HTTPS staging origin ${hostedStagingOrigin}`,
+    );
+  return url.origin;
+})();
 const baseUrl = externalBaseUrl ?? localBaseUrl;
 const standaloneRoot = path.join(root, "apps", "web", ".next", "standalone");
 const runtimeRoot = path.join(
@@ -330,10 +347,19 @@ async function main() {
       gitSha?: string;
     };
     const expectedGitSha = process.env.GIT_SHA ?? git(["rev-parse", "HEAD"]);
+    if (externalBaseUrl && (!process.env.RELEASE_ID || !process.env.GIT_SHA))
+      throw new Error(
+        "Hosted visual evidence requires RELEASE_ID and GIT_SHA for the exact candidate",
+      );
+    if (externalBaseUrl && !/^[a-f0-9]{40}$/i.test(expectedGitSha))
+      throw new Error(
+        "Hosted visual evidence requires GIT_SHA to identify the exact candidate SHA",
+      );
     if (
       health.status !== "ok" ||
       health.releaseId !== releaseId ||
       health.gitSha !== expectedGitSha ||
+      (externalBaseUrl && health.deployment !== "staging") ||
       (process.env.PRODUCTION_VISUAL_EXPECTED_DEPLOYMENT &&
         health.deployment !== process.env.PRODUCTION_VISUAL_EXPECTED_DEPLOYMENT)
     )

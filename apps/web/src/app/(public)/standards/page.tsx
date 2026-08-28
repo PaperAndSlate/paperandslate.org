@@ -62,6 +62,44 @@ export default function StandardsLanding() {
             Browse sources
           </Link>
         </article>
+        <article>
+          <p className="eyebrow">Methodology and trust</p>
+          <h2>Understand the boundaries.</h2>
+          <p>
+            See how authority, provenance, release status, rights, changes, derived relationships,
+            and corrections are represented.
+          </p>
+          <Link className="button button-light" href="/standards/methodology">
+            Read the methodology
+          </Link>
+        </article>
+        <article>
+          <p className="eyebrow">Concepts and crosswalks</p>
+          <h2>See what has been reviewed.</h2>
+          <p>
+            Inspect release-pinned concept and crosswalk readiness without inferred relationships or
+            restricted source material.
+          </p>
+          <Link className="button button-light" href="/standards/concepts">
+            View concepts and crosswalks
+          </Link>
+        </article>
+        <article>
+          <p className="eyebrow">Downloads</p>
+          <h2>See the export boundary.</h2>
+          <p>Review candidate release metadata and rights-aware download availability.</p>
+          <Link className="button button-light" href="/standards/downloads">
+            Review downloads
+          </Link>
+        </article>
+        <article>
+          <p className="eyebrow">Developer API</p>
+          <h2>Start with release-aware metadata.</h2>
+          <p>Find the API quick start and CASE compatibility state for the selected candidate.</p>
+          <Link className="button button-light" href="/standards/api">
+            View API readiness
+          </Link>
+        </article>
       </section>
     </main>
   );

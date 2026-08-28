@@ -6,7 +6,26 @@ import { chromium, type Browser, type Page } from "@playwright/test";
 
 const root = process.cwd();
 const port = Number(process.env.PRODUCTION_BROWSER_PORT ?? 3300);
-const baseUrl = `http://127.0.0.1:${port}`;
+const localBaseUrl = `http://127.0.0.1:${port}`;
+const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
+const externalBaseUrl = (() => {
+  const raw = process.env.PRODUCTION_BROWSER_BASE_URL;
+  if (!raw) return undefined;
+  const url = new URL(raw);
+  if (
+    url.origin !== hostedStagingOrigin ||
+    url.pathname !== "/" ||
+    url.search ||
+    url.hash ||
+    url.username ||
+    url.password
+  )
+    throw new Error(
+      `Hosted browser evidence is restricted to the exact HTTPS staging origin ${hostedStagingOrigin}`,
+    );
+  return url.origin;
+})();
+const baseUrl = externalBaseUrl ?? localBaseUrl;
 const standaloneRoot = path.join(root, "apps", "web", ".next", "standalone");
 const runtimeRoot = path.join(
   root,
@@ -118,30 +137,33 @@ async function assertPage(
 }
 
 async function main() {
-  if (debug) console.error(`[production:browser] preparing ${runtimeRoot}`);
-  await prepareRuntime();
-  const serverPath = path.join(runtimeRoot, "apps", "web", "server.js");
-  await access(serverPath);
-  const server = spawn(process.execPath, [serverPath], {
-    cwd: runtimeRoot,
-    env: {
-      ...process.env,
-      NODE_ENV: "production",
-      HOSTNAME: "127.0.0.1",
-      PORT: String(port),
-      NEXT_PUBLIC_SITE_URL: baseUrl,
-      SEARCH_PROVIDER: "static",
-      KIT_ENABLED: "false",
-      NODE_PATH: [path.join(root, "apps", "web", "node_modules"), process.env.NODE_PATH]
-        .filter(Boolean)
-        .join(path.delimiter),
-      RELEASE_ID: process.env.RELEASE_ID ?? "local-production-check",
-      GIT_SHA: process.env.GIT_SHA ?? "local-production-check",
-    },
-    stdio: "ignore",
-    windowsHide: true,
-  });
-  if (debug) console.error(`[production:browser] server pid ${server.pid}`);
+  let server: ChildProcess | undefined;
+  if (!externalBaseUrl) {
+    if (debug) console.error(`[production:browser] preparing ${runtimeRoot}`);
+    await prepareRuntime();
+    const serverPath = path.join(runtimeRoot, "apps", "web", "server.js");
+    await access(serverPath);
+    server = spawn(process.execPath, [serverPath], {
+      cwd: runtimeRoot,
+      env: {
+        ...process.env,
+        NODE_ENV: "production",
+        HOSTNAME: "127.0.0.1",
+        PORT: String(port),
+        NEXT_PUBLIC_SITE_URL: baseUrl,
+        SEARCH_PROVIDER: "static",
+        KIT_ENABLED: "false",
+        NODE_PATH: [path.join(root, "apps", "web", "node_modules"), process.env.NODE_PATH]
+          .filter(Boolean)
+          .join(path.delimiter),
+        RELEASE_ID: process.env.RELEASE_ID ?? "local-production-check",
+        GIT_SHA: process.env.GIT_SHA ?? "local-production-check",
+      },
+      stdio: "ignore",
+      windowsHide: true,
+    });
+    if (debug) console.error(`[production:browser] server pid ${server.pid}`);
+  }
   let browser: Browser | undefined;
   const errors: string[] = [];
   const routes = [
@@ -164,12 +186,28 @@ async function main() {
     await waitForServer(`${baseUrl}/health`);
     if (debug) console.error("[production:browser] health ready");
     const healthResponse = await fetch(`${baseUrl}/health`);
-    const health = (await healthResponse.json()) as { releaseId?: string; gitSha?: string };
+    const health = (await healthResponse.json()) as {
+      releaseId?: string;
+      gitSha?: string;
+      deployment?: string;
+    };
     const expectedRelease = process.env.RELEASE_ID ?? "local-production-check";
     const expectedSha = process.env.GIT_SHA ?? "local-production-check";
-    if (health.releaseId !== expectedRelease || health.gitSha !== expectedSha)
+    if (externalBaseUrl && (!process.env.RELEASE_ID || !process.env.GIT_SHA))
       throw new Error(
-        `Production identity mismatch: expected ${expectedRelease}/${expectedSha}, got ${health.releaseId ?? "missing"}/${health.gitSha ?? "missing"}`,
+        "Hosted browser evidence requires RELEASE_ID and GIT_SHA for the exact candidate",
+      );
+    if (externalBaseUrl && !/^[a-f0-9]{40}$/i.test(expectedSha))
+      throw new Error(
+        "Hosted browser evidence requires GIT_SHA to identify the exact candidate SHA",
+      );
+    if (
+      health.releaseId !== expectedRelease ||
+      health.gitSha !== expectedSha ||
+      (externalBaseUrl && health.deployment !== "staging")
+    )
+      throw new Error(
+        `Production identity mismatch: expected ${health.deployment ?? "local"}/${expectedRelease}/${expectedSha}, got ${health.deployment ?? "missing"}/${health.releaseId ?? "missing"}/${health.gitSha ?? "missing"}`,
       );
     browser = await chromium.launch({
       headless: true,
@@ -266,7 +304,7 @@ async function main() {
     );
   } finally {
     await browser?.close().catch(() => undefined);
-    stopServer(server);
+    if (server) stopServer(server);
     await rm(runtimeRoot, { recursive: true, force: true });
   }
 }

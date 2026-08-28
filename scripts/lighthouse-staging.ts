@@ -15,6 +15,7 @@ const configPath = path.join(
 const manifestPath = path.join(outputDir, "lighthouse-run.json");
 const releaseId = process.env.RELEASE_ID ?? "unknown-release";
 const expectedGitSha = process.env.GIT_SHA ?? "";
+const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
 
 type Health = {
   status?: string;
@@ -35,6 +36,7 @@ type StagingRunManifest = {
   environment: string | null;
   configuredUrls: string[];
   reportCount?: number;
+  lighthouseVersion?: string;
   health?: Health;
   error?: string;
 };
@@ -42,10 +44,10 @@ type StagingRunManifest = {
 function requireStagingUrl() {
   if (!stagingUrl) throw new Error("STAGING_URL is required for hosted Lighthouse evidence");
   const parsed = new URL(stagingUrl);
-  if (parsed.protocol !== "https:")
-    throw new Error("Hosted Lighthouse requires an HTTPS staging URL");
-  if (!parsed.hostname.endsWith(".dev.tower"))
-    throw new Error("Hosted Lighthouse is restricted to managed .dev.tower staging hosts");
+  if (parsed.origin !== hostedStagingOrigin)
+    throw new Error(
+      `Hosted Lighthouse is restricted to the exact HTTPS staging origin ${hostedStagingOrigin}`,
+    );
   if (parsed.pathname !== "/")
     throw new Error("STAGING_URL must be the managed staging origin without a path");
   if (parsed.username || parsed.password || parsed.search || parsed.hash)
@@ -100,6 +102,10 @@ function runLighthouse(config: string, env: NodeJS.ProcessEnv) {
 
 async function main() {
   const base = requireStagingUrl();
+  if (!releaseId || !expectedGitSha || !/^[a-f0-9]{40}$/i.test(expectedGitSha))
+    throw new Error("RELEASE_ID and a full GIT_SHA are required for hosted Lighthouse evidence");
+  if (!process.env.STAGING_DEPLOYMENT_ID)
+    throw new Error("STAGING_DEPLOYMENT_ID is required to bind hosted Lighthouse evidence");
   const startedAt = new Date().toISOString();
   await rm(outputDir, { recursive: true, force: true });
   await rm(tempDir, { recursive: true, force: true });
@@ -124,7 +130,7 @@ async function main() {
     throw new Error(
       `Staging release identity mismatch: expected ${process.env.RELEASE_ID}, got ${health.releaseId}`,
     );
-  if (expectedGitSha && health.gitSha !== expectedGitSha)
+  if (health.gitSha !== expectedGitSha)
     throw new Error(
       `Staging Git identity mismatch: expected ${expectedGitSha}, got ${health.gitSha}`,
     );
@@ -149,7 +155,7 @@ async function main() {
     targetUrl: base.origin,
     releaseId: health.releaseId,
     gitSha: health.gitSha,
-    deploymentId: process.env.STAGING_DEPLOYMENT_ID ?? null,
+    deploymentId: process.env.STAGING_DEPLOYMENT_ID,
     environment: health.deployment ?? "staging",
     configuredUrls,
     health,
@@ -167,6 +173,16 @@ async function main() {
         entry.endsWith(".report.json") || (entry.startsWith("lhr-") && entry.endsWith(".json")),
     ).length;
     if (reportCount === 0) throw new Error("Hosted Lighthouse completed without JSON reports");
+    const reportFile = (await readdir(outputDir)).find((entry) => entry.endsWith(".report.json"));
+    const lighthouseVersion = reportFile
+      ? ((
+          JSON.parse(await readFile(path.join(outputDir, reportFile), "utf8")) as {
+            lighthouseVersion?: string;
+          }
+        ).lighthouseVersion ?? null)
+      : null;
+    if (!lighthouseVersion)
+      throw new Error("Hosted Lighthouse report omitted its Lighthouse version");
     await writeManifest({
       schemaVersion: 2,
       status: "passed",
@@ -175,10 +191,11 @@ async function main() {
       targetUrl: base.origin,
       releaseId: health.releaseId,
       gitSha: health.gitSha,
-      deploymentId: process.env.STAGING_DEPLOYMENT_ID ?? null,
+      deploymentId: process.env.STAGING_DEPLOYMENT_ID,
       environment: health.deployment ?? "staging",
       configuredUrls,
       reportCount,
+      lighthouseVersion,
       health,
     });
     console.log(

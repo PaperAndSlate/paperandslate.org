@@ -246,6 +246,52 @@ export type StandardsChangesResult = {
   unavailable?: string;
 };
 
+export type StandardsReadinessProjection = {
+  status: string;
+  count: number;
+  relationshipStatus: string;
+  reviewedCount: number;
+  limitations: string[];
+  releaseLineage: {
+    candidateReleaseId: string;
+    sourceReleaseId?: string;
+    snapshotId?: string;
+    manifestId?: string;
+  };
+  candidateOnly: boolean;
+  public: boolean;
+  stable: boolean;
+  current: boolean;
+  publishable: boolean;
+  rightsStatus: string;
+};
+
+export type StandardsConceptsCrosswalksResult = {
+  releaseId: string;
+  concepts: StandardsReadinessProjection;
+  crosswalks: StandardsReadinessProjection;
+  unavailable?: string;
+};
+
+export type StandardsApiReadinessResult = {
+  releaseId: string;
+  releaseStatus: string;
+  candidateOnly: true;
+  public: false;
+  stable: false;
+  current: false;
+  publishable: false;
+  rightsStatus: "denied";
+  apiAvailability: "metadata-only";
+  provenance: {
+    sourceReleaseId?: string;
+    snapshotId?: string;
+    manifestId?: string;
+  };
+  exports: { bulk: "denied"; case: "denied" };
+  unavailable?: string;
+};
+
 const DEFAULT_STANDARDS_RELEASE = "standards-2026.08.0-preview";
 const RELEASE_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
 
@@ -437,7 +483,7 @@ function safeHttpUrl(value: unknown): string | undefined {
   }
 }
 
-async function standardsFetch(url: URL, releaseIds: string[]) {
+async function standardsFetch(url: URL, releaseIds: string[], allowDenied = false) {
   const bearer = process.env.LOCAL_API_BEARER?.trim();
   if (!bearer) throw new Error("Standards API authorization is unavailable");
   const authorization = /^Bearer\s/i.test(bearer) ? bearer : `Bearer ${bearer}`;
@@ -446,7 +492,8 @@ async function standardsFetch(url: URL, releaseIds: string[]) {
     signal: AbortSignal.timeout(5_000),
     next: { revalidate: 60, tags: releaseIds.map((releaseId) => `standards:${releaseId}`) },
   });
-  if (!response.ok) throw new Error(`API returned ${response.status}`);
+  if (!response.ok && !(allowDenied && response.status === 403))
+    throw new Error(`API returned ${response.status}`);
   return response;
 }
 
@@ -999,6 +1046,207 @@ export async function getStandardsCoverage(): Promise<StandardsCoverageResult> {
       ...empty,
       unavailable:
         "Standards coverage is temporarily unavailable. No unverified local data is shown.",
+    };
+  }
+}
+
+function readinessProjection(
+  value: unknown,
+  expectedPath: "concepts" | "crosswalks",
+  releaseId: string,
+): StandardsReadinessProjection {
+  const data = objectValue(value);
+  const lineage = objectValue(data.releaseLineage);
+  const relationship = objectValue(data.relationshipSemantics);
+  const safety = objectValue(data.safety);
+  const candidateReleaseId = stringValue(lineage.candidateReleaseId);
+  if (
+    candidateReleaseId !== releaseId ||
+    (expectedPath === "concepts" && data.status !== "unmapped") ||
+    (expectedPath === "crosswalks" && data.status !== "empty") ||
+    relationship.status !== "reviewed-only" ||
+    relationship.reviewedCount !== 0 ||
+    safety.candidateOnly !== true ||
+    safety.preview !== true ||
+    safety.public !== false ||
+    safety.stable !== false ||
+    safety.current !== false ||
+    safety.publishable !== false ||
+    safety.rightsStatus !== "denied"
+  ) {
+    throw new Error("Unsafe or mismatched Standards readiness projection");
+  }
+  const items = data[expectedPath];
+  if (!Array.isArray(items) || items.length !== 0) {
+    throw new Error("Standards readiness projection contains unreviewed data");
+  }
+  return {
+    status: expectedPath === "concepts" ? "unmapped" : "empty",
+    count: 0,
+    relationshipStatus: "reviewed-only",
+    reviewedCount: 0,
+    limitations: stringList(data.limitations),
+    releaseLineage: {
+      candidateReleaseId,
+      sourceReleaseId: stringValue(lineage.sourceReleaseId),
+      snapshotId: stringValue(lineage.snapshotId),
+      manifestId: stringValue(lineage.manifestId),
+    },
+    candidateOnly: true,
+    public: false,
+    stable: false,
+    current: false,
+    publishable: false,
+    rightsStatus: "denied",
+  };
+}
+
+export async function getStandardsConceptsCrosswalks(): Promise<StandardsConceptsCrosswalksResult> {
+  const releaseId = configuredRelease();
+  const unavailable = "The synchronized Standards API is not configured in this environment.";
+  const empty: StandardsConceptsCrosswalksResult = {
+    releaseId,
+    concepts: {
+      status: "unmapped",
+      count: 0,
+      relationshipStatus: "reviewed-only",
+      reviewedCount: 0,
+      limitations: [],
+      releaseLineage: { candidateReleaseId: releaseId },
+      candidateOnly: true,
+      public: false,
+      stable: false,
+      current: false,
+      publishable: false,
+      rightsStatus: "denied",
+    },
+    crosswalks: {
+      status: "empty",
+      count: 0,
+      relationshipStatus: "reviewed-only",
+      reviewedCount: 0,
+      limitations: [],
+      releaseLineage: { candidateReleaseId: releaseId },
+      candidateOnly: true,
+      public: false,
+      stable: false,
+      current: false,
+      publishable: false,
+      rightsStatus: "denied",
+    },
+    unavailable,
+  };
+  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  if (!baseUrl) return empty;
+  try {
+    const urls = ["concepts", "crosswalks"].map((path) => {
+      const url = new URL(`/v1/${path}`, baseUrl);
+      url.searchParams.set("release", releaseId);
+      return url;
+    });
+    const responses = await Promise.all(urls.map((url) => standardsFetch(url, [releaseId])));
+    const payloads = await Promise.all(
+      responses.map(
+        (response) =>
+          response.json() as Promise<{ data?: unknown; meta?: Record<string, unknown> }>,
+      ),
+    );
+    const projections = payloads.map((payload, index) => {
+      const meta = payload.meta ?? {};
+      if (
+        (stringValue(meta.release) ??
+          stringValue(meta.releaseId) ??
+          stringValue(meta.standardsRelease)) !== releaseId ||
+        meta.candidateOnly !== true ||
+        meta.public !== false ||
+        meta.stable !== false ||
+        meta.current !== false ||
+        meta.publishable !== false ||
+        meta.rightsStatus !== "denied"
+      ) {
+        throw new Error("Standards readiness meta release or safety mismatch");
+      }
+      return readinessProjection(payload.data, index === 0 ? "concepts" : "crosswalks", releaseId);
+    });
+    return { releaseId, concepts: projections[0], crosswalks: projections[1] };
+  } catch {
+    return {
+      ...empty,
+      unavailable:
+        "Standards concepts and crosswalks are temporarily unavailable. No unverified local data is shown.",
+    };
+  }
+}
+
+export async function getStandardsApiReadiness(): Promise<StandardsApiReadinessResult> {
+  const releaseId = configuredRelease();
+  const unavailable = "The synchronized Standards API is not configured in this environment.";
+  const empty: StandardsApiReadinessResult = {
+    releaseId,
+    releaseStatus: "candidate",
+    candidateOnly: true,
+    public: false,
+    stable: false,
+    current: false,
+    publishable: false,
+    rightsStatus: "denied",
+    apiAvailability: "metadata-only",
+    provenance: {},
+    exports: { bulk: "denied", case: "denied" },
+    unavailable,
+  };
+  if (!process.env.STANDARDS_API_URL?.trim()) return empty;
+  try {
+    const readiness = await getStandardsConceptsCrosswalks();
+    if (readiness.unavailable) return { ...empty, unavailable: readiness.unavailable };
+    const lineage = readiness.concepts.releaseLineage;
+    if (
+      readiness.releaseId !== releaseId ||
+      readiness.concepts.candidateOnly !== true ||
+      readiness.concepts.public !== false ||
+      readiness.concepts.stable !== false ||
+      readiness.concepts.current !== false ||
+      readiness.concepts.publishable !== false ||
+      readiness.concepts.rightsStatus !== "denied" ||
+      readiness.crosswalks.releaseLineage.candidateReleaseId !== releaseId
+    )
+      throw new Error("Unsafe Standards release metadata");
+
+    const responses = await Promise.all(
+      ["bulk", "case"].map((kind) => {
+        const url = new URL(`/v1/standards/${kind}`, process.env.STANDARDS_API_URL);
+        url.searchParams.set("release", releaseId);
+        return standardsFetch(url, [releaseId], true);
+      }),
+    );
+    for (const response of responses) {
+      if (response.status !== 403) throw new Error("Standards export was not denied");
+      const payload = (await response.json()) as Record<string, unknown>;
+      if (
+        payload.code !== "rights_denied" ||
+        payload.export !== "denied" ||
+        payload.candidateOnly !== true ||
+        payload.public !== false ||
+        payload.stable !== false ||
+        payload.rightsStatus !== "denied"
+      )
+        throw new Error("Unsafe Standards export metadata");
+    }
+    return {
+      ...empty,
+      releaseStatus: "candidate",
+      provenance: {
+        sourceReleaseId: lineage.sourceReleaseId,
+        snapshotId: lineage.snapshotId,
+        manifestId: lineage.manifestId,
+      },
+      unavailable: undefined,
+    };
+  } catch {
+    return {
+      ...empty,
+      unavailable:
+        "Standards API readiness is temporarily unavailable. No unverified data is shown.",
     };
   }
 }

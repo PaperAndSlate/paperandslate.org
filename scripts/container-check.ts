@@ -9,6 +9,12 @@ const container = `paper-and-slate-web-check-${process.pid}`;
 const port = Number(process.env.CONTAINER_CHECK_PORT ?? 3211);
 const dockerfile = process.env.CONTAINER_CHECK_DOCKERFILE ?? "infrastructure/docker/Dockerfile";
 const evidencePath = `${process.cwd()}/.generated/launch/container-check.json`;
+const positiveNumber = (value: string | undefined, fallback: number) => {
+  const parsed = Number(value ?? fallback);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+};
+const commandTimeoutMs = positiveNumber(process.env.CONTAINER_CHECK_TIMEOUT_MS, 10 * 60_000);
+const healthTimeoutMs = positiveNumber(process.env.CONTAINER_CHECK_HEALTH_TIMEOUT_MS, 45_000);
 
 type ContainerEvidence = {
   schemaVersion: 1;
@@ -31,15 +37,51 @@ function writeEvidence(evidence: ContainerEvidence) {
   fs.writeFileSync(evidencePath, `${JSON.stringify(evidence, null, 2)}\n`);
 }
 
+function recoverAbandonedEvidence() {
+  if (!fs.existsSync(evidencePath)) return;
+  try {
+    const previous = JSON.parse(fs.readFileSync(evidencePath, "utf8")) as ContainerEvidence;
+    if (previous.status !== "running") return;
+    writeEvidence({
+      ...previous,
+      status: "failed",
+      generatedAt: new Date().toISOString(),
+      error: previous.error ?? "Previous container check process ended before completion",
+    });
+  } catch {
+    // The current run will replace an unreadable record with a fresh running receipt.
+  }
+}
+
+let activeDockerAbort: AbortController | undefined;
+let activeContainer: ChildProcess | undefined;
+let interrupted = false;
+
 async function run(args: string[], inherit = false) {
-  const result = await execFileAsync(docker, args, {
-    cwd: process.cwd(),
-    encoding: "utf8",
-    maxBuffer: 20 * 1024 * 1024,
-    windowsHide: true,
-    ...(inherit ? { stdio: "inherit" as const } : {}),
-  });
-  return result.stdout;
+  const controller = new AbortController();
+  activeDockerAbort = controller;
+  try {
+    const result = await execFileAsync(docker, args, {
+      cwd: process.cwd(),
+      encoding: "utf8",
+      maxBuffer: 20 * 1024 * 1024,
+      timeout: Number.isFinite(commandTimeoutMs) && commandTimeoutMs > 0 ? commandTimeoutMs : 0,
+      killSignal: "SIGTERM",
+      signal: controller.signal,
+      windowsHide: true,
+      ...(inherit ? { stdio: "inherit" as const } : {}),
+    });
+    return result.stdout;
+  } catch (error) {
+    const details = error as NodeJS.ErrnoException & { killed?: boolean };
+    if (details.code === "ETIMEDOUT" || details.killed)
+      throw new Error(
+        `Docker command timed out after ${commandTimeoutMs}ms: docker ${args.join(" ")}`,
+      );
+    throw error;
+  } finally {
+    if (activeDockerAbort === controller) activeDockerAbort = undefined;
+  }
 }
 
 function stopProcess(child: ChildProcess | undefined) {
@@ -53,8 +95,9 @@ function stopProcess(child: ChildProcess | undefined) {
 }
 
 async function waitForHealth() {
-  const deadline = Date.now() + 45_000;
+  const deadline = Date.now() + healthTimeoutMs;
   while (Date.now() < deadline) {
+    if (interrupted) throw new Error("Container check interrupted by process signal");
     try {
       const response = await fetch(`http://127.0.0.1:${port}/health`, {
         signal: AbortSignal.timeout(2_000),
@@ -72,6 +115,7 @@ async function main() {
   if (!fs.existsSync(dockerfile)) throw new Error(`Dockerfile is missing: ${dockerfile}`);
   const releaseId = process.env.RELEASE_ID ?? "container-check";
   const gitSha = process.env.GIT_SHA ?? "container-check";
+  recoverAbandonedEvidence();
   writeEvidence({
     schemaVersion: 1,
     status: "running",
@@ -124,6 +168,7 @@ async function main() {
     ],
     { cwd: process.cwd(), stdio: "ignore", windowsHide: true },
   );
+  activeContainer = child;
   try {
     const response = await waitForHealth();
     const health = (await response.json()) as {
@@ -157,10 +202,24 @@ async function main() {
       // The --rm container may already have exited.
     }
     stopProcess(child);
+    if (activeContainer === child) activeContainer = undefined;
   }
 }
 
+const abortContainerCheck = () => {
+  interrupted = true;
+  activeDockerAbort?.abort();
+  stopProcess(activeContainer);
+};
+process.once("SIGINT", abortContainerCheck);
+process.once("SIGTERM", abortContainerCheck);
+
 main().catch((error) => {
+  const message = interrupted
+    ? "Container check interrupted by process signal"
+    : error instanceof Error
+      ? error.message
+      : String(error);
   writeEvidence({
     schemaVersion: 1,
     status: "failed",
@@ -168,10 +227,10 @@ main().catch((error) => {
     releaseId: process.env.RELEASE_ID ?? "container-check",
     gitSha: process.env.GIT_SHA ?? "container-check",
     image,
-    error: error instanceof Error ? error.message : String(error),
+    error: message,
   });
   if ((error as NodeJS.ErrnoException).code === "ENOENT")
     console.error("Docker is unavailable; container acceptance remains blocked");
-  else console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
+  else console.error(message);
+  process.exitCode = interrupted ? 130 : 1;
 });

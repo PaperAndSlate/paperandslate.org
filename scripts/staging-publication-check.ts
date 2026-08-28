@@ -7,6 +7,7 @@ const stagingUrl = process.env.STAGING_URL;
 const expectedRelease = process.env.RELEASE_ID ?? "";
 const expectedGitSha = process.env.GIT_SHA ?? "";
 const outputPath = path.join(root, ".generated", "launch", "staging-publication.json");
+const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
 
 const routeDefinitions = [
   { path: "/", contentType: "text/html" },
@@ -67,10 +68,10 @@ function safeTargetUrl(value: string | undefined) {
 function requireStagingUrl() {
   if (!stagingUrl) throw new Error("STAGING_URL is required for staging publication evidence");
   const parsed = new URL(stagingUrl);
-  if (parsed.protocol !== "https:")
-    throw new Error("Staging publication checks require an HTTPS URL");
-  if (!parsed.hostname.endsWith(".dev.tower"))
-    throw new Error("Staging publication checks are restricted to managed .dev.tower hosts");
+  if (parsed.origin !== hostedStagingOrigin)
+    throw new Error(
+      `Staging publication checks are restricted to the exact HTTPS staging origin ${hostedStagingOrigin}`,
+    );
   if (parsed.pathname !== "/")
     throw new Error("STAGING_URL must be the managed staging origin without a path");
   if (parsed.username || parsed.password || parsed.search || parsed.hash)
@@ -190,8 +191,15 @@ async function writeEvidence(evidence: PublicationEvidence) {
 
 async function main() {
   const base = requireStagingUrl();
-  if (!expectedRelease || !expectedGitSha)
-    throw new Error("RELEASE_ID and GIT_SHA are required for exact staging identity validation");
+  if (
+    !expectedRelease ||
+    !expectedGitSha ||
+    !/^[a-f0-9]{40}$/i.test(expectedGitSha) ||
+    !process.env.STAGING_DEPLOYMENT_ID
+  )
+    throw new Error(
+      "RELEASE_ID, a full GIT_SHA, and STAGING_DEPLOYMENT_ID are required for exact staging identity validation",
+    );
 
   const startedAt = new Date().toISOString();
   const healthResponse = await fetch(`${base.origin}/health`, {
@@ -232,7 +240,7 @@ async function main() {
     targetUrl: base.origin,
     releaseId: expectedRelease,
     gitSha: expectedGitSha,
-    deploymentId: process.env.STAGING_DEPLOYMENT_ID ?? null,
+    deploymentId: process.env.STAGING_DEPLOYMENT_ID,
     health,
     routes,
     feedItemCounts,

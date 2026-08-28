@@ -1,6 +1,18 @@
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
-import { searchStatus } from "../../lib/search";
-export function GET() {
+import docsLock from "../../../../../.generated/docs/docs-sources.lock.json";
+import { getSearchHealth } from "../../lib/search";
+
+const docsLockText = JSON.stringify(docsLock);
+const docsLockHash = createHash("sha256").update(docsLockText).digest("hex");
+const docsSourceCount = new Set(
+  ((docsLock as { sources?: Array<{ sourceId?: string }> }).sources ?? [])
+    .map((source) => source.sourceId)
+    .filter((sourceId): sourceId is string => Boolean(sourceId)),
+).size;
+
+export async function GET() {
+  const search = await getSearchHealth();
   return NextResponse.json(
     {
       status: "ok",
@@ -12,8 +24,11 @@ export function GET() {
       releaseId: process.env.RELEASE_ID || "local-development",
       gitSha: process.env.GIT_SHA || "local-development",
       build: process.env.NEXT_BUILD_ID || process.env.RELEASE_ID || "local",
-      docs: { sourceCount: 8, lockHash: process.env.DOCS_LOCK_HASH || "local-content-lock" },
-      search: { mode: searchStatus.mode, configured: searchStatus.configured, ready: true },
+      docs: {
+        sourceCount: docsSourceCount,
+        lockHash: process.env.DOCS_LOCK_HASH || docsLockHash,
+      },
+      search,
     },
     { headers: { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" } },
   );

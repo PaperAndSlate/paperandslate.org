@@ -1,10 +1,21 @@
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { loadRegistry, sourceDocsRoot } from "../packages/docs-ingestion/src/index";
 
 const command = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
-const sourceDocsAvailable = fs.existsSync(path.resolve(process.cwd(), "..", "standards"));
-const docsTasks = sourceDocsAvailable ? ["docs:ingest", "docs:validate"] : ["docs:bundle:check"];
+const siblingDocsAvailable = (() => {
+  try {
+    return loadRegistry()
+      .filter((source) => source.kind === "sibling-local")
+      .every((source) =>
+        source.versions.every((version) => fs.existsSync(sourceDocsRoot(source, version))),
+      );
+  } catch {
+    return false;
+  }
+})();
+const docsTasks = siblingDocsAvailable ? ["docs:ingest", "docs:validate"] : ["docs:bundle:check"];
 const localTasks = [
   "requirements:check",
   ...docsTasks,
@@ -39,6 +50,32 @@ const tasks =
   process.env.VERIFY_SKIP_EXTERNAL === "true" ? localTasks : [...localTasks, ...externalTasks];
 const evidencePath = path.join(process.cwd(), ".generated", "launch", "verify.json");
 const startedAt = new Date().toISOString();
+const recoverAbandonedEvidence = () => {
+  if (!fs.existsSync(evidencePath)) return;
+  try {
+    const previous = JSON.parse(fs.readFileSync(evidencePath, "utf8")) as {
+      status?: string;
+      finishedAt?: string | null;
+      error?: string | null;
+    };
+    if (previous.status !== "running") return;
+    fs.writeFileSync(
+      evidencePath,
+      `${JSON.stringify(
+        {
+          ...previous,
+          status: "failed",
+          finishedAt: new Date().toISOString(),
+          error: previous.error ?? "Previous verification process ended before completion",
+        },
+        null,
+        2,
+      )}\n`,
+    );
+  } catch {
+    // The current run will report a fresh evidence record if the previous one was unreadable.
+  }
+};
 const writeEvidence = (
   status: "running" | "passed" | "failed",
   completed: string[],
@@ -66,55 +103,85 @@ const writeEvidence = (
   );
 };
 const completed: string[] = [];
+recoverAbandonedEvidence();
 writeEvidence("running", completed);
-for (const task of tasks) {
-  console.log(`\n[verify] pnpm ${task}`);
-  const result = spawnSync(command, [task], {
-    cwd: process.cwd(),
-    stdio: "inherit",
-    env: process.env,
-    shell: process.platform === "win32",
-  });
-  if (result.error) throw result.error;
-  if (result.status !== 0) {
-    writeEvidence("failed", completed, `pnpm ${task} exited with ${result.status ?? "unknown"}`);
-    process.exit(result.status ?? 1);
+
+const configuredTaskTimeoutMs = Number(process.env.VERIFY_TASK_TIMEOUT_MS ?? 15 * 60_000);
+const taskTimeoutMs =
+  Number.isFinite(configuredTaskTimeoutMs) && configuredTaskTimeoutMs > 0
+    ? configuredTaskTimeoutMs
+    : 15 * 60_000;
+let activeChild: ChildProcess | undefined;
+let interrupted = false;
+
+function stopChild(child: ChildProcess | undefined) {
+  if (!child?.pid) return;
+  if (process.platform === "win32") {
+    spawnSync("taskkill", ["/pid", String(child.pid), "/t", "/f"], {
+      stdio: "ignore",
+      windowsHide: true,
+    });
+  } else {
+    child.kill("SIGTERM");
   }
-  completed.push(task);
-  writeEvidence("running", completed);
 }
-writeEvidence("passed", completed);
-const report = spawnSync(command, ["launch:report"], {
-  cwd: process.cwd(),
-  stdio: "inherit",
-  env: process.env,
-  shell: process.platform === "win32",
+
+function runTask(task: string): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(command, [task], {
+      cwd: process.cwd(),
+      stdio: "inherit",
+      env: process.env,
+      shell: process.platform === "win32",
+      windowsHide: true,
+    });
+    activeChild = child;
+    let finished = false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const finish = (error?: Error, code?: number) => {
+      if (finished) return;
+      finished = true;
+      if (timer) clearTimeout(timer);
+      if (activeChild === child) activeChild = undefined;
+      if (error) reject(error);
+      else resolve(code ?? 1);
+    };
+    if (Number.isFinite(taskTimeoutMs) && taskTimeoutMs > 0) {
+      timer = setTimeout(() => {
+        stopChild(child);
+        finish(new Error(`pnpm ${task} exceeded the ${taskTimeoutMs}ms task timeout`));
+      }, taskTimeoutMs);
+    }
+    child.once("error", (error) => finish(error));
+    child.once("exit", (code, signal) => {
+      if (signal) finish(new Error(`pnpm ${task} exited with signal ${signal}`));
+      else finish(undefined, code ?? 1);
+    });
+  });
+}
+
+const abortVerification = (signal: NodeJS.Signals) => {
+  interrupted = true;
+  stopChild(activeChild);
+};
+process.once("SIGINT", () => abortVerification("SIGINT"));
+process.once("SIGTERM", () => abortVerification("SIGTERM"));
+
+async function main() {
+  for (const task of [...tasks, "launch:report", "evidence:bundle"]) {
+    console.log(`\n[verify] pnpm ${task}`);
+    const status = await runTask(task);
+    if (interrupted) throw new Error("Verification interrupted by process signal");
+    if (status !== 0) throw new Error(`pnpm ${task} exited with ${status}`);
+    completed.push(task);
+    writeEvidence("running", completed);
+  }
+  writeEvidence("passed", completed);
+  console.log(`[verify] ${tasks.length} checks passed.`);
+}
+
+main().catch((error) => {
+  writeEvidence("failed", completed, error instanceof Error ? error.message : String(error));
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = interrupted ? 130 : 1;
 });
-if (report.error) throw report.error;
-if (report.status !== 0) {
-  writeEvidence(
-    "failed",
-    completed,
-    `pnpm launch:report exited with ${report.status ?? "unknown"}`,
-  );
-  process.exit(report.status ?? 1);
-}
-completed.push("launch:report");
-const evidence = spawnSync(command, ["evidence:bundle"], {
-  cwd: process.cwd(),
-  stdio: "inherit",
-  env: process.env,
-  shell: process.platform === "win32",
-});
-if (evidence.error) throw evidence.error;
-if (evidence.status !== 0) {
-  writeEvidence(
-    "failed",
-    completed,
-    `pnpm evidence:bundle exited with ${evidence.status ?? "unknown"}`,
-  );
-  process.exit(evidence.status ?? 1);
-}
-completed.push("evidence:bundle");
-writeEvidence("passed", completed);
-console.log(`[verify] ${tasks.length} checks passed.`);

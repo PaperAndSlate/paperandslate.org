@@ -23,6 +23,10 @@ const git = (args: string[]) => {
     return null;
   }
 };
+const sourceSha = git(["rev-parse", "HEAD"]);
+const configuredCandidateSha = process.env.CANDIDATE_SHA || process.env.GIT_SHA || null;
+const candidateSha = configuredCandidateSha || sourceSha;
+const strictIdentity = Boolean(process.env.CANDIDATE_SHA) || /^v1\.0\.0-rc\./.test(releaseId);
 const readJson = <T>(relative: string): T | null => {
   const file = path.join(root, relative);
   if (!fs.existsSync(file)) return null;
@@ -57,6 +61,8 @@ const sources = [
   [".generated/launch/performance-summary.json", "launch/performance-summary.json"],
   [".generated/launch/production-browser.json", "launch/production-browser.json"],
   [".generated/launch/visual", "launch/visual"],
+  [".generated/launch/lighthouse-staging", "launch/lighthouse-staging"],
+  [".generated/launch/staging-publication.json", "launch/staging-publication.json"],
   [".generated/launch/container-check.json", "launch/container-check.json"],
   [".generated/launch/docs-bundle-check.json", "launch/docs-bundle-check.json"],
   [".generated/launch/sbom-manifest.json", "launch/sbom-manifest.json"],
@@ -107,20 +113,89 @@ fs.writeFileSync(
 const launch = readJson<{ status?: string; checks?: Array<{ id?: string; status?: string }> }>(
   ".generated/launch/launch-evidence.json",
 );
-const container = readJson<{ imageId?: string | null; repoDigests?: string[] }>(
-  ".generated/launch/container-check.json",
-);
-const visual = readJson<{ status?: string; captures?: unknown[] }>(
+const container = readJson<{
+  status?: string;
+  gitSha?: string;
+  imageId?: string | null;
+  repoDigests?: string[];
+}>(".generated/launch/container-check.json");
+const visual = readJson<{ status?: string; gitSha?: string; captures?: unknown[] }>(
   ".generated/launch/visual/manifest.json",
 );
-const verify = readJson<{ status?: string; completed?: string[] }>(".generated/launch/verify.json");
+const verify = readJson<{ status?: string; completed?: string[]; gitSha?: string | null }>(
+  ".generated/launch/verify.json",
+);
+const sbom = readJson<{ gitSha?: string; containerDigest?: string }>(
+  ".generated/launch/sbom-manifest.json",
+);
+const hostedLighthouse = readJson<{
+  status?: string;
+  gitSha?: string;
+  deploymentId?: string | null;
+  lighthouseVersion?: string;
+}>(".generated/launch/lighthouse-staging/lighthouse-run.json");
+const publication = readJson<{
+  status?: string;
+  gitSha?: string;
+  deploymentId?: string | null;
+}>(".generated/launch/staging-publication.json");
+const identityMismatches: string[] = [];
+const requireIdentity = (label: string, value: string | null | undefined) => {
+  if (strictIdentity && !value) identityMismatches.push(`${label} identity is missing`);
+  if (value && candidateSha && value !== candidateSha)
+    identityMismatches.push(`${label}=${value} does not match candidate SHA ${candidateSha}`);
+};
+if (!sourceSha) identityMismatches.push("local Git HEAD is unavailable");
+if (configuredCandidateSha && !/^[a-f0-9]{40}$/i.test(configuredCandidateSha))
+  identityMismatches.push(
+    `configured candidate SHA is not a full Git SHA: ${configuredCandidateSha}`,
+  );
+requireIdentity("source", sourceSha);
+requireIdentity("verify", verify?.gitSha);
+requireIdentity("container", container?.gitSha);
+requireIdentity("SBOM", sbom?.gitSha);
+requireIdentity("hosted Lighthouse", hostedLighthouse?.gitSha);
+requireIdentity("publication", publication?.gitSha);
+requireIdentity("visual", visual?.gitSha);
+if (strictIdentity && !hostedLighthouse?.deploymentId)
+  identityMismatches.push("hosted Lighthouse deployment identity is missing");
+if (strictIdentity && !publication?.deploymentId)
+  identityMismatches.push("publication deployment identity is missing");
+const containerDigest = container?.repoDigests?.[0] || container?.imageId || null;
+if (sbom?.containerDigest && sbom.containerDigest !== "pending" && containerDigest) {
+  const sbomDigest = sbom.containerDigest;
+  if (sbomDigest !== containerDigest)
+    identityMismatches.push(
+      `SBOM container digest ${sbomDigest} does not match container evidence ${containerDigest}`,
+    );
+}
+if (
+  process.env.CONTAINER_IMAGE_DIGEST &&
+  sbom?.containerDigest &&
+  sbom.containerDigest !== "pending" &&
+  process.env.CONTAINER_IMAGE_DIGEST !== sbom.containerDigest
+)
+  identityMismatches.push(
+    `configured container digest ${process.env.CONTAINER_IMAGE_DIGEST} does not match SBOM ${sbom.containerDigest}`,
+  );
+if (strictIdentity && git(["status", "--porcelain"]))
+  identityMismatches.push("strict candidate evidence requires a clean worktree");
 const manifest = {
   schemaVersion: 2,
-  status: "local-release-candidate-evidence",
+  status:
+    identityMismatches.length > 0
+      ? "incomplete-identity-mismatch"
+      : "local-release-candidate-evidence",
   releaseId,
   generatedAt: new Date().toISOString(),
+  identity: {
+    strict: strictIdentity,
+    candidateSha,
+    sourceSha,
+    mismatches: identityMismatches,
+  },
   source: {
-    sha: git(["rev-parse", "HEAD"]),
+    sha: sourceSha,
     branch: git(["branch", "--show-current"]),
     remote: git(["remote", "get-url", "origin"]),
     exactTag: git(["describe", "--tags", "--exact-match"]),
@@ -137,6 +212,9 @@ const manifest = {
     fullVerifyTasks: verify?.completed?.length ?? 0,
     visualStatus: visual?.status ?? "missing",
     visualCaptures: visual?.captures?.length ?? 0,
+    hostedLighthouseStatus: hostedLighthouse ? "present" : "missing",
+    hostedLighthouseVersion: hostedLighthouse?.lighthouseVersion ?? null,
+    publicationStatus: publication ? "present" : "missing",
   },
   artifact: {
     localImageId: container?.imageId ?? null,
@@ -178,6 +256,8 @@ fs.writeFileSync(
   path.join(bundleRoot, "manifest.sha256"),
   `${sha256File(path.join(bundleRoot, "manifest.json"))}\n`,
 );
+if (strictIdentity && identityMismatches.length > 0)
+  throw new Error(`Evidence identity mismatch: ${identityMismatches.join("; ")}`);
 console.log(
   `Created release evidence bundle ${path.relative(root, bundleRoot)} with ${Object.keys(hashes).length} hashed files.`,
 );
