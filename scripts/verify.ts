@@ -2,6 +2,7 @@ import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { loadRegistry, sourceDocsRoot } from "../packages/docs-ingestion/src/index";
+import { normalizeFumadocsSource } from "./normalize-fumadocs-source";
 import { pnpmSpawnSpec } from "./pnpm-command";
 import { readSourceState } from "./source-state";
 
@@ -51,6 +52,7 @@ const localTasks = [
   "security:scan",
 ];
 const externalTasks = ["lighthouse", "performance:check", "vulnerability:scan"];
+const tasksThatRegenerateFumadocsSource = new Set(["e2e", "a11y:rc", "links", "visual:check"]);
 const tasks =
   process.env.VERIFY_SKIP_EXTERNAL === "true" ? localTasks : [...localTasks, ...externalTasks];
 const evidencePath = path.join(process.cwd(), ".generated", "launch", "verify.json");
@@ -181,6 +183,7 @@ async function main() {
     const status = await runTask(task);
     if (interrupted) throw new Error("Verification interrupted by process signal");
     if (status !== 0) throw new Error(`pnpm ${task} exited with ${status}`);
+    if (tasksThatRegenerateFumadocsSource.has(task)) normalizeFumadocsSource(process.cwd());
     completed.push(task);
     writeEvidence("running", completed);
   }

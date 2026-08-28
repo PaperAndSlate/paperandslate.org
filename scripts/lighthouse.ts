@@ -1,11 +1,14 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, realpath, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
+import { isMissingPathError } from "./fs-errors";
 import { withLighthouseChrome } from "./lighthouse-chrome";
+import { normalizeFumadocsSource } from "./normalize-fumadocs-source";
 import { pnpmSpawnSpec } from "./pnpm-command";
 import { assertTcpPortFree, parseTcpPort } from "./port-check";
 import { assertExactSourceRevision } from "./evidence-identity";
+import { withProductionOutputLock } from "./production-output-lock";
 import { ensureStandaloneOutput } from "./standalone-output";
 import { readSourceState } from "./source-state";
 const root = process.cwd();
@@ -111,27 +114,40 @@ async function prepareRuntime() {
   );
 }
 
-function buildStandaloneOutput() {
-  return new Promise<void>((resolve, reject) => {
-    const invocation = pnpmSpawnSpec(["build:web"]);
-    const child = spawn(invocation.command, invocation.args, {
-      cwd: root,
-      env: process.env,
-      stdio: "inherit",
-      shell: false,
-      windowsHide: true,
-    });
-    child.once("error", reject);
-    child.once("exit", (code, signal) => {
-      if (code === 0) resolve();
-      else
-        reject(
-          new Error(
-            `Standalone web build exited with ${signal ? `signal ${signal}` : `code ${code ?? "unknown"}`}`,
-          ),
-        );
-    });
+async function buildStandaloneOutput() {
+  const nextEnvFile = path.join(root, "apps", "web", "next-env.d.ts");
+  const originalNextEnv = await readFile(nextEnvFile).catch((error: unknown) => {
+    if (isMissingPathError(error)) return undefined;
+    throw error;
   });
+  const nextCli = await realpath(
+    path.join(root, "apps", "web", "node_modules", "next", "dist", "bin", "next"),
+  );
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const child = spawn(process.execPath, [nextCli, "build"], {
+        cwd: path.join(root, "apps", "web"),
+        env: { ...process.env, NODE_ENV: "production" },
+        stdio: "inherit",
+        shell: false,
+        windowsHide: true,
+      });
+      child.once("error", reject);
+      child.once("exit", (code, signal) => {
+        if (code === 0) resolve();
+        else
+          reject(
+            new Error(
+              `Standalone web build exited with ${signal ? `signal ${signal}` : `code ${code ?? "unknown"}`}`,
+            ),
+          );
+      });
+    });
+    normalizeFumadocsSource(root);
+  } finally {
+    if (originalNextEnv) await writeFile(nextEnvFile, originalNextEnv);
+    else await rm(nextEnvFile, { force: true });
+  }
 }
 
 async function writeRunConfig() {
@@ -176,7 +192,7 @@ function runLighthouse(config: string, env: NodeJS.ProcessEnv) {
 async function main() {
   const releaseLock = await acquireExclusiveRunLock(lockPath);
   try {
-    await runLighthouseEvidence();
+    await withProductionOutputLock(runLighthouseEvidence);
   } finally {
     await releaseLock();
   }

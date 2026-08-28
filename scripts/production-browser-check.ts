@@ -5,6 +5,7 @@ import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { waitForImages } from "./browser-assets";
 import { assertExactSourceRevision } from "./evidence-identity";
+import { withProductionOutputLock } from "./production-output-lock";
 import { readSourceState } from "./source-state";
 
 const root = process.cwd();
@@ -136,7 +137,7 @@ async function assertPage(
   return response;
 }
 
-async function main() {
+async function runMain() {
   let server: ChildProcess | undefined;
   if (!externalBaseUrl) {
     if (debug) console.error(`[production:browser] preparing ${runtimeRoot}`);
@@ -317,7 +318,7 @@ async function main() {
   }
 }
 
-main().catch(async (error) => {
+withProductionOutputLock(runMain).catch(async (error) => {
   const message = error instanceof Error ? error.message : String(error);
   try {
     await mkdir(path.dirname(evidencePath), { recursive: true });
