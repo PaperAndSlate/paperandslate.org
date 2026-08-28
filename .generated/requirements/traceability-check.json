@@ -1,19 +1,16 @@
 {
   "schemaVersion": 1,
   "status": "passed",
-  "generatedAt": "2026-08-28T19:16:57.096Z",
+  "generatedAt": "2026-08-28T19:21:45.742Z",
   "generatedBy": "pnpm traceability:check",
   "source": {
-    "commit": "a318bba836b8494de655bc48ece50559b8a3e881",
-    "tree": "1fbb9c44bc362195461c0b48a1b91ab72a4a9a68",
+    "commit": "dc69320bb22f92345db0d186007f8ffa7f625357",
+    "tree": "b5b0c15c379462d7162fee38c7b266d804924f1a",
     "lockfileSha256": "4571472a300ed6fc44c27072c2fb809f21ab4338ac2c771e175c7deb8230f513",
-    "worktreeClean": false,
-    "dirtyPaths": [
-      "docs/rc3-owner-closure.md"
-    ],
+    "worktreeClean": true,
+    "dirtyPaths": [],
     "generatedPaths": [
       ".generated/requirements/requirements.json",
-      ".generated/requirements/traceability-check.json",
       "IMPLEMENTATION_LEDGER.md"
     ]
   },
