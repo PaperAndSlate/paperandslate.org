@@ -188,6 +188,11 @@ async function main() {
     writeEvidence("running", completed);
   }
 
+  // Development servers may finish their Fumadocs watcher after the child task
+  // exits. Normalize once more after every task so the final source identity
+  // cannot be invalidated by a late generated-file rewrite.
+  normalizeFumadocsSource(process.cwd());
+
   // The aggregate report needs to observe a completed verification receipt so it
   // can verify the full run instead of treating its in-progress state as pending.
   writeEvidence("passed", completed);
