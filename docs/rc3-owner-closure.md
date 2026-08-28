@@ -8,26 +8,26 @@ This is the actionable handoff for the remaining gates. It separates repository 
 
 ## Current evidence boundary
 
-The last pushed candidate read back from Tower before this handoff was:
+The current closure snapshot read back from Tower before this runbook edit was:
 
 - branch: `release/v1-closure`;
-- source SHA: `dc6d78a3886079b7fef8816731969fd88c00b755`;
+- source SHA: `cdad2413c664cd210f6bb75bc07c2410220e89b5` (the final source SHA must always be re-read after the last push);
 - repository: private Forgejo `callum/paperandslate-web`;
 - immutable `v1.0.0-rc.1` remains unchanged; the candidate is not tagged;
 - the existing Coolify source-build workload is `ngqtewtqeqhj88v1005a38va`, with its latest successful deployment at `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6`; it is not an OCI image deployment and must not be treated as current-candidate image evidence.
 
-Tower accepted exact-SHA dispatches for `container.yml`, `lighthouse.yml`, and `quality.yml`, but current runs 64–69 all failed before a runner was assigned. Their bounded job records contain no runner and no steps. This is a Tower/Forgejo scheduling or controller failure, not a passing or task-level application failure. The runner inventory reports one idle runner with labels `ubuntu-latest`, `node22`, `docker`, and `playwright`, but no usable online heartbeat.
+Tower produced exact-SHA runs 97 (`container.yml`), 98 (`lighthouse.yml`), and 99 (`quality.yml`) for `cdad2413c664cd210f6bb75bc07c2410220e89b5`, plus run 100 (`supply-chain.yml`) from one bounded manual dispatch. All four failed before a runner was assigned: their bounded job records contain no runner and no steps. This is a Tower/Forgejo scheduling or controller failure, not a passing or task-level application failure. The runner inventory reports one idle runner with labels `ubuntu-latest`, `node22`, `docker`, and `playwright`, but `lastOnline` is null and no usable heartbeat is present. Any later source commit requires a new exact-SHA run set.
 
-Since this handoff was authored, the branch has advanced through generated traceability-only commits. The current local and remote repository revision is recorded in the repository identity and traceability receipts. No hosted workflow has run successfully for the current revision; the run and deployment observations above remain historical and identity-bound to the revisions stated there.
+The current local source checks are green: 30 Vitest files / 80 tests, package and tool typecheck, lint, 12 Lighthouse reports across six URLs with performance budgets, production browser checks for 12 routes, and 13 production visual states. Visual evidence remains `human-review-pending`; local receipts are not hosted staging evidence. No hosted workflow has run successfully for the current revision.
 
 The following are available but do not close the release:
 
-- local code gates: the current workspace passed 26 Vitest files / 75 tests, lint, package and tool typecheck, deterministic search generation, content validation, feed validation, and workflow policy validation;
+- local code gates: deterministic search generation, content validation, feed validation, workflow policy validation, browser checks, visual captures, and Lighthouse budget checks have passed during this remediation pass;
 - Tower resources: Typesense `search`, Valkey `cache`, and S3 `release-evidence` are active; the resource-level provider contract passed, but Typesense has zero documents and Valkey has no candidate-app behavior receipt;
-- six Tower monitors are active and their latest probes are healthy, but the available SLO window is historical and degraded, not release-specific;
-- the private registry policy exists, but no current-candidate hosted OCI digest, image SBOM, scan, provenance, signature, or image-backed deployment exists;
+- six Tower monitors are active and their latest one-shot probes are healthy, but the available 24-hour SLO window is historical and degraded: latency p95 is approximately 2.7–2.9 seconds against a 2-second target;
+- the private registry policy exists and contains only a historical image (`sha-7aaa9b45ba0b6264d089eb530ecfd471a8e2008b`, digest `sha256:8e88472b8b55250cea13dd039d171d1c53d5722fba773f78bbea1c0010e29f1a`). Its SBOM and scan receipts exist, but the scan reports 49 high and 5 critical findings, provenance is only generated, and signing is `not-configured`; it is not current-candidate evidence;
 - GlitchTip project `2` has an older unresolved Tower diagnostic event; there is no exact-candidate labeled event receipt;
-- the environment-contract status is stale/failed and reports missing `VALKEY_URL`, `KIT_API_KEY`, `KIT_FORM_ID`, and `GLITCHTIP_DSN`. `KIT_*` may remain absent only if the owner explicitly records that Kit is disabled; the required cache and error-tracking decisions still need an authorized deployment validation.
+- the latest environment-contract validation is invalid with exactly two missing variables: `VALKEY_URL` and `GLITCHTIP_DSN`; values were excluded from the receipt. `KIT_*` remains an explicit optional/disabled decision, not a substitute for the required cache and error-tracking bindings.
 
 Any commit made after the source SHA above creates a new candidate identity. Re-read `git rev-parse HEAD`, the Forgejo branch, and every hosted receipt after the final push; never copy the SHA above into a later receipt unless it is still the exact source.
 
@@ -42,7 +42,7 @@ Any commit made after the source SHA above creates a new candidate identity. Re-
 
 ### Codex can then
 
-1. Dispatch each workflow against the final exact branch SHA.
+1. Dispatch each workflow against the final exact branch SHA. The current candidate's runs 97–100 are pre-run failures and cannot be reused after the runner is repaired.
 2. Inspect run, job, step, log, and artifact receipts and reject any run that has no assigned runner or no task steps.
 3. Confirm `quality.yml` runs the bounded production verification, `container.yml` proves the image runtime, and `lighthouse.yml` proves the performance thresholds.
 4. Attach redacted run IDs, artifact names, SHA, timestamps, and conclusions to the release evidence bundle.
@@ -121,7 +121,7 @@ Codex can run the Tower environment-contract validation, verify that no secret i
 3. Return only redacted identifiers: image digest, tag, CI run, SBOM object keys, scan result, provenance verification, signature verification, and byte size.
 4. Resolve or formally waive any high/critical finding with an owner, reason, scope, and expiry. Do not hide development-tool advisories by changing the scan policy.
 
-Codex can generate local CycloneDX/SPDX lockfile SBOMs, run the repository scan, compare checksums, validate digest syntax, and reconcile the redacted hosted receipts. The available Tower registry report records an already-pushed image; it cannot build, push, scan, sign, or create the image workload. Until an authorized platform/operator performs those actions, no hosted OCI evidence may be claimed.
+Codex can generate local CycloneDX/SPDX lockfile SBOMs, run the repository scan, compare checksums, validate digest syntax, and reconcile the redacted hosted receipts. The available Tower registry report records one historical image with a successful SBOM/scan artifact but unresolved severity and no configured signature; it cannot build, push, scan, sign, or create the image workload. Until an authorized platform/operator performs those actions for the final SHA, no current hosted OCI evidence may be claimed.
 
 The final identity equality check is:
 
@@ -142,7 +142,7 @@ The image workload must be configured with the approved staging hostname, port, 
 3. Review responsive layout, keyboard focus, contrast, reduced motion, dark mode, empty/error/form states, docs rendering, and search overlay states.
 4. Approve or reject every logo, illustration, photograph, generated concept, icon, font, crop, attribution, and identifiable person/data use.
 
-Codex can rerun the production visual matrix against the exact image-backed staging deployment, compute checksums, verify that all expected states were captured, and fail the evidence package when a required state or approval is absent. A screenshot hash proves what was captured; it does not prove visual fidelity or media rights.
+Codex can rerun the production visual matrix against the exact image-backed staging deployment, compute checksums, verify that all expected states were captured, and fail the evidence package when a required state or approval is absent. The current local matrix has 13 captures and is `human-review-pending`. A screenshot hash proves what was captured; it does not prove visual fidelity or media rights.
 
 Codex can run the Lighthouse workflow once the `playwright` runner is actually scheduling jobs. The run must identify the exact SHA, URL, browser version, runner user (`pwuser`), route set, run count, category scores, configured thresholds, and artifact paths. The six routes are `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, `/feeds/rss.xml`, and `/health`; query/route variants required by the acceptance plan must be listed explicitly. Local or historical hosted Lighthouse output cannot be reused for a new candidate.
 
