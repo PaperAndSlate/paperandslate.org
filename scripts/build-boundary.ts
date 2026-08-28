@@ -14,6 +14,12 @@ const sourceRoot = resolve(webRoot, "src");
 const configFile = resolve(webRoot, "next.config.ts");
 const dockerfile = resolve(root, "infrastructure", "docker", "Dockerfile");
 const nextEnvFile = resolve(webRoot, "next-env.d.ts");
+const generatedRmOptions = {
+  recursive: true,
+  force: true,
+  maxRetries: 20,
+  retryDelay: 250,
+} as const;
 
 const fail = (message: string): never => {
   throw new Error(`[build:verify] ${message}`);
@@ -58,10 +64,13 @@ const removeOutputSafely = async () => {
     if (childStats.isSymbolicLink()) {
       await rm(child, { force: true });
     } else {
-      await rm(child, { recursive: true, force: true });
+      // Playwright/Next development servers can release Windows cache handles
+      // just after their child process exits. Retry bounded generated cleanup
+      // instead of turning that transient race into a verification failure.
+      await rm(child, generatedRmOptions);
     }
   }
-  await rm(outputRoot, { recursive: true, force: true });
+  await rm(outputRoot, generatedRmOptions);
 };
 
 const digestPath = async (target: string): Promise<string> => {
