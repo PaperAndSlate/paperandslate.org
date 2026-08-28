@@ -1,6 +1,6 @@
 # Paper & Slate Tower / Forgejo Integration Report
 
-**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:27:03Z)
+**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:38:06Z)
 **Project:** `paper-and-slate-web`
 **Environment:** staging
 **Decision:** release closure remains open. This report records platform evidence and remediation; it does not authorize a production release.
@@ -63,11 +63,15 @@ The current job/task records did materialize: Tower job ids match 152/153/154, w
 
 An independent Tower-owned control dispatch reproduced the failure outside Paper & Slate. Tower accepted `ci.yml` on `callum/tower-staging-validation` at 2026-08-28T21:19Z and created Tower run id 155 (Forgejo display run 9), targeting `docker`. It failed in one second with a materialized job/task but `startedAt=null`, no runner, and no steps. That repository previously completed the same workflow successfully as run 8 on 2026-07-31, so the current failure is not specific to Paper & Slate workflow syntax or application commands.
 
+A bounded failure investigation against the correctly bound control project `tower-staging-validation` completed as `c9ae9b28-a483-4814-a462-bcddc4a68108`. It collected nine CI records and identified external CI id `155` (Forgejo display run 9), with payloads excluded. The investigation’s normalized timestamps do not replace the exact `tower_ci_run_get` record, which remains authoritative for the unstarted/unassigned job shape. A direct `ciRunId=155` request was rejected as missing; the generic identifier worked only when the control repository’s own project slug was supplied. This is an input-contract/diagnostic limitation, not runner success.
+
 The project has no manifest queue declarations and no observed queue. Tower exposes project-scoped run/task/runner data, but not the global Forgejo scheduler configuration, global Actions queue, stale-task administration, or runner-host service logs. Project-bound log queries for `tower-ci` and `tower-docker-runner` were empty; the generic `forgejo` service was rejected as not bound to this project. This is a capability boundary, not proof that the host or scheduler is healthy.
 
 The observability snapshot also queried retired host metrics (`host_cpu_percent` and `host_memory_percent`); the controller returned 422 `unknown_metric` and named the current approved catalog as `container_cpu`, `container_memory`, `ci_failures`, `request_rate`, and `request_error_rate`. The snapshot still summarized overall health as healthy. The snapshot implementation should stop issuing retired metric queries and should surface this instrumentation mismatch rather than masking it.
 
 No current Paper & Slate workflow has executed a step, so no current step log or artifact is available through Tower. The Tower CI reporter identity operation is available, but the checked workflows do not currently emit a Tower structured report; after runner repair, the acceptance plan must either capture the provider-backed run logs/artifacts or add an explicitly reviewed reporter/summary step. This is an evidence gap, not a reason to treat the pre-run records as application failures.
+
+The scoped staging reporter is now active as `67f03584-babf-4b4e-b09c-b6570e0a637a` for `callum/paperandslate-web`; Tower injected the write-only secret name `TOWER_CI_REPORT_TOKEN` and returned no token material. This prepares the reporting path but does not create evidence by itself: a reviewed workflow step must post a concise, redacted result to Tower’s documented CI-report endpoint and include the exact SHA, run link, checks, and artifact links without raw logs or secrets.
 
 The repository has no `.forgejo/workflows/tower-ci.yaml`. The existing workflows are the available real-workflow acceptance path. Forgejo’s official documentation says that a runner must be available for a workflow to execute and that artifacts should use v3 or a Forgejo-patched v4 action. The repository currently pins Forgejo’s hosted `upload-artifact` commit `c6a366c94c3e0affe28c06c8df20a878f24da3cf` with the comment `v3.2.2`. Because runs 143–145 stop before steps, the artifact action is not yet implicated.
 
@@ -120,7 +124,7 @@ The existing managed GlitchTip project is project id `2` and reports `dsnSecretR
 1. The owner creates an Infisical/Tower-managed `GLITCHTIP_DSN` alias from the existing managed DSN without sharing the value with Codex, or approves a web-thread change that makes the manifest/app contract consistently use `SENTRY_DSN`.
 2. Tower should provide an idempotent cross-source binding/upsert that honors `sourceRef=SENTRY_DSN` and a supported cleanup/disable operation for the failed binding. The current exposed tool leaves the failed record in the binding list.
 3. Codex can reconcile the bindings, re-run the value-excluding contract check, deploy staging through the bounded Coolify action, inspect the deployment/health evidence, and confirm that the project status has moved from stale/unknown to deployment-backed acceptance once the source secret exists.
-4. Codex can run the bounded Typesense checks available through Tower. A temporary write/delete roundtrip must be enabled by the controller or performed by an authorized platform operator; zero documents is not evidence that indexing is correct.
+4. Codex can run the bounded Typesense checks available through Tower. For application-owned indexing, the web thread should run `pnpm search:index --publish-typesense` in an approved staging environment with the server-side write binding `TYPESENSE_API_KEY` and search-only binding `TYPESENSE_SEARCH_API_KEY`; the receipt must identify the exact source SHA, concrete collection, alias, record counts, query checks, and temporary write/delete cleanup. A controller roundtrip must be enabled or performed by an authorized platform operator; zero documents is not evidence that indexing is correct.
 
 ### 4. Repository, deployment, DNS, and TLS authority
 

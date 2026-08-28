@@ -2,7 +2,7 @@
 
 **Status:** not release-closed
 **Environment checked:** staging
-**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:27:03Z)
+**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:38:06Z)
 **Primary technical report:** [PAPER_AND_SLATE_TOWER_INTEGRATION_REPORT.md](PAPER_AND_SLATE_TOWER_INTEGRATION_REPORT.md)
 **Owner action checklist:** [PAPER_AND_SLATE_WEB_OWNER_ACTIONS.md](PAPER_AND_SLATE_WEB_OWNER_ACTIONS.md)
 
@@ -34,6 +34,8 @@ The staging platform is reachable and the managed Valkey binding is healthy, but
 | Monitoring                | six latest probes healthy                                                                                                                                   | probe pass only                |
 | Provider contract suite   | Tower full bounded contract run passed for Forgejo, Coolify, Tempo, LiteLLM, GlitchTip, and S3                                                              | provider pass; runner excluded |
 
+The staging Tower CI reporter `67f03584-babf-4b4e-b09c-b6570e0a637a` is active and injects the write-only `TOWER_CI_REPORT_TOKEN`; no token material was returned. A workflow summary-posting step is still required before structured Tower CI evidence is proven.
+
 ## What is not proven
 
 - A runner can accept `ubuntu-latest` or `playwright` jobs.
@@ -59,6 +61,8 @@ Tower exposes repository-scoped CI records and enrollment/dispatch, but not the 
 
 The observability snapshot returned 422 `unknown_metric` for legacy `host_cpu_percent` and `host_memory_percent` queries while still reporting an overall healthy summary. The approved current metric catalog is different; this snapshot path needs correction before it can be used as an unqualified platform-health signal.
 
+The correctly bound control-project investigation `c9ae9b28-a483-4814-a462-bcddc4a68108` identified control CI id 155 with payloads excluded. The direct `ciRunId` input was rejected and the generic identifier required the control project slug; use the exact `tower_ci_run_get` record for start/runner/step evidence.
+
 The latest staging post-deploy sweep observed deployment `b4c1jatqaidljtcpc4nly1yp` for commit `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6` as finished and health-checked, with 22 provider log entries and no latest error. The project-level result remains degraded because CI admission, deployment-backed contract state, historical errors, and the failed GlitchTip binding are separate gates.
 
 Tower’s monitor/resource APIs are responding, but route ownership remains in the web manifest. The expected `.tower/project.yaml` monitor paths are `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, and `/feeds/rss.xml`. If a web revision collapses all six targets to `/`, restore those explicit `path` values in the web repository and rerun focused manifest/monitor validation; do not treat a generic `/` probe as evidence for the other routes. The checked manifest currently contains the distinct paths.
@@ -73,11 +77,11 @@ GLITCHTIP_DSN <- Infisical source GLITCHTIP_DSN: 404, source not found
 
 The existing managed GlitchTip project is id 2 and uses `SENTRY_DSN` as its secret reference. The attempted cross-key alias was not honored by the exposed binding path. The correct next action is to create the alias in the approved secret manager or approve a consistent manifest/app rename. Do not paste or print the DSN.
 
-`VALKEY_URL` is now a healthy managed binding. Typesense has distinct search/write credentials and a zero-document collection; a temporary write/delete roundtrip remains unproven. S3 probe/roundtrip evidence is healthy.
+`VALKEY_URL` is now a healthy managed binding. Typesense has distinct search/write credentials and a zero-document collection; a temporary write/delete roundtrip remains unproven. For application-owned indexing, run `pnpm search:index --publish-typesense` only in an approved staging environment using the server-side `TYPESENSE_API_KEY` write binding and `TYPESENSE_SEARCH_API_KEY` search binding, then record the exact SHA, collection/alias, counts, query results, and cleanup. S3 probe/roundtrip evidence is healthy.
 
 ## Release evidence plan
 
-1. **Runner and CI:** owner repairs/enables the target runner host; Codex issues enrollment, verifies the heartbeat, dispatches the actual workflows, and records run/task/artifact evidence.
+1. **Runner and CI:** owner repairs/enables the target runner host; Codex issues enrollment, verifies the heartbeat, dispatches the actual workflows, and records run/task/artifact evidence. The scoped Tower reporter is active, but the web workflow must explicitly post a redacted summary before structured Tower CI evidence can be accepted.
 2. **Browser and Lighthouse:** Codex runs/dispatches the `playwright` workflows and checks that screenshots/reports/artifacts identify the exact commit. Owner/editor provides human visual and brand acceptance.
 3. **Provider credentials:** owner rotates/reduces the non-expiring broad token 21 and maintains separate repository, package-read, registry, and provider identities. Codex verifies only non-secret metadata and approved Tower results.
 4. **Deployment/resources:** owner supplies the missing managed GlitchTip alias or approves the contract rename. Codex reconciles bindings, validates staging against a real deployment, and checks resources through Tower. The full provider contract suite currently passes, but the environment contract remains deployment-unknown.

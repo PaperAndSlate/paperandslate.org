@@ -22,7 +22,7 @@ This file is the exact action list for work that requires provider, host, accoun
 4. Ask Codex to dispatch `container.yml` first, then `quality.yml`, `lighthouse.yml`, and `supply-chain.yml` as appropriate. The expected evidence is a task with a start time, runner assignment, steps, logs, and artifacts.
 5. When reading the result, use the internal `id` returned by `tower_ci_runs_list` with `tower_ci_run_get`; the displayed Forgejo run number is not currently a safe lookup key. The known mapping is Forgejo 143→Tower 152, 144→153, and 145→154.
 6. If assignment still fails, return the new run ids and scheduler/runner-host evidence to the platform operator. Do not create more release runs until the admission problem is understood.
-7. Once a job actually starts, Codex can retrieve bounded Tower CI metadata, provider-backed logs, artifacts, and (if the workflow is explicitly wired for it) a Tower structured reporter result. The current workflows have no executed-step evidence or reporter result, so do not claim Tower-visible log acceptance until a real run proves it.
+7. Once a job actually starts, Codex can retrieve bounded Tower CI metadata, provider-backed logs, artifacts, and (if the workflow is explicitly wired for it) a Tower structured reporter result. Reporter `67f03584-babf-4b4e-b09c-b6570e0a637a` is active and injects the write-only `TOWER_CI_REPORT_TOKEN`; the web workflow still needs a reviewed concise-summary step. The current workflows have no executed-step evidence or reporter result, so do not claim Tower-visible log acceptance until a real run proves it.
 
 The existing Tower-owned control workflow `callum/tower-staging-validation/.forgejo/workflows/ci.yml` was dispatched as Tower run 155 (Forgejo display run 9) and reproduced the same one-second, unassigned failure. Use this as the first post-repair control test; its prior successful run 8 is useful historical comparison evidence.
 
@@ -60,8 +60,9 @@ Choose one consistent contract; do not do both.
 
 1. Ask Codex to recheck Valkey and S3 health after the staging deployment.
 2. Authorize a bounded Typesense write/delete roundtrip if the controller exposes the safe roundtrip mode. Confirm that the test uses a temporary document and leaves the collection in its original state.
-3. Confirm the Typesense collection is populated by the intended indexing workflow. A healthy empty collection is not publication/search acceptance.
-4. Confirm the registry credential remains active and has the intended pull/push scope and expiry.
+3. If indexing is application-owned, ask Codex to run `pnpm search:index --publish-typesense` in the approved staging environment with `TYPESENSE_API_KEY` kept server-side for writes and `TYPESENSE_SEARCH_API_KEY` kept server-side for search. Require the receipt to identify the exact SHA, concrete collection, alias, counts, query results, and temporary-document cleanup.
+4. Confirm the Typesense collection is populated by the intended indexing workflow. A healthy empty collection is not publication/search acceptance.
+5. Confirm the registry credential remains active and has the intended pull/push scope and expiry.
 
 ## 5. Establish repository, DNS, TLS, and deployment authority
 
