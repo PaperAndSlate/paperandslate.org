@@ -2,6 +2,7 @@ import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { access, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
+import { isMissingPathError } from "./fs-errors";
 import { withLighthouseChrome } from "./lighthouse-chrome";
 import { pnpmSpawnSpec } from "./pnpm-command";
 import { assertTcpPortFree, parseTcpPort } from "./port-check";
@@ -110,6 +111,41 @@ async function prepareRuntime() {
   );
 }
 
+function buildStandaloneOutput() {
+  return new Promise<void>((resolve, reject) => {
+    const invocation = pnpmSpawnSpec(["build:web"]);
+    const child = spawn(invocation.command, invocation.args, {
+      cwd: root,
+      env: process.env,
+      stdio: "inherit",
+      shell: false,
+      windowsHide: true,
+    });
+    child.once("error", reject);
+    child.once("exit", (code, signal) => {
+      if (code === 0) resolve();
+      else
+        reject(
+          new Error(
+            `Standalone web build exited with ${signal ? `signal ${signal}` : `code ${code ?? "unknown"}`}`,
+          ),
+        );
+    });
+  });
+}
+
+async function ensureStandaloneOutput() {
+  const serverPath = path.join(standaloneRoot, "apps", "web", "server.js");
+  try {
+    await access(serverPath);
+  } catch (error) {
+    if (!isMissingPathError(error)) throw error;
+    console.log("Standalone web output is missing; building it before Lighthouse collection.");
+    await buildStandaloneOutput();
+    await access(serverPath);
+  }
+}
+
 async function writeRunConfig() {
   const template = JSON.parse(await readFile(path.join(root, "lighthouserc.json"), "utf8")) as {
     ci: {
@@ -181,7 +217,7 @@ async function runLighthouseEvidence() {
     outputDir: path.relative(root, outputDir),
     configuredUrls,
   });
-  await access(path.join(standaloneRoot, "apps", "web", "server.js"));
+  await ensureStandaloneOutput();
   await assertPortIsFree();
   await prepareRuntime();
   await removeTemporaryDirectory(tempDir);
