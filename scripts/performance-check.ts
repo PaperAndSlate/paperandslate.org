@@ -188,6 +188,13 @@ function main() {
     throw new Error(
       "Lighthouse evidence must be a passed run before performance budgets are checked",
     );
+  const currentSource = git(["rev-parse", "HEAD"]);
+  if (!currentSource)
+    throw new Error("Performance budgets require a readable current Git source revision");
+  if (lighthouseManifest.gitSha !== currentSource)
+    throw new Error(
+      `Lighthouse evidence identity does not match the current source: expected ${currentSource}, got ${lighthouseManifest.gitSha ?? "missing"}`,
+    );
   const reports = fs.existsSync(lighthouseDir)
     ? fs
         .readdirSync(lighthouseDir)
@@ -213,7 +220,6 @@ function main() {
   });
   const failures = evaluated.flatMap((item) => item.failures);
   const status = sourceStatus(root);
-  const currentSource = git(["rev-parse", "HEAD"]);
   const source = {
     commit: currentSource,
     tree: git(["rev-parse", "HEAD^{tree}"]),

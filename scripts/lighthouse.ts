@@ -20,7 +20,8 @@ const configPath = path.join(root, ".generated", "launch", `lighthouse-config-${
 const lockPath = path.join(root, ".generated", "launch", "lighthouse.lock");
 const runManifestPath = path.join(outputDir, "lighthouse-run.json");
 const releaseId = process.env.RELEASE_ID ?? "local-development";
-const gitSha = process.env.GIT_SHA ?? readSourceState(root).commit ?? "local-development";
+const localSourceSha = readSourceState(root).commit;
+const gitSha = process.env.GIT_SHA ?? localSourceSha ?? "local-development";
 
 type LighthouseRunManifest = {
   schemaVersion: 1;
@@ -157,6 +158,10 @@ async function main() {
 }
 
 async function runLighthouseEvidence() {
+  if (localSourceSha && gitSha !== localSourceSha)
+    throw new Error(
+      `Lighthouse GIT_SHA does not match the checked-out source: expected ${localSourceSha}, got ${gitSha}`,
+    );
   const startedAt = new Date().toISOString();
   let configuredUrls: string[] = [];
   await mkdir(outputDir, { recursive: true });

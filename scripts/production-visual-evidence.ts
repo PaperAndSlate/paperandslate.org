@@ -39,6 +39,7 @@ const runtimeRoot = path.join(
 const outputRoot = path.join(root, ".generated", "launch", "visual");
 const manifestPath = path.join(outputRoot, "manifest.json");
 const releaseId = process.env.RELEASE_ID ?? "local-production-visual";
+const localSourceSha = git(["rev-parse", "HEAD"]);
 const debug = process.env.PRODUCTION_VISUAL_DEBUG === "true";
 const systemChromeCandidates = [
   process.env.PLAYWRIGHT_EXECUTABLE_PATH,
@@ -339,6 +340,10 @@ async function main() {
       gitSha?: string;
     };
     const expectedGitSha = process.env.GIT_SHA ?? git(["rev-parse", "HEAD"]);
+    if (!externalBaseUrl && process.env.GIT_SHA && process.env.GIT_SHA !== localSourceSha)
+      throw new Error(
+        `Local production visual evidence requires GIT_SHA ${localSourceSha ?? "the current source revision"}; got ${process.env.GIT_SHA}`,
+      );
     if (externalBaseUrl && (!process.env.RELEASE_ID || !process.env.GIT_SHA))
       throw new Error(
         "Hosted visual evidence requires RELEASE_ID and GIT_SHA for the exact candidate",
