@@ -202,13 +202,15 @@ async function assertPreviewExclusion(
   endpoint: string,
   adminApiKey: string,
   searchApiKey: string,
-  collection: string,
+  writeCollection: string,
+  searchCollection: string,
+  indexId: string,
 ) {
-  const id = "paper-slate-preview-permission-probe";
+  const id = `paper-slate-preview-permission-probe-${indexId}`;
   const create = await request(
     endpoint,
     adminApiKey,
-    `/collections/${encodeURIComponent(collection)}/documents`,
+    `/collections/${encodeURIComponent(writeCollection)}/documents`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -231,7 +233,7 @@ async function assertPreviewExclusion(
     const publicResult = await search(
       endpoint,
       searchApiKey,
-      collection,
+      searchCollection,
       "preview permission probe",
       {
         limit: 5,
@@ -249,7 +251,7 @@ async function assertPreviewExclusion(
     const deleted = await request(
       endpoint,
       adminApiKey,
-      `/collections/${encodeURIComponent(collection)}/documents/${encodeURIComponent(id)}`,
+      `/collections/${encodeURIComponent(writeCollection)}/documents/${encodeURIComponent(id)}`,
       { method: "DELETE" },
     );
     if (deleted.status !== 200)
@@ -325,8 +327,10 @@ export async function publishTypesenseIndex(
   if (!Array.isArray(aliasResult.facet_counts) || aliasResult.facet_counts.length < 2)
     throw new Error("Typesense facet query returned incomplete facets");
 
-  await assertSearchOnlyCannotWrite(endpoint, searchApiKey, alias);
-  await assertPreviewExclusion(endpoint, adminApiKey, searchApiKey, alias);
+  // Probe the concrete collection so an alias' search-only semantics cannot
+  // mask a permissions failure from the search-only key.
+  await assertSearchOnlyCannotWrite(endpoint, searchApiKey, collection);
+  await assertPreviewExclusion(endpoint, adminApiKey, searchApiKey, collection, alias, indexId);
 
   const report: TypesenseIndexReport = {
     schemaVersion: 1,
