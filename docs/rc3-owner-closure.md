@@ -18,6 +18,8 @@ The last pushed candidate read back from Tower before this handoff was:
 
 Tower accepted exact-SHA dispatches for `container.yml`, `lighthouse.yml`, and `quality.yml`, but current runs 64–69 all failed before a runner was assigned. Their bounded job records contain no runner and no steps. This is a Tower/Forgejo scheduling or controller failure, not a passing or task-level application failure. The runner inventory reports one idle runner with labels `ubuntu-latest`, `node22`, `docker`, and `playwright`, but no usable online heartbeat.
 
+Since this handoff was authored, the branch has advanced through generated traceability-only commits. The current local and remote repository revision is `739a6470f043cac60a0f48bb65be31d9ad07dbed`, with implementation parent `addc0132a7fabba95c19e45679b40d21dbc72df2`. No hosted workflow has run successfully for this current revision; the run and deployment observations above remain historical and identity-bound to the revisions stated there.
+
 The following are available but do not close the release:
 
 - local code gates: the current workspace passed 26 Vitest files / 75 tests, lint, package and tool typecheck, deterministic search generation, content validation, feed validation, and workflow policy validation;

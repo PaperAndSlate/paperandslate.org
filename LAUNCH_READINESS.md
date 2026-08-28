@@ -5,11 +5,11 @@ Verdict: v1.0.0-rc.3 closure is blocked; no final release or production change i
 
 ## Current RC3 execution snapshot
 
-- The current local source candidate is `fa6cc7db48fc262a03349f32270a88ba735113a4`. Local `release/v1-closure` is one commit ahead of the private Forgejo branch at `dc6d78a3886079b7fef8816731969fd88c00b755`; no push was made for the local follow-up.
-- Historical Forgejo runs 61/container, 62/Lighthouse, and 63/quality all failed for `06491dc…`; later remote dispatches 64–69 for `dc6d78a…` were rejected before runner assignment. No hosted CI evidence exists for local `fa6cc7d…`, so CI is not green for the current candidate.
+- The current exact repository candidate is `739a6470f043cac60a0f48bb65be31d9ad07dbed`, and local `release/v1-closure` agrees with the private Forgejo branch. Its implementation parent is `addc0132a7fabba95c19e45679b40d21dbc72df2`; the intervening commits contain generated traceability evidence, and no push was made by this task.
+- Historical Forgejo runs 61/container, 62/Lighthouse, and 63/quality all failed for `06491dc…`; later remote dispatches 64–69 for `dc6d78a…` were rejected before runner assignment. No hosted CI evidence exists for repository candidate `739a647…`, so CI is not green for the current candidate.
 - Staging deployment `b4c1jatqaidljtcpc4nly1yp` is pinned to the older `06491dc…` candidate and completed with exact source import and a healthy replacement container. Direct `/health` returned its staging identity, but the deployment is source-build only and reports `providerReady:false`; it is not current-candidate evidence.
 - Hosted publication/feed checks returned 200 for the representative route set and all three feeds; mapped browser smoke passed 12 representative routes. A mapped Lighthouse sweep scored all six routes at 1.0 across the four categories, with slow-load warnings on `/` and `/projects/file-system`. Visual acceptance remains blocked by image delivery and route-specific `og:url` metadata inconsistency.
-- The provider and staging receipts summarized here belong to the older hosted candidate: the full provider contract has a fresh Tempo HTTP 503 failure; Typesense remains empty/static-fallback, the only SLO is a degraded historical window, and immutable OCI/digest deployment, rollback, and human approvals remain open for local `fa6cc7d…`.
+- The provider and staging receipts summarized here belong to the older hosted candidate: the full provider contract has a fresh Tempo HTTP 503 failure; Typesense remains empty/static-fallback, the only SLO is a degraded historical window, and immutable OCI/digest deployment, rollback, and human approvals remain open for repository candidate `739a647…`.
 - RC1 remains unchanged at `031b5447786f9c619288c9044bb5bc65319a30d7`; RC3 has not been tagged. OCI, digest deployment, rollback, release-specific SLO, and human approvals remain open.
 
 The RC2 material below is retained as historical provenance. It is not current RC3 evidence.
@@ -20,7 +20,7 @@ Candidate source `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` is deployed as `v1.0
 
 ## What is green locally
 
-The earlier local aggregate run passed 28 checks at source `65f739168f71e6c8a6b9c16d5c09929b0ead41cc` with external checks intentionally skipped, and the RC2 focused checks passed at `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b`; those are historical evidence. Hosted staging publication, Lighthouse, and visual capture also refer to the older `06491dc…`/RC2 evidence and do not prove local `fa6cc7d…`. Visual comparison and rights approval remain human-review-pending.
+The earlier local aggregate run passed 28 checks at source `65f739168f71e6c8a6b9c16d5c09929b0ead41cc` with external checks intentionally skipped, and the RC2 focused checks passed at `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b`; those are historical evidence. Hosted staging publication, Lighthouse, and visual capture also refer to the older `06491dc…`/RC2 evidence and do not prove repository candidate `739a647…`. Visual comparison and rights approval remain human-review-pending.
 
 Run and inspect:
 
