@@ -1,6 +1,6 @@
 # Paper & Slate Tower / Forgejo Integration Report
 
-**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:38:06Z)
+**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:41:35Z)
 **Project:** `paper-and-slate-web`
 **Environment:** staging
 **Decision:** release closure remains open. This report records platform evidence and remediation; it does not authorize a production release.
@@ -61,11 +61,15 @@ The labels cover the four requested classes, but the record does not prove that 
 
 The current job/task records did materialize: Tower job ids match 152/153/154, with task ids 142/143/144 respectively. All three remain unstarted and unassigned. The failure is therefore after workflow/job materialization but before runner admission or acknowledgement, narrowing the likely fault to scheduler dispatch, runner availability/registration, or provider state rather than YAML parsing or a repository step.
 
-An independent Tower-owned control dispatch reproduced the failure outside Paper & Slate. Tower accepted `ci.yml` on `callum/tower-staging-validation` at 2026-08-28T21:19Z and created Tower run id 155 (Forgejo display run 9), targeting `docker`. It failed in one second with a materialized job/task but `startedAt=null`, no runner, and no steps. That repository previously completed the same workflow successfully as run 8 on 2026-07-31, so the current failure is not specific to Paper & Slate workflow syntax or application commands.
+The run/job/task response does not expose queue timestamps, queue state, cancellation state, concurrency state, or a provider-error field. Their absence is an evidence-contract gap; it must not be interpreted as “no queue” or “no provider error.”
+
+An independent Tower-owned control dispatch reproduced the failure outside Paper & Slate. Tower accepted `ci.yml` on `callum/tower-staging-validation` at 2026-08-28T21:19Z and created Tower run id 155 (Forgejo display run 9), targeting `docker`. The run envelope has one-second start/finish timestamps, but its materialized job/task still has `startedAt=null`, no runner, and no steps. That repository previously completed the same workflow successfully as run 8 on 2026-07-31, so the current failure is not specific to Paper & Slate workflow syntax or application commands.
 
 A bounded failure investigation against the correctly bound control project `tower-staging-validation` completed as `c9ae9b28-a483-4814-a462-bcddc4a68108`. It collected nine CI records and identified external CI id `155` (Forgejo display run 9), with payloads excluded. The investigation’s normalized timestamps do not replace the exact `tower_ci_run_get` record, which remains authoritative for the unstarted/unassigned job shape. A direct `ciRunId=155` request was rejected as missing; the generic identifier worked only when the control repository’s own project slug was supplied. This is an input-contract/diagnostic limitation, not runner success.
 
 The project has no manifest queue declarations and no observed queue. Tower exposes project-scoped run/task/runner data, but not the global Forgejo scheduler configuration, global Actions queue, stale-task administration, or runner-host service logs. Project-bound log queries for `tower-ci` and `tower-docker-runner` were empty; the generic `forgejo` service was rejected as not bound to this project. This is a capability boundary, not proof that the host or scheduler is healthy.
+
+The current 24-hour Tower queue-health/topology calls returned zero project RabbitMQ queues, declarations, or observations. That surface is for application messaging and is not the Forgejo Actions queue; it cannot be used to conclude that Actions has no queued or stale tasks. The bounded provider-status call reports Forgejo reachable, which proves API reachability only.
 
 The observability snapshot also queried retired host metrics (`host_cpu_percent` and `host_memory_percent`); the controller returned 422 `unknown_metric` and named the current approved catalog as `container_cpu`, `container_memory`, `ci_failures`, `request_rate`, and `request_error_rate`. The snapshot still summarized overall health as healthy. The snapshot implementation should stop issuing retired metric queries and should surface this instrumentation mismatch rather than masking it.
 
@@ -74,6 +78,8 @@ No current Paper & Slate workflow has executed a step, so no current step log or
 The scoped staging reporter is now active as `67f03584-babf-4b4e-b09c-b6570e0a637a` for `callum/paperandslate-web`; Tower injected the write-only secret name `TOWER_CI_REPORT_TOKEN` and returned no token material. This prepares the reporting path but does not create evidence by itself: a reviewed workflow step must post a concise, redacted result to Tower’s documented CI-report endpoint and include the exact SHA, run link, checks, and artifact links without raw logs or secrets.
 
 The repository has no `.forgejo/workflows/tower-ci.yaml`. The existing workflows are the available real-workflow acceptance path. Forgejo’s official documentation says that a runner must be available for a workflow to execute and that artifacts should use v3 or a Forgejo-patched v4 action. The repository currently pins Forgejo’s hosted `upload-artifact` commit `c6a366c94c3e0affe28c06c8df20a878f24da3cf` with the comment `v3.2.2`. Because runs 143–145 stop before steps, the artifact action is not yet implicated.
+
+The web container check treats `TOWER_CI_CONTAINER_NETWORK` as an optional, injected network name: it validates the name, attaches the bounded check container to that network with a generated alias, and falls back to an in-container probe when no approved network is supplied. The workflow must use only the runner-provided Tower CI network; it must not invent a host/Docker socket path or disable TLS. `runs-on: playwright` is reserved for browser jobs and requires the registered `playwright` label, pinned browser image/CA, the documented `pwuser` execution context, and the configured two workers/one retry; do not make every job use that label or add `--no-sandbox` to hide a runner-permission problem.
 
 **Remediation plan**
 
@@ -142,9 +148,9 @@ The Forgejo branch currently points to `330ab498b4b2cd780fcaaab91bf70fbdc5a07e95
 
 ### 5. Monitoring, errors, and rollback evidence
 
-All six manifest monitor targets currently have a latest healthy probe: `health`, `homepage`, `projects`, `docs`, `search`, and `rss`. The 24-hour SLO window is nevertheless degraded: availability is approximately `99.855%` against a 99% target, while latency p95 is approximately `2792–2901 ms` against a 2000 ms target. Six warning alerts are active for the SLO budgets. One unresolved GlitchTip error is also reported.
+All six manifest monitor targets currently have a latest healthy probe: `health`, `homepage`, `projects`, `docs`, `search`, and `rss`. Tower’s monitor readback at approximately `2026-08-28T21:41:05Z` preserves the distinct paths `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, and `/feeds/rss.xml`; the earlier path-collapse finding is not present in the current checked manifest/readback. The historical 24-hour SLO window is nevertheless degraded: availability is approximately `99.783–99.855%` against a 99% target, while latency p95 is approximately `2803–2999 ms` against a 2000 ms target. Six warning alerts are active for the SLO budgets. One unresolved GlitchTip error is also reported.
 
-The web manifest’s expected monitor paths are distinct: `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, and `/feeds/rss.xml`. If a future web revision materializes all six targets as `/`, the web-owned fix is to restore those explicit `path` values in `.tower/project.yaml` and rerun the focused manifest/monitor validation; Tower should not infer route paths. The current checked manifest contains the distinct paths.
+The web manifest’s expected monitor paths are distinct: `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, and `/feeds/rss.xml`. If a future web revision materializes all six targets as `/`, the web-owned fix is to restore those explicit `path` values in `.tower/project.yaml` and rerun the focused manifest/monitor validation; Tower should not infer route paths. The current checked manifest and Tower readback contain the distinct paths.
 
 This distinction matters: a green last probe does not erase a degraded historical SLO window, and a healthy monitoring component does not prove release-specific performance. No production rollback was performed, and no release-specific A→B→A rollback evidence exists.
 

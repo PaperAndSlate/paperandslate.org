@@ -24,6 +24,8 @@ This file is the exact action list for work that requires provider, host, accoun
 6. If assignment still fails, return the new run ids and scheduler/runner-host evidence to the platform operator. Do not create more release runs until the admission problem is understood.
 7. Once a job actually starts, Codex can retrieve bounded Tower CI metadata, provider-backed logs, artifacts, and (if the workflow is explicitly wired for it) a Tower structured reporter result. Reporter `67f03584-babf-4b4e-b09c-b6570e0a637a` is active and injects the write-only `TOWER_CI_REPORT_TOKEN`; the web workflow still needs a reviewed concise-summary step. The current workflows have no executed-step evidence or reporter result, so do not claim Tower-visible log acceptance until a real run proves it.
 
+For container checks, preserve the optional runner-provided `TOWER_CI_CONTAINER_NETWORK` contract used by `scripts/container-check.ts`; it is validated and used for a temporary aliased check container, with a bounded fallback when absent. Do not add raw Docker-socket access or arbitrary network names. Use `runs-on: playwright` only for browser workflows with the registered label, pinned Playwright image/CA, `pwuser`, two workers, and one retry. Keep the current Forgejo-hosted `upload-artifact` v3.2.2 pin unless a Forgejo-patched v4 replacement is explicitly tested and reviewed.
+
 The existing Tower-owned control workflow `callum/tower-staging-validation/.forgejo/workflows/ci.yml` was dispatched as Tower run 155 (Forgejo display run 9) and reproduced the same one-second, unassigned failure. Use this as the first post-repair control test; its prior successful run 8 is useful historical comparison evidence.
 
 ## 2. Repair Forgejo credentials and permissions
@@ -77,7 +79,7 @@ Choose one consistent contract; do not do both.
 1. Define the production on-call owner and incident escalation path.
 2. Select the previous known-good image digest and document the rollback target.
 3. Ask Codex to capture a clean staging baseline, candidate window, SLO result, deployment annotation, and controlled staging rollback evidence.
-4. Review the current 24-hour SLO degradation: availability is about 99.855%, but p95 is about 2.792–2.901 seconds against a 2-second target. Decide whether the release window can meet the policy.
+4. Review the current 24-hour SLO degradation: availability is about 99.783–99.855%, but p95 is about 2.803–2.999 seconds against a 2-second target. Decide whether the release window can meet the policy.
 5. Review and disposition the unresolved GlitchTip error. Do not treat a healthy last probe as a clean historical SLO window.
 6. Approve any production rollback or release pause. Codex can perform a bounded rollback only after explicit authorization.
 

@@ -2,7 +2,7 @@
 
 **Status:** not release-closed
 **Environment checked:** staging
-**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:38:06Z)
+**Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:41:35Z)
 **Primary technical report:** [PAPER_AND_SLATE_TOWER_INTEGRATION_REPORT.md](PAPER_AND_SLATE_TOWER_INTEGRATION_REPORT.md)
 **Owner action checklist:** [PAPER_AND_SLATE_WEB_OWNER_ACTIONS.md](PAPER_AND_SLATE_WEB_OWNER_ACTIONS.md)
 
@@ -44,12 +44,14 @@ The staging Tower CI reporter `67f03584-babf-4b4e-b09c-b6570e0a637a` is active a
 - The staging application received `GLITCHTIP_DSN` from the managed secret source.
 - Typesense indexing/write-delete behavior works; the collection currently has zero documents.
 - The current exact release commit has a registry image, digest, SBOM, vulnerability result, provenance, and staging-by-digest deployment.
-- The historical 24-hour SLO meets the 2-second p95 target; current p95 is about 2.792–2.901 seconds.
+- The historical 24-hour SLO does not meet the 2-second p95 target; current p95 is about 2.803–2.999 seconds.
 - Production DNS/TLS, deployment, rollback, publication, legal, factual, privacy, media, or visual approvals.
 
 ## Run and runner diagnosis
 
 Runs 143 (`container.yml`), 144 (`lighthouse.yml`), and 145 (`quality.yml`) all target commit `330ab498b4b2cd780fcaaab91bf70fbdc5a07e95` on `release/v1-closure`. Their Tower internal ids are 152, 153, and 154. Each failed in approximately one second. The job/task records exist, but have no `startedAt`, `completedAt`, runner, or steps. This is a pre-run admission/scheduling failure.
+
+The bounded run/job/task response also omits queue timestamps/state, cancellation state, concurrency state, and a provider-error field. Treat those fields as unavailable evidence, not as proof that no queue or provider error existed.
 
 Use the internal ids with `tower_ci_run_get`. The current connector returns older runs if the displayed Forgejo numbers 143–145 are passed directly; this lookup mismatch is recorded as a Tower connector defect.
 
@@ -59,11 +61,17 @@ The single repository runner is `tower-docker-runner` id 1, version 13.0.0, labe
 
 Tower exposes repository-scoped CI records and enrollment/dispatch, but not the global Forgejo scheduler, global queue, stale-task controls, or runner-host service logs. The operator action is therefore recorded separately rather than being misrepresented as a Codex-verifiable pass.
 
+The current Tower queue-health/topology calls show no project RabbitMQ queues or observations. That is application messaging state, not the Forgejo Actions queue. Forgejo provider reachability is healthy at the API boundary, but runner scheduling/heartbeat remains unproven.
+
 The observability snapshot returned 422 `unknown_metric` for legacy `host_cpu_percent` and `host_memory_percent` queries while still reporting an overall healthy summary. The approved current metric catalog is different; this snapshot path needs correction before it can be used as an unqualified platform-health signal.
 
 The correctly bound control-project investigation `c9ae9b28-a483-4814-a462-bcddc4a68108` identified control CI id 155 with payloads excluded. The direct `ciRunId` input was rejected and the generic identifier required the control project slug; use the exact `tower_ci_run_get` record for start/runner/step evidence.
 
+Workflow contract: `TOWER_CI_CONTAINER_NETWORK` is an optional runner-provided network name used by `scripts/container-check.ts`; the script validates it, attaches the temporary check container with a generated alias, and uses a bounded fallback when it is absent. Do not replace it with a raw Docker socket or arbitrary host network. Keep `runs-on: playwright` limited to browser workflows with the registered label, pinned Playwright/CA setup, `pwuser`, two workers, and one retry. The repository’s Forgejo-hosted `upload-artifact` pin is the documented v3.2.2 commit; Forgejo guidance allows v3 or a Forgejo-patched v4, not an arbitrary upstream action version.
+
 The latest staging post-deploy sweep observed deployment `b4c1jatqaidljtcpc4nly1yp` for commit `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6` as finished and health-checked, with 22 provider log entries and no latest error. The project-level result remains degraded because CI admission, deployment-backed contract state, historical errors, and the failed GlitchTip binding are separate gates.
+
+The current Tower monitor readback at approximately `2026-08-28T21:41:05Z` preserves the distinct web paths `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, and `/feeds/rss.xml`, all with healthy latest probes. The earlier path-collapse finding is not present in the current checked manifest/readback; if a future web revision collapses them to `/`, restore the explicit `path` values in `.tower/project.yaml` and rerun focused manifest/monitor validation.
 
 Tower’s monitor/resource APIs are responding, but route ownership remains in the web manifest. The expected `.tower/project.yaml` monitor paths are `/health`, `/`, `/projects`, `/docs/file-system/v/1.0`, `/api/search`, and `/feeds/rss.xml`. If a web revision collapses all six targets to `/`, restore those explicit `path` values in the web repository and rerun focused manifest/monitor validation; do not treat a generic `/` probe as evidence for the other routes. The checked manifest currently contains the distinct paths.
 
