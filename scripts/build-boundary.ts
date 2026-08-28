@@ -3,6 +3,7 @@ import { spawnSync } from "node:child_process";
 import { lstat, readdir, readFile, realpath, rm, writeFile } from "node:fs/promises";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isMissingPathError } from "./fs-errors";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const webRoot = resolve(root, "apps", "web");
@@ -29,16 +30,29 @@ const removeOutputSafely = async () => {
   try {
     rootStats = await lstat(outputRoot);
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return;
+    if (isMissingPathError(error)) return;
     throw error;
   }
   if (rootStats.isSymbolicLink()) {
     fail("apps/web/.next is a reparse point; refusing cleanup");
   }
 
-  for (const entry of await readdir(outputRoot, { withFileTypes: true })) {
+  let entries;
+  try {
+    entries = await readdir(outputRoot, { withFileTypes: true });
+  } catch (error) {
+    if (isMissingPathError(error)) return;
+    throw error;
+  }
+  for (const entry of entries) {
     const child = join(outputRoot, entry.name);
-    const childStats = await lstat(child);
+    let childStats;
+    try {
+      childStats = await lstat(child);
+    } catch (error) {
+      if (isMissingPathError(error)) continue;
+      throw error;
+    }
     if (childStats.isSymbolicLink()) {
       await rm(child, { force: true });
     } else {
@@ -102,7 +116,7 @@ const run = async () => {
   await removeOutputSafely();
   const before = await snapshot();
   const originalNextEnv = await readFile(nextEnvFile).catch((error: unknown) => {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
+    if (isMissingPathError(error)) return undefined;
     throw error;
   });
   const nextCli = await realpath(resolve(webRoot, "node_modules", "next", "dist", "bin", "next"));
