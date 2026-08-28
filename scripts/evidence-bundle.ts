@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { classifySourceWorktree } from "./source-state";
+import { classifySourceWorktree, sourceRevisionMatchesCurrent } from "./source-state";
 
 const root = process.cwd();
 const releaseId = (
@@ -146,9 +146,16 @@ const publication = readJson<{
   deploymentId?: string | null;
 }>(".generated/launch/staging-publication.json");
 const identityMismatches: string[] = [];
+const matchesCandidate = (value: string | null | undefined) =>
+  Boolean(
+    value &&
+      candidateSha &&
+      (value === candidateSha ||
+        (candidateSha === sourceSha && sourceRevisionMatchesCurrent(root, value, sourceSha))),
+  );
 const requireIdentity = (label: string, value: string | null | undefined) => {
   if (strictIdentity && !value) identityMismatches.push(`${label} identity is missing`);
-  if (value && candidateSha && value !== candidateSha)
+  if (value && candidateSha && !matchesCandidate(value))
     identityMismatches.push(`${label}=${value} does not match candidate SHA ${candidateSha}`);
 };
 if (!sourceSha) identityMismatches.push("local Git HEAD is unavailable");

@@ -2,6 +2,9 @@ import { execFileSync } from "node:child_process";
 
 const generatedPath = (file: string) =>
   file === "IMPLEMENTATION_LEDGER.md" || file.replaceAll("\\", "/").startsWith(".generated/");
+const evidenceOnlyPath = (file: string) =>
+  file === "IMPLEMENTATION_LEDGER.md" ||
+  file.replaceAll("\\", "/").startsWith(".generated/requirements/");
 
 export function normalizeGitStatus(status: string) {
   return status.trimEnd();
@@ -52,6 +55,22 @@ function git(root: string, args: string[]) {
   } catch {
     return null;
   }
+}
+
+export function sourceRevisionMatchesCurrent(
+  root: string,
+  sourceCommit: string | null | undefined,
+  currentRevision: string | null | undefined,
+) {
+  if (!sourceCommit || !currentRevision) return false;
+  if (sourceCommit === currentRevision) return true;
+  const mergeBase = git(root, ["merge-base", sourceCommit, currentRevision]);
+  if (mergeBase !== sourceCommit) return false;
+  const changed = (git(root, ["diff", "--name-only", `${sourceCommit}..${currentRevision}`]) ?? "")
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .map((file) => file.replaceAll("\\", "/"));
+  return changed.length > 0 && changed.every(evidenceOnlyPath);
 }
 
 export function readSourceState(root: string): SourceState {

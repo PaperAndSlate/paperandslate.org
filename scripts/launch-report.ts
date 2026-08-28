@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { sourceWorktreeClean } from "./source-state";
+import { sourceRevisionMatchesCurrent, sourceWorktreeClean } from "./source-state";
 
 type CheckStatus =
   | "passed"
@@ -69,25 +69,6 @@ function currentSourceWorktreeClean() {
   return status !== null && sourceWorktreeClean(status);
 }
 
-function sourceRevisionMatchesCurrent(
-  sourceCommit: string | null | undefined,
-  current: string | null,
-) {
-  if (!sourceCommit || !current) return false;
-  if (sourceCommit === current) return true;
-  const mergeBase = git(["merge-base", sourceCommit, current]);
-  if (mergeBase !== sourceCommit) return false;
-  const changed = (git(["diff", "--name-only", `${sourceCommit}..${current}`]) ?? "")
-    .split(/\r?\n/)
-    .filter(Boolean);
-  return (
-    changed.length > 0 &&
-    changed.every(
-      (file) => file === "IMPLEMENTATION_LEDGER.md" || file.startsWith(".generated/requirements/"),
-    )
-  );
-}
-
 function lockHash() {
   const file = path.join(root, "pnpm-lock.yaml");
   return fs.existsSync(file)
@@ -140,7 +121,7 @@ function traceabilityCheck(): Check {
       complete &&
       report.source?.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(report.source?.commit, current)
+      sourceRevisionMatchesCurrent(root, report.source?.commit, current)
         ? "passed"
         : "pending",
     detail: complete
@@ -165,7 +146,7 @@ function generatedCheck(id: string, relative: string, description: string): Chec
       current &&
       report.source.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(report.source.commit, current),
+      sourceRevisionMatchesCurrent(root, report.source.commit, current),
   );
   const status: CheckStatus =
     report?.status === "failed"
@@ -240,7 +221,7 @@ function launchChecks(): Check[] {
       verify.gitSha === verify.source.commit &&
       verify.source.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(verify.source.commit, currentSha),
+      sourceRevisionMatchesCurrent(root, verify.source.commit, currentSha),
   );
   const verifyDetail = verify?.skipExternal
     ? `Local verification completed ${verify.completed?.length ?? 0} tasks; external Lighthouse, performance, and vulnerability checks were intentionally skipped.`
@@ -290,7 +271,7 @@ function launchChecks(): Check[] {
       lighthouse.gitSha === lighthouse.source?.commit &&
       lighthouse.source?.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(lighthouse.source.commit, currentSha)
+      sourceRevisionMatchesCurrent(root, lighthouse.source.commit, currentSha)
         ? "passed"
         : lighthouse?.status === "failed"
           ? "failed"
@@ -300,7 +281,7 @@ function launchChecks(): Check[] {
       lighthouse.gitSha === lighthouse.source?.commit &&
       lighthouse.source?.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(lighthouse.source.commit, currentSha)
+      sourceRevisionMatchesCurrent(root, lighthouse.source.commit, currentSha)
         ? `Lighthouse ran ${lighthouse.reportCount ?? 0} reports across ${lighthouse.configuredUrls?.length ?? 0} configured routes and passed configured assertions.`
         : (lighthouse?.error ?? "Lighthouse run evidence is missing."),
     evidence: [".generated/launch/lighthouse/lighthouse-run.json", ".generated/launch/lighthouse/"],
@@ -319,7 +300,7 @@ function launchChecks(): Check[] {
   const performanceFailures = performanceReports.flatMap((report) => report.failures ?? []);
   const performanceIdentity = Boolean(
     performance?.source?.commit &&
-      sourceRevisionMatchesCurrent(performance.source.commit, currentSha) &&
+      sourceRevisionMatchesCurrent(root, performance.source.commit, currentSha) &&
       performance.source.worktreeClean === true &&
       currentSourceWorktreeClean() &&
       performance.source.lighthouseGitSha === performance.source.commit,
@@ -353,7 +334,7 @@ function launchChecks(): Check[] {
       browser.gitSha === browser.source?.commit &&
       browser.source?.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(browser.source.commit, currentSha),
+      sourceRevisionMatchesCurrent(root, browser.source.commit, currentSha),
   );
   checks.push({
     id: "production-browser",
@@ -380,7 +361,7 @@ function launchChecks(): Check[] {
       visual.gitSha === visual.source?.commit &&
       visual.source?.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(visual.source.commit, currentSha),
+      sourceRevisionMatchesCurrent(root, visual.source.commit, currentSha),
   );
   checks.push({
     id: "visual-evidence",
@@ -411,7 +392,7 @@ function launchChecks(): Check[] {
       container.gitSha === container.source?.commit &&
       container.source?.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(container.source.commit, currentSha),
+      sourceRevisionMatchesCurrent(root, container.source.commit, currentSha),
   );
   checks.push({
     id: "container",
@@ -439,7 +420,7 @@ function launchChecks(): Check[] {
       sbom.gitSha === sbom.source?.commit &&
       sbom.source?.worktreeClean === true &&
       currentSourceWorktreeClean() &&
-      sourceRevisionMatchesCurrent(sbom.source.commit, currentSha),
+      sourceRevisionMatchesCurrent(root, sbom.source.commit, currentSha),
   );
   checks.push({
     id: "sbom",
