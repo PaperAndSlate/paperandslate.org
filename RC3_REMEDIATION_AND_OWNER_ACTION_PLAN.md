@@ -625,3 +625,17 @@ Do not claim RC3 closed if any of the following remains true:
 ## Explicit non-claims
 
 This plan does not claim that the site is production-ready, legally approved, factually approved, media-cleared, publicly published, signed, deployed by immutable digest, or safe to release as final `v1.0.0`. It records what is locally implemented, what is externally observed, what is broken or ambiguous, and what Codex or the owner must do next.
+
+## RC3 execution addendum
+
+The plan above was originally written as an audit-only handoff. The subsequent, explicitly authorized RC3 execution has now produced the following additional evidence and findings; the original audit snapshot is retained for provenance and is not silently rewritten.
+
+- The intended standards and release-evidence tree was pushed to the private Forgejo `release/v1-closure` branch at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`. RC1 remains unchanged at `031b5447786f9c619288c9044bb5bc65319a30d7`; no RC2, RC3, or final tag was created.
+- Staging non-secret variables for the candidate identity and Typesense endpoint/collection/index reconciled healthy to Coolify application `ngqtewtqeqhj88v1005a38va` at `https://paper-and-slate-web.dev.tower`. Secret values were not read or exposed.
+- A source-build staging deployment pinned to `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09` was queued as `lftxn28cksvcf76etxz6b6s7`. The last available receipt observed it in `in_progress` at `image-build`/`deployment`; subsequent Tower status calls timed out or returned 502, so candidate health and completion are not claimed.
+- Exact-candidate Forgejo run 64/container failed at the repository `container:check` step because the container health endpoint did not become ready. The new diagnostic behavior is intended to expose bounded container state/logs on the next run; it is not yet a fix for the underlying runtime cause.
+- Exact-candidate Forgejo run 65/Lighthouse failed because Playwright-installed Chromium was not discoverable by Lighthouse's Chrome launcher. Local fixes in commits `34f06c39b766bb49d913d0b28ae578d540d4afe1` and `40283820b568613e6c9df84196588063f9105344` add browser-path propagation and container-failure diagnostics, but Forgejo DNS was unavailable when the follow-up push was attempted. These commits remain local and must not be treated as remote candidate evidence.
+- Exact-candidate Forgejo run 66/quality was still waiting at the last successful CI read. The candidate CI set is therefore not green.
+- The local 12-test standards API/concepts/downloads/methodology browser slice passed, and the local Lighthouse wrapper produced 12 reports across six routes with configured assertions passing. These are local receipts only and do not replace hosted staging evidence.
+
+The next safe action is to restore the private Forgejo/Tower endpoint, push the two local follow-up commits as one auditable branch update, then repeat exact-SHA CI and staging checks. Do not create `v1.0.0-rc.3` until the stop conditions above are satisfied.
