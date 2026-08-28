@@ -1,12 +1,12 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
-import { access, cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
-import { isMissingPathError } from "./fs-errors";
 import { withLighthouseChrome } from "./lighthouse-chrome";
 import { pnpmSpawnSpec } from "./pnpm-command";
 import { assertTcpPortFree, parseTcpPort } from "./port-check";
 import { assertExactSourceRevision } from "./evidence-identity";
+import { ensureStandaloneOutput } from "./standalone-output";
 import { readSourceState } from "./source-state";
 const root = process.cwd();
 const port = process.env.LH_PORT ?? "3210";
@@ -134,18 +134,6 @@ function buildStandaloneOutput() {
   });
 }
 
-async function ensureStandaloneOutput() {
-  const serverPath = path.join(standaloneRoot, "apps", "web", "server.js");
-  try {
-    await access(serverPath);
-  } catch (error) {
-    if (!isMissingPathError(error)) throw error;
-    console.log("Standalone web output is missing; building it before Lighthouse collection.");
-    await buildStandaloneOutput();
-    await access(serverPath);
-  }
-}
-
 async function writeRunConfig() {
   const template = JSON.parse(await readFile(path.join(root, "lighthouserc.json"), "utf8")) as {
     ci: {
@@ -217,7 +205,10 @@ async function runLighthouseEvidence() {
     outputDir: path.relative(root, outputDir),
     configuredUrls,
   });
-  await ensureStandaloneOutput();
+  await ensureStandaloneOutput(path.join(standaloneRoot, "apps", "web", "server.js"), async () => {
+    console.log("Standalone web output is missing; building it before Lighthouse collection.");
+    await buildStandaloneOutput();
+  });
   await assertPortIsFree();
   await prepareRuntime();
   await removeTemporaryDirectory(tempDir);
