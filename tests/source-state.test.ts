@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   classifySourceWorktree,
+  normalizeGitStatus,
   sourceDirtyPaths,
   sourceWorktreeClean,
 } from "../scripts/source-state";
@@ -18,6 +19,16 @@ describe("source worktree state", () => {
         " M IMPLEMENTATION_LEDGER.md\n?? .generated\\requirements\\traceability-check.json\n",
       ),
     ).toBe(true);
+  });
+
+  it("preserves leading porcelain columns for a generated first status line", () => {
+    const status = normalizeGitStatus(
+      " M .generated\\requirements\\requirements.json\n M IMPLEMENTATION_LEDGER.md\n",
+    );
+    expect(status).toBe(
+      " M .generated\\requirements\\requirements.json\n M IMPLEMENTATION_LEDGER.md",
+    );
+    expect(sourceWorktreeClean(status)).toBe(true);
   });
 
   it("reports authored modifications and untracked files", () => {

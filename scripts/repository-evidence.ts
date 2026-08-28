@@ -1,7 +1,7 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { classifySourceWorktree } from "./source-state";
+import { classifySourceWorktree, normalizeGitStatus } from "./source-state";
 
 type CommandResult = { value: string | null; error: string | null };
 
@@ -13,12 +13,14 @@ const commandEnv = { ...process.env, GIT_TERMINAL_PROMPT: "0" };
 function git(args: string[]): CommandResult {
   try {
     return {
-      value: execFileSync(gitCommand, args, {
-        cwd: root,
-        encoding: "utf8",
-        env: commandEnv,
-        stdio: ["ignore", "pipe", "pipe"],
-      }).trim(),
+      value: normalizeGitStatus(
+        execFileSync(gitCommand, args, {
+          cwd: root,
+          encoding: "utf8",
+          env: commandEnv,
+          stdio: ["ignore", "pipe", "pipe"],
+        }),
+      ),
       error: null,
     };
   } catch (error) {

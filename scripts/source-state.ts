@@ -3,6 +3,10 @@ import { execFileSync } from "node:child_process";
 const generatedPath = (file: string) =>
   file === "IMPLEMENTATION_LEDGER.md" || file.replaceAll("\\", "/").startsWith(".generated/");
 
+export function normalizeGitStatus(status: string) {
+  return status.trimEnd();
+}
+
 export function sourceDirtyPaths(status: string) {
   return status
     .split(/\r?\n/)
