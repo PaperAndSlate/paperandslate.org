@@ -5,6 +5,7 @@ import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { isMissingPathError } from "./fs-errors";
 import { normalizeFumadocsSource } from "./normalize-fumadocs-source";
+import { withProductionOutputLock } from "./production-output-lock";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const webRoot = resolve(root, "apps", "web");
@@ -113,37 +114,38 @@ const assertCleanOutput = async () => {
   await visit(outputRoot);
 };
 
-const run = async () => {
-  await removeOutputSafely();
-  const before = await snapshot();
-  const originalNextEnv = await readFile(nextEnvFile).catch((error: unknown) => {
-    if (isMissingPathError(error)) return undefined;
-    throw error;
-  });
-  const nextCli = await realpath(resolve(webRoot, "node_modules", "next", "dist", "bin", "next"));
-  try {
-    const result = spawnSync(process.execPath, [nextCli, "build"], {
-      cwd: webRoot,
-      env: { ...process.env, NODE_ENV: "production", PAPER_SLATE_BUILD_MODE: "verification" },
-      stdio: "inherit",
+const run = async () =>
+  withProductionOutputLock(async () => {
+    await removeOutputSafely();
+    const before = await snapshot();
+    const originalNextEnv = await readFile(nextEnvFile).catch((error: unknown) => {
+      if (isMissingPathError(error)) return undefined;
+      throw error;
     });
-    if (result.error) throw result.error;
-    const exitStatus = result.status;
-    if (exitStatus === null)
-      throw new Error("[build:verify] Next.js production build did not return an exit status");
-    if (exitStatus !== 0) {
-      process.exitCode = exitStatus;
-      return;
+    const nextCli = await realpath(resolve(webRoot, "node_modules", "next", "dist", "bin", "next"));
+    try {
+      const result = spawnSync(process.execPath, [nextCli, "build"], {
+        cwd: webRoot,
+        env: { ...process.env, NODE_ENV: "production", PAPER_SLATE_BUILD_MODE: "verification" },
+        stdio: "inherit",
+      });
+      if (result.error) throw result.error;
+      const exitStatus = result.status;
+      if (exitStatus === null)
+        throw new Error("[build:verify] Next.js production build did not return an exit status");
+      if (exitStatus !== 0) {
+        process.exitCode = exitStatus;
+        return;
+      }
+      normalizeFumadocsSource(root);
+      await assertStable(before);
+      await assertCleanOutput();
+      process.stdout.write("[build:verify] verified non-standalone production output\n");
+    } finally {
+      if (originalNextEnv) await writeFile(nextEnvFile, originalNextEnv);
+      else await rm(nextEnvFile, { force: true });
     }
-    normalizeFumadocsSource(root);
-    await assertStable(before);
-    await assertCleanOutput();
-    process.stdout.write("[build:verify] verified non-standalone production output\n");
-  } finally {
-    if (originalNextEnv) await writeFile(nextEnvFile, originalNextEnv);
-    else await rm(nextEnvFile, { force: true });
-  }
-};
+  });
 
 run().catch((error: unknown) => {
   process.stderr.write(
