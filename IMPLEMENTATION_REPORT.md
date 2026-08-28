@@ -9,7 +9,7 @@ This report records the implementation performed against AUDIT-001 through AUDIT
 
 ## Current RC3 execution snapshot
 
-The remote `release/v1-closure` branch is at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`. Local follow-up commits through `567ec04d0226a6e2ebfc907f156978b70fab1be0` add the CI Lighthouse browser-path fix, bounded container diagnostics, the regression test, and the RC3 status addendum, but they have not reached Forgejo because `git.tower` DNS is unavailable. Candidate run 64 failed at container health readiness, run 65 failed at Lighthouse Chrome discovery, and run 66 was waiting. Deployment `lftxn28cksvcf76etxz6b6s7` was queued for `c0c0b5d…` but has no final receipt. This report must not be read as an RC3 closure or as proof of production readiness.
+The remote `release/v1-closure` branch is at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`. Local follow-up commits through `11b030f96b26242c9eebc3fc4ae7df0fbb87d23b` add the CI Lighthouse browser-path fix, bounded container diagnostics, the regression test, the RC3 status addendum, and current-status documentation, but they have not reached Forgejo: the first push attempt hit transient DNS failure and the next reached Forgejo but was rejected because the existing credential is incorrect or expired. Candidate run 64 failed at container health readiness, run 65 failed at Lighthouse Chrome discovery, and run 66 was waiting. Deployment `lftxn28cksvcf76etxz6b6s7` was queued for `c0c0b5d…` but has no final receipt. This report must not be read as an RC3 closure or as proof of production readiness.
 
 The RC2 implementation snapshot below is retained for historical provenance and requires receipt-bound regeneration after the RC3 candidate is verified.
 

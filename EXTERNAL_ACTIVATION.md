@@ -7,7 +7,7 @@ The current audit and owner procedure are [`AUDIT_VERIFICATION_REPORT.md`](AUDIT
 
 ## Current RC3 execution state
 
-- Remote private Forgejo `release/v1-closure` is at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`; local follow-up fixes through `567ec04d0226a6e2ebfc907f156978b70fab1be0` are not pushed because `git.tower` is currently unreachable.
+- Remote private Forgejo `release/v1-closure` is at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`; local follow-up fixes through `11b030f96b26242c9eebc3fc4ae7df0fbb87d23b` are not pushed because the existing Forgejo credential is incorrect or expired after the endpoint recovered from a transient DNS failure.
 - Coolify application `ngqtewtqeqhj88v1005a38va` accepted source deployment `lftxn28cksvcf76etxz6b6s7` for the exact candidate, but Tower status calls timed out before completion or health identity could be verified.
 - Staging non-secret release, canonical, and Typesense configuration variables reconciled healthy without exposing values. Typesense infrastructure is healthy but its authoritative collection still has zero documents; application-level search remains unverified.
 - Exact candidate CI is not green: container run 64 failed readiness, Lighthouse run 65 failed browser discovery, and quality run 66 was waiting at the last successful read.

@@ -6,7 +6,7 @@ Verdict: v1.0.0-rc.3 closure is blocked; no final release or production change i
 ## Current RC3 execution snapshot
 
 - The private Forgejo `release/v1-closure` branch currently ends at `c0c0b5d28642a57442adfd2d53d6b0ddddd53c09`.
-- Follow-up local fixes are committed at `567ec04d0226a6e2ebfc907f156978b70fab1be0` but are not remote evidence because the private `git.tower` endpoint is currently unreachable.
+- Follow-up local fixes are committed at `11b030f96b26242c9eebc3fc4ae7df0fbb87d23b` but are not remote evidence: the first push attempt hit transient `git.tower` DNS failure and the next reached Forgejo but was rejected because the existing credential is incorrect or expired.
 - Candidate CI run 64/container failed at the health-readiness check, run 65/Lighthouse failed because CI Chromium was not discoverable by Lighthouse, and run 66/quality was waiting at the last successful read. The Lighthouse and container diagnostic fixes are therefore not yet CI-verified.
 - Staging deployment `lftxn28cksvcf76etxz6b6s7` was queued for the exact `c0c0b5d…` source, but its completion and `/health` identity could not be read after Tower timed out. The last healthy deployment remains the older source deployment.
 - RC1 remains unchanged at `031b5447786f9c619288c9044bb5bc65319a30d7`; RC3 has not been tagged. OCI, digest deployment, rollback, release-specific SLO, and human approvals remain open.
