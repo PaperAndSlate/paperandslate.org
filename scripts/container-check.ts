@@ -3,6 +3,7 @@ import fs from "node:fs";
 import { promisify } from "node:util";
 import { healthProbeCommand } from "./container-probe";
 import { redactSensitiveDiagnostics } from "./diagnostic-redaction";
+import { assertExactSourceRevision } from "./evidence-identity";
 import { readSourceState } from "./source-state";
 
 const execFileAsync = promisify(execFile);
@@ -17,7 +18,8 @@ const positiveNumber = (value: string | undefined, fallback: number) => {
 };
 const commandTimeoutMs = positiveNumber(process.env.CONTAINER_CHECK_TIMEOUT_MS, 10 * 60_000);
 const healthTimeoutMs = positiveNumber(process.env.CONTAINER_CHECK_HEALTH_TIMEOUT_MS, 45_000);
-const defaultGitSha = readSourceState(process.cwd()).commit ?? "container-check";
+const localSourceSha = readSourceState(process.cwd()).commit;
+const defaultGitSha = localSourceSha ?? "container-check";
 
 type ContainerEvidence = {
   schemaVersion: 1;
@@ -167,6 +169,12 @@ async function main() {
   if (!fs.existsSync(dockerfile)) throw new Error(`Dockerfile is missing: ${dockerfile}`);
   const releaseId = process.env.RELEASE_ID ?? "container-check";
   const gitSha = process.env.GIT_SHA ?? defaultGitSha;
+  assertExactSourceRevision({
+    currentRevision: localSourceSha,
+    candidateRevision: gitSha,
+    context: "Container evidence",
+    kind: "configured",
+  });
   recoverAbandonedEvidence();
   writeEvidence({
     schemaVersion: 1,

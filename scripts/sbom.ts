@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import YAML from "yaml";
+import { assertExactSourceRevision } from "./evidence-identity";
 import { integrityToCycloneDxHash } from "./sbom-core";
 import { readSourceState } from "./source-state";
 
@@ -49,6 +50,12 @@ const resolvedGitSha = (() => {
 })();
 const releaseId = process.env.RELEASE_ID || "local-development";
 const gitSha = process.env.GIT_SHA || resolvedGitSha || "uncommitted";
+assertExactSourceRevision({
+  currentRevision: resolvedGitSha,
+  candidateRevision: gitSha,
+  context: "SBOM",
+  kind: "configured",
+});
 const containerEvidence = (() => {
   if (!fs.existsSync(containerEvidencePath)) return null;
   try {
@@ -147,6 +154,12 @@ const manifest = {
   generatedAt: metadata.timestamp,
   formats: ["CycloneDX 1.5", "SPDX 2.3"],
 };
+assertExactSourceRevision({
+  currentRevision: manifest.source.commit,
+  candidateRevision: gitSha,
+  context: "SBOM",
+  kind: "configured",
+});
 fs.writeFileSync(path.join(output, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 fs.writeFileSync(launchOutput, `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`Generated CycloneDX and SPDX SBOMs for ${packages.length} locked packages.`);

@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { assertExactSourceRevision } from "./evidence-identity";
 import { classifySourceWorktree, normalizeGitStatus } from "./source-state";
 
 type CommandResult = { value: string | null; error: string | null };
@@ -58,6 +59,13 @@ const remote = git(["remote", "get-url", "origin"]);
 const exactTag = git(["describe", "--tags", "--exact-match"]);
 const status = git(["status", "--porcelain", "--untracked-files=all"]);
 const worktree = classifySourceWorktree(status.value);
+if (process.env.GIT_SHA)
+  assertExactSourceRevision({
+    currentRevision: head.value,
+    candidateRevision: process.env.GIT_SHA,
+    context: "Repository evidence",
+    kind: "configured",
+  });
 const refs = remote.value
   ? git(["ls-remote", "--heads", "--tags", "origin"])
   : { value: null, error: null };
