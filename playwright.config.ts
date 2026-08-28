@@ -1,9 +1,12 @@
 import { defineConfig, devices } from "@playwright/test";
+import { parseTcpPort } from "./scripts/port-check";
+import { resolveBrowserExecutablePath } from "./scripts/playwright-browser";
 
 const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
 const configuredBaseUrl = process.env.PLAYWRIGHT_BASE_URL;
+const localPort = parseTcpPort(process.env.PLAYWRIGHT_PORT ?? "3101");
 const baseURL = (() => {
-  if (!configuredBaseUrl) return "http://127.0.0.1:3101";
+  if (!configuredBaseUrl) return `http://127.0.0.1:${localPort}`;
   const url = new URL(configuredBaseUrl);
   if (
     url.origin !== hostedStagingOrigin ||
@@ -19,11 +22,7 @@ const baseURL = (() => {
   return url.origin;
 })();
 
-const systemChromePath =
-  process.env.PLAYWRIGHT_EXECUTABLE_PATH ||
-  (process.platform === "win32"
-    ? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
-    : undefined);
+const browserExecutablePath = resolveBrowserExecutablePath();
 
 export default defineConfig({
   testDir: "./tests/browser",
@@ -32,14 +31,13 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "retain-on-failure",
-    launchOptions: systemChromePath ? { executablePath: systemChromePath } : undefined,
+    launchOptions: browserExecutablePath ? { executablePath: browserExecutablePath } : undefined,
   },
   webServer: configuredBaseUrl
     ? undefined
     : {
-        command:
-          "pnpm --filter @paper-and-slate/web exec next dev --hostname 127.0.0.1 --port 3101",
-        url: "http://127.0.0.1:3101",
+        command: "pnpm exec tsx scripts/playwright-server.ts",
+        url: `http://127.0.0.1:${localPort}`,
         reuseExistingServer: false,
       },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],

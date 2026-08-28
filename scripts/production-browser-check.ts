@@ -1,10 +1,10 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { access, cp, mkdir, rm, writeFile } from "node:fs/promises";
-import { existsSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { waitForImages } from "./browser-assets";
 import { assertExactSourceRevision } from "./evidence-identity";
+import { resolveBrowserExecutablePath } from "./playwright-browser";
 import { withProductionOutputLock } from "./production-output-lock";
 import { readSourceState } from "./source-state";
 
@@ -40,11 +40,7 @@ const runtimeRoot = path.join(
 const evidencePath = path.join(root, ".generated", "launch", "production-browser.json");
 const debug = process.env.PRODUCTION_BROWSER_DEBUG === "true";
 const localSourceSha = readSourceState(root).commit ?? "local-production-check";
-const systemChromeCandidates = [
-  process.env.PLAYWRIGHT_EXECUTABLE_PATH,
-  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-  "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-].filter((candidate): candidate is string => Boolean(candidate && existsSync(candidate)));
+const browserExecutablePath = resolveBrowserExecutablePath();
 
 type BrowserEvidence = {
   releaseId: string;
@@ -219,7 +215,7 @@ async function runMain() {
       );
     browser = await chromium.launch({
       headless: true,
-      executablePath: systemChromeCandidates[0],
+      executablePath: browserExecutablePath,
     });
     if (debug) console.error("[production:browser] browser ready");
     const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });

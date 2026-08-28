@@ -42,6 +42,20 @@ The Windows/macOS matrix still performs the portable build and quality checks;
 it does not claim browser or Docker coverage on those systems. A
 platform-specific runner result must not be copied to another operating system.
 
+Local Playwright commands use the completed production build rather than
+`next dev`. The `scripts/playwright-server.ts` wrapper copies the checked
+standalone server, static assets, and public assets into a process-scoped
+ignored runtime directory, then starts that runtime with shell-free Node
+arguments. This avoids sharing `.next/dev` Turbopack state between sequential
+test files and makes the local browser contract match the production build.
+Playwright-managed Chromium is used by default on every operating system; run
+`pnpm exec playwright install chromium` once before local browser commands.
+An explicit `PLAYWRIGHT_EXECUTABLE_PATH` is supported for controlled
+diagnostics. Run `pnpm build:web` before invoking a browser script directly;
+`pnpm verify` already performs that build immediately before `e2e`, `a11y:rc`,
+`links`, and `visual:check`. `PLAYWRIGHT_PORT` may select another validated
+local TCP port when parallel local work requires it.
+
 CodeQL runs on push, pull request, schedule, and manual dispatch with only the
 permissions needed to read source and upload security results. Dependency
 review runs only for pull requests. Neither workflow uses `pull_request_target`

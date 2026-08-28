@@ -6,6 +6,7 @@ import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { waitForImages } from "./browser-assets";
 import { assertExactSourceRevision } from "./evidence-identity";
+import { resolveBrowserExecutablePath } from "./playwright-browser";
 import { withProductionOutputLock } from "./production-output-lock";
 import { readSourceState } from "./source-state";
 
@@ -43,11 +44,7 @@ const manifestPath = path.join(outputRoot, "manifest.json");
 const releaseId = process.env.RELEASE_ID ?? "local-production-visual";
 const localSourceSha = git(["rev-parse", "HEAD"]);
 const debug = process.env.PRODUCTION_VISUAL_DEBUG === "true";
-const systemChromeCandidates = [
-  process.env.PLAYWRIGHT_EXECUTABLE_PATH,
-  "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-  "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-].filter((candidate): candidate is string => Boolean(candidate && existsSync(candidate)));
+const browserExecutablePath = resolveBrowserExecutablePath();
 
 type Capture = {
   id: string;
@@ -368,7 +365,7 @@ async function runMain() {
       throw new Error(
         `Visual target identity mismatch: ${health.deployment ?? "missing"}/${health.releaseId ?? "missing"}/${health.gitSha ?? "missing"}`,
       );
-    browser = await chromium.launch({ headless: true, executablePath: systemChromeCandidates[0] });
+    browser = await chromium.launch({ headless: true, executablePath: browserExecutablePath });
     const page = await browser.newPage();
     page.setDefaultTimeout(15_000);
     await mkdir(outputRoot, { recursive: true });
