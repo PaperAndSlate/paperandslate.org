@@ -1,0 +1,193 @@
+{
+  "snapshotType": "sanitized-tower-capability-snapshot",
+  "project": "paper-and-slate-web",
+  "environment": "staging",
+  "verifiedAt": "2026-08-28T21:19:54Z",
+  "revisionScope": "Timestamped platform capability snapshot; it does not certify the current unpushed source revision or any hosted workflow result.",
+  "source": ".tower/project.yaml and Tower controller/plugin capability and health responses",
+  "controller": {
+    "version": "4.12.0",
+    "plugin": {
+      "package": "@tower/tower-development-plugin",
+      "version": "0.15.2",
+      "remediationCommit": "bf01bee3e4c1557520c3fdd095a4e59f901c82ee",
+      "remediationCommitSource": "referenced brief",
+      "independentlyVerified": false
+    },
+    "forgejoVersion": "16.0.3+gitea-1.22.0",
+    "runnerVersion": "13.0.0",
+    "apiVersions": ["v1", "v2", "v3", "v4"],
+    "asyncOperations": true,
+    "iacEnabled": true,
+    "projectScopedV4": true
+  },
+  "providers": {
+    "forgejo": {
+      "configured": true,
+      "reachable": true,
+      "available": true,
+      "supports": [
+        "repository metadata",
+        "branches",
+        "workflow runs",
+        "bounded run/task metadata",
+        "repository runners",
+        "repository-scoped runner enrollment",
+        "workflow dispatch",
+        "verified CI artifact metadata"
+      ],
+      "doesNotExposeThroughProjectContract": [
+        "global Actions scheduler configuration",
+        "global Actions queue administration",
+        "stale-task administration",
+        "runner-host process or Docker-in-Docker logs"
+      ]
+    },
+    "coolify": {
+      "configured": true,
+      "reachable": true,
+      "available": true,
+      "supports": [
+        "bound application inspection",
+        "staging deploy/start/stop/restart/rollback",
+        "deployment metadata",
+        "bounded deployment diagnosis"
+      ],
+      "productionApprovalRequired": true
+    },
+    "infisical": {
+      "configured": true,
+      "reachable": true,
+      "available": true,
+      "supports": [
+        "server-side variable define",
+        "named secret binding",
+        "binding reconcile",
+        "value-excluding binding health"
+      ],
+      "secretValuesReturnedByDefault": false,
+      "crossSourceAliasVerified": false
+    },
+    "glitchtip": {
+      "configured": true,
+      "reachable": true,
+      "available": true,
+      "projectBinding": "project id 2",
+      "currentSecretReference": "SENTRY_DSN",
+      "valuesReturned": false
+    },
+    "cloudflare": {
+      "configured": false,
+      "available": false
+    }
+  },
+  "latestProviderContract": {
+    "id": "5e963eb0-0d01-40d9-b5a6-ba55914ef621",
+    "suite": "local-provider-contracts:full",
+    "state": "passed",
+    "providers": ["forgejo", "coolify", "tempo", "litellm", "glitchtip", "s3"],
+    "runnerAdmissionIncluded": false
+  },
+  "ci": {
+    "workflowDispatch": true,
+    "runInspection": true,
+    "artifactListing": true,
+    "shortLivedArtifactDownloadAuthorization": true,
+    "runnerEnrollment": "repository-scoped one-time enrollment; target-host exchange required",
+    "runnerLabelsObserved": ["ubuntu-latest", "node22", "docker", "playwright"],
+    "currentRunMapping": {
+      "forgejoRunNumber143": "towerRunId152",
+      "forgejoRunNumber144": "towerRunId153",
+      "forgejoRunNumber145": "towerRunId154"
+    },
+    "runLookupRule": "Pass the internal id from tower_ci_runs_list to tower_ci_run_get; displayed Forgejo run numbers currently resolve older runs when passed directly",
+    "runLookupAmbiguityObserved": true,
+    "controlWorkflow": {
+      "repository": "callum/tower-staging-validation",
+      "workflow": "ci.yml",
+      "towerRunId": 155,
+      "forgejoRunNumber": 9,
+      "runsOn": ["docker"],
+      "dispatchAccepted": true,
+      "jobStarted": false,
+      "runnerAssigned": false,
+      "result": "same pre-run admission failure as Paper & Slate"
+    },
+    "currentRunnerHeartbeatVerified": false,
+    "currentRunnerHostLogsAvailable": false,
+    "currentGlobalSchedulerInspectionAvailable": false,
+    "artifactActionGuidance": "Forgejo documents v3 or a Forgejo-patched v4; repository currently pins a Forgejo-hosted v3.2.2 commit"
+  },
+  "resources": {
+    "managedKinds": ["typesense", "valkey", "s3"],
+    "healthAndLatencyProbes": true,
+    "credentialMetadata": true,
+    "credentialValues": "explicitly gated; not included in this snapshot",
+    "typesenseTemporaryWriteDeleteRoundtrip": "not exposed or not run",
+    "valkeyBinding": "healthy",
+    "glitchtipBinding": "failed because GLITCHTIP_DSN source is absent"
+  },
+  "forgejoCredentialMetadata": {
+    "brokerCredentialRecords": 0,
+    "tokenMetadataAccessible": true,
+    "activeBroadNonExpiringTokenIds": [20, 21],
+    "separatePackageReadTokenIds": [14, 15],
+    "permissionUpdateRequiresOriginalTokenMaterial": true,
+    "secretValuesIncluded": false
+  },
+  "registry": {
+    "immutableOciPolicy": true,
+    "sbom": true,
+    "vulnerabilityScan": true,
+    "provenanceEvidence": true,
+    "signing": false,
+    "stagingDeployByDigest": true,
+    "currentCommitImageVerified": false
+  },
+  "monitoring": {
+    "syntheticHttpProbes": true,
+    "sloSummaries": true,
+    "resourceLatency": true,
+    "deploymentAnnotations": true,
+    "boundedRollback": true,
+    "currentReleaseSpecificSloVerified": false
+  },
+  "observabilityMetricContract": {
+    "approvedMetrics": [
+      "container_cpu",
+      "container_memory",
+      "ci_failures",
+      "request_rate",
+      "request_error_rate"
+    ],
+    "legacyMetricsQueriedBySnapshot": ["host_cpu_percent", "host_memory_percent"],
+    "legacyMetricQueriesReturnUnknownMetric": true,
+    "snapshotOverallHealthCanMaskMetricErrors": true
+  },
+  "network": {
+    "dnsLookup": true,
+    "tcpProbe": true,
+    "httpProbe": true,
+    "stagingHostname": "paper-and-slate-web.dev.tower",
+    "publicDnsAuthority": false,
+    "publicTlsAuthority": false
+  },
+  "safety": {
+    "arbitraryShell": false,
+    "rawDockerSocket": false,
+    "rawSql": false,
+    "unrestrictedProviderApi": false,
+    "productionCredentialAndIaCApproval": true,
+    "secretRevealRequiresExplicitScope": true,
+    "destructiveActionsRequireApplyOrExplicitBoundedAction": true
+  },
+  "releaseEvidenceGaps": [
+    "runner heartbeat and real job assignment",
+    "current workflow logs and artifacts",
+    "deployment-backed GLITCHTIP_DSN",
+    "current image digest/SBOM/provenance/scan",
+    "release-specific SLO and rollback evidence",
+    "qualified human approvals",
+    "public repository/DNS/TLS/deployment authority"
+  ]
+}
