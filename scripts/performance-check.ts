@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import YAML from "yaml";
+import { assertExactSourceRevision } from "./evidence-identity";
 import { sourceDirtyPaths, sourceWorktreeClean } from "./source-state";
 
 export type PerformanceBudgets = {
@@ -189,12 +190,12 @@ function main() {
       "Lighthouse evidence must be a passed run before performance budgets are checked",
     );
   const currentSource = git(["rev-parse", "HEAD"]);
-  if (!currentSource)
-    throw new Error("Performance budgets require a readable current Git source revision");
-  if (lighthouseManifest.gitSha !== currentSource)
-    throw new Error(
-      `Lighthouse evidence identity does not match the current source: expected ${currentSource}, got ${lighthouseManifest.gitSha ?? "missing"}`,
-    );
+  assertExactSourceRevision({
+    currentRevision: currentSource,
+    candidateRevision: lighthouseManifest.gitSha,
+    context: "Lighthouse",
+    kind: "evidence",
+  });
   const reports = fs.existsSync(lighthouseDir)
     ? fs
         .readdirSync(lighthouseDir)

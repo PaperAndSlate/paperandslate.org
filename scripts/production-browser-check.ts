@@ -4,6 +4,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { waitForImages } from "./browser-assets";
+import { assertExactSourceRevision } from "./evidence-identity";
 import { readSourceState } from "./source-state";
 
 const root = process.cwd();
@@ -192,10 +193,13 @@ async function main() {
     };
     const expectedRelease = process.env.RELEASE_ID ?? "local-production-check";
     const expectedSha = process.env.GIT_SHA ?? localSourceSha;
-    if (!externalBaseUrl && process.env.GIT_SHA && process.env.GIT_SHA !== localSourceSha)
-      throw new Error(
-        `Local production browser evidence requires GIT_SHA ${localSourceSha}; got ${process.env.GIT_SHA}`,
-      );
+    if (!externalBaseUrl && process.env.GIT_SHA)
+      assertExactSourceRevision({
+        currentRevision: localSourceSha,
+        candidateRevision: process.env.GIT_SHA,
+        context: "Local production browser evidence",
+        kind: "configured",
+      });
     if (externalBaseUrl && (!process.env.RELEASE_ID || !process.env.GIT_SHA))
       throw new Error(
         "Hosted browser evidence requires RELEASE_ID and GIT_SHA for the exact candidate",

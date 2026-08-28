@@ -5,6 +5,7 @@ import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclu
 import { withLighthouseChrome } from "./lighthouse-chrome";
 import { pnpmSpawnSpec } from "./pnpm-command";
 import { assertTcpPortFree, parseTcpPort } from "./port-check";
+import { assertExactSourceRevision } from "./evidence-identity";
 import { readSourceState } from "./source-state";
 const root = process.cwd();
 const port = process.env.LH_PORT ?? "3210";
@@ -158,10 +159,12 @@ async function main() {
 }
 
 async function runLighthouseEvidence() {
-  if (localSourceSha && gitSha !== localSourceSha)
-    throw new Error(
-      `Lighthouse GIT_SHA does not match the checked-out source: expected ${localSourceSha}, got ${gitSha}`,
-    );
+  assertExactSourceRevision({
+    currentRevision: localSourceSha,
+    candidateRevision: gitSha,
+    context: "Lighthouse",
+    kind: "configured",
+  });
   const startedAt = new Date().toISOString();
   let configuredUrls: string[] = [];
   await mkdir(outputDir, { recursive: true });

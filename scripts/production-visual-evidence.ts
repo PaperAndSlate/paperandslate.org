@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { waitForImages } from "./browser-assets";
+import { assertExactSourceRevision } from "./evidence-identity";
 import { readSourceState } from "./source-state";
 
 const root = process.cwd();
@@ -340,10 +341,13 @@ async function main() {
       gitSha?: string;
     };
     const expectedGitSha = process.env.GIT_SHA ?? git(["rev-parse", "HEAD"]);
-    if (!externalBaseUrl && process.env.GIT_SHA && process.env.GIT_SHA !== localSourceSha)
-      throw new Error(
-        `Local production visual evidence requires GIT_SHA ${localSourceSha ?? "the current source revision"}; got ${process.env.GIT_SHA}`,
-      );
+    if (!externalBaseUrl && process.env.GIT_SHA)
+      assertExactSourceRevision({
+        currentRevision: localSourceSha,
+        candidateRevision: process.env.GIT_SHA,
+        context: "Local production visual evidence",
+        kind: "configured",
+      });
     if (externalBaseUrl && (!process.env.RELEASE_ID || !process.env.GIT_SHA))
       throw new Error(
         "Hosted visual evidence requires RELEASE_ID and GIT_SHA for the exact candidate",
