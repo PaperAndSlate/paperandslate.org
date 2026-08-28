@@ -99,7 +99,7 @@ async function containerDiagnostics() {
             [
               "inspect",
               "--format",
-              "status={{.State.Status}} exit={{.State.ExitCode}} error={{.State.Error}} started={{.State.StartedAt}} finished={{.State.FinishedAt}}",
+              "status={{.State.Status}} exit={{.State.ExitCode}} error={{.State.Error}} started={{.State.StartedAt}} finished={{.State.FinishedAt}} ports={{json .NetworkSettings.Ports}}",
               container,
             ],
             false,
@@ -110,6 +110,13 @@ async function containerDiagnostics() {
     );
   } catch {
     diagnostics.push("docker inspect could not read the check container");
+  }
+  try {
+    diagnostics.push(
+      `docker port: ${(await run(["port", container], false, 10_000)).trim() || "no published ports"}`,
+    );
+  } catch {
+    diagnostics.push("docker port could not read the check container");
   }
   try {
     diagnostics.push(
@@ -135,6 +142,7 @@ function stopProcess(child: ChildProcess | undefined) {
 
 async function waitForHealth() {
   const deadline = Date.now() + healthTimeoutMs;
+  let lastFailure = "no response";
   while (Date.now() < deadline) {
     if (interrupted) throw new Error("Container check interrupted by process signal");
     try {
@@ -142,12 +150,13 @@ async function waitForHealth() {
         signal: AbortSignal.timeout(2_000),
       });
       if (response.ok) return response;
-    } catch {
-      // The container may still be starting.
+      lastFailure = `HTTP ${response.status}: ${redactContainerDiagnostics((await response.text()).slice(0, 500))}`;
+    } catch (error) {
+      lastFailure = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
     }
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-  throw new Error("Container health endpoint did not become ready");
+  throw new Error(`Container health endpoint did not become ready (${lastFailure})`);
 }
 
 async function main() {
