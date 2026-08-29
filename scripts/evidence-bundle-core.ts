@@ -13,3 +13,14 @@ export function isEvidenceIdentityCurrent(options: {
       sourceRevisionMatchesCurrent(options.root, options.value, options.sourceSha))
   );
 }
+
+export function countCompletedVerificationTasks(receipt: {
+  tasks?: readonly string[];
+  completed?: readonly string[];
+}): number {
+  if (receipt.tasks) {
+    const completed = new Set(receipt.completed ?? []);
+    return receipt.tasks.filter((task) => completed.has(task)).length;
+  }
+  return receipt.completed?.length ?? 0;
+}

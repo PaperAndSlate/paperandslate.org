@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { isEvidenceIdentityCurrent } from "../scripts/evidence-bundle-core";
+import {
+  countCompletedVerificationTasks,
+  isEvidenceIdentityCurrent,
+} from "../scripts/evidence-bundle-core";
 import { assertExactSourceRevision } from "../scripts/evidence-identity";
 
 describe("evidence source identity", () => {
@@ -71,5 +74,14 @@ describe("evidence source identity", () => {
         root: process.cwd(),
       }),
     ).toBe(true);
+  });
+
+  it("counts declared verification tasks without counting evidence finalizers", () => {
+    expect(
+      countCompletedVerificationTasks({
+        tasks: ["lint", "test", "build"],
+        completed: ["lint", "test", "build", "launch:report", "evidence:bundle"],
+      }),
+    ).toBe(3);
   });
 });

@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { classifySourceWorktree } from "./source-state";
 import { assertSafeEvidenceTreeEntry, copyEvidenceTree } from "./evidence-files";
-import { isEvidenceIdentityCurrent } from "./evidence-bundle-core";
+import { countCompletedVerificationTasks, isEvidenceIdentityCurrent } from "./evidence-bundle-core";
 
 const root = process.cwd();
 const releaseId = (
@@ -171,9 +171,12 @@ const container = readJson<{
 const visual = readJson<{ status?: string; gitSha?: string; captures?: unknown[] }>(
   ".generated/launch/visual/manifest.json",
 );
-const verify = readJson<{ status?: string; completed?: string[]; gitSha?: string | null }>(
-  ".generated/launch/verify.json",
-);
+const verify = readJson<{
+  status?: string;
+  tasks?: string[];
+  completed?: string[];
+  gitSha?: string | null;
+}>(".generated/launch/verify.json");
 const sbom = readJson<{ gitSha?: string; containerDigest?: string }>(
   ".generated/launch/sbom-manifest.json",
 );
@@ -283,7 +286,7 @@ const manifest = {
   verification: {
     launchReportStatus: launch?.status ?? "missing",
     fullVerifyStatus: verify?.status ?? "missing",
-    fullVerifyTasks: verify?.completed?.length ?? 0,
+    fullVerifyTasks: verify ? countCompletedVerificationTasks(verify) : 0,
     visualStatus: visual?.status ?? "missing",
     visualCaptures: visual?.captures?.length ?? 0,
     hostedLighthouseStatus: currentHostedLighthouse
