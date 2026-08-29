@@ -2,6 +2,17 @@ import YAML from "yaml";
 
 type WorkflowObject = Record<string, unknown>;
 
+const verifiedActionPins: Record<string, string> = {
+  "actions/checkout": "11bd71901bbe5b1630ceea73d27597364c9af683",
+  "pnpm/action-setup": "7088e561eb65bb68695d245aa206f005ef30921d",
+  "actions/setup-node": "49933ea5288caeca8642d1e84afbd3f7d6820020",
+  "actions/upload-artifact": "ea165f8d65b6e75b540449e92b4886f43607fa02",
+  "github/codeql-action/init": "0fa1882f994fbd81a47ab0804f93354f5ea40147",
+  "github/codeql-action/analyze": "0fa1882f994fbd81a47ab0804f93354f5ea40147",
+  "actions/dependency-review-action": "595b5aeba73380359d98a5e087f648dbb0edce1b",
+  "https://code.forgejo.org/actions/upload-artifact": "c6a366c94c3e0affe28c06c8df20a878f24da3cf",
+};
+
 const visit = (value: unknown, callback: (object: WorkflowObject) => void) => {
   if (Array.isArray(value)) {
     for (const item of value) visit(item, callback);
@@ -74,9 +85,15 @@ export function validateWorkflowText(text: string, file: string) {
     const uses = object.uses;
     if (typeof uses === "string") {
       const at = uses.lastIndexOf("@");
+      const action = at >= 0 ? uses.slice(0, at) : uses;
       const reference = at >= 0 ? uses.slice(at + 1) : "";
       if (!/^[a-f0-9]{40}$/i.test(reference))
         errors.push(`${file}: action must use a full commit SHA: ${uses}`);
+      const verifiedPin = verifiedActionPins[action];
+      if (verifiedPin && reference.toLowerCase() !== verifiedPin)
+        errors.push(
+          `${file}: ${action} must use verified commit ${verifiedPin}; found ${reference || "missing"}`,
+        );
     }
     if (typeof uses === "string" && uses.includes("actions/checkout@")) {
       const withOptions = object.with;

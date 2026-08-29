@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@0123456789abcdef0123456789abcdef01234567
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
 `;
@@ -26,7 +26,7 @@ describe("hosted workflow policy", () => {
   it("rejects mutable actions and unsafe execution settings", () => {
     const errors = validateWorkflowText(
       valid
-        .replace("@0123456789abcdef0123456789abcdef01234567", "@v4")
+        .replace("@11bd71901bbe5b1630ceea73d27597364c9af683", "@v4")
         .replace("timeout-minutes: 5", "shell: true"),
       "unsafe.yml",
     );
@@ -39,10 +39,23 @@ describe("hosted workflow policy", () => {
     );
   });
 
+  it("rejects a full SHA that is not the verified pin for a known action", () => {
+    const errors = validateWorkflowText(
+      valid.replace(
+        "@11bd71901bbe5b1630ceea73d27597364c9af683",
+        "@0123456789abcdef0123456789abcdef01234567",
+      ),
+      "wrong-pin.yml",
+    );
+    expect(errors).toContain(
+      "wrong-pin.yml: actions/checkout must use verified commit 11bd71901bbe5b1630ceea73d27597364c9af683; found 0123456789abcdef0123456789abcdef01234567",
+    );
+  });
+
   it("checks flow-style action steps as well as block-style steps", () => {
     const errors = validateWorkflowText(
       valid.replace(
-        "      - uses: actions/checkout@0123456789abcdef0123456789abcdef01234567\n        with:\n          persist-credentials: false",
+        "      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683\n        with:\n          persist-credentials: false",
         "      - { uses: actions/checkout@v4 }",
       ),
       "flow-style.yml",
