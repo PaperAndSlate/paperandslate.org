@@ -1,17 +1,16 @@
 {
   "schemaVersion": 1,
   "status": "passed",
-  "generatedAt": "2026-08-29T04:28:07.601Z",
+  "generatedAt": "2026-08-29T04:37:57.516Z",
   "generatedBy": "pnpm traceability:check",
   "source": {
-    "commit": "ebaf14f4004fa03862cb4605a0ce19758a0c1a2f",
-    "tree": "c9f0ba92a1b7c602066c8b4dacd5735ef027d51e",
+    "commit": "2ed056bb5ce8e7110fe4bc1b3f3f50e93fabb4c6",
+    "tree": "3a029d5a98e3458c218707d1cc4f9a06a8ef034e",
     "lockfileSha256": "4571472a300ed6fc44c27072c2fb809f21ab4338ac2c771e175c7deb8230f513",
     "worktreeClean": true,
     "dirtyPaths": [],
     "generatedPaths": [
       ".generated/requirements/requirements.json",
-      ".generated/requirements/traceability-check.json",
       "IMPLEMENTATION_LEDGER.md"
     ]
   },
