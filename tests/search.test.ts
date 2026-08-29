@@ -3,6 +3,7 @@ import {
   createFallbackSearchProvider,
   createStaticSearchProvider,
   normalizeRecords,
+  normalizeRecord,
   rankRecords,
   type SearchProvider,
 } from "../packages/search/src";
@@ -43,6 +44,12 @@ describe("unified search", () => {
     expect(rankRecords([], " ")).toEqual([]);
     expect(rankRecords([r], "unknown")).toEqual([]);
   });
+  it("rejects external and malformed navigation routes", () => {
+    expect(() => normalizeRecord({ ...r, route: "//example.invalid" })).toThrow(
+      /Invalid search record/,
+    );
+    expect(() => normalizeRecord({ ...r, route: "/docs/ok" })).not.toThrow();
+  });
   it("falls back to the static index when the hosted provider is unavailable", async () => {
     const primary: SearchProvider = {
       mode: "typesense",
@@ -55,5 +62,15 @@ describe("unified search", () => {
     expect(response.provider).toBe("static-fallback");
     expect(response.degraded).toBe(true);
     expect(response.results[0]?.id).toBe("rfc:1");
+  });
+  it("bounds and isolates the static provider cache", async () => {
+    const first = createStaticSearchProvider(normalizeRecords([r]));
+    const second = createStaticSearchProvider(
+      normalizeRecords([{ ...r, id: "other", title: "Other record", aliases: ["other"] }]),
+    );
+    expect((await first.search("RFC 1")).results[0]?.id).toBe("rfc:1");
+    expect((await second.search("RFC 1")).results[0]?.id).toBeUndefined();
+    for (let index = 0; index < 300; index += 1) await first.search(`query-${index}`);
+    expect((await first.search("RFC 1")).results[0]?.id).toBe("rfc:1");
   });
 });

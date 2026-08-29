@@ -10,11 +10,34 @@ export type SearchProvider = {
   mode: string;
   search(query: string, options?: SearchOptions): Promise<SearchResponse>;
 };
-const cache = new Map<string, { expires: number; response: SearchResponse }>();
+const MAX_CACHE_ENTRIES = 256;
+const MAX_CACHE_RESPONSE_BYTES = 512 * 1024;
 export function createStaticSearchProvider(
   records: SearchRecord[],
   ttlMs = 30_000,
 ): SearchProvider {
+  const cache = new Map<string, { expires: number; response: SearchResponse }>();
+  const readCache = (key: string): SearchResponse | undefined => {
+    const cached = cache.get(key);
+    if (!cached) return undefined;
+    if (cached.expires <= Date.now()) {
+      cache.delete(key);
+      return undefined;
+    }
+    cache.delete(key);
+    cache.set(key, cached);
+    return cached.response;
+  };
+  const writeCache = (key: string, response: SearchResponse) => {
+    if (
+      ttlMs <= 0 ||
+      Buffer.byteLength(JSON.stringify(response), "utf8") > MAX_CACHE_RESPONSE_BYTES
+    )
+      return;
+    cache.delete(key);
+    while (cache.size >= MAX_CACHE_ENTRIES) cache.delete(cache.keys().next().value!);
+    cache.set(key, { expires: Date.now() + ttlMs, response });
+  };
   return {
     mode: "static",
     async search(query, options = {}) {
@@ -26,8 +49,8 @@ export function createStaticSearchProvider(
         options.filters,
         options.includePreview,
       ]);
-      const cached = cache.get(key);
-      if (cached && cached.expires > Date.now()) return cached.response;
+      const cached = readCache(key);
+      if (cached) return cached;
       const started = Date.now();
       const eligible = records.filter(
         (record) =>
@@ -51,7 +74,7 @@ export function createStaticSearchProvider(
           results.length >= Math.min(options.limit ?? SEARCH_MAX_RESULTS, SEARCH_MAX_RESULTS),
         indexId: "static-local",
       };
-      cache.set(key, { expires: Date.now() + ttlMs, response });
+      writeCache(key, response);
       return response;
     },
   };

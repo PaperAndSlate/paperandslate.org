@@ -3,6 +3,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { classifySourceWorktree, sourceRevisionMatchesCurrent } from "./source-state";
+import { assertSafeEvidenceTreeEntry, copyEvidenceTree } from "./evidence-files";
 
 const root = process.cwd();
 const releaseId = (
@@ -47,7 +48,7 @@ const copyIfPresent = (source: string, destination: string) => {
   if (!absoluteDestination.startsWith(`${bundleRoot}${path.sep}`))
     throw new Error(`Refusing to write evidence outside bundle: ${destination}`);
   fs.mkdirSync(path.dirname(absoluteDestination), { recursive: true });
-  fs.cpSync(absoluteSource, absoluteDestination, { recursive: true });
+  copyEvidenceTree(absoluteSource, absoluteDestination, root, bundleRoot);
   return true;
 };
 const sha256File = (file: string) =>
@@ -263,9 +264,10 @@ const hashTree = (directory: string) => {
   for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
     const absolute = path.join(directory, entry.name);
     const relative = path.relative(bundleRoot, absolute).replaceAll(path.sep, "/");
-    if (entry.isDirectory()) hashTree(absolute);
+    const stat = assertSafeEvidenceTreeEntry(absolute, bundleRoot);
+    if (stat.isDirectory()) hashTree(absolute);
     else if (!["manifest.json", "hashes.json", "manifest.sha256"].includes(relative)) {
-      hashes[relative] = { sha256: sha256File(absolute), bytes: fs.statSync(absolute).size };
+      hashes[relative] = { sha256: sha256File(absolute), bytes: stat.size };
     }
   }
 };

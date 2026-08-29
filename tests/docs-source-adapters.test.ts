@@ -1,11 +1,27 @@
+import { execFileSync } from "node:child_process";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import {
   collectAssets,
   collectSource,
   loadRegistry,
+  readGitSource,
   readFixtureSource,
   resolvedGitSha,
 } from "../packages/docs-ingestion/src";
+
+function runGit(args: string[], cwd: string): void {
+  execFileSync("git", ["-C", cwd, ...args], { stdio: "ignore" });
+}
+
+function readGitOutput(args: string[], cwd: string): string {
+  return execFileSync("git", ["-C", cwd, ...args], {
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "ignore"],
+  }).trim();
+}
 
 describe("documentation source adapters", () => {
   it("dispatches fixture content without a network adapter", () => {
@@ -39,6 +55,53 @@ describe("documentation source adapters", () => {
       versions: [{ id: "next", label: "Next", status: "draft" as const, ref: "head" }],
     };
     expect(() => resolvedGitSha(source, source.versions[0])).toThrow(/approved/);
+  });
+
+  it("reads Git documentation from the pinned commit instead of the worktree", () => {
+    const repository = fs.mkdtempSync(path.join(os.tmpdir(), "eom-git-source-test-"));
+    try {
+      fs.mkdirSync(path.join(repository, "docs"), { recursive: true });
+      fs.writeFileSync(
+        path.join(repository, "docs", "index.md"),
+        "---\ntitle: Committed\n---\nCommitted content\n",
+      );
+      runGit(["init"], repository);
+      runGit(["config", "user.email", "tests@example.invalid"], repository);
+      runGit(["config", "user.name", "EOM tests"], repository);
+      runGit(["add", "docs/index.md"], repository);
+      runGit(["commit", "-m", "initial docs"], repository);
+      const sha = readGitOutput(["rev-parse", "HEAD"], repository);
+      fs.writeFileSync(
+        path.join(repository, "docs", "index.md"),
+        "---\ntitle: Worktree\n---\nUnreviewed worktree content\n",
+      );
+      const source = {
+        id: "git",
+        kind: "git" as const,
+        project: "git",
+        title: "Git",
+        root: repository,
+        approved: true,
+        versions: [
+          {
+            id: "next",
+            label: "Next",
+            status: "draft" as const,
+            ref: "pinned",
+            docs: "docs",
+            gitSha: sha,
+          },
+        ],
+      };
+
+      const files = readGitSource(source, source.versions[0]);
+      expect(files).toHaveLength(1);
+      expect(files[0].file).toBe(path.join(repository, "docs", "index.md"));
+      expect(files[0].raw).toContain("Committed content");
+      expect(files[0].raw).not.toContain("Unreviewed worktree content");
+    } finally {
+      fs.rmSync(repository, { recursive: true, force: true });
+    }
   });
 
   it("uses a safe, deterministic asset inventory", () => {

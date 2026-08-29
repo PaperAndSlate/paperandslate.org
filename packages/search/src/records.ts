@@ -18,11 +18,31 @@ export function normalizeRecord(input: SearchRecord): SearchRecord {
     route: input.route.trim(),
     visibility: input.visibility ?? "public",
   };
+  const internalRoute = (() => {
+    if (
+      !record.route.startsWith("/") ||
+      record.route.startsWith("//") ||
+      record.route.includes("\\") ||
+      [...record.route].some((character) => {
+        const code = character.charCodeAt(0);
+        return code < 32 || code === 127;
+      })
+    )
+      return false;
+    try {
+      return (
+        new URL(record.route, "https://paper-and-slate.invalid").origin ===
+        "https://paper-and-slate.invalid"
+      );
+    } catch {
+      return false;
+    }
+  })();
   if (
     !record.id ||
     !record.title ||
     !record.summary ||
-    !record.route.startsWith("/") ||
+    !internalRoute ||
     !types.has(record.type) ||
     !sources.has(record.source) ||
     (record.visibility !== "public" && record.visibility !== "preview")
