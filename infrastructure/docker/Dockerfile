@@ -10,6 +10,7 @@ COPY packages/content/package.json packages/content/package.json
 COPY packages/design-system/package.json packages/design-system/package.json
 COPY packages/docs-ingestion/package.json packages/docs-ingestion/package.json
 COPY packages/search/package.json packages/search/package.json
+COPY patches/extract-zip@2.0.1.patch patches/extract-zip@2.0.1.patch
 RUN pnpm install --frozen-lockfile
 
 COPY . .
