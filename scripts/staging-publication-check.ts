@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { inspectSecurityHeaders, type SecurityHeaderStatus } from "./hosted-security-headers";
 
 const root = process.cwd();
 const stagingUrl = process.env.STAGING_URL;
@@ -37,6 +38,7 @@ type RouteEvidence = {
   contentType: string | null;
   bytes: number;
   bodySha256: string | null;
+  securityHeaders: SecurityHeaderStatus | null;
   valid: boolean;
   error?: string;
 };
@@ -100,10 +102,20 @@ async function fetchRoute(base: URL, definition: (typeof routeDefinitions)[numbe
     });
     const body = await response.text();
     const contentType = response.headers.get("content-type");
+    const securityHeaders = inspectSecurityHeaders(response.headers, base.protocol === "https:");
     const valid =
       response.status === 200 &&
       Boolean(contentType?.toLowerCase().includes(definition.contentType)) &&
-      !hasLocalAddress(body);
+      !hasLocalAddress(body) &&
+      securityHeaders.issues.length === 0;
+    const issues = [
+      ...(response.status !== 200 ? [`Expected status 200, received ${response.status}`] : []),
+      ...(contentType?.toLowerCase().includes(definition.contentType)
+        ? []
+        : [`Expected content type ${definition.contentType}`]),
+      ...(hasLocalAddress(body) ? ["Response contains a localhost reference"] : []),
+      ...securityHeaders.issues,
+    ];
     return {
       evidence: {
         path: definition.path,
@@ -111,11 +123,12 @@ async function fetchRoute(base: URL, definition: (typeof routeDefinitions)[numbe
         contentType,
         bytes: Buffer.byteLength(body),
         bodySha256: bodySha256(body),
+        securityHeaders: securityHeaders.status,
         valid,
         ...(valid
           ? {}
           : {
-              error: `Expected 200 ${definition.contentType} without localhost references`,
+              error: issues.join("; "),
             }),
       } satisfies RouteEvidence,
       body,
@@ -128,6 +141,7 @@ async function fetchRoute(base: URL, definition: (typeof routeDefinitions)[numbe
         contentType: null,
         bytes: 0,
         bodySha256: null,
+        securityHeaders: null,
         valid: false,
         error: error instanceof Error ? error.message : String(error),
       } satisfies RouteEvidence,

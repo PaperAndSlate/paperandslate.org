@@ -1,5 +1,6 @@
 import { randomBytes } from "node:crypto";
 import { NextResponse, type NextRequest } from "next/server";
+import { isSecureRequest } from "./security-transport";
 
 export function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -38,7 +39,14 @@ export function proxy(request: NextRequest) {
   response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
   response.headers.set("X-Frame-Options", "DENY");
-  if (request.nextUrl.protocol === "https:")
+  if (
+    isSecureRequest({
+      requestProtocol: request.nextUrl.protocol,
+      nodeEnv: process.env.NODE_ENV,
+      deploymentEnv: process.env.DEPLOYMENT_ENV,
+      siteUrl: process.env.NEXT_PUBLIC_SITE_URL,
+    })
+  )
     response.headers.set(
       "Strict-Transport-Security",
       "max-age=31536000; includeSubDomains; preload",

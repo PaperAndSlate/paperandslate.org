@@ -33,7 +33,10 @@ if (
   headers["content-security-policy"].includes("unsafe-eval")
 )
   throw new Error("Production CSP permits unsafe-eval");
-if (!proxy.includes('request.nextUrl.protocol === "https:"'))
-  throw new Error("HSTS must be conditional on HTTPS");
+if (
+  !proxy.includes("requestProtocol: request.nextUrl.protocol") ||
+  !proxy.includes("isSecureRequest({")
+)
+  throw new Error("HSTS must be conditional on direct or configured HTTPS");
 
 console.log("Validated production CSP, conditional HSTS, and security header policy.");

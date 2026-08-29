@@ -9,4 +9,4 @@ Production responses generate a request-scoped nonce, pass it through the reques
 
 ## Consequences
 
-The policy protects inline bootstrap/flight scripts while preserving hydration and interaction. Production browser checks must fail on CSP violations, hydration/runtime errors, failed chunks, or broken search/theme/mobile actions. HSTS and other security headers are emitted under the approved HTTPS condition. A hosted staging deployment must reproduce the local behavior before promotion.
+The policy protects inline bootstrap/flight scripts while preserving hydration and interaction. Production browser checks must fail on CSP violations, hydration/runtime errors, failed chunks, or broken search/theme/mobile actions. HSTS and other security headers are emitted for direct HTTPS requests or for an HTTPS canonical URL in a staging/production deployment. Forwarded headers are not used as authority. A hosted staging deployment must reproduce the local behavior before promotion.

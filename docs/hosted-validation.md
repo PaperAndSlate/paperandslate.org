@@ -70,6 +70,11 @@ with a process-scoped, caller-owned profile. This avoids the Windows cleanup
 race in the transitive `chrome-launcher` process path; Lighthouse collection
 and its configured assertions remain unchanged.
 
+Hosted HTTPS probes must also retain the application security-header contract.
+The runtime emits HSTS for direct HTTPS requests and for TLS-terminated staging
+or production deployments only when the HTTPS canonical origin is configured;
+forwarded headers are not used as authority.
+
 CodeQL runs on push, pull request, schedule, and manual dispatch with only the
 permissions needed to read source and upload security results. Dependency
 review runs only for pull requests. Neither workflow uses `pull_request_target`
