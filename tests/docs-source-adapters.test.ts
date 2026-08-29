@@ -6,11 +6,14 @@ import { describe, expect, it } from "vitest";
 import {
   collectAssets,
   collectSource,
+  generateBundle,
   loadRegistry,
   readGitSource,
   readFixtureSource,
   resolvedGitSha,
+  writeBundle,
 } from "../packages/docs-ingestion/src";
+import { checkDocsSourceBinding } from "../scripts/docs-source-binding";
 
 function runGit(args: string[], cwd: string): void {
   execFileSync("git", ["-C", cwd, ...args], { stdio: "ignore" });
@@ -106,5 +109,48 @@ describe("documentation source adapters", () => {
 
   it("uses a safe, deterministic asset inventory", () => {
     expect(collectAssets("tests/fixtures/docs-source/projects/file-system")).toEqual([]);
+  });
+
+  it("rejects generated documents that are not represented by the source lock", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "eom-source-binding-test-"));
+    try {
+      const source = {
+        id: "fixture",
+        kind: "fixture" as const,
+        project: "fixture",
+        title: "Fixture",
+        root: "docs",
+        versions: [{ id: "next", label: "Next", status: "draft" as const, ref: "fixture-next" }],
+      };
+      fs.mkdirSync(path.join(root, "docs"), { recursive: true });
+      fs.writeFileSync(
+        path.join(root, "docs", "index.md"),
+        "---\ntitle: Fixture\n---\nFixture content\n",
+      );
+      fs.mkdirSync(path.join(root, "config"), { recursive: true });
+      fs.writeFileSync(
+        path.join(root, "config", "docs-sources.yml"),
+        JSON.stringify({ sources: [source] }),
+      );
+      const collected = collectSource(source, source.versions[0], root);
+      writeBundle(
+        generateBundle(collected.documents, [collected.lock]),
+        path.join(root, ".generated", "docs"),
+      );
+      const generated = JSON.parse(
+        fs.readFileSync(path.join(root, ".generated", "docs", "documents.json"), "utf8"),
+      ) as unknown[];
+      const firstDocument = generated[0] as Record<string, unknown>;
+      generated.push({ ...firstDocument, id: "fixture:next:extra", sourcePath: "extra.md" });
+      fs.writeFileSync(
+        path.join(root, ".generated", "docs", "documents.json"),
+        `${JSON.stringify(generated, null, 2)}\n`,
+      );
+      expect(checkDocsSourceBinding(root).mismatches.join("\n")).toMatch(
+        /not present in the source lock|source lock file has no generated document/,
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
   });
 });
