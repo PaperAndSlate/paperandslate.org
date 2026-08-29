@@ -81,7 +81,13 @@ function bindGeneratedDocuments(
   const matching = documents.filter(
     (document) => document.sourceId === source.id && document.ref === version.ref,
   );
+  const documentPaths = new Set<string>();
   for (const document of matching) {
+    if (documentPaths.has(document.sourcePath))
+      result.mismatches.push(
+        `${label}: multiple generated documents use the same source path (${document.sourcePath})`,
+      );
+    documentPaths.add(document.sourcePath);
     if (
       document.version !== version.id ||
       document.project !== source.project ||
@@ -103,13 +109,22 @@ function bindGeneratedDocuments(
       );
     }
   }
+  const lockPaths = new Set<string>();
   for (const file of generatedLock?.files ?? []) {
-    if (!validLockFilePath(file.path) || !/^[a-f0-9]{64}$/.test(file.contentHash ?? "")) {
+    const filePath = file.path;
+    if (
+      typeof filePath !== "string" ||
+      !validLockFilePath(filePath) ||
+      !/^[a-f0-9]{64}$/.test(file.contentHash ?? "")
+    ) {
       result.mismatches.push(`${label}: source lock contains an invalid file entry`);
       continue;
     }
-    if (!matching.some((document) => document.sourcePath === file.path))
-      result.mismatches.push(`${label}: source lock file has no generated document (${file.path})`);
+    if (lockPaths.has(filePath))
+      result.mismatches.push(`${label}: source lock contains a duplicate file entry (${filePath})`);
+    lockPaths.add(filePath);
+    if (!matching.some((document) => document.sourcePath === filePath))
+      result.mismatches.push(`${label}: source lock file has no generated document (${filePath})`);
   }
 }
 
@@ -132,7 +147,15 @@ export function checkDocsSourceBinding(cwd = process.cwd()): DocsSourceBindingRe
   const generatedLocks = new Map<string, GeneratedLock>();
   for (const candidate of lock.sources ?? []) {
     const key = lockKey(candidate.sourceId, candidate.ref);
-    if (key) generatedLocks.set(key, candidate);
+    if (!key) {
+      result.mismatches.push("generated source lock has incomplete source/ref identity");
+      continue;
+    }
+    if (generatedLocks.has(key))
+      result.mismatches.push(
+        `duplicate generated source lock: ${candidate.sourceId}/${candidate.ref}`,
+      );
+    generatedLocks.set(key, candidate);
   }
 
   for (const source of configuredSources) {
@@ -216,8 +239,13 @@ export function checkDocsSourceBinding(cwd = process.cwd()): DocsSourceBindingRe
       );
   }
   for (const document of documents) {
-    if (!lockKey(document.sourceId, document.ref))
+    const key = lockKey(document.sourceId, document.ref);
+    if (!key)
       result.mismatches.push(`generated document has no source/ref binding: ${document.id}`);
+    else if (!configuredKeys.has(key))
+      result.mismatches.push(
+        `generated document has an unregistered source/ref binding: ${document.sourceId}/${document.ref}`,
+      );
   }
   return result;
 }

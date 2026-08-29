@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   assertSafeProviderUrl,
+  isBlockedProviderHost,
   readBoundedJson,
   readBoundedResponse,
 } from "../packages/config/src/provider-safety";
@@ -20,6 +21,13 @@ describe("provider endpoint safety", () => {
       assertSafeProviderUrl("http://provider.example.test", "provider", { allowHttp: true })
         .protocol,
     ).toBe("http:");
+  });
+
+  it("blocks equivalent expanded IPv6 private and loopback forms", () => {
+    expect(isBlockedProviderHost("0:0:0:0:0:0:0:1")).toBe(true);
+    expect(isBlockedProviderHost("0:0:0:0:0:0:0:0")).toBe(true);
+    expect(isBlockedProviderHost("0:0:0:0:0:ffff:7f00:1")).toBe(true);
+    expect(isBlockedProviderHost("2001:4860:4860:0:0:0:0:8888")).toBe(false);
   });
 
   it("bounds streamed provider response bodies before parsing", async () => {

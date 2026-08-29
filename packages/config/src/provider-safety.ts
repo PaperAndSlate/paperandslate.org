@@ -35,20 +35,60 @@ function ipv4IsBlocked(value: string) {
 
 function ipv6IsBlocked(value: string) {
   const normalized = value.toLowerCase();
+  const groups = ipv6Groups(normalized);
+  if (!groups) return true;
+  const first = groups[0];
+  const allZero = groups.every((group) => group === 0);
+  const loopback = allZero || (groups.slice(0, 7).every((group) => group === 0) && groups[7] === 1);
   if (
-    normalized === "::" ||
-    normalized === "::1" ||
-    normalized.startsWith("fc") ||
-    normalized.startsWith("fd") ||
-    normalized.startsWith("ff") ||
-    normalized.startsWith("fe8") ||
-    normalized.startsWith("fe9") ||
-    normalized.startsWith("fea") ||
-    normalized.startsWith("feb")
+    loopback ||
+    (first & 0xfe00) === 0xfc00 ||
+    (first & 0xffc0) === 0xfe80 ||
+    (first & 0xff00) === 0xff00
   )
     return true;
-  const mapped = normalized.match(/::ffff:(\d+\.\d+\.\d+\.\d+)$/);
-  return mapped ? ipv4IsBlocked(mapped[1]) : false;
+
+  const mapped = groups.slice(0, 5).every((group) => group === 0) && groups[5] === 0xffff;
+  const compatible = groups.slice(0, 6).every((group) => group === 0);
+  if (mapped || compatible) {
+    const ipv4 = `${groups[6] >> 8}.${groups[6] & 0xff}.${groups[7] >> 8}.${groups[7] & 0xff}`;
+    return ipv4IsBlocked(ipv4);
+  }
+  return false;
+}
+
+function ipv6Groups(value: string): number[] | null {
+  let normalized = value;
+  const dotted = normalized.lastIndexOf(".");
+  if (dotted >= 0) {
+    const separator = normalized.lastIndexOf(":", dotted);
+    if (separator < 0) return null;
+    const octets = normalized
+      .slice(separator + 1)
+      .split(".")
+      .map(Number);
+    if (
+      octets.length !== 4 ||
+      octets.some((octet) => !Number.isInteger(octet) || octet < 0 || octet > 255)
+    )
+      return null;
+    normalized = `${normalized.slice(0, separator + 1)}${((octets[0] << 8) | octets[1]).toString(16)}:${((octets[2] << 8) | octets[3]).toString(16)}`;
+  }
+
+  const halves = normalized.split("::");
+  if (halves.length > 2) return null;
+  const parseHalf = (half: string) => {
+    if (!half) return [];
+    const parts = half.split(":");
+    if (parts.some((part) => !/^[0-9a-f]{1,4}$/.test(part))) return null;
+    return parts.map((part) => Number.parseInt(part, 16));
+  };
+  const left = parseHalf(halves[0]);
+  const right = parseHalf(halves[1] ?? "");
+  if (!left || !right) return null;
+  if (halves.length === 1) return left.length === 8 ? left : null;
+  const zeroCount = 8 - left.length - right.length;
+  return zeroCount > 0 ? [...left, ...Array.from({ length: zeroCount }, () => 0), ...right] : null;
 }
 
 export function isBlockedProviderHost(hostname: string) {

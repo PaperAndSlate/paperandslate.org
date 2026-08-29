@@ -153,4 +153,43 @@ describe("documentation source adapters", () => {
       fs.rmSync(root, { recursive: true, force: true });
     }
   });
+
+  it("rejects generated documents that use an unregistered source revision", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "eom-source-binding-test-"));
+    try {
+      const source = {
+        id: "fixture",
+        kind: "fixture" as const,
+        project: "fixture",
+        title: "Fixture",
+        root: "docs",
+        versions: [{ id: "next", label: "Next", status: "draft" as const, ref: "fixture-next" }],
+      };
+      fs.mkdirSync(path.join(root, "docs"), { recursive: true });
+      fs.writeFileSync(path.join(root, "docs", "index.md"), "---\ntitle: Fixture\n---\nFixture\n");
+      fs.mkdirSync(path.join(root, "config"), { recursive: true });
+      fs.writeFileSync(
+        path.join(root, "config", "docs-sources.yml"),
+        JSON.stringify({ sources: [source] }),
+      );
+      const collected = collectSource(source, source.versions[0], root);
+      writeBundle(
+        generateBundle(collected.documents, [collected.lock]),
+        path.join(root, ".generated", "docs"),
+      );
+      const generated = JSON.parse(
+        fs.readFileSync(path.join(root, ".generated", "docs", "documents.json"), "utf8"),
+      ) as Array<Record<string, unknown>>;
+      generated[0].ref = "unregistered-ref";
+      fs.writeFileSync(
+        path.join(root, ".generated", "docs", "documents.json"),
+        `${JSON.stringify(generated, null, 2)}\n`,
+      );
+      expect(checkDocsSourceBinding(root).mismatches.join("\n")).toMatch(
+        /unregistered source\/ref binding/,
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
 });
