@@ -1,11 +1,17 @@
 # External activation boundary
 
-Status: RC3 staging execution is partially active; exact-candidate verification, hosted artifact/provider activation, and production remain pending
-Date: 2026-08-28
+Status: current local RC3 evidence is complete; exact-candidate hosted verification, artifact/provider activation, and production remain pending
+Date: 2026-08-29 UTC
 
 The current audit and owner procedure are [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md), [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md), and [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md).
 
-## Current RC3 execution state
+## Current RC3 local and hosted boundary
+
+- The current exact repository candidate, branch relationship, and implementation/evidence ancestry are recorded in `.generated/launch/repository-identity.json` and `.generated/requirements/traceability-check.json`. The latest local `pnpm verify:hosted` pass completed 35 configured verification tasks; no push was made by this task, and no RC3 or final tag exists.
+- The current local evidence bundle excludes stale hosted Lighthouse and publication receipts. No current-candidate hosted CI, staging deployment, immutable OCI artifact, provider-application acceptance, release-specific SLO, rollback, or qualified human approval is claimed.
+- The latest bounded Tower read reported degraded CI with 147 recent runs needing attention and no usable heartbeat for the available runners. Six monitor/resource records were active/healthy, but the available 24-hour SLO remained degraded and the environment contract remained unresolved. The provider-contract result is not candidate evidence.
+
+## Historical RC3 execution state (2026-08-28 snapshot)
 
 - The current exact repository candidate, branch relationship, and implementation/evidence ancestry are recorded in `.generated/launch/repository-identity.json` and `.generated/requirements/traceability-check.json`. No push was made by this task. RC1 remains unchanged at `031b5447786f9c619288c9044bb5bc65319a30d7`, and no RC3 or final tag exists.
 - Coolify application `ngqtewtqeqhj88v1005a38va` completed exact-SHA source-build staging deployment `b4c1jatqaidljtcpc4nly1yp` for the older `06491dc…` candidate. The deployment receipt records a healthy replacement container and exact source import, but it is not evidence for the current local repository candidate; provider readiness is false and no immutable OCI digest is attached.

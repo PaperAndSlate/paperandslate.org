@@ -1,6 +1,6 @@
 # Paper & Slate release-evidence handoff
 
-Date: 2026-08-28
+Date: 2026-08-29
 Status: RC3 execution is incomplete; closure still requires passing exact-candidate CI, completed staging identity, provider/SLO/rollback evidence, hosted artifact identity, and owner/qualified-reviewer decisions
 Related audit: [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md)
 
@@ -19,9 +19,9 @@ Codex can inventory, draft, automate, validate, capture, compare, and assemble e
 
 ## Current RC3 execution update
 
-As of the latest local repository read on 2026-08-28 UTC, the current exact repository candidate and branch relationship are recorded in `.generated/launch/repository-identity.json` and `.generated/requirements/traceability-check.json`; no push was made by this task. RC1 remains immutable at `031b5447786f9c619288c9044bb5bc65319a30d7`; no RC3/final tag, production deployment, production DNS change, or public GitHub publication was made. Exact Forgejo runs 61/container, 62/Lighthouse, and 63/quality failed for the older `06491dc…` source, while later remote dispatches 64–69 for `dc6d78a…` were rejected before runner assignment. No hosted CI evidence exists for the current local repository candidate. Staging deployment `b4c1jatqaidljtcpc4nly1yp` is also for `06491dc…` and remains a direct source-build deployment with no immutable image digest; its provider and SLO receipts are not current-candidate evidence.
+As of the latest local repository read on 2026-08-29 UTC, the current exact repository candidate and branch relationship are recorded in `.generated/launch/repository-identity.json` and `.generated/requirements/traceability-check.json`; no push was made by this task. The latest local `pnpm verify:hosted` pass completed 35 configured verification tasks and recorded the finalizer receipts separately. RC1 remains immutable at `031b5447786f9c619288c9044bb5bc65319a30d7`; no RC3/final tag, production deployment, production DNS change, or public GitHub publication was made. The latest bounded Tower read reported degraded CI, no usable runner heartbeat, and no current-candidate task-level hosted receipt. The existing staging deployment and all earlier hosted observations are historical or otherwise non-current-candidate evidence.
 
-The live Tower capability report was controller `4.12.0` with recommended plugin `0.18.0`. It exposes provider-contract, artifact-inventory, deployment, monitor, SLO, and bounded observability operations, but reports Forgejo rerun unavailable and signing not controller-managed. The prompt-referenced Tower handoff files are not present in this checkout; the detailed, current execution findings and owner packets are in [`RC3_REMEDIATION_AND_OWNER_ACTION_PLAN.md`](RC3_REMEDIATION_AND_OWNER_ACTION_PLAN.md).
+The live Tower capability report was controller `4.12.0` with recommended plugin `0.18.0`. It exposes provider-contract, artifact-inventory, deployment, monitor, SLO, and bounded observability operations, but reports Forgejo rerun unavailable and signing not controller-managed. The latest project status remained degraded with no usable runner heartbeat; the passing provider-contract receipt is not candidate evidence. The prompt-referenced Tower handoff files are not present in this checkout; the detailed current execution findings and owner packets are in [`RC3_REMEDIATION_AND_OWNER_ACTION_PLAN.md`](RC3_REMEDIATION_AND_OWNER_ACTION_PLAN.md).
 
 ## Historical RC2 closure snapshot
 
@@ -167,7 +167,7 @@ Required return for all providers: provider/project/region identifiers, non-secr
 
 Purpose: create a verifiable source identity, review path, and protected release process.
 
-Current state: the private Forgejo remote is `https://git.tower/callum/paperandslate-web.git`; immutable RC1 remains `v1.0.0-rc.1` at `031b544...`, while the selected untagged staging candidate is `7aaa9b4...` on `release/v1-closure`. There is no protected branch/PR receipt, verified release signature, passing exact-SHA CI receipt, or hosted release-artifact receipt. Do not move RC1; authorize `v1.0.0-rc.2` only after the remaining gates are accepted.
+Current state: the private Forgejo remote is `https://git.tower/callum/paperandslate-web.git`; immutable RC1 remains `v1.0.0-rc.1` at `031b544...`, while the current untagged RC3 candidate identity is recorded in the generated receipts on `release/v1-closure`. There is no protected branch/PR receipt, verified release signature, passing exact-SHA hosted CI receipt, or hosted release-artifact receipt for the current candidate. Do not move RC1; authorize a new immutable RC3 tag only after the remaining gates are accepted.
 
 Owner steps:
 

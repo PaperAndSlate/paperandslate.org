@@ -1,11 +1,11 @@
 # Paper & Slate visual and Lighthouse evidence plan
 
-Date: 2026-08-27  
-Status: current captures are diagnostic only; production visual approval is pending
+Date: 2026-08-29
+Status: automated production capture is complete; visual, brand, media, and rights approval remains pending
 
 This plan is the visual subset of [`RELEASE_EVIDENCE_HANDOFF.md`](../RELEASE_EVIDENCE_HANDOFF.md). It separates deterministic work Codex can perform from visual, media, and launch decisions that require owner or qualified-reviewer approval.
 
-## Current references and captures
+## Reference assets and historical RC snapshots
 
 Supplied visual references:
 
@@ -32,7 +32,9 @@ Current RC snapshots:
 - `tests/browser/snapshots/rc-docs-detail.png`
 - `tests/browser/snapshots/rc-search-overlay.png`
 
-The six RC tests pass, but the captures were made against the development server. They include the Next development indicator and a light-mode `1 Issue` overlay. Playwright also logs a screenshot-time hydration mismatch associated with caret hiding on inputs. Existing legacy homepage snapshots remain unchanged and are historical comparison material, not a release pass.
+The six RC tests and their development-server captures are historical comparison material. They include the Next development indicator and a light-mode `1 Issue` overlay, and Playwright logged a screenshot-time hydration mismatch associated with caret hiding on inputs. They are not current release evidence.
+
+The current local production visual harness captured 13 expected states against the clean standalone artifact and recorded them in `.generated/launch/visual/manifest.json`. Automated runtime/error and capture-identity checks pass, while pixel/deviation review and media/font rights remain explicitly human-review-pending.
 
 ## Route/state matrix
 

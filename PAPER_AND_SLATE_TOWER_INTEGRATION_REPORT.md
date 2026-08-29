@@ -3,7 +3,7 @@
 **Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:41:35Z)
 **Project:** `paper-and-slate-web`
 **Environment:** staging
-**Decision:** release closure remains open. This report records platform evidence and remediation; it does not authorize a production release.
+**Decision:** historical platform snapshot; release closure remains open. This report records platform evidence and remediation; it does not authorize a production release.
 
 **Revision scope:** This is a timestamped platform snapshot. The hosted runs and
 deployment records below were observed before the local Lighthouse remediation

@@ -2,6 +2,8 @@
 
 This file is the exact action list for work that requires provider, host, account, production, editorial, or legal authority. Codex can prepare evidence and perform the bounded Tower actions listed below, but it cannot assume these approvals or access. Never place secret values, runner enrollment tokens, DSNs, passwords, or private keys in chat, commits, or issue comments.
 
+The run numbers, runner details, and platform observations in this checklist are historical action-planning inputs. They must not be treated as current-candidate evidence; use the generated repository, traceability, launch, and evidence receipts plus the current Tower read for present status.
+
 ## 1. Repair Forgejo Actions scheduling
 
 ### Owner/platform operator
@@ -69,7 +71,7 @@ Choose one consistent contract; do not do both.
 ## 5. Establish repository, DNS, TLS, and deployment authority
 
 1. Decide whether `release/v1-closure` must be protected with required checks and approvals. It is currently unprotected with no required status checks.
-2. Select the exact release commit. Do not mix the observed remote commit `330ab...` with the current unpushed local candidate `5df3a6457a7121f56e7d0db6feb4c5ab9f32c126`.
+2. Select the exact release commit from the generated repository and traceability receipts. Do not mix any historical remote observation with the current unpushed local candidate.
 3. Confirm who may create the final RC tag, approve merges, deploy production, and roll back production.
 4. Confirm registrar/DNS authority for the public Paper & Slate hostname and the certificate/TLS provider. The `.dev.tower` hostname is staging-only; Cloudflare is not configured in the manifest.
 5. Ask Codex to run staging DNS/TLS/HTTP probes and bounded staging deployment actions. Production actions require the owner’s explicit approval and the manifest’s production gate.

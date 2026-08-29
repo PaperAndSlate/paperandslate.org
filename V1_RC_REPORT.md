@@ -1,9 +1,12 @@
-# Paper & Slate v1 release-closure report
+# Paper & Slate v1 RC2 release-closure report (historical, superseded)
 
-Date: 2026-08-27  
-Candidate: `v1.0.0-rc.2` (staging candidate; not yet tagged)  
-Candidate source: `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b`  
+Snapshot date: 2026-08-27
+Status: historical RC2 staging snapshot; superseded as current candidate evidence by the generated RC3 receipts
+Historical candidate: `v1.0.0-rc.2` (staging candidate; not yet tagged)
+Historical candidate source: `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b`
 Branch: `release/v1-closure`
+
+This report preserves the RC2 deployment, provider, and review record. Its claims apply only to the snapshot date and source above; they do not apply to the current local RC3 candidate. Use [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md), the generated receipts, and [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md) for current status.
 
 ## Decision
 
@@ -13,7 +16,7 @@ The report and receipt commit is an audit-record update after the staging deploy
 
 Immutable `v1.0.0-rc.1` remains at `031b5447786f9c619288c9044bb5bc65319a30d7`. It was not moved or retagged. Public GitHub, production deployment, production DNS/TLS, final `v1.0.0`, authentication, API work, and platform integration were not performed or started.
 
-## Exact candidate evidence
+## Historical RC2 candidate evidence
 
 | Area                          | Result                                     | Evidence and boundary                                                                                                                                                                                                                                                                                                                          |
 | ----------------------------- | ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -38,7 +41,7 @@ The redacted machine-readable snapshot is [`config/tower-evidence.json`](config/
 
 This section is a plan for the remaining defects or incomplete acceptance steps. It does not claim that the actions below have been completed.
 
-### 1. CI failure is not diagnosable through the current Tower surface
+### 1. CI failure was not diagnosable through the available Tower surface
 
 The latest exact-SHA runs fail, but no job/task records or step logs are exposed. The workflow artifact action names were normalized to Forgejo’s supported qualified action host and the exact source was rerun; another speculative workflow edit would risk obscuring the provider failure.
 

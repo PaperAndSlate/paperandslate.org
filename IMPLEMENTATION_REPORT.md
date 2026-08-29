@@ -1,7 +1,7 @@
 # Paper & Slate implementation report
 
-Date: 2026-08-28
-Status: RC3 execution is in progress; release closure remains blocked by exact-candidate CI, hosted artifact/provider, monitoring/rollback, and human-approval gates
+Date: 2026-08-29
+Status: RC3 local implementation and evidence generation are complete; release closure remains blocked by hosted CI, staging/provider/artifact, monitoring/rollback, and human-approval gates
 Current source of truth: [`AUDIT_VERIFICATION_REPORT.md`](AUDIT_VERIFICATION_REPORT.md)
 Candidate evidence report: [`V1_RC_REPORT.md`](V1_RC_REPORT.md)
 
@@ -17,7 +17,7 @@ The RC2 implementation snapshot below is retained for historical provenance and 
 
 ## Historical RC2 implementation snapshot
 
-The current candidate source is `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` on private Forgejo branch `release/v1-closure`, deployed to authorized staging as `v1.0.0-rc.2` at Coolify deployment `zzpooecepztro4urk5sx6obv` for application `ngqtewtqeqhj88v1005a38va`. Staging health reports `deployment=staging`, `releaseId=v1.0.0-rc.2`, and the exact SHA at `https://paper-and-slate-web.dev.tower`.
+The historical RC2 candidate source was `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` on private Forgejo branch `release/v1-closure`, deployed to authorized staging as `v1.0.0-rc.2` at Coolify deployment `zzpooecepztro4urk5sx6obv` for application `ngqtewtqeqhj88v1005a38va`. Staging health reported `deployment=staging`, `releaseId=v1.0.0-rc.2`, and the exact SHA at `https://paper-and-slate-web.dev.tower`.
 
 The exact-SHA hosted publication check passed 12 routes and three feeds, hosted Lighthouse passed 12 reports across six routes, and the visual harness captured 13 states with no runtime errors. Visual comparison and rights remain human-review-pending. The full local `pnpm verify` passed at `65f739168f71e6c8a6b9c16d5c09929b0ead41cc`; final candidate focused formatting, lint, typecheck, and standards-change tests passed at `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b`.
 

@@ -1,6 +1,6 @@
 # Paper & Slate v1 RC closure: owner and operator actions
 
-Date: 2026-08-28  
+Date: 2026-08-29
 Scope: private Forgejo, Tower staging, and release-candidate evidence only  
 Status: not release-closed; no new RC tag and no production change are authorized by this document
 
@@ -26,17 +26,14 @@ published. The existing Coolify source-build workload is
 `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6`; it is not an OCI image deployment
 and must not be treated as current-candidate image evidence.
 
-The pre-refresh read-only Tower snapshot produced exact-SHA runs 134
-(`container.yml`), 135 (`lighthouse.yml`), and 136 (`quality.yml`) for
-`a318bba836b8494de655bc48ece50559b8a3e881`. All three failed before a runner
-was assigned: their bounded job records have no runner, timestamps, or task
-steps. This is a Tower/Forgejo scheduling or controller failure, not a passing
-or task-level application failure. No current-candidate `supply-chain.yml`
-receipt is available. The runner inventory reports one idle runner (ID `1`)
-with labels `ubuntu-latest`, `node22`, `docker`, and `playwright`, but
-`lastOnline` is null and no usable heartbeat is present. Any later source or
-evidence commit requires a fresh exact-SHA run set; these pre-run failures
-cannot be reused.
+The latest bounded Tower read reported degraded CI with 147 recent runs
+needing attention. The available `ubuntu-latest`/Docker and Playwright runners
+were idle without a usable heartbeat (`lastOnline` was null), and no
+current-candidate task-level hosted receipt was available. This is a
+Tower/Forgejo scheduling or controller boundary, not a passing or task-level
+application result. No current-candidate `supply-chain.yml` receipt is
+available. Any later source or evidence commit requires a fresh exact-SHA run
+set; unassigned or pre-run failures cannot be reused.
 
 The latest complete local verifier passed its 35 configured quality tasks;
 the final receipt then recorded the two aggregate tasks (`launch:report` and
@@ -83,7 +80,7 @@ and may not be inferred from these local results.
 
 ### Codex can then
 
-1. Dispatch each workflow against the final exact branch SHA. The current candidate's runs 134–136 are pre-run failures and cannot be reused after the runner is repaired; a current supply-chain run is also required.
+1. Dispatch each workflow against the final exact branch SHA. The previously observed unassigned/pre-run failures cannot be reused after the runner is repaired; a current supply-chain run is also required.
 2. Inspect run, job, step, log, and artifact receipts and reject any run that has no assigned runner or no task steps.
 3. Confirm `quality.yml` runs the bounded production verification, `container.yml` proves the image runtime, and `lighthouse.yml` proves the performance thresholds.
 4. Attach redacted run IDs, artifact names, SHA, timestamps, and conclusions to the release evidence bundle.

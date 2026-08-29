@@ -1,12 +1,12 @@
 # Paper & Slate Web v1 Platform Handoff
 
-**Status:** not release-closed
+**Status:** historical platform snapshot; not release-closed
 **Environment checked:** staging
 **Checked:** 2026-08-28 (Tower observations through 2026-08-28T21:41:35Z)
 **Primary technical report:** [PAPER_AND_SLATE_TOWER_INTEGRATION_REPORT.md](PAPER_AND_SLATE_TOWER_INTEGRATION_REPORT.md)
 **Owner action checklist:** [PAPER_AND_SLATE_WEB_OWNER_ACTIONS.md](PAPER_AND_SLATE_WEB_OWNER_ACTIONS.md)
 
-**Revision scope:** This handoff preserves a timestamped platform snapshot.
+**Revision scope:** This handoff preserves a timestamped historical platform snapshot.
 The hosted run and deployment observations below predate local commits
 `07ffa25dfb972c7fc58a6ec83fe51e807609cda3` and
 `5df3a6457a7121f56e7d0db6feb4c5ab9f32c126`; no hosted validation for the
@@ -43,7 +43,7 @@ The staging Tower CI reporter `67f03584-babf-4b4e-b09c-b6570e0a637a` is active a
 - Tower-visible executed-step logs or a structured CI reporter result for the current release workflows.
 - The staging application received `GLITCHTIP_DSN` from the managed secret source.
 - Typesense indexing/write-delete behavior works; the collection currently has zero documents.
-- The current exact release commit has a registry image, digest, SBOM, vulnerability result, provenance, and staging-by-digest deployment.
+- At the snapshot time, the exact release commit had a registry image, digest, SBOM, vulnerability result, provenance, and staging-by-digest deployment.
 - The historical 24-hour SLO does not meet the 2-second p95 target; current p95 is about 2.803–2.999 seconds.
 - Production DNS/TLS, deployment, rollback, publication, legal, factual, privacy, media, or visual approvals.
 

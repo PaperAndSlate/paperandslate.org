@@ -640,7 +640,7 @@ The plan above was originally written as an audit-only handoff. The subsequent, 
 
 The next safe action is to restore the private Forgejo/Tower endpoint, push the two local follow-up commits as one auditable branch update, then repeat exact-SHA CI and staging checks. Do not create `v1.0.0-rc.3` until the stop conditions above are satisfied.
 
-## RC3 execution update 2 — current candidate and live Tower receipts
+## RC3 execution update 2 — historical candidate and live Tower receipt snapshot
 
 This update records the latest exact-candidate execution after the private branch push. It supersedes the current-state wording in the earlier addendum where that wording still says the follow-up commits were local or the remote branch ended at `c0c0b5d…`; those older observations remain historical provenance.
 
@@ -661,3 +661,13 @@ The current exact repository candidate and branch relationship are recorded in t
 - Route metadata also shows a consistency defect: `/projects/file-system` and other non-home pages have a route-specific canonical URL but `og:url` remains the site root `https://paper-and-slate-web.dev.tower`. Plan: decide the approved Open Graph URL policy, make `og:url` route-specific where appropriate, and add an exact-route metadata assertion to the hosted publication check; the current no-localhost result does not prove route correctness.
 
 The immediate resolution order is: (1) repair the runner/container probe boundary and secure CI browser execution; (2) use the completed source-build deployment as a baseline while obtaining clean exact-identity browser/image evidence; (3) repair environment-contract validation and the Tempo contract incident; (4) activate and validate Typesense/Valkey/GlitchTip behavior; (5) build the candidate OCI digest with SBOM, scan, and provenance; (6) deploy that digest, correct monitors, run the fresh SLO window and A→B→A drill; and only then regenerate the evidence ledger and seek the remaining qualified human approvals. No RC3 tag is justified by the receipts above.
+
+## RC3 execution update 3 — current local candidate and Tower boundary
+
+This update supersedes current-status wording in the earlier execution addenda. The exact local candidate identity is recorded in the generated repository, traceability, launch, and evidence receipts. The candidate is untagged and has not been pushed, deployed, published, or bound to the historical staging and artifact receipts described above.
+
+The latest complete local `pnpm verify:hosted` run passed 35 configured verification tasks and recorded `launch:report` and `evidence:bundle` as finalizer receipts. It covered 89 planning files and 1,073 requirements, package/type checks, tests, builds, browser/accessibility checks, Lighthouse/performance, container/SBOM/security checks, reproducibility, and evidence generation. The current bundle excludes stale hosted Lighthouse and publication material rather than rebinding it to this candidate.
+
+The latest bounded Tower read reported degraded CI with 147 recent runs needing attention, no usable heartbeat for the available Linux/Docker and Playwright runners, and no current-candidate task-level hosted receipt. Six monitor targets and managed resource records were active/healthy, but the available 24-hour SLO remained degraded at approximately 2.7–2.9 seconds p95 against a 2-second target, and the environment contract remained unresolved. A passing provider-contract receipt is controller evidence, not candidate CI, staging, or release evidence. No current-candidate staging deployment, immutable hosted artifact, provider-application acceptance, release-specific SLO, rollback, or qualified approval is claimed.
+
+The remaining action order is therefore unchanged: obtain a live runner and exact-SHA hosted workflow evidence; complete authorized provider/application checks; produce and deploy the exact immutable artifact; establish release-specific monitoring and rollback evidence; and obtain qualified human approvals. IANA registration, independent interoperability, legal/governance approval, pilots/adoption, production deployment, and stable publication remain external or not authorized.
