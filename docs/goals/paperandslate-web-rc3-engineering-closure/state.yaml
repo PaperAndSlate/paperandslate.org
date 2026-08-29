@@ -5,7 +5,7 @@ goal:
   slug: "paperandslate-web-rc3-engineering-closure"
   kind: existing_plan
   tranche: "Continuous execution of hosted-validation readiness and RC3 engineering closure until all repository-controlled work is complete and remaining external gates are explicit."
-  status: active
+  status: done
   oracle:
     signal: "Current CI/workflows, release/staging evidence, readiness reports, executable checks, and final audit agree about every repository-controlled item and every external blocker."
     cadence: "after each Worker package and at final audit"
@@ -65,7 +65,7 @@ visual_board:
     url: null
     command: "node C:/Users/Callum/.codex/plugins/cache/goalbuddy/goalbuddy/0.4.3/skills/goal-prep/surfaces/local-goal-board/scripts/local-goal-board.mjs --goal docs/goals/paperandslate-web-rc3-engineering-closure"
 
-active_task: T999
+active_task: null
 
 tasks:
   - id: T001
@@ -411,7 +411,7 @@ tasks:
   - id: T999
     type: judge
     assignee: Judge
-    status: active
+    status: done
     reasoning_hint: high
     objective: "Final skeptical audit of the complete RC3 hosted-validation-readiness outcome."
     inputs:
@@ -429,21 +429,29 @@ tasks:
       - "Evidence identity consistency"
       - "Missing evidence or exact remaining blockers"
       - "Next task if not complete"
-    receipt: null
-
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      rationale: "Repository-controlled hosted-validation readiness is locally complete at evidence-only descendant dff708f54bbad563772a2e78cf357435ceee84bc. RC3 closure, launch, production, publication, provider, artifact, deployment, monitoring, rollback, release, and human approvals remain explicitly external."
+      note: notes/T999-receipt.md
+      evidence:
+        - notes/T999-receipt.md
+        - .generated/launch/verify.json
+        - .generated/launch/launch-evidence.json
+        - .generated/evidence/local-rc3-final-dff708f/manifest.json
+        - .generated/requirements/traceability-check.json
+        - LAUNCH_READINESS.md
 checks:
-  dirty_fingerprint: unknown
+  dirty_fingerprint: "clean candidate dff708f54bbad563772a2e78cf357435ceee84bc before the T999 control-plane receipt"
   last_verification:
-    result: partial-docker-blocked
-    task: T007
+    result: passed-local-with-external-gates
+    task: T999
     commands:
-      - "pnpm traceability:check"
-      - "pnpm package:smoke"
-      - "pnpm reproducibility:check"
-      - "pnpm format:check"
-      - "pnpm lint"
-      - "pnpm typecheck"
-      - "pnpm test"
-      - "pnpm build:verify"
-      - "pnpm release:check"
-      - "pnpm verify (failed closed at container:check: Docker build timeout)"
+      - "Focused Prettier checks passed"
+      - "Focused Vitest passed: 3 files, 13 tests"
+      - "Fresh Lighthouse passed: 6 routes, 2 runs each, 12 reports"
+      - "Fresh performance check passed: 6 route summaries, 0 failures"
+      - "pnpm verify passed with external skips disabled: 35 configured checks plus launch report and evidence bundle"
+      - "pnpm launch:report at dff708f: 12 passed, 1 advisory, 1 human-review-pending, 0 pending, 0 failed"
+      - "pnpm evidence:bundle at dff708f: local evidence complete; historical hosted RC2 identity mismatches retained"
