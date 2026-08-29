@@ -2,8 +2,9 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
-import { classifySourceWorktree, sourceRevisionMatchesCurrent } from "./source-state";
+import { classifySourceWorktree } from "./source-state";
 import { assertSafeEvidenceTreeEntry, copyEvidenceTree } from "./evidence-files";
+import { isEvidenceIdentityCurrent } from "./evidence-bundle-core";
 
 const root = process.cwd();
 const releaseId = (
@@ -40,10 +41,51 @@ const readJson = <T>(relative: string): T | null => {
     return null;
   }
 };
+const identityFileForSource = new Map<string, string>([
+  [
+    ".generated/launch/lighthouse-staging",
+    ".generated/launch/lighthouse-staging/lighthouse-run.json",
+  ],
+  [".generated/launch/staging-publication.json", ".generated/launch/staging-publication.json"],
+  [".generated/launch/visual", ".generated/launch/visual/manifest.json"],
+  [".generated/launch/container-check.json", ".generated/launch/container-check.json"],
+  [".generated/launch/sbom-manifest.json", ".generated/launch/sbom-manifest.json"],
+  [".generated/launch/verify.json", ".generated/launch/verify.json"],
+]);
+const excludedEvidence: Array<{
+  source: string;
+  destination: string;
+  reason: string;
+  observedGitSha: string;
+  expectedGitSha: string;
+}> = [];
 const copyIfPresent = (source: string, destination: string) => {
   const absoluteSource = path.resolve(root, source);
   if (!absoluteSource.startsWith(`${root}${path.sep}`) || !fs.existsSync(absoluteSource))
     return false;
+  const identityFile = identityFileForSource.get(source);
+  const observedGitSha = identityFile
+    ? (readJson<{ gitSha?: string | null }>(identityFile)?.gitSha ?? null)
+    : null;
+  if (
+    observedGitSha &&
+    candidateSha &&
+    !isEvidenceIdentityCurrent({
+      value: observedGitSha,
+      candidateSha,
+      sourceSha,
+      root,
+    })
+  ) {
+    excludedEvidence.push({
+      source,
+      destination,
+      reason: "identity-mismatch-excluded-from-current-bundle",
+      observedGitSha,
+      expectedGitSha: candidateSha,
+    });
+    return false;
+  }
   const absoluteDestination = path.resolve(bundleRoot, destination);
   if (!absoluteDestination.startsWith(`${bundleRoot}${path.sep}`))
     throw new Error(`Refusing to write evidence outside bundle: ${destination}`);
@@ -147,12 +189,24 @@ const publication = readJson<{
   deploymentId?: string | null;
 }>(".generated/launch/staging-publication.json");
 const identityMismatches: string[] = [];
+const hostedLighthouseIncluded = includedEvidence.some(
+  ({ destination }) => destination === "launch/lighthouse-staging",
+);
+const publicationIncluded = includedEvidence.some(
+  ({ destination }) => destination === "launch/staging-publication.json",
+);
+const currentHostedLighthouse = hostedLighthouseIncluded ? hostedLighthouse : null;
+const currentPublication = publicationIncluded ? publication : null;
 const matchesCandidate = (value: string | null | undefined) =>
   Boolean(
     value &&
       candidateSha &&
-      (value === candidateSha ||
-        (candidateSha === sourceSha && sourceRevisionMatchesCurrent(root, value, sourceSha))),
+      isEvidenceIdentityCurrent({
+        value,
+        candidateSha,
+        sourceSha,
+        root,
+      }),
   );
 const requireIdentity = (label: string, value: string | null | undefined) => {
   if (strictIdentity && !value) identityMismatches.push(`${label} identity is missing`);
@@ -168,12 +222,12 @@ requireIdentity("source", sourceSha);
 requireIdentity("verify", verify?.gitSha);
 requireIdentity("container", container?.gitSha);
 requireIdentity("SBOM", sbom?.gitSha);
-requireIdentity("hosted Lighthouse", hostedLighthouse?.gitSha);
-requireIdentity("publication", publication?.gitSha);
+requireIdentity("hosted Lighthouse", currentHostedLighthouse?.gitSha);
+requireIdentity("publication", currentPublication?.gitSha);
 requireIdentity("visual", visual?.gitSha);
-if (strictIdentity && !hostedLighthouse?.deploymentId)
+if (strictIdentity && !currentHostedLighthouse?.deploymentId)
   identityMismatches.push("hosted Lighthouse deployment identity is missing");
-if (strictIdentity && !publication?.deploymentId)
+if (strictIdentity && !currentPublication?.deploymentId)
   identityMismatches.push("publication deployment identity is missing");
 const containerDigest = container?.repoDigests?.[0] || container?.imageId || null;
 if (sbom?.containerDigest && sbom.containerDigest !== "pending" && containerDigest) {
@@ -232,9 +286,19 @@ const manifest = {
     fullVerifyTasks: verify?.completed?.length ?? 0,
     visualStatus: visual?.status ?? "missing",
     visualCaptures: visual?.captures?.length ?? 0,
-    hostedLighthouseStatus: hostedLighthouse ? "present" : "missing",
-    hostedLighthouseVersion: hostedLighthouse?.lighthouseVersion ?? null,
-    publicationStatus: publication ? "present" : "missing",
+    hostedLighthouseStatus: currentHostedLighthouse
+      ? "present"
+      : excludedEvidence.some(({ destination }) => destination === "launch/lighthouse-staging")
+        ? "stale-excluded"
+        : "missing",
+    hostedLighthouseVersion: currentHostedLighthouse?.lighthouseVersion ?? null,
+    publicationStatus: currentPublication
+      ? "present"
+      : excludedEvidence.some(
+            ({ destination }) => destination === "launch/staging-publication.json",
+          )
+        ? "stale-excluded"
+        : "missing",
   },
   artifact: {
     localImageId: container?.imageId ?? null,
@@ -255,6 +319,7 @@ const manifest = {
     cache: { configured: Boolean(process.env.VALKEY_URL) },
   },
   includedEvidence,
+  excludedEvidence,
   pending,
 };
 fs.writeFileSync(path.join(bundleRoot, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);

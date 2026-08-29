@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { isEvidenceIdentityCurrent } from "../scripts/evidence-bundle-core";
 import { assertExactSourceRevision } from "../scripts/evidence-identity";
 
 describe("evidence source identity", () => {
@@ -48,5 +49,27 @@ describe("evidence source identity", () => {
     ).toThrow(
       "Lighthouse evidence identity does not match the current source: expected abc123, got missing",
     );
+  });
+
+  it("rejects stale identity-bearing evidence from a current bundle", () => {
+    expect(
+      isEvidenceIdentityCurrent({
+        value: "stale-commit",
+        candidateSha: "current-commit",
+        sourceSha: "current-commit",
+        root: process.cwd(),
+      }),
+    ).toBe(false);
+  });
+
+  it("accepts identity-bearing evidence for the candidate revision", () => {
+    expect(
+      isEvidenceIdentityCurrent({
+        value: "current-commit",
+        candidateSha: "current-commit",
+        sourceSha: "current-commit",
+        root: process.cwd(),
+      }),
+    ).toBe(true);
   });
 });
