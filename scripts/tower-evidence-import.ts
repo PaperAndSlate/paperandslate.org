@@ -4,6 +4,12 @@ import fs from "node:fs";
 import path from "node:path";
 
 export type TowerEvidenceStatus = "pending" | "passed" | "failed" | "degraded";
+export type TowerEvidenceAttestation = {
+  algorithm: "ed25519";
+  keyId: string;
+  payloadSha256: string;
+  signature: string;
+};
 
 export type TowerEvidence = {
   schemaVersion: 1;
@@ -107,6 +113,7 @@ export type TowerEvidence = {
     routes: string[];
     feedStatus: TowerEvidenceStatus;
   } | null;
+  attestation?: TowerEvidenceAttestation;
   notes: string;
 };
 
@@ -114,6 +121,7 @@ const root = process.cwd();
 const evidencePath = path.join(root, "config", "tower-evidence.json");
 const shaPattern = /^[0-9a-f]{40}$/i;
 const digestPattern = /^sha256:[0-9a-f]{64}$/i;
+export const canonicalTowerStagingOrigin = "https://paper-and-slate-web.dev.tower";
 const sensitiveKeyPattern =
   /(password|token|secret|dsn|api[_-]?key|private[_-]?key|authorization|bearer|credential)/i;
 
@@ -149,6 +157,45 @@ function assertDigest(value: unknown, pathName: string) {
     throw new Error(`Invalid OCI digest at ${pathName}`);
 }
 
+function assertBase64(value: unknown, pathName: string) {
+  if (typeof value !== "string" || !/^[A-Za-z0-9+/]+={0,2}$/.test(value))
+    throw new Error(`Invalid base64 value at ${pathName}`);
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, child]) => `${JSON.stringify(key)}:${canonicalJson(child)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+}
+
+export function assertCanonicalTowerStagingOrigin(value: unknown, pathName: string): string {
+  if (typeof value !== "string") throw new Error(`${pathName} must be a URL`);
+  let url: URL;
+  try {
+    url = new URL(value);
+  } catch {
+    throw new Error(`${pathName} must be a valid URL`);
+  }
+  if (
+    url.protocol !== "https:" ||
+    url.origin !== canonicalTowerStagingOrigin ||
+    url.pathname !== "/" ||
+    url.username ||
+    url.password ||
+    url.search ||
+    url.hash
+  )
+    throw new Error(
+      `${pathName} must be the canonical HTTPS staging origin ${canonicalTowerStagingOrigin}`,
+    );
+  return url.origin;
+}
+
 export function validateTowerEvidence(input: unknown): TowerEvidence {
   assertSafeValues(input);
   if (!isRecord(input)) throw new Error("Tower evidence must be a JSON object");
@@ -165,12 +212,7 @@ export function validateTowerEvidence(input: unknown): TowerEvidence {
     project.environment !== "staging"
   )
     throw new Error("Tower evidence must be scoped to the Paper and Slate staging project");
-  if (
-    typeof project.host !== "string" ||
-    !project.host.startsWith("https://") ||
-    !project.host.endsWith(".dev.tower")
-  )
-    throw new Error("Tower evidence host must be a managed HTTPS staging host");
+  assertCanonicalTowerStagingOrigin(project.host, "project.host");
   for (const [key, value] of Object.entries(input)) {
     if (
       [
@@ -221,23 +263,14 @@ export function validateTowerEvidence(input: unknown): TowerEvidence {
     assertStatus(staging.healthStatus, "staging.healthStatus");
     assertStatus(staging.smokeStatus, "staging.smokeStatus");
     assertSha(staging.sourceSha, "staging.sourceSha");
-    if (
-      typeof staging.url !== "string" ||
-      !staging.url.startsWith("https://") ||
-      !staging.url.endsWith(".dev.tower")
-    )
-      throw new Error("staging.url must be a managed HTTPS staging host");
+    assertCanonicalTowerStagingOrigin(staging.url, "staging.url");
   }
   const hostedLighthouse = input.hostedLighthouse;
   if (hostedLighthouse) {
     if (!isRecord(hostedLighthouse)) throw new Error("hostedLighthouse must be an object or null");
     assertStatus(hostedLighthouse.status, "hostedLighthouse.status");
     assertSha(hostedLighthouse.sourceSha, "hostedLighthouse.sourceSha");
-    if (
-      typeof hostedLighthouse.target !== "string" ||
-      !hostedLighthouse.target.endsWith(".dev.tower")
-    )
-      throw new Error("hostedLighthouse.target must be a managed staging host");
+    assertCanonicalTowerStagingOrigin(hostedLighthouse.target, "hostedLighthouse.target");
     if (typeof hostedLighthouse.reportCount !== "number" || hostedLighthouse.reportCount < 1)
       throw new Error("hostedLighthouse.reportCount must be positive");
   }
@@ -310,6 +343,16 @@ export function validateTowerEvidence(input: unknown): TowerEvidence {
     )
       throw new Error("publication.routes must contain route identifiers");
   }
+  if (input.attestation !== undefined) {
+    if (!isRecord(input.attestation)) throw new Error("attestation must be an object");
+    if (input.attestation.algorithm !== "ed25519")
+      throw new Error("Tower evidence attestation must use Ed25519");
+    if (typeof input.attestation.keyId !== "string" || !input.attestation.keyId.trim())
+      throw new Error("Tower evidence attestation keyId is required");
+    if (!/^[a-f0-9]{64}$/i.test(String(input.attestation.payloadSha256)))
+      throw new Error("Tower evidence attestation payloadSha256 must be SHA-256");
+    assertBase64(input.attestation.signature, "attestation.signature");
+  }
   return input as unknown as TowerEvidence;
 }
 
@@ -341,8 +384,35 @@ function successful(
   return typeof value === "string" ? value === "passed" : value?.status === "passed";
 }
 
+export function towerAttestationPayload(evidence: TowerEvidence) {
+  const payload = { ...evidence };
+  delete payload.attestation;
+  return canonicalJson(payload);
+}
+
+export function hasTrustedTowerAttestation(evidence: TowerEvidence) {
+  const attestation = evidence.attestation;
+  const trustedKey = process.env.TOWER_EVIDENCE_PUBLIC_KEY?.trim();
+  const trustedKeyId = process.env.TOWER_EVIDENCE_KEY_ID?.trim();
+  if (!attestation || !trustedKey || !trustedKeyId || attestation.keyId !== trustedKeyId)
+    return false;
+  const payload = towerAttestationPayload(evidence);
+  if (crypto.createHash("sha256").update(payload).digest("hex") !== attestation.payloadSha256)
+    return false;
+  try {
+    return crypto.verify(
+      null,
+      Buffer.from(payload),
+      crypto.createPublicKey(trustedKey),
+      Buffer.from(attestation.signature, "base64"),
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function towerRequirementOverrides(evidence: TowerEvidence | null) {
-  if (!evidence) return {};
+  if (!evidence || !hasTrustedTowerAttestation(evidence)) return {};
   const exact = matchingSource(evidence);
   const overrides: Record<string, Record<string, unknown>> = {};
   const mark = (

@@ -3,6 +3,16 @@ node_modules
 .next
 **/.next
 .git
+.env
+.env.*
+!.env.example
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/*secret*
+**/*credential*
+**/*credentials*
 .generated/launch
 .generated/requirements
 evidence

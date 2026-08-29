@@ -81,7 +81,7 @@ review runs only for pull requests. Neither workflow uses `pull_request_target`
 or receives repository secrets from fork pull requests. Dependabot proposes
 weekly GitHub Action and npm dependency updates for review.
 
-`pnpm workflow:check` parses all seven GitHub and Forgejo workflow files during
+`pnpm workflow:check` parses all eight GitHub and Forgejo workflow files during
 the quality gate. It enforces full action commit SHAs, top-level read-only
 permissions, concurrency, job timeouts, disabled checkout credential
 persistence, and the absence of unsafe browser/shell settings. The root
@@ -93,6 +93,13 @@ The named aliases `actions:check`, `packages:check`,
 used by the release checklist; they delegate to the same workflow, package,
 reproducibility, and browser-backed aggregate checks used by the lower-level
 commands.
+
+The dedicated `.github/workflows/supply-chain.yml` job runs on Ubuntu with the
+release Node baseline and frozen dependencies. It independently records
+traceability, documentation-bundle, content/feed, release, security, license,
+vulnerability, clean package-consumer, deterministic reproducibility, and SBOM
+results. It has no credentials beyond the top-level read-only repository
+permission and uploads only bounded generated evidence with 14-day retention.
 
 The package smoke check packs all five private workspace packages, installs the
 archives into an external temporary consumer, and typechecks/runtime-imports

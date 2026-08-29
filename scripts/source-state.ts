@@ -1,7 +1,14 @@
 import { execFileSync } from "node:child_process";
 
-const generatedPath = (file: string) =>
-  file === "IMPLEMENTATION_LEDGER.md" || file.replaceAll("\\", "/").startsWith(".generated/");
+const generatedPath = (file: string) => {
+  const normalized = file.replaceAll("\\", "/");
+  return (
+    file === "IMPLEMENTATION_LEDGER.md" ||
+    normalized.startsWith(".generated/launch/") ||
+    normalized.startsWith(".generated/evidence/") ||
+    normalized.startsWith(".generated/requirements/")
+  );
+};
 const evidenceOnlyPath = (file: string) =>
   file === "IMPLEMENTATION_LEDGER.md" ||
   file.replaceAll("\\", "/").startsWith(".generated/requirements/");

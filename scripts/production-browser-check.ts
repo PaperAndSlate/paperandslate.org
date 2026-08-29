@@ -4,6 +4,8 @@ import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { waitForImages } from "./browser-assets";
 import { assertExactSourceRevision } from "./evidence-identity";
+import { readBoundedJson } from "../packages/config/src/provider-safety";
+import { assertHostedStagingOrigin, assertResponseOrigin } from "./hosted-origin";
 import { resolveBrowserExecutablePath } from "./playwright-browser";
 import { withProductionOutputLock } from "./production-output-lock";
 import { readSourceState } from "./source-state";
@@ -11,23 +13,10 @@ import { readSourceState } from "./source-state";
 const root = process.cwd();
 const port = Number(process.env.PRODUCTION_BROWSER_PORT ?? 3300);
 const localBaseUrl = `http://127.0.0.1:${port}`;
-const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
 const externalBaseUrl = (() => {
   const raw = process.env.PRODUCTION_BROWSER_BASE_URL;
   if (!raw) return undefined;
-  const url = new URL(raw);
-  if (
-    url.origin !== hostedStagingOrigin ||
-    url.pathname !== "/" ||
-    url.search ||
-    url.hash ||
-    url.username ||
-    url.password
-  )
-    throw new Error(
-      `Hosted browser evidence is restricted to the exact HTTPS staging origin ${hostedStagingOrigin}`,
-    );
-  return url.origin;
+  return assertHostedStagingOrigin(raw, "PRODUCTION_BROWSER_BASE_URL");
 })();
 const baseUrl = externalBaseUrl ?? localBaseUrl;
 const standaloneRoot = path.join(root, "apps", "web", ".next", "standalone");
@@ -41,6 +30,7 @@ const evidencePath = path.join(root, ".generated", "launch", "production-browser
 const debug = process.env.PRODUCTION_BROWSER_DEBUG === "true";
 const localSourceSha = readSourceState(root).commit ?? "local-production-check";
 const browserExecutablePath = resolveBrowserExecutablePath();
+const HEALTH_RESPONSE_LIMIT_BYTES = 64 * 1024;
 
 type BrowserEvidence = {
   releaseId: string;
@@ -70,7 +60,11 @@ async function waitForServer(url: string) {
   const deadline = Date.now() + 45_000;
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(2_000) });
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(2_000),
+        redirect: "error",
+      });
+      assertResponseOrigin(response.url, baseUrl, "Production browser health probe");
       if (response.ok) return;
     } catch {
       // The standalone server is still starting.
@@ -111,6 +105,7 @@ async function assertPage(
 ) {
   if (debug) console.error(`[production:browser] opening ${route}`);
   const response = await page.goto(`${baseUrl}${route}`, { waitUntil: "load" });
+  if (response) assertResponseOrigin(response.url(), baseUrl, `Production browser ${route}`);
   if (debug) console.error(`[production:browser] loaded ${route}`);
   if (!response?.ok()) throw new Error(`${route} returned ${response?.status() ?? "no response"}`);
   await page.evaluate(async () => {
@@ -182,12 +177,13 @@ async function runMain() {
   try {
     await waitForServer(`${baseUrl}/health`);
     if (debug) console.error("[production:browser] health ready");
-    const healthResponse = await fetch(`${baseUrl}/health`);
-    const health = (await healthResponse.json()) as {
+    const healthResponse = await fetch(`${baseUrl}/health`, { redirect: "error" });
+    assertResponseOrigin(healthResponse.url, baseUrl, "Production browser health response");
+    const health = await readBoundedJson<{
       releaseId?: string;
       gitSha?: string;
       deployment?: string;
-    };
+    }>(healthResponse, HEALTH_RESPONSE_LIMIT_BYTES);
     const expectedRelease = process.env.RELEASE_ID ?? "local-production-check";
     const expectedSha = process.env.GIT_SHA ?? localSourceSha;
     if (!externalBaseUrl && process.env.GIT_SHA)
@@ -286,7 +282,8 @@ async function runMain() {
       "/llms.txt",
       "/llms-full.txt",
     ]) {
-      const response = await fetch(`${baseUrl}${route}`);
+      const response = await fetch(`${baseUrl}${route}`, { redirect: "error" });
+      assertResponseOrigin(response.url, baseUrl, `Production browser ${route} response`);
       if (!response.ok) throw new Error(`${route} returned ${response.status}`);
     }
     if (errors.length) throw new Error(errors.join("\n"));

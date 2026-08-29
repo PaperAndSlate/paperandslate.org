@@ -1,13 +1,13 @@
 import type { MetadataRoute } from "next";
 import {
-  projects,
+  publicProjects,
   foundationPages,
   publishedNews,
   newsCategories,
   policies,
   rfcs,
   decisions,
-  reports,
+  publicReports,
   publicReleases,
 } from "@paper-and-slate/content";
 import { docsForSitemap, docProjectRecords, isPublicIndexDocument } from "../lib/docs";
@@ -63,14 +63,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...categories,
     ...tags,
     ...foundationPages.map((p) => `/foundation/${p.slug}`),
-    ...projects.map((p) => `/projects/${p.slug}`),
+    ...publicProjects.map((p) => `/projects/${p.slug}`),
     ...publishedNews.map((n) => n.canonicalUrl),
     ...rfcs.map((rfc) => rfc.canonicalUrl),
     ...decisions.map((decision) => decision.canonicalUrl),
     ...policies.map((policy) => policy.canonicalUrl),
-    ...reports
-      .filter((report) => report.status === "published")
-      .map((report) => report.canonicalUrl),
+    ...publicReports.map((report) => report.canonicalUrl),
     ...docProjectRecords()
       .filter((project) => isPublicIndexDocument(project.document))
       .map((project) => project.root),

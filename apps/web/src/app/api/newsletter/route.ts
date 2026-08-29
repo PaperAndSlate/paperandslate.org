@@ -23,10 +23,10 @@ export async function POST(request: Request) {
   const abuse = await withinDistributedAbuseLimit(abuseKey);
   if (!abuse.allowed)
     return failure(
-      abuse.mode === "valkey-unavailable"
+      abuse.mode === "valkey-unavailable" || abuse.mode === "distributed-required"
         ? "Signup is temporarily unavailable"
         : "Too many attempts",
-      abuse.mode === "valkey-unavailable" ? 503 : 429,
+      abuse.mode === "valkey-unavailable" || abuse.mode === "distributed-required" ? 503 : 429,
     );
   let input: Record<string, unknown>;
   try {

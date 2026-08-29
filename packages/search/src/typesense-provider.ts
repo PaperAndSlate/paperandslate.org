@@ -1,3 +1,4 @@
+import { assertSafeProviderUrl, readBoundedJson } from "@paper-and-slate/config/provider-safety";
 import { normalizedQuery } from "./ranking";
 import { normalizeRecord } from "./records";
 import type { SearchOptions, SearchRecord, SearchResponse } from "./types";
@@ -11,9 +12,15 @@ export type TypesenseConfig = {
 };
 
 const limitFor = (options?: SearchOptions) => Math.max(1, Math.min(options?.limit ?? 20, 20));
+const TYPESENSE_RESPONSE_LIMIT_BYTES = 2 * 1024 * 1024;
 
 export function createTypesenseProvider(config?: TypesenseConfig): SearchProvider | null {
   if (!config?.endpoint || !config.apiKey) return null;
+  try {
+    assertSafeProviderUrl(config.endpoint, "TYPESENSE_ENDPOINT");
+  } catch {
+    return null;
+  }
   const collection = config.collection ?? "search_records";
   const maxRetries = Math.max(0, Math.min(config.maxRetries ?? 1, 2));
 
@@ -62,16 +69,17 @@ export function createTypesenseProvider(config?: TypesenseConfig): SearchProvide
           const response = await fetch(url, {
             headers: { "X-TYPESENSE-API-KEY": config.apiKey, Accept: "application/json" },
             signal: controller.signal,
+            redirect: "error",
           });
           if (!response.ok) throw new Error(`Typesense provider returned ${response.status}`);
-          const data = (await response.json()) as {
+          const data = await readBoundedJson<{
             hits?: Array<{ document?: SearchRecord; text_match_info?: { score?: number } }>;
             found?: number;
             facet_counts?: Array<{
               field_name: string;
               counts: Array<{ value: string; count: number }>;
             }>;
-          };
+          }>(response, TYPESENSE_RESPONSE_LIMIT_BYTES);
           if (!Array.isArray(data.hits))
             throw new Error("Typesense provider returned malformed results");
           const results = data.hits.flatMap((hit) => {

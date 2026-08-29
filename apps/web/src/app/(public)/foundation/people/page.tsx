@@ -1,5 +1,5 @@
 import { PageHeader } from "../../../../components/page-primitives";
-import { people } from "@paper-and-slate/content";
+import { publicPeople } from "@paper-and-slate/content";
 export default function People() {
   return (
     <main id="main-content" className="page-wrap container">
@@ -8,7 +8,7 @@ export default function People() {
         exist.
       </PageHeader>
       <div className="card-grid">
-        {people.map((person) => (
+        {publicPeople.map((person) => (
           <article className="info-card" key={person.id}>
             <p className="record-meta">
               {person.status} · {person.role}

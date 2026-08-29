@@ -5,8 +5,8 @@ import {
   rfcs,
   decisions,
   policies,
-  reports,
-  people,
+  publicReports,
+  publicPeople,
   roadmap,
 } from "../packages/content/src";
 import { normalizeRecords, type SearchRecord } from "../packages/search/src";
@@ -86,28 +86,24 @@ const records: SearchRecord[] = [
     source: "governance" as const,
     date: p.effectiveDate,
   })),
-  ...reports
-    .filter((r) => r.status === "published")
-    .map((r) => ({
-      id: `report:${r.year}`,
-      title: r.title,
-      summary: r.summary,
-      text: r.highlights.join(" "),
-      route: r.canonicalUrl,
-      type: "report" as const,
-      source: "content" as const,
-    })),
-  ...people
-    .filter((p) => p.status !== "hidden")
-    .map((p) => ({
-      id: `person:${p.id}`,
-      title: p.name,
-      summary: p.role,
-      text: p.summary,
-      route: "/foundation/people",
-      type: "governance" as const,
-      source: "content" as const,
-    })),
+  ...publicReports.map((r) => ({
+    id: `report:${r.year}`,
+    title: r.title,
+    summary: r.summary,
+    text: r.highlights.join(" "),
+    route: r.canonicalUrl,
+    type: "report" as const,
+    source: "content" as const,
+  })),
+  ...publicPeople.map((p) => ({
+    id: `person:${p.id}`,
+    title: p.name,
+    summary: p.role,
+    text: p.summary,
+    route: "/foundation/people",
+    type: "governance" as const,
+    source: "content" as const,
+  })),
   ...roadmap.map((r) => ({
     id: `roadmap:${r.id}`,
     title: r.title,

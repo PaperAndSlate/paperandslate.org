@@ -1,13 +1,13 @@
 import { notFound } from "next/navigation";
-import { reports } from "@paper-and-slate/content";
+import { getPublicReport, publicReports } from "@paper-and-slate/content";
 
 export function generateStaticParams() {
-  return reports.map((report) => ({ year: String(report.year) }));
+  return publicReports.map((report) => ({ year: String(report.year) }));
 }
 
 export default async function Report({ params }: { params: Promise<{ year: string }> }) {
   const { year } = await params;
-  const report = reports.find((candidate) => candidate.year === Number(year));
+  const report = getPublicReport(Number(year));
 
   if (!report) notFound();
 

@@ -33,6 +33,9 @@ const textExtensions = new Set([
   ".txt",
   ".sh",
 ]);
+const textFileNames = new Set(["Dockerfile", ".dockerignore"]);
+const sensitivePathPattern =
+  /(^|\/)(?:\.env(?:\..*)?|.*(?:secret|credential|credentials|private[-_]?key).*(?:$|\/)|[^/]+\.(?:pem|key|p12|pfx))$/i;
 const patterns = [
   /-----BEGIN (?:RSA |EC |OPENSSH |DSA )?PRIVATE KEY-----/i,
   /\b(?:sk_live|rk_live|ghp_|github_pat_|xox[baprs]-)[A-Za-z0-9_-]{10,}/,
@@ -49,7 +52,15 @@ const walk = (directory: string) => {
       if (!skippedDirectories.has(relative) && !skippedDirectories.has(entry.name)) walk(absolute);
       continue;
     }
-    if (!textExtensions.has(path.extname(entry.name).toLowerCase())) continue;
+    if (sensitivePathPattern.test(relative) && relative !== ".env.example") {
+      findings.push({ file: relative, line: 1, pattern: "sensitive filename" });
+      continue;
+    }
+    if (
+      !textExtensions.has(path.extname(entry.name).toLowerCase()) &&
+      !textFileNames.has(entry.name)
+    )
+      continue;
     const text = fs.readFileSync(absolute, "utf8");
     text.split(/\r?\n/).forEach((line, index) => {
       for (const pattern of patterns) {

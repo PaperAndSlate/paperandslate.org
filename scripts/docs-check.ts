@@ -4,10 +4,12 @@ import {
   loadRegistry,
   validateDocuments,
 } from "../packages/docs-ingestion/src/index";
+import { assertCompleteDocsSourceBinding } from "./docs-source-binding";
 const docs = [];
 for (const source of loadRegistry())
   for (const version of source.versions) docs.push(...collectSource(source, version).documents);
 validateDocuments(docs);
+assertCompleteDocsSourceBinding();
 const generated = JSON.parse(fs.readFileSync(".generated/docs/documents.json", "utf8"));
 if (JSON.stringify(generated) !== JSON.stringify(docs.sort((a, b) => a.id.localeCompare(b.id))))
   throw new Error("Generated documents are stale; run pnpm docs:ingest");

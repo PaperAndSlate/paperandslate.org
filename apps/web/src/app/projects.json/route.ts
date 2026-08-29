@@ -1,9 +1,9 @@
-import { projects } from "@paper-and-slate/content";
+import { publicProjects } from "@paper-and-slate/content";
 export function GET() {
   return Response.json({
     stability: "local-registry",
     generatedAt: "2026-08-26",
-    projects: projects.map(
+    projects: publicProjects.map(
       ({
         id,
         slug,

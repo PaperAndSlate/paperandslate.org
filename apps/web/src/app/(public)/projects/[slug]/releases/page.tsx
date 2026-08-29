@@ -1,14 +1,14 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getProject, validatedReleases } from "@paper-and-slate/content";
+import { getPublicProject, publicProjects, publicReleases } from "@paper-and-slate/content";
 export function generateStaticParams() {
-  return validatedReleases.map((r) => ({ slug: r.project }));
+  return publicProjects.map((project) => ({ slug: project.slug }));
 }
 export default async function Releases({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const project = getProject(slug);
+  const project = getPublicProject(slug);
   if (!project) notFound();
-  const releases = validatedReleases.filter((r) => r.project === slug);
+  const releases = publicReleases.filter((r) => r.project === slug);
   return (
     <main id="main-content" className="page-wrap container">
       <div className="page-header">

@@ -17,6 +17,44 @@ type Check = {
   evidence: string[];
 };
 
+export type RequirementRecord = { status?: string; category?: string };
+
+const acceptedRequirementStatuses = new Set([
+  "verified-local",
+  "verified-ci",
+  "verified-staging",
+  "not-applicable",
+]);
+
+export function requirementsCheckFromReport(
+  report: {
+    requirements?: RequirementRecord[];
+  } | null,
+): Check {
+  if (!report?.requirements?.length)
+    return {
+      id: "requirements",
+      status: "pending",
+      detail: "Requirement ledger evidence is missing.",
+      evidence: [".generated/requirements/requirements.json"],
+    };
+  const substantive = report.requirements.filter((item) => item.category !== "traceability");
+  const counts = substantive.reduce<Record<string, number>>((all, item) => {
+    const status = item.status ?? "unknown";
+    all[status] = (all[status] ?? 0) + 1;
+    return all;
+  }, {});
+  const unresolved = substantive.filter(
+    (item) => !acceptedRequirementStatuses.has(item.status ?? "unknown"),
+  );
+  return {
+    id: "requirements",
+    status: unresolved.length === 0 ? "passed" : "pending",
+    detail: `${substantive.length} substantive requirements have machine-readable status; ${unresolved.length} remain unresolved (${counts.partial ?? 0} partial, ${counts["blocked-external"] ?? 0} externally blocked, ${counts["human-approval-pending"] ?? 0} require human approval).`,
+    evidence: [".generated/requirements/requirements.json", "IMPLEMENTATION_LEDGER.md"],
+  };
+}
+
 const root = process.cwd();
 const launchRoot = path.join(root, ".generated", "launch");
 const outputPath = path.join(launchRoot, "launch-evidence.json");
@@ -78,27 +116,9 @@ function lockHash() {
 
 function requirementsCheck(): Check {
   const report = readJson<{
-    requirements?: Array<{ status?: string; category?: string }>;
+    requirements?: RequirementRecord[];
   }>(".generated/requirements/requirements.json");
-  if (!report?.requirements?.length)
-    return {
-      id: "requirements",
-      status: "pending",
-      detail: "Requirement ledger evidence is missing.",
-      evidence: [".generated/requirements/requirements.json"],
-    };
-  const substantive = report.requirements.filter((item) => item.category !== "traceability");
-  const counts = substantive.reduce<Record<string, number>>((all, item) => {
-    const status = item.status ?? "unknown";
-    all[status] = (all[status] ?? 0) + 1;
-    return all;
-  }, {});
-  return {
-    id: "requirements",
-    status: "passed",
-    detail: `${substantive.length} substantive requirements have machine-readable status; ${counts.partial ?? 0} remain partial, ${counts["blocked-external"] ?? 0} are externally blocked, and ${counts["human-approval-pending"] ?? 0} require human approval.`,
-    evidence: [".generated/requirements/requirements.json", "IMPLEMENTATION_LEDGER.md"],
-  };
+  return requirementsCheckFromReport(report);
 }
 
 function traceabilityCheck(): Check {
@@ -189,6 +209,7 @@ function launchChecks(): Check[] {
       localSha?: string | null;
       worktreeClean?: boolean;
       remoteResolution?: string;
+      remoteCandidateShaPresent?: boolean;
     };
   }>(".generated/launch/repository-identity.json");
   const currentSha = git(["rev-parse", "HEAD"]);
@@ -198,14 +219,16 @@ function launchChecks(): Check[] {
       repository.gitSha === currentSha &&
       repository.repository?.localSha === currentSha &&
       repository.repository?.worktreeClean === true &&
+      repository.repository.remoteResolution === "verified" &&
+      repository.repository.remoteCandidateShaPresent === true &&
       currentSourceWorktreeClean(),
   );
   checks.push({
     id: "repository",
     status: repositoryMatches ? "passed" : "pending",
     detail: repositoryMatches
-      ? `Repository identity recorded for ${repository?.repository?.remote ?? "unknown remote"} on ${repository?.repository?.branch ?? "unknown branch"} at ${repository?.repository?.localSha ?? "unknown SHA"}; remote refs ${repository?.repository?.remoteResolution ?? "unknown"}.`
-      : `Repository identity evidence is missing, failed, or historical (current HEAD is ${currentSha ?? "unknown"}; recorded SHA is ${repository?.repository?.localSha ?? "missing"}).`,
+      ? `Repository identity recorded for ${repository?.repository?.remote ?? "unknown remote"} on ${repository?.repository?.branch ?? "unknown branch"} at ${repository?.repository?.localSha ?? "unknown SHA"}; the exact candidate is present in verified remote refs.`
+      : `Repository identity is local-only or historical: current HEAD is ${currentSha ?? "unknown"}, recorded SHA is ${repository?.repository?.localSha ?? "missing"}, remote resolution is ${repository?.repository?.remoteResolution ?? "unknown"}, and the candidate is ${repository?.repository?.remoteCandidateShaPresent ? "present" : "not present"} in remote refs.`,
     evidence: [".generated/launch/repository-identity.json"],
   });
   const verify = readJson<{
@@ -242,14 +265,20 @@ function launchChecks(): Check[] {
         },
   );
 
-  const docs = readJson<{ status?: string }>(".generated/launch/docs-bundle-check.json");
+  const docs = readJson<{
+    status?: string;
+    sourceBound?: string;
+    missingExternalSources?: string[];
+  }>(".generated/launch/docs-bundle-check.json");
   checks.push({
     id: "docs-bundle",
-    status: docs?.status === "passed" ? "passed" : "pending",
+    status: docs?.status === "passed" && docs.sourceBound === "complete" ? "passed" : "pending",
     detail:
-      docs?.status === "passed"
-        ? "The committed generated documentation bundle is schema-, hash-, ID-, and search-consistent without requiring sibling repositories in CI."
-        : "Generated documentation bundle evidence is missing or failed.",
+      docs?.status === "passed" && docs.sourceBound === "complete"
+        ? "The committed generated documentation bundle is schema-, hash-, ID-, search-, and source-consistent."
+        : docs?.status === "passed"
+          ? `Generated documentation bundle is structurally valid but source-bound only partially; unavailable external sources: ${(docs.missingExternalSources ?? []).join(", ") || "unknown"}.`
+          : "Generated documentation bundle evidence is missing or failed.",
     evidence: [
       ".generated/launch/docs-bundle-check.json",
       ".generated/docs/docs-sources.lock.json",
@@ -446,7 +475,7 @@ function launchChecks(): Check[] {
   const vulnerability = readJson<{
     source?: { lockfileSha256?: string | null };
     production?: { status?: string };
-    tooling?: { status?: string; advisories?: unknown[] };
+    tooling?: { status?: string; advisories?: unknown[]; suppressedAdvisories?: unknown[] };
   }>("evidence/local/security/vulnerability-scan.json");
   const vulnerabilityStatus =
     vulnerability?.production?.status === "passed" &&
@@ -459,57 +488,61 @@ function launchChecks(): Check[] {
         : "passed"
       : "pending",
     detail: vulnerabilityStatus
-      ? `Production dependencies passed; ${vulnerability?.tooling?.advisories?.length ?? 0} development-tool advisory groups remain visible.`
+      ? `Production dependencies passed; ${vulnerability?.tooling?.advisories?.length ?? 0} actionable development-tool advisory groups remain visible and ${vulnerability?.tooling?.suppressedAdvisories?.length ?? 0} are covered by tracked local patches.`
       : "Vulnerability evidence is missing or the production dependency audit did not pass.",
     evidence: ["evidence/local/security/vulnerability-scan.json"],
   });
   return checks;
 }
 
-const checks = launchChecks();
-const ownerGates = [
-  "Qualified legal/privacy/licensing/trademark review and approval IDs",
-  "Factual, institutional, people, project, funding, maintainer, and publication-copy approval",
-  "Media/font provenance, permissions, alt text, crop, and visual comparison approval",
-  "Provider credentials and privacy decisions for Typesense, Kit, GlitchTip, Infisical, and cache",
-  "Forgejo branch protection, reviewer/PR policy, signed tag policy, and release authority",
-  "Authorized Tower/Coolify staging application, immutable registry image, and staging URL",
-  "DNS/TLS ownership and canonical-domain change authority",
-  "Production monitoring/on-call/incident policy and an authorized rollback drill",
-  "Publication/syndication ownership and production feed acceptance",
-  "Final release tag/signature and immutable staging artifact identity",
-  "Authentication, API, and platform integration are explicitly deferred outside this v1 closure",
-];
-const failed = checks.filter((check) => check.status === "failed");
-const report = {
-  schemaVersion: 2,
-  generatedAt: new Date().toISOString(),
-  generatedBy: "scripts/launch-report.ts",
-  status: failed.length > 0 ? "failed" : "local-runtime-verified-with-external-gates-pending",
-  releaseId,
-  git: {
-    sha: git(["rev-parse", "HEAD"]),
-    branch: git(["branch", "--show-current"]),
-    remote: git(["remote", "get-url", "origin"]),
-    exactTag: git(["describe", "--tags", "--exact-match"]),
-  },
-  build: {
-    node: process.version,
-    packageManager: "pnpm@10.6.0",
-    lockfileSha256: lockHash(),
-  },
-  checks,
-  passed: checks.filter((check) => ["passed", "passed-with-advisory"].includes(check.status)),
-  pending: checks.filter((check) => ["pending", "human-review-pending"].includes(check.status)),
-  ownerGates,
-  limitations: [
-    "Local evidence is tied to the current workspace and is not a CI or hosted-staging receipt until those systems produce matching artifacts.",
-    "Human visual comparison, legal/factual/media approval, credentials, DNS/TLS, production deployment, and publication authority are not automated or inferred.",
-    "The local Docker registry digest proves the image inspected on this machine, not an immutable hosted registry or deployed digest.",
-  ],
-};
-fs.mkdirSync(launchRoot, { recursive: true });
-fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`);
-console.log(
-  `Generated launch evidence: ${checks.filter((check) => check.status === "passed").length} passed, ${checks.filter((check) => check.status === "passed-with-advisory").length} advisory, ${checks.filter((check) => check.status === "human-review-pending").length} human-review-pending, ${checks.filter((check) => check.status === "pending").length} pending, ${failed.length} failed.`,
-);
+function main() {
+  const checks = launchChecks();
+  const ownerGates = [
+    "Qualified legal/privacy/licensing/trademark review and approval IDs",
+    "Factual, institutional, people, project, funding, maintainer, and publication-copy approval",
+    "Media/font provenance, permissions, alt text, crop, and visual comparison approval",
+    "Provider credentials and privacy decisions for Typesense, Kit, GlitchTip, Infisical, and cache",
+    "Forgejo branch protection, reviewer/PR policy, signed tag policy, and release authority",
+    "Authorized Tower/Coolify staging application, immutable registry image, and staging URL",
+    "DNS/TLS ownership and canonical-domain change authority",
+    "Production monitoring/on-call/incident policy and an authorized rollback drill",
+    "Publication/syndication ownership and production feed acceptance",
+    "Final release tag/signature and immutable staging artifact identity",
+    "Authentication, API, and platform integration are explicitly deferred outside this v1 closure",
+  ];
+  const failed = checks.filter((check) => check.status === "failed");
+  const report = {
+    schemaVersion: 2,
+    generatedAt: new Date().toISOString(),
+    generatedBy: "scripts/launch-report.ts",
+    status: failed.length > 0 ? "failed" : "local-runtime-verified-with-external-gates-pending",
+    releaseId,
+    git: {
+      sha: git(["rev-parse", "HEAD"]),
+      branch: git(["branch", "--show-current"]),
+      remote: git(["remote", "get-url", "origin"]),
+      exactTag: git(["describe", "--tags", "--exact-match"]),
+    },
+    build: {
+      node: process.version,
+      packageManager: "pnpm@10.6.0",
+      lockfileSha256: lockHash(),
+    },
+    checks,
+    passed: checks.filter((check) => ["passed", "passed-with-advisory"].includes(check.status)),
+    pending: checks.filter((check) => ["pending", "human-review-pending"].includes(check.status)),
+    ownerGates,
+    limitations: [
+      "Local evidence is tied to the current workspace and is not a CI or hosted-staging receipt until those systems produce matching artifacts.",
+      "Human visual comparison, legal/factual/media approval, credentials, DNS/TLS, production deployment, and publication authority are not automated or inferred.",
+      "The local Docker registry digest proves the image inspected on this machine, not an immutable hosted registry or deployed digest.",
+    ],
+  };
+  fs.mkdirSync(launchRoot, { recursive: true });
+  fs.writeFileSync(outputPath, `${JSON.stringify(report, null, 2)}\n`);
+  console.log(
+    `Generated launch evidence: ${checks.filter((check) => check.status === "passed").length} passed, ${checks.filter((check) => check.status === "passed-with-advisory").length} advisory, ${checks.filter((check) => check.status === "human-review-pending").length} human-review-pending, ${checks.filter((check) => check.status === "pending").length} pending, ${failed.length} failed.`,
+  );
+}
+
+if (process.argv[1]?.replaceAll("\\", "/").endsWith("/launch-report.ts")) main();

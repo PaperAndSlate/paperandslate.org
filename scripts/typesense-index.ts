@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { assertSafeProviderUrl, readBoundedResponse } from "../packages/config/src/provider-safety";
 import {
   createFallbackSearchProvider,
   createStaticSearchProvider,
@@ -41,6 +42,8 @@ export type TypesenseIndexReport = {
 };
 
 type TypesenseResponse = { status: number; body: string };
+const TYPESENSE_RESPONSE_LIMIT_BYTES = 8 * 1024 * 1024;
+const TYPESENSE_REQUEST_LIMIT_BYTES = 8 * 1024 * 1024;
 
 function endpointUrl(endpoint: string, pathname: string) {
   return `${endpoint.replace(/\/$/, "")}${pathname}`;
@@ -52,7 +55,11 @@ async function request(
   pathname: string,
   init: RequestInit = {},
 ): Promise<TypesenseResponse> {
-  const response = await fetch(endpointUrl(endpoint, pathname), {
+  const target = endpointUrl(endpoint, pathname);
+  assertSafeProviderUrl(target, "TYPESENSE_ENDPOINT", { allowQuery: true });
+  if (typeof init.body === "string" && Buffer.byteLength(init.body) > TYPESENSE_REQUEST_LIMIT_BYTES)
+    throw new Error("Typesense request body exceeded the byte limit");
+  const response = await fetch(target, {
     ...init,
     headers: {
       Accept: "application/json",
@@ -60,8 +67,12 @@ async function request(
       ...(init.headers ?? {}),
     },
     signal: AbortSignal.timeout(15_000),
+    redirect: "error",
   });
-  return { status: response.status, body: await response.text() };
+  return {
+    status: response.status,
+    body: await readBoundedResponse(response, TYPESENSE_RESPONSE_LIMIT_BYTES),
+  };
 }
 
 function jsonBody(body: string, context: string) {
@@ -309,6 +320,7 @@ export async function publishTypesenseIndex(
     throw new Error(
       "Typesense publishing requires TYPESENSE_ENDPOINT, TYPESENSE_API_KEY, and TYPESENSE_SEARCH_API_KEY",
     );
+  assertSafeProviderUrl(endpoint, "TYPESENSE_ENDPOINT");
   if (adminApiKey === searchApiKey)
     throw new Error("Typesense write and search keys must be different");
   if (!sourceSha || !/^[a-f0-9]{40}$/i.test(sourceSha))

@@ -1,0 +1,2 @@
+# Unified diff patch files use a leading space on blank context lines.
+patches/*.patch whitespace=-trailing-space

@@ -1,3 +1,5 @@
+import { assertSafeProviderUrl, readBoundedJson } from "@paper-and-slate/config/provider-safety";
+
 export type StandardsQuery = {
   q?: string;
   jurisdiction?: string;
@@ -483,18 +485,38 @@ function safeHttpUrl(value: unknown): string | undefined {
   }
 }
 
+const STANDARDS_RESPONSE_LIMIT_BYTES = 2 * 1024 * 1024;
+
+function configuredStandardsBaseUrl(): string | undefined {
+  const value = process.env.STANDARDS_API_URL?.trim();
+  if (!value) return undefined;
+  try {
+    return assertSafeProviderUrl(value, "STANDARDS_API_URL", {
+      allowHttp: process.env.NODE_ENV !== "production" && process.env.DEPLOYMENT_ENV !== "staging",
+    }).toString();
+  } catch {
+    return undefined;
+  }
+}
+
 async function standardsFetch(url: URL, releaseIds: string[], allowDenied = false) {
   const bearer = process.env.LOCAL_API_BEARER?.trim();
   if (!bearer) throw new Error("Standards API authorization is unavailable");
+  assertSafeProviderUrl(url.toString(), "Standards API request", { allowQuery: true });
   const authorization = /^Bearer\s/i.test(bearer) ? bearer : `Bearer ${bearer}`;
   const response = await fetch(url, {
     headers: { Authorization: authorization },
     signal: AbortSignal.timeout(5_000),
     next: { revalidate: 60, tags: releaseIds.map((releaseId) => `standards:${releaseId}`) },
+    redirect: "error",
   });
   if (!response.ok && !(allowDenied && response.status === 403))
     throw new Error(`API returned ${response.status}`);
   return response;
+}
+
+function standardsJson<T>(response: Response) {
+  return readBoundedJson<T>(response, STANDARDS_RESPONSE_LIMIT_BYTES);
 }
 
 function recordsForRelease(value: unknown, releaseId: string): StandardsRecord[] {
@@ -683,7 +705,7 @@ export async function getStandardsFrameworkDetail(
   requestedRelease?: string,
 ): Promise<StandardsFrameworkDetail> {
   const releaseId = configuredRelease(requestedRelease);
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   const unavailable = "The synchronized Standards API is not configured in this environment.";
   const empty: StandardsFrameworkDetail = {
     id: slug,
@@ -704,7 +726,7 @@ export async function getStandardsFrameworkDetail(
     const url = new URL(path, baseUrl);
     url.searchParams.set("release", releaseId);
     const response = await standardsFetch(url, [releaseId]);
-    return response.json() as Promise<unknown>;
+    return standardsJson<unknown>(response);
   };
   try {
     const id = encodeURIComponent(slug);
@@ -809,7 +831,7 @@ export async function getStandardsItemDetail(
     availability: { metadata: false, fullText: false, rawBytes: false },
     unavailable,
   };
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   if (!baseUrl) return empty;
 
   try {
@@ -817,7 +839,7 @@ export async function getStandardsItemDetail(
       const url = new URL(`/v1/standards/${encodeURIComponent(id)}${suffix}`, baseUrl);
       url.searchParams.set("release", releaseId);
       const response = await standardsFetch(url, [releaseId]);
-      return (await response.json()) as { data?: unknown; meta?: Record<string, unknown> };
+      return standardsJson<{ data?: unknown; meta?: Record<string, unknown> }>(response);
     };
     const [detailPayload, childrenPayload, ancestorsPayload, provenancePayload] = await Promise.all(
       [request(""), request("/children"), request("/ancestors"), request("/provenance")],
@@ -869,7 +891,7 @@ export async function getStandardsItemDetail(
 
 export async function searchStandards(params: StandardsQuery = {}): Promise<StandardsSearchResult> {
   const releaseId = configuredRelease(params.release);
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   if (!baseUrl) {
     return {
       records: [],
@@ -887,7 +909,9 @@ export async function searchStandards(params: StandardsQuery = {}): Promise<Stan
   }
   try {
     const response = await standardsFetch(url, [releaseId]);
-    const payload = (await response.json()) as { data?: unknown; meta?: Record<string, unknown> };
+    const payload = await standardsJson<{ data?: unknown; meta?: Record<string, unknown> }>(
+      response,
+    );
     const meta = payload.meta ?? {};
     const apiRelease = stringValue(meta.releaseId) ?? releaseId;
     if (apiRelease !== releaseId) throw new Error("Standards search release mismatch");
@@ -913,7 +937,7 @@ export async function searchStandards(params: StandardsQuery = {}): Promise<Stan
 
 export async function getStandardsSources(): Promise<StandardsSourcesResult> {
   const releaseId = configuredRelease();
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   const unavailable = "The synchronized Standards API is not configured in this environment.";
   if (!baseUrl) return { sources: [], releaseId, candidateOnly: true, unavailable };
 
@@ -921,7 +945,9 @@ export async function getStandardsSources(): Promise<StandardsSourcesResult> {
     const url = new URL("/v1/standards/sources", baseUrl);
     url.searchParams.set("release", releaseId);
     const response = await standardsFetch(url, [releaseId]);
-    const payload = (await response.json()) as { data?: unknown; meta?: Record<string, unknown> };
+    const payload = await standardsJson<{ data?: unknown; meta?: Record<string, unknown> }>(
+      response,
+    );
     const meta = payload.meta ?? {};
     const apiRelease = stringValue(meta.releaseId) ?? releaseId;
     if (apiRelease !== releaseId) throw new Error("Source projection release mismatch");
@@ -966,16 +992,16 @@ export async function getStandardsSourceDetail(
     availability: { metadata: false, fullText: false, rawBytes: false },
     unavailable: "The synchronized Standards API is not configured in this environment.",
   };
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   if (!baseUrl) return empty;
   try {
     const url = new URL(`/v1/standards/sources/${encodeURIComponent(id)}`, baseUrl);
     url.searchParams.set("release", releaseId);
     const response = await standardsFetch(url, [releaseId]);
-    const payload = (await response.json()) as {
+    const payload = await standardsJson<{
       data?: unknown;
       meta?: Record<string, unknown>;
-    };
+    }>(response);
     const metaRelease = stringValue(payload.meta?.releaseId);
     if (metaRelease && metaRelease !== releaseId) {
       throw new Error("Source detail API release mismatch");
@@ -998,7 +1024,7 @@ export async function getStandardsSourceDetail(
 
 export async function getStandardsCoverage(): Promise<StandardsCoverageResult> {
   const releaseId = configuredRelease();
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   const unavailable = "The synchronized Standards API is not configured in this environment.";
   const empty: StandardsCoverageResult = {
     release: { id: releaseId, status: "candidate", public: false, stable: false },
@@ -1014,7 +1040,7 @@ export async function getStandardsCoverage(): Promise<StandardsCoverageResult> {
     const url = new URL("/v1/standards/coverage", baseUrl);
     url.searchParams.set("release", releaseId);
     const response = await standardsFetch(url, [releaseId]);
-    const payload = (await response.json()) as { data?: unknown };
+    const payload = await standardsJson<{ data?: unknown }>(response);
     const data = objectValue(payload.data);
     const frameworks = Array.isArray(data.frameworks)
       ? data.frameworks
@@ -1136,7 +1162,7 @@ export async function getStandardsConceptsCrosswalks(): Promise<StandardsConcept
     },
     unavailable,
   };
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   if (!baseUrl) return empty;
   try {
     const urls = ["concepts", "crosswalks"].map((path) => {
@@ -1146,9 +1172,8 @@ export async function getStandardsConceptsCrosswalks(): Promise<StandardsConcept
     });
     const responses = await Promise.all(urls.map((url) => standardsFetch(url, [releaseId])));
     const payloads = await Promise.all(
-      responses.map(
-        (response) =>
-          response.json() as Promise<{ data?: unknown; meta?: Record<string, unknown> }>,
+      responses.map((response) =>
+        standardsJson<{ data?: unknown; meta?: Record<string, unknown> }>(response),
       ),
     );
     const projections = payloads.map((payload, index) => {
@@ -1195,7 +1220,8 @@ export async function getStandardsApiReadiness(): Promise<StandardsApiReadinessR
     exports: { bulk: "denied", case: "denied" },
     unavailable,
   };
-  if (!process.env.STANDARDS_API_URL?.trim()) return empty;
+  const baseUrl = configuredStandardsBaseUrl();
+  if (!baseUrl) return empty;
   try {
     const readiness = await getStandardsConceptsCrosswalks();
     if (readiness.unavailable) return { ...empty, unavailable: readiness.unavailable };
@@ -1214,14 +1240,14 @@ export async function getStandardsApiReadiness(): Promise<StandardsApiReadinessR
 
     const responses = await Promise.all(
       ["bulk", "case"].map((kind) => {
-        const url = new URL(`/v1/standards/${kind}`, process.env.STANDARDS_API_URL);
+        const url = new URL(`/v1/standards/${kind}`, baseUrl);
         url.searchParams.set("release", releaseId);
         return standardsFetch(url, [releaseId], true);
       }),
     );
     for (const response of responses) {
       if (response.status !== 403) throw new Error("Standards export was not denied");
-      const payload = (await response.json()) as Record<string, unknown>;
+      const payload = await standardsJson<Record<string, unknown>>(response);
       if (
         payload.code !== "rights_denied" ||
         payload.export !== "denied" ||
@@ -1255,7 +1281,7 @@ export async function getStandardsChanges(
   frameworkId = "framework-iowa-mathematics",
 ): Promise<StandardsChangesResult> {
   const releaseId = "candidate-ia-mathematics-fixture-2026";
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   const unavailable =
     "Standards change history is unavailable until the candidate API release is configured.";
   if (!baseUrl) return { changes: [], releaseId, unavailable };
@@ -1265,10 +1291,10 @@ export async function getStandardsChanges(
       baseUrl,
     );
     url.searchParams.set("release", releaseId);
-    const payload = (await (await standardsFetch(url, [releaseId])).json()) as {
+    const payload = await standardsJson<{
       data?: unknown;
       meta?: Record<string, unknown>;
-    };
+    }>(await standardsFetch(url, [releaseId]));
     const meta = payload.meta ?? {};
     const apiRelease = stringValue(meta.release) ?? stringValue(meta.standardsRelease) ?? releaseId;
     if (apiRelease !== releaseId) throw new Error("Standards changes release mismatch");
@@ -1318,7 +1344,7 @@ export async function getStandardsComparison(
     candidateOnly: true,
     unavailable: message,
   });
-  const baseUrl = process.env.STANDARDS_API_URL?.trim();
+  const baseUrl = configuredStandardsBaseUrl();
   if (!baseUrl) return empty(unavailable);
   if (!leftRelease || !rightRelease) {
     return empty("Choose two exact candidate releases to compare.");
@@ -1328,7 +1354,9 @@ export async function getStandardsComparison(
     url.searchParams.set("left_release", leftRelease);
     url.searchParams.set("right_release", rightRelease);
     const response = await standardsFetch(url, [leftRelease, rightRelease]);
-    const payload = (await response.json()) as { data?: unknown; meta?: Record<string, unknown> };
+    const payload = await standardsJson<{ data?: unknown; meta?: Record<string, unknown> }>(
+      response,
+    );
     const meta = payload.meta ?? {};
     const data = objectValue(payload.data);
     const releases = Array.isArray(meta.comparisonReleases) ? meta.comparisonReleases : [];

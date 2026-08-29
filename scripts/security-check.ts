@@ -3,6 +3,7 @@ import YAML from "yaml";
 
 const proxyPath = "apps/web/src/proxy.ts";
 const proxy = fs.readFileSync(proxyPath, "utf8");
+const dockerIgnore = fs.readFileSync(".dockerignore", "utf8");
 const policy = YAML.parse(fs.readFileSync("config/security-headers.yml", "utf8")) as {
   headers?: Record<string, string>;
 };
@@ -38,5 +39,21 @@ if (
   !proxy.includes("isSecureRequest({")
 )
   throw new Error("HSTS must be conditional on direct or configured HTTPS");
+for (const required of [
+  ".env",
+  ".env.*",
+  "!.env.example",
+  "**/*.pem",
+  "**/*.key",
+  "**/*.p12",
+  "**/*.pfx",
+  "**/*secret*",
+  "**/*credential*",
+  "**/*credentials*",
+])
+  if (!dockerIgnore.split(/\r?\n/).includes(required))
+    throw new Error(`Docker context ignore policy is missing ${required}`);
 
-console.log("Validated production CSP, conditional HSTS, and security header policy.");
+console.log(
+  "Validated production CSP, conditional HSTS, security headers, and Docker context policy.",
+);

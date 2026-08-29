@@ -11,5 +11,8 @@ export const reports: Report[] = [
     canonicalUrl: "/foundation/reports/2026",
   },
 ].map((report) => reportSchema.parse(report));
-export const getReport = (year: number) =>
-  reports.find((report) => report.year === year && report.status === "published");
+export const publicReports = reports.filter((report) => report.status === "published");
+export const getPublicReport = (year: number) =>
+  publicReports.find((report) => report.year === year);
+/** Compatibility alias for public report lookup. */
+export const getReport = getPublicReport;

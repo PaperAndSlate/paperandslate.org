@@ -6,6 +6,8 @@ import path from "node:path";
 import { chromium, type Browser, type Page } from "@playwright/test";
 import { waitForImages } from "./browser-assets";
 import { assertExactSourceRevision } from "./evidence-identity";
+import { readBoundedJson } from "../packages/config/src/provider-safety";
+import { assertHostedStagingOrigin, assertResponseOrigin } from "./hosted-origin";
 import { resolveBrowserExecutablePath } from "./playwright-browser";
 import { withProductionOutputLock } from "./production-output-lock";
 import { readSourceState } from "./source-state";
@@ -13,23 +15,10 @@ import { readSourceState } from "./source-state";
 const root = process.cwd();
 const port = Number(process.env.PRODUCTION_VISUAL_PORT ?? 3315);
 const localBaseUrl = `http://127.0.0.1:${port}`;
-const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
 const externalBaseUrl = (() => {
   const raw = process.env.PRODUCTION_VISUAL_BASE_URL;
   if (!raw) return undefined;
-  const url = new URL(raw);
-  if (
-    url.origin !== hostedStagingOrigin ||
-    url.pathname !== "/" ||
-    url.search ||
-    url.hash ||
-    url.username ||
-    url.password
-  )
-    throw new Error(
-      `Hosted visual evidence is restricted to the exact HTTPS staging origin ${hostedStagingOrigin}`,
-    );
-  return url.origin;
+  return assertHostedStagingOrigin(raw, "PRODUCTION_VISUAL_BASE_URL");
 })();
 const baseUrl = externalBaseUrl ?? localBaseUrl;
 const standaloneRoot = path.join(root, "apps", "web", ".next", "standalone");
@@ -45,6 +34,7 @@ const releaseId = process.env.RELEASE_ID ?? "local-production-visual";
 const localSourceSha = git(["rev-parse", "HEAD"]);
 const debug = process.env.PRODUCTION_VISUAL_DEBUG === "true";
 const browserExecutablePath = resolveBrowserExecutablePath();
+const HEALTH_RESPONSE_LIMIT_BYTES = 64 * 1024;
 
 type Capture = {
   id: string;
@@ -190,7 +180,12 @@ async function waitForServer(url: string) {
   const deadline = Date.now() + 45_000;
   while (Date.now() < deadline) {
     try {
-      if ((await fetch(url, { signal: AbortSignal.timeout(2_000) })).ok) return;
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(2_000),
+        redirect: "error",
+      });
+      assertResponseOrigin(response.url, baseUrl, "Production visual health probe");
+      if (response.ok) return;
     } catch {
       // The local standalone process is still starting.
     }
@@ -262,6 +257,7 @@ async function capturePage(page: Page, item: MatrixItem, outputPath: string): Pr
   });
   await page.setViewportSize(item.viewport);
   const response = await page.goto(`${baseUrl}${item.route}`, { waitUntil: "load" });
+  if (response) assertResponseOrigin(response.url(), baseUrl, `Production visual ${item.route}`);
   if (!response?.ok())
     throw new Error(`${item.route} returned ${response?.status() ?? "no response"}`);
   await waitForHydration(page);
@@ -332,12 +328,14 @@ async function runMain() {
       });
     }
     await waitForServer(`${baseUrl}/health`);
-    const health = (await (await fetch(`${baseUrl}/health`)).json()) as {
+    const healthResponse = await fetch(`${baseUrl}/health`, { redirect: "error" });
+    assertResponseOrigin(healthResponse.url, baseUrl, "Production visual health response");
+    const health = await readBoundedJson<{
       status?: string;
       deployment?: string;
       releaseId?: string;
       gitSha?: string;
-    };
+    }>(healthResponse, HEALTH_RESPONSE_LIMIT_BYTES);
     const expectedGitSha = process.env.GIT_SHA ?? git(["rev-parse", "HEAD"]);
     if (!externalBaseUrl && process.env.GIT_SHA)
       assertExactSourceRevision({

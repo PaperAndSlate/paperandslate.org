@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { validateDocuments, type DocsDocument } from "../packages/docs-ingestion/src/index";
+import { checkDocsSourceBinding, type DocsSourceBindingResult } from "./docs-source-binding";
 
 const root = process.cwd();
 const generatedRoot = path.join(root, ".generated", "docs");
@@ -23,7 +24,11 @@ function readJson<T>(name: string): T {
   return JSON.parse(fs.readFileSync(file, "utf8")) as T;
 }
 
-function writeEvidence(status: "passed" | "failed", error?: string) {
+function writeEvidence(
+  status: "passed" | "failed",
+  error?: string,
+  binding?: DocsSourceBindingResult,
+) {
   fs.mkdirSync(path.dirname(evidencePath), { recursive: true });
   fs.writeFileSync(
     evidencePath,
@@ -34,6 +39,10 @@ function writeEvidence(status: "passed" | "failed", error?: string) {
         generatedAt: new Date().toISOString(),
         source: "committed-generated-bundle",
         artifactRoot: path.relative(root, generatedRoot).replaceAll(path.sep, "/"),
+        sourceBound: binding?.sourceBound ?? "unknown",
+        checkedSources: binding?.checkedSources ?? [],
+        missingExternalSources: binding?.missingExternalSources ?? [],
+        sourceMismatches: binding?.mismatches ?? [],
         error: error ?? null,
       },
       null,
@@ -43,6 +52,7 @@ function writeEvidence(status: "passed" | "failed", error?: string) {
 }
 
 function main() {
+  let binding: DocsSourceBindingResult | undefined;
   try {
     for (const file of required) readJson<unknown>(file);
     const documents = readJson<DocsDocument[]>("documents.json");
@@ -100,17 +110,20 @@ function main() {
           `Generated documentation source lock is invalid: ${source.sourceId ?? "unknown"}`,
         );
     }
+    binding = checkDocsSourceBinding(root);
+    if (binding.mismatches.length)
+      throw new Error(`Documentation source binding failed: ${binding.mismatches.join("; ")}`);
     const bundleHash = crypto
       .createHash("sha256")
       .update(JSON.stringify({ documents, searchRecords, lock }))
       .digest("hex");
-    writeEvidence("passed");
+    writeEvidence("passed", undefined, binding);
     console.log(
       `Validated committed documentation bundle: ${documents.length} documents (${bundleHash.slice(0, 16)}).`,
     );
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    writeEvidence("failed", message);
+    writeEvidence("failed", message, binding);
     throw error;
   }
 }

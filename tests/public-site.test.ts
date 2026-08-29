@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { foundationPages, getProject, projects } from "../packages/content/src/index";
+import {
+  foundationPages,
+  getProject,
+  people,
+  projects,
+  publicPeopleAt,
+  publicProjectsAt,
+} from "../packages/content/src/index";
 
 describe("public content registry", () => {
   it("contains unique, truthful project entries", () => {
@@ -20,5 +27,20 @@ describe("public content registry", () => {
       "reports",
       "contact",
     ]);
+  });
+
+  it("keeps hidden records out of public projections", () => {
+    expect(
+      publicProjectsAt([
+        projects[0]!,
+        { ...projects[1]!, visibility: "hidden" },
+        { ...projects[2]!, visibility: "preview" },
+      ]).map((project) => project.slug),
+    ).toEqual([projects[0]!.slug]);
+    expect(
+      publicPeopleAt([people[0]!, { ...people[0]!, id: "hidden-person", status: "hidden" }]).map(
+        (person) => person.id,
+      ),
+    ).toEqual([people[0]!.id]);
   });
 });

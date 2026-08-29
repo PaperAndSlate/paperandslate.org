@@ -1,10 +1,12 @@
 import net from "node:net";
 import tls from "node:tls";
 import { parseEnv, type Env } from "@paper-and-slate/config";
+import { assertSafeProviderUrl } from "@paper-and-slate/config/provider-safety";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 export const NEWSLETTER_BODY_LIMIT_BYTES = 8192;
 const IDEMPOTENCY_TTL_SECONDS = 24 * 60 * 60;
+const VALKEY_RESPONSE_LIMIT_BYTES = 64 * 1024;
 
 export type NewsletterInput = {
   email?: unknown;
@@ -114,6 +116,9 @@ export async function readNewsletterBody(
       if (total > maxBytes) throw new NewsletterBodyError("Request body is too large", 413);
       chunks.push(next.value);
     }
+  } catch (error) {
+    await reader.cancel().catch(() => undefined);
+    throw error;
   } finally {
     reader.releaseLock();
   }
@@ -241,6 +246,10 @@ async function valkeyCommands(
     socket.on("error", () => finish({ ok: false }));
     socket.on("data", (chunk) => {
       buffer += chunk.toString();
+      if (Buffer.byteLength(buffer) > VALKEY_RESPONSE_LIMIT_BYTES) {
+        finish({ ok: false });
+        return;
+      }
       try {
         while (index < pending.length) {
           const parsed = parseRedisValue(buffer);
@@ -261,10 +270,32 @@ async function valkeyCommands(
   });
 }
 
+function safeValkeyUrl(env: Env): URL | null {
+  if (!env.VALKEY_URL) return null;
+  try {
+    const url = assertSafeProviderUrl(env.VALKEY_URL, "VALKEY_URL", {
+      protocols: ["redis:", "rediss:"],
+      allowCredentials: true,
+    });
+    if (
+      url.protocol === "redis:" &&
+      env.NODE_ENV !== "test" &&
+      env.DEPLOYMENT_ENV !== "local" &&
+      env.DEPLOYMENT_ENV !== "ci"
+    )
+      return null;
+    decodeURIComponent(url.username);
+    decodeURIComponent(url.password);
+    return url;
+  } catch {
+    return null;
+  }
+}
+
 async function valkeyRateLimit(key: string, limit: number, windowSeconds: number) {
   const env = parseEnv();
-  if (!env.VALKEY_URL) return null;
-  const url = new URL(env.VALKEY_URL);
+  const url = safeValkeyUrl(env);
+  if (!url) return null;
   const redisKey = namespacedKey(env, "rate", key);
   // EXPIRE NX makes the counter/window initialization safe when two workers
   // receive the first request concurrently. The key is always scoped to the
@@ -284,8 +315,8 @@ async function valkeyRateLimit(key: string, limit: number, windowSeconds: number
 
 async function valkeyClaim(key: string, ttlSeconds: number) {
   const env = parseEnv();
-  if (!env.VALKEY_URL) return null;
-  const url = new URL(env.VALKEY_URL);
+  const url = safeValkeyUrl(env);
+  if (!url) return null;
   const redisKey = namespacedKey(env, "idempotency", key);
   const result = await valkeyCommands(url, [["SET", redisKey, "1", "NX", "EX", ttlSeconds]]);
   if (!result.ok) return null;
@@ -294,8 +325,8 @@ async function valkeyClaim(key: string, ttlSeconds: number) {
 
 async function valkeyRelease(key: string) {
   const env = parseEnv();
-  if (!env.VALKEY_URL) return;
-  const url = new URL(env.VALKEY_URL);
+  const url = safeValkeyUrl(env);
+  if (!url) return;
   await valkeyCommands(url, [["DEL", namespacedKey(env, "idempotency", key)]]);
 }
 
@@ -314,6 +345,13 @@ export async function withinDistributedAbuseLimit(key: string) {
     if (distributed !== null) return { allowed: distributed, mode: "valkey" as const };
     return { allowed: false, mode: "valkey-unavailable" as const };
   }
+  if (
+    kitConfigured(env) &&
+    env.NODE_ENV !== "test" &&
+    env.DEPLOYMENT_ENV !== "local" &&
+    env.DEPLOYMENT_ENV !== "ci"
+  )
+    return { allowed: false, mode: "distributed-required" as const };
   return {
     allowed: withinAbuseLimit(
       key,
@@ -336,11 +374,20 @@ export async function submitNewsletter(
       status: "unconfigured",
       message: "Newsletter signup is not enabled in this environment.",
     };
+  let kitUrl: URL;
+  try {
+    kitUrl = assertSafeProviderUrl(env.KIT_API_URL, "KIT_API_URL");
+  } catch {
+    return { status: "failed", message: "Newsletter signup is temporarily unavailable." };
+  }
+  const configuredValkey = env.VALKEY_URL ? safeValkeyUrl(env) : null;
+  if (env.VALKEY_URL && !configuredValkey)
+    return { status: "failed", message: "Newsletter signup is temporarily unavailable." };
   const key = options.idempotencyKey;
   let claimed = false;
   let distributedClaim = false;
   if (key) {
-    if (env.VALKEY_URL) {
+    if (configuredValkey) {
       const claim = await valkeyClaim(key, IDEMPOTENCY_TTL_SECONDS);
       if (!claim)
         return { status: "failed", message: "Newsletter signup is temporarily unavailable." };
@@ -363,7 +410,7 @@ export async function submitNewsletter(
   );
   try {
     const response = await fetch(
-      `${env.KIT_API_URL.replace(/\/$/, "")}/forms/${encodeURIComponent(env.KIT_FORM_ID!)}/subscribe`,
+      `${kitUrl.toString().replace(/\/$/, "")}/forms/${encodeURIComponent(env.KIT_FORM_ID!)}/subscribe`,
       {
         method: "POST",
         headers: { "content-type": "application/json", accept: "application/json" },
@@ -374,6 +421,7 @@ export async function submitNewsletter(
           fields: { consent: true, consent_source: "paper-and-slate-web" },
         }),
         signal: controller.signal,
+        redirect: "error",
       },
     );
     if (!response.ok) {

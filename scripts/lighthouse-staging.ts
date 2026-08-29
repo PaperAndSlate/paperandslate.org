@@ -1,10 +1,12 @@
 import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { readBoundedJson } from "../packages/config/src/provider-safety";
 import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
 import { withLighthouseChrome } from "./lighthouse-chrome";
 import { withOwnedPuppeteerBrowser } from "./lighthouse-config";
 import { pnpmSpawnSpec } from "./pnpm-command";
+import { assertHostedStagingOrigin, assertResponseOrigin } from "./hosted-origin";
 
 const root = process.cwd();
 const stagingUrl = process.env.STAGING_URL;
@@ -20,7 +22,7 @@ const manifestPath = path.join(outputDir, "lighthouse-run.json");
 const lockPath = path.join(root, ".generated", "launch", "lighthouse-staging.lock");
 const releaseId = process.env.RELEASE_ID ?? "unknown-release";
 const expectedGitSha = process.env.GIT_SHA ?? "";
-const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
+const HEALTH_RESPONSE_LIMIT_BYTES = 64 * 1024;
 
 type Health = {
   status?: string;
@@ -48,16 +50,7 @@ type StagingRunManifest = {
 
 function requireStagingUrl() {
   if (!stagingUrl) throw new Error("STAGING_URL is required for hosted Lighthouse evidence");
-  const parsed = new URL(stagingUrl);
-  if (parsed.origin !== hostedStagingOrigin)
-    throw new Error(
-      `Hosted Lighthouse is restricted to the exact HTTPS staging origin ${hostedStagingOrigin}`,
-    );
-  if (parsed.pathname !== "/")
-    throw new Error("STAGING_URL must be the managed staging origin without a path");
-  if (parsed.username || parsed.password || parsed.search || parsed.hash)
-    throw new Error("STAGING_URL must not contain credentials, query parameters, or fragments");
-  return parsed;
+  return new URL(assertHostedStagingOrigin(stagingUrl, "STAGING_URL"));
 }
 
 function targetUrlForPath(base: URL, source: string) {
@@ -75,8 +68,12 @@ async function waitForHealth(url: string) {
   const deadline = Date.now() + 45_000;
   while (Date.now() < deadline) {
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(2_000) });
-      if (response.ok) return (await response.json()) as Health;
+      const response = await fetch(url, {
+        signal: AbortSignal.timeout(2_000),
+        redirect: "error",
+      });
+      assertResponseOrigin(response.url, new URL(url).origin, "Hosted Lighthouse health response");
+      if (response.ok) return await readBoundedJson<Health>(response, HEALTH_RESPONSE_LIMIT_BYTES);
     } catch {
       // Staging may still be starting or the first request may race deployment readiness.
     }

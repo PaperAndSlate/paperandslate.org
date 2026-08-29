@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createFallbackSearchProvider,
   createStaticSearchProvider,
+  createTypesenseProvider,
   normalizeRecords,
   normalizeRecord,
   rankRecords,
@@ -62,6 +63,17 @@ describe("unified search", () => {
     expect(response.provider).toBe("static-fallback");
     expect(response.degraded).toBe(true);
     expect(response.results[0]?.id).toBe("rfc:1");
+  });
+  it("rejects unsafe Typesense endpoints before sending the API key", () => {
+    expect(
+      createTypesenseProvider({ endpoint: "http://127.0.0.1:8108", apiKey: "secret" }),
+    ).toBeNull();
+    expect(
+      createTypesenseProvider({
+        endpoint: "https://user:secret@search.example.test",
+        apiKey: "secret",
+      }),
+    ).toBeNull();
   });
   it("bounds and isolates the static provider cache", async () => {
     const first = createStaticSearchProvider(normalizeRecords([r]));

@@ -169,10 +169,22 @@ const rawProjects = [
 ] satisfies Array<Record<string, unknown>>;
 
 export const projects: Project[] = rawProjects.map((project) => projectSchema.parse(project));
-export function getProject(slug: string) {
-  return projects.find((project) => project.slug === slug);
+export function publicProjectsAt(records: Project[]) {
+  return records.filter((project) => project.visibility === "public");
 }
-export function filterProjects(filters: {
+export const publicProjects = publicProjectsAt(projects);
+
+export function getPublicProject(slug: string) {
+  return publicProjects.find((project) => project.slug === slug);
+}
+
+/**
+ * Compatibility alias for the public site-facing project lookup. Consumers
+ * that need to inspect every validated record should use `projects` directly.
+ */
+export const getProject = getPublicProject;
+
+export function filterPublicProjects(filters: {
   q?: string;
   query?: string;
   type?: string;
@@ -182,7 +194,7 @@ export function filterProjects(filters: {
   tag?: string;
 }) {
   const query = (filters.query ?? filters.q)?.trim().toLowerCase() ?? "";
-  return projects.filter((p) => {
+  return publicProjects.filter((p) => {
     const haystack = `${p.name} ${p.summary} ${p.description} ${p.tags.join(" ")}`.toLowerCase();
     return (
       (!query || haystack.includes(query)) &&
@@ -194,11 +206,14 @@ export function filterProjects(filters: {
     );
   });
 }
-export const publicProjects = projects.filter((project) => project.visibility === "public");
+
+/** Compatibility alias retained for existing public registry consumers. */
+export const filterProjects = filterPublicProjects;
+
 export function searchContent(query: string) {
   const normalized = query.trim().toLowerCase();
   return normalized
-    ? projects.filter((p) => `${p.name} ${p.summary}`.toLowerCase().includes(normalized))
+    ? publicProjects.filter((p) => `${p.name} ${p.summary}`.toLowerCase().includes(normalized))
     : [];
 }
 export const projectStatusLegend = {

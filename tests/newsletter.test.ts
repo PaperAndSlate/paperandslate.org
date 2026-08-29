@@ -7,6 +7,7 @@ import {
   submitNewsletter,
   validateNewsletter,
   withinAbuseLimit,
+  withinDistributedAbuseLimit,
 } from "../apps/web/src/lib/newsletter";
 describe("newsletter safety", () => {
   it("requires valid email, consent and empty honeypot", () => {
@@ -154,6 +155,72 @@ describe("newsletter safety", () => {
       });
     } finally {
       vi.unstubAllGlobals();
+      for (const key of Object.keys(process.env)) if (!(key in previous)) delete process.env[key];
+      Object.assign(process.env, previous);
+    }
+  });
+
+  it("requires distributed rate limiting for an active non-local provider", async () => {
+    const previous = { ...process.env };
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DEPLOYMENT_ENV", "production");
+    process.env.KIT_ENABLED = "true";
+    process.env.KIT_API_KEY = "test-key";
+    process.env.KIT_FORM_ID = "test-form";
+    delete process.env.VALKEY_URL;
+    try {
+      await expect(withinDistributedAbuseLimit("production-anonymous")).resolves.toEqual({
+        allowed: false,
+        mode: "distributed-required",
+      });
+    } finally {
+      vi.unstubAllEnvs();
+      for (const key of Object.keys(process.env)) if (!(key in previous)) delete process.env[key];
+      Object.assign(process.env, previous);
+    }
+  });
+
+  it("fails closed for an unsafe Valkey URL even without idempotency", async () => {
+    const previous = { ...process.env };
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DEPLOYMENT_ENV", "staging");
+    process.env.KIT_ENABLED = "true";
+    process.env.KIT_API_KEY = "test-key";
+    process.env.KIT_FORM_ID = "test-form";
+    process.env.KIT_API_URL = "https://api.convertkit.com";
+    process.env.VALKEY_URL = "redis://127.0.0.1:6379";
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      await expect(submitNewsletter("person@example.com")).resolves.toEqual({
+        status: "failed",
+        message: "Newsletter signup is temporarily unavailable.",
+      });
+      expect(fetchMock).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+      vi.unstubAllEnvs();
+      for (const key of Object.keys(process.env)) if (!(key in previous)) delete process.env[key];
+      Object.assign(process.env, previous);
+    }
+  });
+
+  it("fails closed for malformed Valkey credentials", async () => {
+    const previous = { ...process.env };
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("DEPLOYMENT_ENV", "staging");
+    process.env.KIT_ENABLED = "true";
+    process.env.KIT_API_KEY = "test-key";
+    process.env.KIT_FORM_ID = "test-form";
+    process.env.KIT_API_URL = "https://api.convertkit.com";
+    process.env.VALKEY_URL = "rediss://user:%E0%A4%A@valkey.example.test";
+    try {
+      await expect(withinDistributedAbuseLimit("malformed-credentials")).resolves.toEqual({
+        allowed: false,
+        mode: "valkey-unavailable",
+      });
+    } finally {
+      vi.unstubAllEnvs();
       for (const key of Object.keys(process.env)) if (!(key in previous)) delete process.env[key];
       Object.assign(process.env, previous);
     }

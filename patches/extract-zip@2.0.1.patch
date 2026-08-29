@@ -1,0 +1,52 @@
+diff --git a/index.js b/index.js
+index 23384ea16bb848616886f356d8d69f94325535bf..9359d21a3deb550284a976827d1a73d97538ae26 100644
+--- a/index.js
++++ b/index.js
+@@ -50,7 +50,15 @@ class Extractor {
+           return
+         }
+ 
+-        const destDir = path.dirname(path.join(this.opts.dir, entry.fileName))
++        const dest = path.resolve(this.opts.dir, entry.fileName)
++        const relativeDest = path.relative(this.opts.dir, dest)
++        if (entry.fileName.includes('\0') || path.isAbsolute(entry.fileName) || relativeDest === '..' || relativeDest.startsWith(`..${path.sep}`) || path.isAbsolute(relativeDest)) {
++          this.canceled = true
++          this.zipfile.close()
++          reject(new Error(`Out of bound path "${entry.fileName}" found while processing archive entry`))
++          return
++        }
++        const destDir = path.dirname(dest)
+ 
+         try {
+           await fs.mkdir(destDir, { recursive: true })
+@@ -58,7 +66,7 @@ class Extractor {
+           const canonicalDestDir = await fs.realpath(destDir)
+           const relativeDestDir = path.relative(this.opts.dir, canonicalDestDir)
+ 
+-          if (relativeDestDir.split(path.sep).includes('..')) {
++          if (relativeDestDir === '..' || relativeDestDir.startsWith(`..${path.sep}`) || path.isAbsolute(relativeDestDir)) {
+             throw new Error(`Out of bound path "${canonicalDestDir}" found while processing file ${entry.fileName}`)
+           }
+ 
+@@ -85,7 +93,7 @@ class Extractor {
+       this.opts.onEntry(entry, this.zipfile)
+     }
+ 
+-    const dest = path.join(this.opts.dir, entry.fileName)
++    const dest = path.resolve(this.opts.dir, entry.fileName)
+ 
+     // convert external file attr int into a fs stat mode int
+     const mode = (entry.externalFileAttributes >> 16) & 0xFFFF
+@@ -126,6 +134,12 @@ class Extractor {
+ 
+     if (symlink) {
+       const link = await getStream(readStream)
++      const target = String(link)
++      const resolvedTarget = path.resolve(path.dirname(dest), target)
++      const relativeTarget = path.relative(this.opts.dir, resolvedTarget)
++      if (target.includes('\0') || path.isAbsolute(target) || relativeTarget === '..' || relativeTarget.startsWith(`..${path.sep}`) || path.isAbsolute(relativeTarget)) {
++        throw new Error(`Out of bound symlink target found while processing file ${entry.fileName}`)
++      }
+       debug('creating symlink', link, dest)
+       await fs.symlink(link, dest)
+     } else {

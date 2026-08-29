@@ -57,11 +57,20 @@ function pack(directory: string) {
   return archive[0];
 }
 
-function writeConsumer() {
+type PackedPackage = { name: string; archive: string };
+
+function writeConsumer(packages: PackedPackage[]) {
   fs.mkdirSync(consumerRoot, { recursive: true });
   fs.writeFileSync(
     path.join(consumerRoot, "package.json"),
     `${JSON.stringify({ name: "paper-and-slate-package-consumer", private: true, type: "module" }, null, 2)}\n`,
+  );
+  const overrides = packages
+    .map(({ name, archive }) => `  ${JSON.stringify(name)}: ${JSON.stringify(`file:${archive}`)}`)
+    .join("\n");
+  fs.writeFileSync(
+    path.join(consumerRoot, "pnpm-workspace.yaml"),
+    `onlyBuiltDependencies:\n  - esbuild\noverrides:\n${overrides}\n`,
   );
   fs.writeFileSync(
     consumerSource,
@@ -87,17 +96,20 @@ console.log(project.name);
 function main() {
   try {
     fs.mkdirSync(archiveRoot, { recursive: true });
-    const archives = packageDirectories().map(pack);
-    writeConsumer();
+    const packages = packageDirectories().map((directory) => ({
+      name: JSON.parse(fs.readFileSync(path.join(directory, "package.json"), "utf8"))
+        .name as string,
+      archive: pack(directory),
+    }));
+    writeConsumer(packages);
     run(
       [
         "add",
-        "--ignore-workspace",
         "--save-exact",
         "--save-dev",
         "tsx@4.19.3",
         "typescript@5.8.2",
-        ...archives,
+        ...packages.map(({ archive }) => archive),
       ],
       consumerRoot,
     );
@@ -135,7 +147,7 @@ function main() {
             worktreeClean: sourceWorktreeClean(status),
             dirtyPaths: sourceDirtyPaths(status),
           },
-          packages: archives.map((archive) => ({
+          packages: packages.map(({ archive }) => ({
             archive: path.basename(archive),
             sha256: sha256(archive),
           })),
@@ -150,8 +162,8 @@ function main() {
       )}\n`,
     );
     console.log(
-      `Clean package consumer smoke passed for ${archives.length} workspace packages: ${archives
-        .map((archive) => `${path.basename(archive)}:${sha256(archive).slice(0, 12)}`)
+      `Clean package consumer smoke passed for ${packages.length} workspace packages: ${packages
+        .map(({ archive }) => `${path.basename(archive)}:${sha256(archive).slice(0, 12)}`)
         .join(", ")}`,
     );
   } catch (error) {

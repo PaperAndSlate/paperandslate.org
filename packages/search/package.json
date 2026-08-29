@@ -10,5 +10,8 @@
   "scripts": {
     "lint": "eslint .",
     "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@paper-and-slate/config": "workspace:*"
   }
 }

@@ -1,7 +1,9 @@
 import { createHash } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { readBoundedJson, readBoundedResponse } from "../packages/config/src/provider-safety";
 import { inspectSecurityHeaders, type SecurityHeaderStatus } from "./hosted-security-headers";
+import { assertResponseOrigin } from "./hosted-origin";
 
 const root = process.cwd();
 const stagingUrl = process.env.STAGING_URL;
@@ -9,6 +11,8 @@ const expectedRelease = process.env.RELEASE_ID ?? "";
 const expectedGitSha = process.env.GIT_SHA ?? "";
 const outputPath = path.join(root, ".generated", "launch", "staging-publication.json");
 const hostedStagingOrigin = "https://paper-and-slate-web.dev.tower";
+const HEALTH_RESPONSE_LIMIT_BYTES = 64 * 1024;
+const ROUTE_RESPONSE_LIMIT_BYTES = 8 * 1024 * 1024;
 
 const routeDefinitions = [
   { path: "/", contentType: "text/html" },
@@ -100,7 +104,8 @@ async function fetchRoute(base: URL, definition: (typeof routeDefinitions)[numbe
       redirect: "error",
       signal: AbortSignal.timeout(15_000),
     });
-    const body = await response.text();
+    assertResponseOrigin(response.url, base.origin, `Staging route ${definition.path}`);
+    const body = await readBoundedResponse(response, ROUTE_RESPONSE_LIMIT_BYTES);
     const contentType = response.headers.get("content-type");
     const securityHeaders = inspectSecurityHeaders(response.headers, base.protocol === "https:");
     const valid =
@@ -220,7 +225,8 @@ async function main() {
     redirect: "error",
     signal: AbortSignal.timeout(15_000),
   });
-  const rawHealth = (await healthResponse.json()) as Health;
+  assertResponseOrigin(healthResponse.url, base.origin, "Staging health response");
+  const rawHealth = await readBoundedJson<Health>(healthResponse, HEALTH_RESPONSE_LIMIT_BYTES);
   const health: Health = {
     status: rawHealth.status,
     deployment: rawHealth.deployment,

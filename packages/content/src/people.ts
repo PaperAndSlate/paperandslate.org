@@ -16,3 +16,9 @@ export const people: Person[] = [
     summary: "The responsible role is recorded without inventing individual public profiles.",
   }),
 ];
+
+export function publicPeopleAt(records: Person[]) {
+  return records.filter((person) => person.status !== "hidden");
+}
+
+export const publicPeople = publicPeopleAt(people);

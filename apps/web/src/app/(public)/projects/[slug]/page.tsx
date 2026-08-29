@@ -1,11 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProject, projects } from "@paper-and-slate/content";
+import { getPublicProject, publicProjects } from "@paper-and-slate/content";
 import { PageHeader } from "../../../../components/page-primitives";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const project = getProject((await params).slug);
+  const project = getPublicProject((await params).slug);
   return project
     ? {
         title: project.name,
@@ -22,11 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 }
 
 export function generateStaticParams() {
-  return projects.map(({ slug }) => ({ slug }));
+  return publicProjects.map(({ slug }) => ({ slug }));
 }
 
 export default async function ProjectDetail({ params }: { params: Promise<{ slug: string }> }) {
-  const project = getProject((await params).slug);
+  const project = getPublicProject((await params).slug);
   if (!project) notFound();
   return (
     <main id="main-content" className="page-wrap container">

@@ -1,9 +1,9 @@
 import {
-  filterProjects,
+  filterPublicProjects,
   projectHealthLegend,
   projectMaturityLegend,
   projectStatusLegend,
-  projects,
+  publicProjects,
 } from "@paper-and-slate/content";
 import { ProjectCard } from "../../../components/project-card";
 import { PageHeader } from "../../../components/page-primitives";
@@ -22,9 +22,9 @@ export default async function Projects({
   }>;
 }) {
   const filters = await searchParams;
-  const visible = filterProjects(filters);
-  const types = [...new Set(projects.map((project) => project.type))].sort();
-  const tags = [...new Set(projects.flatMap((project) => project.tags))].sort();
+  const visible = filterPublicProjects(filters);
+  const types = [...new Set(publicProjects.map((project) => project.type))].sort();
+  const tags = [...new Set(publicProjects.flatMap((project) => project.tags))].sort();
   const listView = filters.view === "list";
   const viewHref = (view: "grid" | "list") => {
     const params = new URLSearchParams();
@@ -103,7 +103,7 @@ export default async function Projects({
       </form>
       <div className="registry-toolbar">
         <p className="muted">
-          Showing {visible.length} of {projects.length} projects.
+          Showing {visible.length} of {publicProjects.length} projects.
         </p>
         <div className="view-toggle" aria-label="Project view">
           <a className={!listView ? "active" : ""} href={viewHref("grid")}>
