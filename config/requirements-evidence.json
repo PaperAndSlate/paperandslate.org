@@ -288,17 +288,14 @@
       "notes": "Representative production routes and interaction states pass the RC accessibility suite; this is not a complete human audit."
     },
     "WEB-REQ-0027": {
-      "status": "partial",
+      "status": "verified-local",
       "implementationFiles": ["scripts/lighthouse.ts", "lighthouserc.json"],
       "verificationCommands": ["pnpm lighthouse", "pnpm performance:check"],
       "generatedEvidence": [
         ".generated/launch/lighthouse/lighthouse-run.json",
         ".generated/launch/performance-summary.json"
       ],
-      "externalDependencies": [
-        "Usable local or hosted Chromium runner for a fresh Lighthouse execution"
-      ],
-      "blocker": "The Lighthouse implementation and configured budgets are present, but the current local manifest is stale/running and the performance gate cannot accept it; a fresh bounded Lighthouse run is required."
+      "notes": "Fresh bounded local Lighthouse evidence passed: 12 reports across six configured routes with two runs per route; configured category assertions and performance budgets passed. This is local release-artifact evidence and does not replace hosted CI or staging evidence."
     },
     "WEB-REQ-0028": {
       "status": "verified-local",
@@ -312,7 +309,7 @@
       "notes": "Nonce-based production CSP, hydration, headers, and representative interactivity pass against the standalone build."
     },
     "WEB-REQ-0029": {
-      "status": "partial",
+      "status": "verified-local",
       "implementationFiles": [
         "infrastructure/docker/Dockerfile",
         ".dockerignore",
@@ -320,19 +317,17 @@
       ],
       "verificationCommands": ["pnpm container:check"],
       "generatedEvidence": [".generated/launch/container-check.json"],
-      "externalDependencies": ["Docker daemon or hosted Linux container runner"],
-      "blocker": "The image and runtime check are implemented, but the current Windows environment timed out during docker version before producing a runtime receipt."
+      "notes": "Fresh bounded local Docker acceptance passed against the current SHA; image build and runtime receipt are local evidence only and do not replace hosted runner acceptance."
     },
     "WEB-REQ-0030": {
-      "status": "partial",
+      "status": "verified-local",
       "implementationFiles": ["infrastructure/docker/Dockerfile", "scripts/container-check.ts"],
       "verificationCommands": ["pnpm container:check"],
       "generatedEvidence": [".generated/launch/container-check.json"],
-      "externalDependencies": ["Docker daemon or hosted Linux container runner"],
-      "blocker": "The non-root assertion is implemented but has no current local runtime receipt because the Docker daemon is unavailable."
+      "notes": "Fresh bounded local Docker acceptance verified runtime UID 1000 and the declared health check against the current SHA; hosted runner evidence remains separate."
     },
     "WEB-REQ-0031": {
-      "status": "partial",
+      "status": "verified-local",
       "implementationFiles": [
         "apps/web/src/app/health/route.ts",
         "infrastructure/docker/Dockerfile",
@@ -343,8 +338,7 @@
         ".generated/launch/container-check.json",
         ".generated/launch/production-browser.json"
       ],
-      "externalDependencies": ["Docker daemon or hosted Linux container runner"],
-      "blocker": "Standalone production health evidence exists, but the container health path cannot be revalidated locally until a Docker-capable runner is available."
+      "notes": "Fresh bounded local Docker acceptance returned status=ok with matching release and Git identity; hosted container-runner evidence remains separate."
     },
     "WEB-REQ-0032": {
       "status": "verified-local",

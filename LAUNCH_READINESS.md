@@ -1,45 +1,54 @@
 # Paper & Slate launch readiness
 
 Date: 2026-08-28
-Verdict: v1.0.0-rc.3 closure is blocked; no final release or production change is approved
+Verdict: repository-controlled hosted-validation readiness is locally complete; RC3 closure, launch, publication, and production readiness remain externally blocked
 
-## Current RC3 execution snapshot
+## Current local candidate
 
-- The current exact repository candidate and branch relationship are recorded in `.generated/launch/repository-identity.json` and `.generated/requirements/traceability-check.json`; no push was made by this task.
-- Historical Forgejo runs 61/container, 62/Lighthouse, and 63/quality all failed for `06491dc…`; later remote dispatches 64–69 for `dc6d78a…` were rejected before runner assignment. No hosted CI evidence exists for the current local repository candidate, so CI is not green for the current candidate.
-- Staging deployment `b4c1jatqaidljtcpc4nly1yp` is pinned to the older `06491dc…` candidate and completed with exact source import and a healthy replacement container. Direct `/health` returned its staging identity, but the deployment is source-build only and reports `providerReady:false`; it is not current-candidate evidence.
-- Hosted publication/feed checks returned 200 for the representative route set and all three feeds; mapped browser smoke passed 12 representative routes. A mapped Lighthouse sweep scored all six routes at 1.0 across the four categories, with slow-load warnings on `/` and `/projects/file-system`. Visual acceptance remains blocked by image delivery and route-specific `og:url` metadata inconsistency.
-- The provider and staging receipts summarized here belong to the older hosted candidate: the full provider contract has a fresh Tempo HTTP 503 failure; Typesense remains empty/static-fallback, the only SLO is a degraded historical window, and immutable OCI/digest deployment, rollback, and human approvals remain open for the current local repository candidate.
-- RC1 remains unchanged at `031b5447786f9c619288c9044bb5bc65319a30d7`; RC3 has not been tagged. OCI, digest deployment, rollback, release-specific SLO, and human approvals remain open.
+- The exact candidate commit, tree, branch, remote relationship, and worktree state are recorded in `.generated/launch/repository-identity.json`, `.generated/requirements/traceability-check.json`, and the latest `.generated/evidence/<release-id>/manifest.json`.
+- The candidate is intentionally local. It has not been pushed, tagged, released, deployed, published, or rebound to any historical RC receipt.
+- An immediately following commit that changes only `IMPLEMENTATION_LEDGER.md` and `.generated/requirements/` is an evidence-only descendant under the repository source-state policy. It does not create a new application candidate.
+- The current generated register contains 1,073 uniquely identified requirements mapped across all 89 planning Markdown files. Local verification status is classified separately from hosted, provider, deployment, artifact, release, and human evidence.
 
-The RC2 material below is retained as historical provenance. It is not current RC3 evidence.
+## Local verification
 
-## Historical RC2 snapshot
+The final candidate must be accepted only from a successful `pnpm verify` run with external skips disabled. That aggregate run covers:
 
-Candidate source `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` is deployed as `v1.0.0-rc.2` to `https://paper-and-slate-web.dev.tower` in Coolify deployment `zzpooecepztro4urk5sx6obv`. `/health` reports the exact staging deployment, release, and SHA. Immutable `v1.0.0-rc.1` remains unchanged at `031b5447786f9c619288c9044bb5bc65319a30d7`; `v1.0.0-rc.2` has not been tagged.
+- workflow policy, traceability, documentation ingestion and validation, search indexing, content, feeds, release records, routes, security, licensing, SEO, and rollback policy;
+- repository formatting, lint, TypeScript, unit tests, production builds, clean package consumers, and deterministic generation;
+- browser smoke, automated release-candidate accessibility, links, visual baselines, production browser checks, and local visual capture;
+- wrapper failure behavior, non-root Docker build/runtime/health, SBOM generation, repository identity, secret/security scanning, Lighthouse, performance budgets, vulnerability reporting, launch reporting, and evidence bundling.
 
-## What is green locally
+The Lighthouse gate is local evidence only. It requires all six configured routes, two runs per route, retained route identity in the aggregate summary, and the existing category and resource/performance budgets. The Docker gate is local evidence only and requires a non-root UID, declared health check, exact local release identity, and a successful local runtime probe. Neither gate is hosted CI or staging proof.
 
-The earlier local aggregate run passed 28 checks at source `65f739168f71e6c8a6b9c16d5c09929b0ead41cc` with external checks intentionally skipped, and the RC2 focused checks passed at `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b`; those are historical evidence. Hosted staging publication, Lighthouse, and visual capture also refer to the older `06491dc…`/RC2 evidence and do not prove the current local repository candidate. Visual comparison and rights approval remain human-review-pending.
+Generated evidence lives under `.generated/launch/`; the hashed local bundle lives under `.generated/evidence/<release-id>/`. The visual manifest remains `human-review-pending` by design even when automated visual checks pass.
 
-Run and inspect:
+## Historical hosted evidence
 
-```sh
-pnpm verify
-```
+- Forgejo runs 61/container, 62/Lighthouse, and 63/quality failed for `06491dc57fa3f3a43c365a4ab24e07f21e7b04d6`. Later dispatches did not produce a current-candidate hosted receipt.
+- Staging deployment `b4c1jatqaidljtcpc4nly1yp` used the older `06491dc…` source-build candidate. Its healthy `/health` response, publication/feed checks, browser checks, and Lighthouse results are historical staging evidence only.
+- Historical RC2 source `7aaa9b45ba0b6264d089eb530ecfd471a8e2008b` and deployment `zzpooecepztro4urk5sx6obv` remain provenance records, not current RC3 evidence.
+- Immutable RC1 remains `031b5447786f9c619288c9044bb5bc65319a30d7`. There is no current-candidate RC3 tag or immutable hosted artifact.
 
-The generated evidence is under `.generated/launch/` and the release bundle is under `.generated/evidence/<release-id>/`. The visual manifest stays human-review-pending by design.
+No historical hosted, staging, provider, monitor, publication, or artifact receipt is promoted to the current local candidate.
 
-## Gates still required
+## Hosted and operator gates
 
-1. Passing private Forgejo CI task logs/artifacts and protected review. Exact-candidate runs 25–27 failed and Tower exposed no Actions jobs/tasks, so the provider failure must be inspected in Forgejo before another workflow change or rerun.
-2. Keep immutable `v1.0.0-rc.1` at `031b544...`; create `v1.0.0-rc.2` only after the exact source has passing CI, approved review/signature, hosted immutable OCI digest, SBOM, provenance, scan, and vulnerability disposition.
-3. The authorized Coolify staging workload is healthy at deployment `zzpooecepztro4urk5sx6obv`; hosted canonical, publication, feed, and Lighthouse checks pass. Route-specific monitor materialization still needs controller review.
-4. Complete or explicitly defer provider gates: Typesense collection/index/alias/ranking/facet/preview evidence, app-level Valkey TTL/idempotency/rate-limit/failure tests, a final exact-SHA GlitchTip event, and the Kit decision. The application remains in safe static-fallback mode.
-5. Human visual comparison and media/font rights approval; current captures retain rights-review-pending watermarks.
-6. Qualified legal/privacy/licensing/trademark and factual/institutional/people/project/funding approval.
-7. DNS/TLS ownership for any production host, release-specific SLO/on-call and historical-alert disposition, and a two-good-deployment staging rollback drill. Fresh monitor probes pass, but the available 24-hour SLO is historical and degraded.
-8. Private OCI image, image/lockfile SBOM, provenance, signature, registry scan, and deployed-digest equality. The project-scoped registry is currently empty.
-9. Publication/correction/syndication ownership and production feed acceptance. Staging route/feed validation is evidence, not editorial or public-publisher approval.
+1. Push the exact approved candidate only under repository-owner authority, then obtain exact-SHA GitHub/Forgejo CI, CodeQL, dependency-review, protected-review, and branch-protection receipts across the supported platform matrix.
+2. Build and publish an immutable OCI artifact from that exact candidate. Record the hosted digest, image and lockfile SBOMs, scan disposition, provenance, signature or approved signing exception, and deployed-digest equality.
+3. Deploy the exact immutable digest to authorized staging. Record deployment identity, `/health`, canonical/metadata, route, browser, accessibility, visual, publication, feed, and post-deploy provider receipts without rebinding older source-build evidence.
+4. Complete Typesense collection/index/alias/ranking/facet/preview validation and prove static fallback under provider failure.
+5. Complete application-level Valkey TTL, shared idempotency, distributed rate-limit, restart, and failure-policy validation.
+6. Repair or approve the managed GlitchTip DSN binding and capture an exact-candidate labelled event. Keep newsletter/Kit disabled until provider and privacy approval exists.
+7. Start a release-specific monitor/SLO window against the exact deployment, retain historical degraded SLO evidence, approve on-call ownership, and execute a two-good-deployment A-to-B-to-A rollback drill.
+8. Obtain DNS/TLS, canonical production host, deployment, rollback, registry, release/tag, and publication authority before any production mutation.
 
-Production deployment, DNS/TLS changes, public GitHub publication, final `v1.0.0`, authentication, API, and platform integration remain outside this task. The exact owner/operator steps are in [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md) and [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md).
+## Human gates
+
+- Visual comparison, brand, manual assistive-technology, media/font/icon provenance and rights approval.
+- Qualified legal, privacy, licensing, trademark, factual, institutional, people, project, funding, governance, editorial, vulnerability-disposition, and security approval.
+- Publication, corrections, syndication, feed, on-call/SLO, rollback, release-owner, reviewer, and production acceptance.
+
+The standards project remains Planned/Experimental; EOM is not IANA-registered or production-final; data-platform and standards-registry outputs are not official without source-rights proof; UI claims remain unauthorized; icon/media rights await accepted provenance repair; and Documents terminology remains authoritative.
+
+Production deployment, DNS/TLS changes, public GitHub publication, final `v1.0.0`, authentication, API, and platform integration remain outside this local integration task. Operator steps remain in [`NEXT_PHASE_MANUAL_REVIEW.md`](NEXT_PHASE_MANUAL_REVIEW.md) and [`RELEASE_EVIDENCE_HANDOFF.md`](RELEASE_EVIDENCE_HANDOFF.md).

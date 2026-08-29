@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   evaluatePerformance,
+  performanceMetrics,
+  summarizePerformance,
   type LighthouseResult,
   type PerformanceBudgets,
 } from "../scripts/performance-check";
@@ -99,5 +101,21 @@ describe("performance budget enforcement", () => {
     );
     expect(result.failures.map((failure) => failure.metric)).toContain("performance");
     expect(result.failures.map((failure) => failure.metric)).toContain("largest-contentful-paint");
+  });
+
+  it("keeps route identity in the aggregate summary", () => {
+    const metrics = performanceMetrics(fixture());
+    expect(
+      summarizePerformance([
+        { route: "https://staging.example.test/", metrics },
+        { route: "https://staging.example.test/", metrics: { ...metrics, lcpMs: 900 } },
+      ]),
+    ).toEqual([
+      expect.objectContaining({
+        route: "https://staging.example.test/",
+        runs: 2,
+        maximums: expect.objectContaining({ lcpMs: 900 }),
+      }),
+    ]);
   });
 });

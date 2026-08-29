@@ -67,6 +67,12 @@ export type PerformanceFailure = {
   reportPath: string;
 };
 
+export type PerformanceRouteSummary = {
+  route: string;
+  runs: number;
+  maximums: Partial<PerformanceMetrics>;
+};
+
 function numeric(value: unknown) {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
 }
@@ -137,6 +143,33 @@ export function evaluatePerformance(
     return passed ? [] : [{ route, metric, actual, budget, reportPath }];
   });
   return { metrics, failures };
+}
+
+export function summarizePerformance(
+  evaluated: ReadonlyArray<{ route: string; metrics: PerformanceMetrics }>,
+): PerformanceRouteSummary[] {
+  return Object.values(
+    evaluated.reduce<Record<string, PerformanceRouteSummary>>((summary, item) => {
+      const current = (summary[item.route] ??= { route: item.route, runs: 0, maximums: {} });
+      current.runs += 1;
+      for (const key of [
+        "lcpMs",
+        "cls",
+        "tbtMs",
+        "inpMs",
+        "javascriptKb",
+        "cssKb",
+        "imageKb",
+        "fontKb",
+        "requestCount",
+      ] as const) {
+        const value = item.metrics[key];
+        if (value !== undefined)
+          current.maximums[key] = Math.max(Number(current.maximums[key] ?? 0), value);
+      }
+      return summary;
+    }, {}),
+  );
 }
 
 function readBudgets(root: string) {
@@ -229,31 +262,7 @@ function main() {
     dirtyPaths: status === null ? [] : sourceDirtyPaths(status),
     lighthouseGitSha: lighthouseManifest.gitSha ?? null,
   };
-  const routeSummary = Object.values(
-    evaluated.reduce<Record<string, { runs: number; maximums: Partial<PerformanceMetrics> }>>(
-      (summary, item) => {
-        const current = (summary[item.route] ??= { runs: 0, maximums: {} });
-        current.runs += 1;
-        for (const key of [
-          "lcpMs",
-          "cls",
-          "tbtMs",
-          "inpMs",
-          "javascriptKb",
-          "cssKb",
-          "imageKb",
-          "fontKb",
-          "requestCount",
-        ] as const) {
-          const value = item.metrics[key];
-          if (value !== undefined)
-            current.maximums[key] = Math.max(Number(current.maximums[key] ?? 0), value);
-        }
-        return summary;
-      },
-      {},
-    ),
-  );
+  const routeSummary = summarizePerformance(evaluated);
   fs.writeFileSync(
     path.join(root, ".generated/launch/performance-summary.json"),
     `${JSON.stringify({ schemaVersion: 2, budgets, source, reports: evaluated, routeSummary }, null, 2)}\n`,
