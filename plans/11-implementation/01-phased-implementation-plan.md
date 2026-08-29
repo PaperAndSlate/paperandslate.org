@@ -196,3 +196,7 @@ Prioritize based on real use:
 - future Developer Platform docs.
 
 Do not begin authentication or API implementation solely because the navigation reserves it.
+
+## DCP-0 — Non-production Developer Control Plane foundation
+
+After the public-site/RC3 phase, accept only the successor decision, architecture plan, Data Platform projection receipt, disabled Tower intent, and isolated requirements evidence. Before any implementation, require a provider-selection review, threat model, privacy/security approval, database/migration plan, transport decision, contract fixtures, and explicit external authority. DCP-0 does not reopen RC3 or provision infrastructure.

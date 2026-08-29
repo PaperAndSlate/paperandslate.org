@@ -133,3 +133,9 @@ Prepare a functional Kit integration behind environment configuration. The form 
 ## D-018 — No authentication or API console
 
 Do not add login, user models, API keys, organization claims, or an authenticated console in this phase. Reserve documentation taxonomy and route boundaries for a future Developer Platform section.
+
+## D-019 — Non-production Developer Control Plane successor
+
+This is a successor decision, not a revision of D-018. After RC3, Paper & Slate may plan a separately authorized Developer Control Plane. Its preferred human identity is Better Auth in a separate logical Web-owned identity/control database; it owns users, sessions, accounts, organizations, and memberships. Tower Keycloak is explicitly not the application identity.
+
+Machine credentials belong to organization → project → key, never directly to a user. Web owns human authorization, lifecycle UI/control plane, audit, and the transactional outbox. The Data Platform receives only a machine-verifier projection and performs usage enforcement. API-key provider selection stays conditional behind an abstraction until project binding, portable verification, auditing, rotation/revocation, runtime, and security fit are demonstrated from primary documentation and project evidence. This decision authorizes no application, provider, or Tower resource implementation.

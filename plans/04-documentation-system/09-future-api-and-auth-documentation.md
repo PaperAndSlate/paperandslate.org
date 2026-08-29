@@ -60,3 +60,7 @@ Use one of:
 - preview visibility for internal/reviewer deployments.
 
 The recommended launch state is hidden, with only an architecture note in the roadmap.
+
+## Non-production control-plane boundary
+
+The successor Developer Control Plane plan is internal planning material, not a promise that these documentation routes, an authenticated console, or an API are available. Any future reference must distinguish Web human identity/control-plane ownership from Data Platform machine verification and must publish no credential scheme or endpoint reference before a reviewed contract and implementation exist.

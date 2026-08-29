@@ -139,3 +139,7 @@ Optional later resources:
 A visitor should leave with this clear understanding:
 
 > Paper & Slate is an open foundation building the common infrastructure education software and schools have been missing.
+
+## Successor: non-production Developer Control Plane
+
+D-018 remains the decision for the public-site/RC3 release. A later, separately authorized non-production Developer Control Plane may establish its architecture and cross-project contracts without changing that release's scope, evidence, or status. It is not a public API, login, console, or provider activation.

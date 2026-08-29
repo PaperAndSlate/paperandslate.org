@@ -103,6 +103,10 @@ The following should have extension points but no launch implementation:
 - organization verification;
 - external contributor author profiles.
 
+## Separately authorized non-production planning
+
+DCP-0 may record a successor decision, security constraints, a Data Platform interface receipt, disabled infrastructure intent, and isolated traceability. It does not change the first-build non-goals above or RC3 classifications, and it does not authorize application code, dependencies, migrations, routes, UI, credentials, or external resources.
+
 ## Content completeness standard
 
 A page may be implemented but hidden from navigation when authoritative content is not ready. Hidden pages must not ship with generic lorem ipsum or invented governance facts.

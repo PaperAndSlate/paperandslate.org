@@ -31,3 +31,7 @@ These capabilities change the threat model, legal/privacy scope, data-processing
 ## What Codex can do later
 
 After an explicit future implementation request and the approvals above, Codex can draft contracts, implement bounded changes, generate migrations, write tests, configure authorized staging providers, run redacted acceptance checks, and attach evidence to a separately identified release. Nothing in this file authorizes those mutations now.
+
+## DCP-0 successor exception
+
+DCP-0 is permitted only as a non-production planning and contract phase. It may create the successor ADR, data-platform interface receipt, disabled Tower intent, and isolated traceability artifacts. It does not authorize any deferred implementation above, does not change D-018 or RC3 evidence, and cannot apply Tower resources or record secret values.

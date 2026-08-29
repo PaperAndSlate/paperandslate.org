@@ -46,6 +46,10 @@ Only after API/auth product design is complete:
 - console design;
 - operational SLAs.
 
+### DCP-0 prerequisite
+
+The first post-RC3 control-plane step is planning only: settle the successor architecture and the Web–Data Platform machine-verifier projection without activating accounts, keys, databases, or Tower resources. Provider selection and implementation are subsequent gated work.
+
 ## Nonprofit consideration
 
 Formal incorporation may be evaluated when:
