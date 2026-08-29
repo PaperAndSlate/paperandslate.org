@@ -31,11 +31,17 @@ jobs:
           - os: ubuntu-24.04
             node: 22.x
           - os: ubuntu-24.04
+            node: 24.17.0
+          - os: ubuntu-24.04
             node: 24.x
           - os: windows-latest
-            node: 22.x
+            node: 24.17.0
+          - os: windows-latest
+            node: 24.x
           - os: macos-latest
-            node: 22.x
+            node: 24.17.0
+          - os: macos-latest
+            node: 24.x
     env:
       RELEASE_ID: ci-${{ github.sha }}
       GIT_SHA: ${{ github.sha }}
@@ -52,7 +58,7 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm workflow:check
+      - run: pnpm actions:check
       - run: pnpm traceability:check
       - run: pnpm docs:bundle:check
       - run: pnpm search:index
@@ -70,8 +76,8 @@ jobs:
       - run: pnpm test
       - run: pnpm build:verify
       - run: pnpm build:web
-      - run: pnpm package:smoke
-      - run: pnpm reproducibility:check
+      - run: pnpm packages:check
+      - run: pnpm verify:release-reproducibility
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
         with:
@@ -105,10 +111,11 @@ jobs:
           cache: pnpm
           cache-dependency-path: pnpm-lock.yaml
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm exec tsx scripts/ci-browser.ts verify
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
+      - run: pnpm verify:hosted
         env:
           CI: true
+          PLAYWRIGHT_BROWSER_MATRIX: true
           RELEASE_ID: ci-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

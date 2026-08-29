@@ -24,6 +24,38 @@ const baseURL = (() => {
 
 const browserExecutablePath = resolveBrowserExecutablePath();
 
+const crossBrowserTestMatch = /[\\/]((?:smoke|a11y-rc))\.spec\.ts$/;
+
+export function browserProjects(
+  includeCrossBrowser = process.env.PLAYWRIGHT_BROWSER_MATRIX === "true",
+  chromiumPath = browserExecutablePath,
+) {
+  const projects = [
+    {
+      name: "chromium",
+      use: {
+        ...devices["Desktop Chrome"],
+        browserName: "chromium" as const,
+        launchOptions: { executablePath: chromiumPath },
+      },
+    },
+  ];
+  if (!includeCrossBrowser) return projects;
+  return [
+    ...projects,
+    {
+      name: "firefox",
+      testMatch: crossBrowserTestMatch,
+      use: { ...devices["Desktop Firefox"], browserName: "firefox" as const },
+    },
+    {
+      name: "webkit",
+      testMatch: crossBrowserTestMatch,
+      use: { ...devices["Desktop Safari"], browserName: "webkit" as const },
+    },
+  ];
+}
+
 export default defineConfig({
   testDir: "./tests/browser",
   snapshotDir: "./tests/browser/snapshots",
@@ -31,7 +63,6 @@ export default defineConfig({
   use: {
     baseURL,
     trace: "retain-on-failure",
-    launchOptions: browserExecutablePath ? { executablePath: browserExecutablePath } : undefined,
   },
   webServer: configuredBaseUrl
     ? undefined
@@ -40,5 +71,5 @@ export default defineConfig({
         url: `http://127.0.0.1:${localPort}`,
         reuseExistingServer: false,
       },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  projects: browserProjects(),
 });

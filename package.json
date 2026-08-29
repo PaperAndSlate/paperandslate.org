@@ -54,7 +54,11 @@
     "vulnerability:scan": "tsx scripts/vulnerability-scan.ts",
     "evidence:bundle": "tsx scripts/evidence-bundle.ts",
     "launch:report": "tsx scripts/launch-report.ts",
-    "verify": "tsx scripts/verify.ts"
+    "verify": "tsx scripts/verify.ts",
+    "verify:hosted": "tsx scripts/ci-browser.ts verify",
+    "actions:check": "pnpm workflow:check",
+    "packages:check": "pnpm package:smoke",
+    "verify:release-reproducibility": "pnpm reproducibility:check"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.10.2",
