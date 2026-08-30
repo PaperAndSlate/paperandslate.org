@@ -1,15 +1,47 @@
 {
   "schemaVersion": 1,
   "status": "passed",
-  "generatedAt": "2026-08-30T05:21:12.670Z",
+  "generatedAt": "2026-08-30T16:17:26.352Z",
   "generatedBy": "pnpm traceability:check",
   "source": {
-    "commit": "9c0d3fe0bb1be12dd8323a16c4cea686daee77ca",
-    "tree": "ec17159db81863c9d142fcb4a278c872823523ab",
-    "lockfileSha256": "22fef38fc0c4f0c5f2cc74e04088b67f531e86f8a503454a416c607a3d53b8ed",
-    "worktreeClean": true,
-    "dirtyPaths": [],
+    "commit": "a32604004cbfeeb90e7c114a9c369834bc3bcfa3",
+    "tree": "743da2ad148d789972041ed734eaa9af774f6f78",
+    "lockfileSha256": "a594e85f49bf5fd0fd2cadce11be53c327a9d3cc9ada4af8a00c049a21cf9906",
+    "worktreeClean": false,
+    "dirtyPaths": [
+      "DEVELOPER_CONTROL_PLANE_LEDGER.md",
+      "SECURITY.md",
+      "config/developer-control-plane-requirements.json",
+      "infrastructure/tower/developer-control-plane.intent.yaml",
+      "package.json",
+      "packages/config/src/env.ts",
+      "plans/11-implementation/01-phased-implementation-plan.md",
+      "plans/13-developer-control-plane/01-foundation-and-interface-contract.md",
+      "pnpm-lock.yaml",
+      "scripts/developer-control-plane-requirements.ts",
+      "tests/developer-control-plane-requirements.test.ts",
+      "docs/decisions/ADR-0015-developer-control-plane-foundation-controls.md",
+      "docs/privacy/developer-control-plane-data-handling.md",
+      "docs/security/developer-control-plane-threat-model.md",
+      "packages/developer-control-plane/migrations/0001_auth_schema.sql",
+      "packages/developer-control-plane/migrations/0002_control_schema.sql",
+      "packages/developer-control-plane/migrations/0003_least_privilege_roles.sql",
+      "packages/developer-control-plane/package.json",
+      "packages/developer-control-plane/src/auth.ts",
+      "packages/developer-control-plane/src/fixtures.ts",
+      "packages/developer-control-plane/src/index.ts",
+      "packages/developer-control-plane/src/model.ts",
+      "packages/developer-control-plane/src/rbac.ts",
+      "packages/developer-control-plane/src/retention.ts",
+      "packages/developer-control-plane/src/service.ts",
+      "packages/developer-control-plane/tsconfig.json",
+      "scripts/developer-control-plane-architecture.ts",
+      "scripts/developer-control-plane-migrations.ts",
+      "tests/developer-control-plane-foundation.test.ts",
+      "tests/developer-control-plane-security.test.ts"
+    ],
     "generatedPaths": [
+      ".generated/requirements/developer-control-plane-requirements.json",
       ".generated/requirements/requirements.json",
       ".generated/requirements/traceability-check.json",
       "IMPLEMENTATION_LEDGER.md"
@@ -21,8 +53,8 @@
     "unmappedFiles": []
   },
   "requirements": {
-    "records": 1085,
-    "uniqueIds": 1085
+    "records": 1088,
+    "uniqueIds": 1088
   },
   "checks": [
     "all planning Markdown files have a PLAN-REQ index row",

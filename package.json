@@ -32,6 +32,8 @@
     "workflow:check": "tsx scripts/workflow-check.ts",
     "requirements:check": "tsx scripts/requirements-report.ts",
     "control-plane:requirements:check": "tsx scripts/developer-control-plane-requirements.ts",
+    "control-plane:architecture:check": "tsx scripts/developer-control-plane-architecture.ts",
+    "control-plane:migrations:check": "tsx scripts/developer-control-plane-migrations.ts",
     "traceability:check": "pnpm requirements:check && tsx scripts/traceability-check.ts",
     "package:smoke": "tsx scripts/package-smoke.ts",
     "reproducibility:check": "tsx scripts/reproducibility-check.ts",

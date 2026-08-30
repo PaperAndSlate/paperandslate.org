@@ -85,4 +85,21 @@ describe("Developer Control Plane requirements", () => {
     expect(combined).toContain("Provider selection remains pending");
     expect(combined).toContain("do not establish project binding");
   });
+
+  it("tracks the DCP-1A kernel without advancing the API-key provider gate", () => {
+    const parsed = JSON.parse(
+      fs.readFileSync(
+        path.join(root, "config", "developer-control-plane-requirements.json"),
+        "utf8",
+      ),
+    ) as { requirements: Array<{ id: string; status: string }> };
+    expect(parsed.requirements).toHaveLength(12);
+    expect(parsed.requirements.filter((item) => item.status === "verified-local")).toHaveLength(11);
+    expect(parsed.requirements.find((item) => item.id === "DCP-REQ-005")?.status).toBe(
+      "not-started",
+    );
+    expect(parsed.requirements.map((item) => item.id)).toEqual(
+      Array.from({ length: 12 }, (_, index) => `DCP-REQ-${String(index + 1).padStart(3, "0")}`),
+    );
+  });
 });

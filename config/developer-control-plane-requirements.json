@@ -35,6 +35,55 @@
       "section": "Provider decision gate",
       "requirement": "API-key provider selection remains conditional until project binding, portable verification, audit, rotation/revocation, runtime, and security fit are proven.",
       "status": "not-started"
+    },
+    {
+      "id": "DCP-REQ-006",
+      "source": "docs/decisions/ADR-0015-developer-control-plane-foundation-controls.md",
+      "section": "Decision",
+      "requirement": "Pinned Better Auth 1.7.2 core and explicit organization-role configuration are disabled by default, server-only, database-backed, exact-origin protected, and do not enable API-key sessions.",
+      "status": "verified-local"
+    },
+    {
+      "id": "DCP-REQ-007",
+      "source": "docs/decisions/ADR-0015-developer-control-plane-foundation-controls.md",
+      "section": "Decision",
+      "requirement": "Organization and project ownership plus every owner, admin, developer, and read-only analyst authorization edge is explicit and locally verified.",
+      "status": "verified-local"
+    },
+    {
+      "id": "DCP-REQ-008",
+      "source": "docs/privacy/developer-control-plane-data-handling.md",
+      "section": "Handling rules",
+      "requirement": "Create, list, rotate, revoke, malformed-input rejection, persistence, audit, outbox, metrics, errors, and retries preserve one-time plaintext and metadata-only redaction guarantees.",
+      "status": "verified-local"
+    },
+    {
+      "id": "DCP-REQ-009",
+      "source": "docs/decisions/ADR-0015-developer-control-plane-foundation-controls.md",
+      "section": "Decision",
+      "requirement": "Lifecycle transactions use UUIDv7 identities, finite non-negative integer projection validation, monotonic per-organization policy versions, idempotency metadata, exact 24-hour overlap, and immediate revocation precedence.",
+      "status": "verified-local"
+    },
+    {
+      "id": "DCP-REQ-010",
+      "source": "docs/security/developer-control-plane-threat-model.md",
+      "section": "Threat model, trust boundaries, and assumptions",
+      "requirement": "Browser/server, server/PostgreSQL, provider, outbox/Data, Tower/Infisical, and telemetry trust boundaries are documented and fail closed.",
+      "status": "verified-local"
+    },
+    {
+      "id": "DCP-REQ-011",
+      "source": "infrastructure/tower/developer-control-plane.intent.yaml",
+      "section": "topology",
+      "requirement": "Separate auth/control PostgreSQL schemas and least-privilege roles are represented by deterministic generate-only migrations whose auth surface is parity-checked against pinned Better Auth 1.7.2 getAuthTables, with no live apply.",
+      "status": "verified-local"
+    },
+    {
+      "id": "DCP-REQ-012",
+      "source": "plans/13-developer-control-plane/01-foundation-and-interface-contract.md",
+      "section": "Deferred DCP-1B gates",
+      "requirement": "ProjectionTransport remains disabled and no Data-compatible mapping, provider, transport, or network claim is made before an immutable accepted receipt.",
+      "status": "verified-local"
     }
   ]
 }

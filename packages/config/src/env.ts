@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const envSchema = z.object({
+const baseEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DEPLOYMENT_ENV: z.enum(["local", "ci", "staging", "production"]).default("local"),
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
@@ -29,6 +29,49 @@ export const envSchema = z.object({
   TYPESENSE_INDEX_ID: z.string().optional(),
   GLITCHTIP_DSN: z.string().url().optional(),
   RELEASE_ID: z.string().default("local-development"),
+  DCP_ENABLED: z.enum(["true", "false"]).default("false"),
+  DCP_FIXTURE_AUTH_ENABLED: z.enum(["true", "false"]).default("false"),
+  DCP_DATABASE_URL: z.string().url().optional(),
+  DCP_BETTER_AUTH_SECRET: z.string().min(32).optional(),
+  DCP_BETTER_AUTH_URL: z.string().url().optional(),
+  DCP_TRUSTED_ORIGINS: z.string().optional(),
+});
+
+export const envSchema = baseEnvSchema.superRefine((env, context) => {
+  if (env.DCP_ENABLED === "true") {
+    const required: Array<[keyof typeof env, unknown]> = [
+      ["DCP_DATABASE_URL", env.DCP_DATABASE_URL],
+      ["DCP_BETTER_AUTH_SECRET", env.DCP_BETTER_AUTH_SECRET],
+      ["DCP_BETTER_AUTH_URL", env.DCP_BETTER_AUTH_URL],
+      ["DCP_TRUSTED_ORIGINS", env.DCP_TRUSTED_ORIGINS],
+    ];
+    for (const [path, value] of required) {
+      if (!value)
+        context.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [path],
+          message: `${path} is required when DCP_ENABLED=true`,
+        });
+    }
+    if (env.DCP_DATABASE_URL && !/^postgres(?:ql)?:\/\//.test(env.DCP_DATABASE_URL))
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["DCP_DATABASE_URL"],
+        message: "DCP_DATABASE_URL must use PostgreSQL",
+      });
+  }
+
+  if (
+    env.DCP_FIXTURE_AUTH_ENABLED === "true" &&
+    (env.DCP_ENABLED !== "true" ||
+      env.DEPLOYMENT_ENV === "staging" ||
+      env.DEPLOYMENT_ENV === "production")
+  )
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["DCP_FIXTURE_AUTH_ENABLED"],
+      message: "DCP fixture authentication is permitted only in enabled local or CI environments",
+    });
 });
 
 export type Env = z.infer<typeof envSchema>;

@@ -200,3 +200,13 @@ Do not begin authentication or API implementation solely because the navigation 
 ## DCP-0 — Non-production Developer Control Plane foundation
 
 After the public-site/RC3 phase, accept only the successor decision, architecture plan, Data Platform projection receipt, disabled Tower intent, and isolated requirements evidence. Before any implementation, require a provider-selection review, threat model, privacy/security approval, database/migration plan, transport decision, contract fixtures, and explicit external authority. DCP-0 does not reopen RC3 or provision infrastructure.
+
+## DCP-1A — Fixture-gated control-plane kernel
+
+Build the repository-only Web-owned kernel behind disabled-by-default flags. Pin Better Auth core, its organization plugin, and direct PostgreSQL support for database-backed fixture evaluation. Implement organization/project ownership, explicit RBAC authorization, metadata-only API-key lifecycle orchestration behind an unselected provider port, redacted audit plus transactional outbox, UUIDv7 identities, monotonic policy versions, retention, metrics, and deterministic migration intent.
+
+DCP-1A has no public route or UI, no real signup/email/OAuth, no API-key scheme, no Data wire mapping or network transport, no provider credentials, no database connection/application, and no Tower mutation. Its exit proof is focused source, architecture, migration, security, requirements, type, lint, and test evidence that leaves RC3 classifications unchanged.
+
+## DCP-1B — Projection/provider integration (gated)
+
+Do not begin DCP-1B until Web accepts an immutable Data-owned projection receipt and the owners agree ID mapping, scope mapping, policy versioning, verifier/provider material, rotation/revocation behavior, transport authentication, replay, secret binding, and joint fixtures. Runtime provider, database, Tower, staging, UI, production, and release work each require their own authority and evidence.

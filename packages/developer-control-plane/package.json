@@ -1,0 +1,25 @@
+{
+  "name": "@paper-and-slate/developer-control-plane",
+  "private": true,
+  "license": "Apache-2.0",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./fixtures": "./src/fixtures.ts"
+  },
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "better-auth": "1.7.2",
+    "pg": "8.23.0",
+    "uuid": "11.1.1"
+  },
+  "devDependencies": {
+    "@types/pg": "8.23.1"
+  }
+}

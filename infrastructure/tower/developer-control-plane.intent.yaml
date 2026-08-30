@@ -1,16 +1,28 @@
 version: 1
 kind: developer-control-plane-database-intent
-status: disabled-non-applicable
+status: disabled-reviewed-intent
 application: paper-and-slate-developer-control-plane
-authority: planning-only
+authority: dcp-1a-generate-validate-only
 apply: prohibited
 reason: >-
-  DCP-0 records no Tower resource schema or deployment authority. A future approved
-  implementation must choose topology, region, backup/restore, retention, and migration controls.
+  DCP-1A records reviewed desired state for a future shared Tower PostgreSQL resource.
+  No resource creation, binding, credential resolution, migration apply, or deployment is authorized.
+topology:
+  provider: tower-shared-postgres
+  ownership: web
+  logical_database: paper_slate_identity_control
+  schemas:
+    - auth
+    - control
+  application_role: paper_slate_dcp_app
+  migration_role: paper_slate_dcp_migrator
+  backup_restore: required-before-activation
+  encryption: provider-managed-required-before-activation
 secret_references_only:
   database_url: DCP_IDENTITY_CONTROL_DATABASE_URL
-  database_encryption_key: DCP_IDENTITY_CONTROL_DATABASE_ENCRYPTION_KEY
+  better_auth_secret: DCP_BETTER_AUTH_SECRET
 constraints:
   - Do not add this resource to .tower/project.yaml.
   - Do not provision, apply, deploy, or resolve secret values.
   - Keep the identity/control database logically Web-owned and separate from Data Platform state.
+  - Validate migrations locally without connecting to Tower or another live database.
