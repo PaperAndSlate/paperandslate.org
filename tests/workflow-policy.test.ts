@@ -80,4 +80,14 @@ describe("hosted workflow policy", () => {
       ]),
     );
   });
+
+  it("rejects pull-request triggers for persistent Forgejo browser runners", () => {
+    const errors = validateWorkflowText(
+      valid.replace("on: push", "on:\n  push:\n  pull_request:"),
+      ".forgejo/workflows/quality.yml",
+    );
+    expect(errors).toContain(
+      ".forgejo/workflows/quality.yml: browser workflow must not run pull_request code on the persistent playwright runner; use a maintainer-controlled push or workflow_dispatch",
+    );
+  });
 });

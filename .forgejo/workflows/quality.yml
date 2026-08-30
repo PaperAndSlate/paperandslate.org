@@ -2,7 +2,9 @@ name: Quality
 
 on:
   push:
-  pull_request:
+    branches:
+      - release/v1-closure
+  workflow_dispatch:
 
 permissions:
   contents: read

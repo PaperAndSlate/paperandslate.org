@@ -1,5 +1,33 @@
 export type EvidenceSourceKind = "configured" | "evidence";
 
+export function hasExactCandidateIdentity({
+  evidenceRevision,
+  candidateRevision,
+  currentRevision,
+}: {
+  evidenceRevision: string | null | undefined;
+  candidateRevision: string | null | undefined;
+  currentRevision: string | null | undefined;
+}) {
+  return Boolean(
+    evidenceRevision &&
+      candidateRevision &&
+      currentRevision &&
+      evidenceRevision === candidateRevision &&
+      candidateRevision === currentRevision,
+  );
+}
+
+export function hasExactCurrentSourceRevision({
+  evidenceRevision,
+  currentRevision,
+}: {
+  evidenceRevision: string | null | undefined;
+  currentRevision: string | null | undefined;
+}) {
+  return Boolean(evidenceRevision && currentRevision && evidenceRevision === currentRevision);
+}
+
 export function assertExactSourceRevision({
   currentRevision,
   candidateRevision,

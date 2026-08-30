@@ -41,9 +41,15 @@ availability, and the existing visual/performance baselines. The Linux browser
 gate covers Chromium, Firefox, and WebKit; real iOS Safari, Android Chrome,
 and Windows high-DPI device behavior remain separate device/hosted acceptance
 work because those environments are not provided by this workflow. The
-Forgejo browser jobs additionally require the operator-provided `playwright`
-runner to identify its unprivileged account as `pwuser`; a different runner
-image must update that explicit assertion only after its account is verified.
+Forgejo browser jobs are limited to maintainer-controlled pushes of the
+release branch or explicit manual dispatch. They do not trigger on
+`pull_request`, because the operator-provided `playwright` runner may be
+persistent and pull-request code controls dependency installation and test
+execution. The runner must identify its unprivileged account as `pwuser`; a
+different runner image must update that explicit assertion only after its
+account is verified. Pull-request browser coverage is provided by the GitHub
+hosted workflow; Forgejo does not claim browser evidence for untrusted pull
+requests.
 The Windows/macOS matrix performs the portable build and quality checks but does
 not claim browser or Docker coverage on those systems. A platform-specific
 runner result must not be copied to another operating system.

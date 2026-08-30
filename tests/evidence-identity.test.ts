@@ -3,7 +3,11 @@ import {
   countCompletedVerificationTasks,
   isEvidenceIdentityCurrent,
 } from "../scripts/evidence-bundle-core";
-import { assertExactSourceRevision } from "../scripts/evidence-identity";
+import {
+  assertExactSourceRevision,
+  hasExactCandidateIdentity,
+  hasExactCurrentSourceRevision,
+} from "../scripts/evidence-identity";
 
 describe("evidence source identity", () => {
   it("accepts an exact configured revision", () => {
@@ -72,6 +76,32 @@ describe("evidence source identity", () => {
         candidateSha: "current-commit",
         sourceSha: "current-commit",
         root: process.cwd(),
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects an evidence-only ancestor rather than converging it with the candidate", () => {
+    expect(
+      hasExactCandidateIdentity({
+        evidenceRevision: "c57c95ed98c1a3b962f48568197089fabcf131b4",
+        candidateRevision: "fcc2273b016fa76bd1b1daf32301e79c68f97522",
+        currentRevision: "fcc2273b016fa76bd1b1daf32301e79c68f97522",
+      }),
+    ).toBe(false);
+    expect(
+      hasExactCurrentSourceRevision({
+        evidenceRevision: "c57c95ed98c1a3b962f48568197089fabcf131b4",
+        currentRevision: "fcc2273b016fa76bd1b1daf32301e79c68f97522",
+      }),
+    ).toBe(false);
+  });
+
+  it("requires evidence, candidate, and current revisions to agree exactly", () => {
+    expect(
+      hasExactCandidateIdentity({
+        evidenceRevision: "da1e12b915b1babbb1f313d0a2a30c6e88e52dba",
+        candidateRevision: "da1e12b915b1babbb1f313d0a2a30c6e88e52dba",
+        currentRevision: "da1e12b915b1babbb1f313d0a2a30c6e88e52dba",
       }),
     ).toBe(true);
   });

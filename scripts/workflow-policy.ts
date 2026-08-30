@@ -24,6 +24,18 @@ const visit = (value: unknown, callback: (object: WorkflowObject) => void) => {
   for (const child of Object.values(object)) visit(child, callback);
 };
 
+function hasPullRequestTrigger(workflow: WorkflowObject) {
+  const trigger = workflow.on;
+  if (trigger === "pull_request") return true;
+  if (Array.isArray(trigger)) return trigger.includes("pull_request");
+  return Boolean(
+    trigger &&
+      typeof trigger === "object" &&
+      !Array.isArray(trigger) &&
+      Object.prototype.hasOwnProperty.call(trigger, "pull_request"),
+  );
+}
+
 export function validateWorkflowText(text: string, file: string) {
   const errors: string[] = [];
   let parsed: WorkflowObject;
@@ -63,6 +75,10 @@ export function validateWorkflowText(text: string, file: string) {
     /(^|[/\\])(lighthouse|quality)\.ya?ml$/i.test(file) &&
     /\.forgejo[/\\]workflows/i.test(file)
   ) {
+    if (hasPullRequestTrigger(parsed))
+      errors.push(
+        `${file}: browser workflow must not run pull_request code on the persistent playwright runner; use a maintainer-controlled push or workflow_dispatch`,
+      );
     const browserJobs =
       jobs && typeof jobs === "object" && !Array.isArray(jobs)
         ? Object.entries(jobs as WorkflowObject).filter(([, job]) => job && typeof job === "object")

@@ -2,9 +2,10 @@ import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { hasExactCandidateIdentity } from "./evidence-identity";
 import { classifySourceWorktree } from "./source-state";
 import { assertSafeEvidenceTreeEntry, copyEvidenceTree } from "./evidence-files";
-import { countCompletedVerificationTasks, isEvidenceIdentityCurrent } from "./evidence-bundle-core";
+import { countCompletedVerificationTasks } from "./evidence-bundle-core";
 
 const root = process.cwd();
 const releaseId = (
@@ -31,7 +32,7 @@ const sourceStatus = git(["status", "--porcelain", "--untracked-files=all"]);
 const sourceWorktree = classifySourceWorktree(sourceStatus);
 const configuredCandidateSha = process.env.CANDIDATE_SHA || process.env.GIT_SHA || null;
 const candidateSha = configuredCandidateSha || sourceSha;
-const strictIdentity = Boolean(process.env.CANDIDATE_SHA) || /^v1\.0\.0-rc\./.test(releaseId);
+const strictIdentity = Boolean(configuredCandidateSha) || /^v1\.0\.0-rc\./.test(releaseId);
 const readJson = <T>(relative: string): T | null => {
   const file = path.join(root, relative);
   if (!fs.existsSync(file)) return null;
@@ -70,11 +71,10 @@ const copyIfPresent = (source: string, destination: string) => {
   if (
     observedGitSha &&
     candidateSha &&
-    !isEvidenceIdentityCurrent({
-      value: observedGitSha,
-      candidateSha,
-      sourceSha,
-      root,
+    !hasExactCandidateIdentity({
+      evidenceRevision: observedGitSha,
+      candidateRevision: candidateSha,
+      currentRevision: sourceSha,
     })
   ) {
     excludedEvidence.push({
@@ -204,11 +204,10 @@ const matchesCandidate = (value: string | null | undefined) =>
   Boolean(
     value &&
       candidateSha &&
-      isEvidenceIdentityCurrent({
-        value,
-        candidateSha,
-        sourceSha,
-        root,
+      hasExactCandidateIdentity({
+        evidenceRevision: value,
+        candidateRevision: candidateSha,
+        currentRevision: sourceSha,
       }),
   );
 const requireIdentity = (label: string, value: string | null | undefined) => {
