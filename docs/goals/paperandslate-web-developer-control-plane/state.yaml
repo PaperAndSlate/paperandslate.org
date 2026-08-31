@@ -1,0 +1,753 @@
+version: 2
+
+goal:
+  title: "Paper & Slate Web — Developer Control Plane"
+  slug: "paperandslate-web-developer-control-plane"
+  kind: existing_plan
+  tranche: "DCP-1A repository-only fixture-gated control-plane kernel."
+  status: blocked
+  oracle:
+    signal: "Plans, ADR, interface receipt, Tower intent, isolated requirements, generated ledger, verification, and final review agree while RC3 evidence remains unchanged."
+    cadence: "after Implementer, Executor, and Reviewer/Integrator"
+    final_proof: "A final Reviewer/Integrator receipt accepts DCP-0 with no application code or external mutation and records all later dependencies."
+  intake:
+    original_request: "Add a future Developer Control Plane as a controlled non-production expansion beyond RC3."
+    interpreted_outcome: "Accept the identity/API-key architecture and cross-project contract before implementation, without changing RC3 history or external systems."
+    input_shape: existing_plan
+    audience: "Web and Data Platform maintainers, security reviewers, and future control-plane operators"
+    authority: requested
+    proof_type: artifact
+    completion_proof: "Reviewed architecture and interface artifacts plus executable isolated traceability."
+    likely_misfire: "Starting authentication or inventing API-key cryptography before ownership and verifier contracts are accepted."
+    blind_spots_considered:
+      - "RC3 identity and evidence contamination"
+      - "Human identity versus machine credential separation"
+      - "Project binding and organization RBAC"
+      - "Revocation staleness, rotation overlap, and fail-closed behavior"
+      - "Secrets, logging, analytics, and evidence redaction"
+      - "Tower resource and repository authority"
+    existing_plan_facts:
+      - "D-018 excludes authentication and API keys from the public-site/RC3 phase."
+      - "The owner has now authorized a later non-production Developer Control Plane phase."
+      - "Data Platform requires organization → project → key ownership and reuses Web human identity."
+
+rules:
+  pm_owns_state: true
+  one_active_task: true
+  max_write_workers: 1
+  no_implementation_without_worker_or_pm_task: true
+  no_completion_without_judge_or_pm_audit: true
+  planning_is_not_completion: true
+  queued_required_worker_blocks_completion: true
+  continuous_until_full_outcome: false
+  missing_input_or_credentials_do_not_stop_goal: true
+  exact_human_approval_can_terminal_wait: true
+  preserve_and_validate_existing_plan: true
+  intake_misfire_must_be_audited: true
+  goal_pressure_requires_oracle: true
+  no_completion_on_weak_proof: true
+  slice_policy:
+    max_consecutive_tiny_tasks: 2
+    prefer_vertical_slices: true
+    judge_picks_largest_safe_slice: true
+    worker_completes_whole_slice: true
+
+agents:
+  scout: installed
+  worker: installed
+  judge: installed
+
+visual_board:
+  selected: local
+  local:
+    status: not_requested
+    url: null
+    command: "node C:/Users/Callum/.codex/plugins/cache/goalbuddy/goalbuddy/0.4.3/skills/goal-prep/surfaces/local-goal-board/scripts/local-goal-board.mjs --goal docs/goals/paperandslate-web-developer-control-plane"
+
+active_task: null
+
+tasks:
+  - id: T001
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: high
+    objective: "Select the first bounded Developer Control Plane phase."
+    inputs:
+      - "Web plans, RC3 board and T999 receipt"
+      - "Data Platform confirmed decisions and API-key/RBAC plan"
+      - "Current repository state"
+    constraints:
+      - "Read-only Planner role."
+    expected_output:
+      - "One bounded phase brief"
+    receipt:
+      result: done
+      note: notes/T001-receipt.md
+      summary: "Selected DCP-0 as a planning-only architecture, interface-contract, intent-only Tower, and isolated-traceability phase; no application code is authorized."
+      evidence:
+        - notes/T001-receipt.md
+  - id: T002
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Implement the bounded DCP-0 planning, ADR, interface, intent-only Tower, and isolated traceability package."
+    inputs:
+      - "T001 Planner receipt"
+      - "Authorized architecture in goal.md"
+      - "Data Platform API key and RBAC contracts"
+    constraints:
+      - "No application code, dependencies, migrations, runtime auth, routes, UI, or external mutations."
+      - "Do not modify completed RC3 state, T999, launch readiness, .generated/launch, .tower/project.yaml, packages, apps/web, or pnpm-lock.yaml."
+      - "Do not invent an API-key verifier or persist/log plaintext keys."
+    allowed_files:
+      - plans/00-overview/01-executive-summary.md
+      - plans/00-overview/02-key-decisions.md
+      - plans/00-overview/03-scope-and-non-goals.md
+      - plans/04-documentation-system/09-future-api-and-auth-documentation.md
+      - plans/11-implementation/01-phased-implementation-plan.md
+      - plans/11-implementation/06-post-launch-roadmap.md
+      - POST_V1_PLATFORM_INTEGRATION.md
+      - plans/13-developer-control-plane/01-foundation-and-interface-contract.md
+      - docs/decisions/ADR-0014-developer-control-plane-identity-and-api-key-ownership.md
+      - docs/interfaces/data-platform-api-key-projection-v1.md
+      - infrastructure/tower/developer-control-plane.intent.yaml
+      - config/developer-control-plane-requirements.json
+      - scripts/developer-control-plane-requirements.ts
+      - tests/developer-control-plane-requirements.test.ts
+      - package.json
+      - .generated/requirements/developer-control-plane-requirements.json
+      - DEVELOPER_CONTROL_PLANE_LEDGER.md
+      - .generated/requirements/requirements.json
+      - .generated/requirements/traceability-check.json
+      - IMPLEMENTATION_LEDGER.md
+    verify:
+      - "Focused Prettier check for all DCP-0 files"
+      - "pnpm exec vitest run tests/developer-control-plane-requirements.test.ts tests/traceability-check-core.test.ts"
+      - "pnpm typecheck:tools"
+      - "pnpm control-plane:requirements:check"
+      - "pnpm requirements:check"
+      - "pnpm traceability:check"
+      - "git diff --check"
+    stop_if:
+      - "Application code, dependency, migration, public route, or UI changes become necessary."
+      - "D-018, RC3 state, T999, launch evidence, or historical hosted identities would need rewriting."
+      - "Project binding or portable verification would require an improvised key scheme."
+      - "A secret value or Tower apply authority is required."
+    receipt:
+      result: done
+      changed_files:
+        - plans/00-overview/01-executive-summary.md
+        - plans/00-overview/02-key-decisions.md
+        - plans/00-overview/03-scope-and-non-goals.md
+        - plans/04-documentation-system/09-future-api-and-auth-documentation.md
+        - plans/11-implementation/01-phased-implementation-plan.md
+        - plans/11-implementation/06-post-launch-roadmap.md
+        - POST_V1_PLATFORM_INTEGRATION.md
+        - plans/13-developer-control-plane/01-foundation-and-interface-contract.md
+        - docs/decisions/ADR-0014-developer-control-plane-identity-and-api-key-ownership.md
+        - docs/interfaces/data-platform-api-key-projection-v1.md
+        - infrastructure/tower/developer-control-plane.intent.yaml
+        - config/developer-control-plane-requirements.json
+        - scripts/developer-control-plane-requirements.ts
+        - tests/developer-control-plane-requirements.test.ts
+        - package.json
+        - .generated/requirements/developer-control-plane-requirements.json
+        - DEVELOPER_CONTROL_PLANE_LEDGER.md
+        - .generated/requirements/requirements.json
+        - .generated/requirements/traceability-check.json
+        - IMPLEMENTATION_LEDGER.md
+      commands:
+        - cmd: "pnpm control-plane:requirements:check"
+          status: pass
+        - cmd: "pnpm requirements:check"
+          status: pass
+        - cmd: "pnpm traceability:check"
+          status: pass
+        - cmd: "pnpm exec vitest run tests/developer-control-plane-requirements.test.ts tests/traceability-check-core.test.ts"
+          status: pass
+        - cmd: "pnpm typecheck:tools"
+          status: pass
+        - cmd: "pnpm exec prettier --check focused DCP files"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Implemented the planning-only DCP-0 successor decision, Better Auth identity boundary, organization-project-key ownership, Data Platform projection contract, disabled Tower intent, and isolated traceability. No application/runtime/provider change was made."
+      remaining_risks:
+        - "API-key provider remains unselected pending project-binding and portable-verifier proof."
+        - "Transport, database topology, migrations, security/privacy review, fixtures, and Tower authority remain later gates."
+      deviations:
+        - "The focused formatter reported a harmless unsupported --no-ignore option warning while formatting still passed."
+  - id: T003
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: low
+    objective: "Execute the deterministic DCP-0 verification and generated-evidence refresh without broadening scope."
+    inputs:
+      - "T002 Implementer delta and receipt"
+    constraints:
+      - "Executor profile; no authored design changes."
+      - "Do not run RC3 full verify, Lighthouse, browser, Docker, or launch evidence generation."
+    allowed_files:
+      - .generated/requirements/developer-control-plane-requirements.json
+      - DEVELOPER_CONTROL_PLANE_LEDGER.md
+      - .generated/requirements/requirements.json
+      - .generated/requirements/traceability-check.json
+      - IMPLEMENTATION_LEDGER.md
+    verify:
+      - "Planner-specified Executor command set"
+      - "Protected-path diff check"
+    stop_if:
+      - "Verification needs application or RC3 evidence changes."
+      - "Any deterministic check fails for an authored defect."
+    receipt:
+      result: done
+      changed_files:
+        - .generated/requirements/developer-control-plane-requirements.json
+        - .generated/requirements/requirements.json
+        - .generated/requirements/traceability-check.json
+        - DEVELOPER_CONTROL_PLANE_LEDGER.md
+        - IMPLEMENTATION_LEDGER.md
+      commands:
+        - cmd: "Focused DCP-0 Prettier check"
+          status: pass
+        - cmd: "pnpm exec vitest run tests/developer-control-plane-requirements.test.ts tests/traceability-check-core.test.ts"
+          status: pass
+        - cmd: "pnpm typecheck:tools"
+          status: pass
+        - cmd: "pnpm control-plane:requirements:check"
+          status: pass
+        - cmd: "pnpm requirements:check"
+          status: pass
+        - cmd: "pnpm traceability:check"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+        - cmd: "Protected RC3/application path diff"
+          status: pass
+      summary: "Deterministic DCP-0 verification passed: five isolated requirements (four verified-local, one not-started), 90 of 90 plans mapped, 1,085 unique root records, and unchanged RC3 WEB-REQ classifications."
+      deviations:
+        - "The generated DCP ledger required a mechanical formatting refresh before the focused Prettier check passed."
+        - "git diff --check emitted expected LF/CRLF conversion warnings but passed."
+  - id: T004
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Independently review DCP-0 and decide whether the phase exits without authorizing implementation."
+    inputs:
+      - "Planner, Implementer, and Executor receipts"
+      - "Current DCP artifacts and protected-path diff"
+    constraints:
+      - "Read-only Reviewer/Integrator."
+      - "Do not approve application implementation or external resources."
+    expected_output:
+      - "accepted | rejected"
+      - "full_outcome_complete: true | false for DCP-0 only"
+      - "Dependencies and exact next authorization gate"
+    receipt:
+      result: done
+      decision: rejected
+      full_outcome_complete: false
+      summary: "DCP-0 architecture and isolation passed, but phase exit was rejected for a post-generation ledger formatting failure, displaced Launch outcome content, and missing official Better Auth references."
+      remaining_risks:
+        - "Generated ledger must remain formatter-clean after regeneration."
+        - "Launch outcome section structure must be restored."
+        - "Official Better Auth organization and API-key references must be recorded without promoting the provider candidate."
+      deviations:
+        - "One bounded repair package is required before repeated execution and review."
+  - id: T005
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Apply the single bounded DCP-0 repair package returned by T004."
+    inputs:
+      - "T004 rejected phase-exit receipt"
+      - "Existing DCP-0 authored and generated delta"
+    constraints:
+      - "Reuse the original Implementer; do not broaden beyond the three reviewed defects and their focused regression evidence."
+      - "No application code, dependencies, migrations, runtime auth, routes, UI, provider mutation, or RC3 evidence changes."
+    allowed_files:
+      - plans/00-overview/01-executive-summary.md
+      - plans/13-developer-control-plane/01-foundation-and-interface-contract.md
+      - docs/decisions/ADR-0014-developer-control-plane-identity-and-api-key-ownership.md
+      - scripts/developer-control-plane-requirements.ts
+      - tests/developer-control-plane-requirements.test.ts
+      - .generated/requirements/developer-control-plane-requirements.json
+      - DEVELOPER_CONTROL_PLANE_LEDGER.md
+      - .generated/requirements/requirements.json
+      - .generated/requirements/traceability-check.json
+      - IMPLEMENTATION_LEDGER.md
+    verify:
+      - "DCP generator followed by focused Prettier check"
+      - "Focused DCP and traceability tests"
+      - "Root and isolated requirements/traceability checks"
+      - "Protected-path diff"
+    stop_if:
+      - "Repair requires application/runtime/provider/RC3 work or a file outside the reviewed package."
+    receipt:
+      result: done
+      changed_files:
+        - plans/00-overview/01-executive-summary.md
+        - plans/13-developer-control-plane/01-foundation-and-interface-contract.md
+        - docs/decisions/ADR-0014-developer-control-plane-identity-and-api-key-ownership.md
+        - scripts/developer-control-plane-requirements.ts
+        - tests/developer-control-plane-requirements.test.ts
+        - .generated/requirements/developer-control-plane-requirements.json
+        - DEVELOPER_CONTROL_PLANE_LEDGER.md
+        - .generated/requirements/requirements.json
+        - .generated/requirements/traceability-check.json
+        - IMPLEMENTATION_LEDGER.md
+      commands:
+        - cmd: "DCP generator then focused Prettier check"
+          status: pass
+        - cmd: "Focused Vitest"
+          status: pass
+        - cmd: "typecheck and root/isolated traceability"
+          status: pass
+        - cmd: "git diff --check and protected-path diff"
+          status: pass
+      summary: "Repaired deterministic ledger formatting, restored Launch outcome structure, recorded official Better Auth references with provider acceptance still pending, and added focused regression coverage."
+      remaining_risks:
+        - "Independent execution and final read-only review remain."
+      deviations: []
+  - id: T006
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: low
+    objective: "Independently execute the repaired DCP-0 deterministic verification set."
+    inputs:
+      - "T005 repaired delta and receipt"
+    constraints:
+      - "Reuse the original Executor; no authored design changes."
+      - "Do not run or regenerate RC3 launch/security evidence."
+    allowed_files:
+      - .generated/requirements/developer-control-plane-requirements.json
+      - DEVELOPER_CONTROL_PLANE_LEDGER.md
+      - .generated/requirements/requirements.json
+      - .generated/requirements/traceability-check.json
+      - IMPLEMENTATION_LEDGER.md
+    verify:
+      - "T004 repair-package verification commands"
+    stop_if:
+      - "Any current authored or generated defect remains."
+    receipt:
+      result: done
+      changed_files:
+        - .generated/requirements/developer-control-plane-requirements.json
+        - DEVELOPER_CONTROL_PLANE_LEDGER.md
+        - .generated/requirements/requirements.json
+        - .generated/requirements/traceability-check.json
+        - IMPLEMENTATION_LEDGER.md
+      commands:
+        - cmd: "Generator and post-regeneration focused Prettier checks"
+          status: pass
+        - cmd: "Focused Vitest: 8 tests"
+          status: pass
+        - cmd: "typecheck and root/isolated traceability"
+          status: pass
+        - cmd: "git diff --check and protected-path diff"
+          status: pass
+      summary: "Independent repaired-state verification passed with stable post-generation formatting, 5 DCP records (4 verified-local, 1 not-started), 1,085 unique root records, 90/90 mapped plans, and unchanged RC3 WEB-REQ classifications."
+      remaining_risks:
+        - "T007 final read-only phase-exit decision remains."
+      deviations:
+        - "Expected LF/CRLF warnings only; generated DCP JSON remains intentionally ignored until selective phase commit."
+  - id: T007
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Re-review the repaired DCP-0 boundary and decide final local phase exit."
+    inputs:
+      - "T004 findings, T005 repair receipt, T006 execution receipt"
+    constraints:
+      - "Reuse the original read-only Reviewer/Integrator."
+      - "Do not approve application implementation, external resources, or RC3/release completion."
+    expected_output:
+      - "accepted | rejected"
+      - "full_outcome_complete: true | false for DCP-0 only"
+      - "Exact local commit safety and remaining external/human gates"
+    receipt:
+      result: done
+      decision: complete
+      full_outcome_complete: true
+      summary: "Accepted DCP-0 as a complete local planning, interface, disabled-intent, and isolated-traceability boundary; no implementation or external completion is claimed."
+      remaining_risks:
+        - "Data Platform acknowledgement, provider/verifier proof, security/privacy review, implementation authority, Tower authority, and delivery gates remain."
+  - id: T008
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: max
+    objective: "Implement and verify the bounded DCP-1A repository-only fixture-gated control-plane kernel."
+    inputs:
+      - "DCP-0 plans, ADR-0014, projection v1, T001-T007 receipts, and the DCP-1A Sol-high planner handoff"
+      - "Data T670 receipt and producer-defined T671 v2 artifacts, without accepting or importing their wire contract"
+      - "Orchestrator Web context, Tower development, blocker, continuity, and completion policies"
+    constraints:
+      - "No public routes/UI, real signup/email/OAuth, real API-key provider or format, Data transport, live database, credentials, Tower apply, deployment, release, or RC3 evidence changes."
+      - "Only the coordinator-authorized DCP-1A allowlist may change."
+      - "DCP_ENABLED and DCP_FIXTURE_AUTH_ENABLED remain false by default; secrets are references only."
+    expected_output:
+      - "Pinned Better Auth organization/session configuration, Web-owned RBAC/lifecycle kernel, fixture provider, redacted audit/outbox/metrics/retention, deterministic migrations, focused tests, and isolated DCP evidence"
+    stop_if:
+      - "A real key format/verifier, Data mapping/transport, live provider/database, public route/UI, credential, Tower apply, or file outside the allowlist becomes necessary."
+      - "Any existing WEB-REQ classification or RC3/release evidence changes."
+    allowed_files:
+      - .generated/requirements/developer-control-plane-requirements.json
+      - .generated/requirements/requirements.json
+      - .generated/requirements/traceability-check.json
+      - DEVELOPER_CONTROL_PLANE_LEDGER.md
+      - IMPLEMENTATION_LEDGER.md
+      - SECURITY.md
+      - config/developer-control-plane-requirements.json
+      - docs/decisions/ADR-0015-developer-control-plane-foundation-controls.md
+      - docs/privacy/developer-control-plane-data-handling.md
+      - docs/security/developer-control-plane-threat-model.md
+      - infrastructure/tower/developer-control-plane.intent.yaml
+      - package.json
+      - packages/config/src/env.ts
+      - packages/developer-control-plane/migrations/0001_auth_schema.sql
+      - packages/developer-control-plane/migrations/0002_control_schema.sql
+      - packages/developer-control-plane/migrations/0003_least_privilege_roles.sql
+      - packages/developer-control-plane/package.json
+      - packages/developer-control-plane/src/auth.ts
+      - packages/developer-control-plane/src/fixtures.ts
+      - packages/developer-control-plane/src/index.ts
+      - packages/developer-control-plane/src/model.ts
+      - packages/developer-control-plane/src/rbac.ts
+      - packages/developer-control-plane/src/retention.ts
+      - packages/developer-control-plane/src/service.ts
+      - packages/developer-control-plane/tsconfig.json
+      - plans/11-implementation/01-phased-implementation-plan.md
+      - plans/13-developer-control-plane/01-foundation-and-interface-contract.md
+      - pnpm-lock.yaml
+      - scripts/developer-control-plane-architecture.ts
+      - scripts/developer-control-plane-migrations.ts
+      - scripts/developer-control-plane-requirements.ts
+      - tests/developer-control-plane-foundation.test.ts
+      - tests/developer-control-plane-requirements.test.ts
+      - tests/developer-control-plane-security.test.ts
+    receipt:
+      result: done
+      note: notes/T008-receipt.md
+      changed_files:
+        - .generated/requirements/developer-control-plane-requirements.json
+        - .generated/requirements/requirements.json
+        - .generated/requirements/traceability-check.json
+        - DEVELOPER_CONTROL_PLANE_LEDGER.md
+        - IMPLEMENTATION_LEDGER.md
+        - SECURITY.md
+        - config/developer-control-plane-requirements.json
+        - docs/decisions/ADR-0015-developer-control-plane-foundation-controls.md
+        - docs/privacy/developer-control-plane-data-handling.md
+        - docs/security/developer-control-plane-threat-model.md
+        - infrastructure/tower/developer-control-plane.intent.yaml
+        - package.json
+        - packages/config/src/env.ts
+        - packages/developer-control-plane/migrations/0001_auth_schema.sql
+        - packages/developer-control-plane/migrations/0002_control_schema.sql
+        - packages/developer-control-plane/migrations/0003_least_privilege_roles.sql
+        - packages/developer-control-plane/package.json
+        - packages/developer-control-plane/src/auth.ts
+        - packages/developer-control-plane/src/fixtures.ts
+        - packages/developer-control-plane/src/index.ts
+        - packages/developer-control-plane/src/model.ts
+        - packages/developer-control-plane/src/rbac.ts
+        - packages/developer-control-plane/src/retention.ts
+        - packages/developer-control-plane/src/service.ts
+        - packages/developer-control-plane/tsconfig.json
+        - plans/11-implementation/01-phased-implementation-plan.md
+        - plans/13-developer-control-plane/01-foundation-and-interface-contract.md
+        - pnpm-lock.yaml
+        - scripts/developer-control-plane-architecture.ts
+        - scripts/developer-control-plane-migrations.ts
+        - scripts/developer-control-plane-requirements.ts
+        - tests/developer-control-plane-foundation.test.ts
+        - tests/developer-control-plane-requirements.test.ts
+        - tests/developer-control-plane-security.test.ts
+      commands:
+        - cmd: "pnpm install"
+          status: pass
+        - cmd: "pnpm install --frozen-lockfile"
+          status: pass
+        - cmd: "Focused Prettier over authored DCP-1A paths"
+          status: pass
+        - cmd: "Focused DCP Vitest: 4 files, 17 tests"
+          status: pass
+        - cmd: "pnpm control-plane:architecture:check"
+          status: pass
+        - cmd: "pnpm control-plane:migrations:check"
+          status: pass
+        - cmd: "DCP package typecheck"
+          status: pass
+        - cmd: "pnpm typecheck:tools"
+          status: pass
+        - cmd: "pnpm lint"
+          status: pass
+        - cmd: "pnpm test: 48 files, 163 tests"
+          status: pass
+        - cmd: "pnpm control-plane:requirements:check"
+          status: pass
+        - cmd: "pnpm requirements:check"
+          status: pass
+        - cmd: "pnpm traceability:check"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+        - cmd: "Protected RC3/release path and WEB-REQ comparison"
+          status: pass
+      summary: "Implemented and locally verified the repository-only DCP-1A fixture kernel with pinned Better Auth organization/session configuration, explicit org/project RBAC, provider-neutral metadata lifecycle, one-time reveal, redacted audit/outbox/metrics, retention/SLO thresholds, disabled Data transport, deterministic PostgreSQL migrations, and isolated evidence. No external system or RC3 evidence changed."
+      evidence:
+        - notes/T008-receipt.md
+        - packages/developer-control-plane
+        - docs/security/developer-control-plane-threat-model.md
+        - docs/privacy/developer-control-plane-data-handling.md
+        - DEVELOPER_CONTROL_PLANE_LEDGER.md
+      remaining_risks:
+        - "API-key provider, verifier material, and production key format remain unselected."
+        - "Data T671 v2 remains producer-defined with Web acceptance, immutable terminal identity, policy-version semantics, event mapping, transport authentication, secret binding, and joint fixtures pending."
+        - "Tower PostgreSQL topology remains disabled reviewed intent with no apply, binding, migration, credential, deployment, or provider acceptance."
+      deviations:
+        - "No pnpm verify was run because it would regenerate/rebind RC3 launch evidence; the authorized focused DCP evidence suite was used."
+    historical_metadata:
+      original_assignee: Owner
+      original_execution_role: "Web owner/executor"
+      normalization: "GoalBuddy 0.4.3 compatibility representation only; the historical T008 receipt bytes and execution facts remain unchanged."
+      receipt_sha256: 51821FB8E446D00AA74A0F00F816F74CA04D98821F6066DD03A7DC9B9CEFA23C
+      receipt_git_blob: cd9a100f18f456f0705e6a996f3de9668289503f
+  - id: T009
+    type: judge
+    assignee: Judge
+    status: done
+    reasoning_hint: high
+    objective: "Perform one skeptical read-only DCP-1A phase review and either accept the local kernel or return one bounded repair package."
+    inputs:
+      - "T008 receipt, exact DCP-1A diff, generated DCP ledger, focused/full local verification, and protected-path proof"
+    constraints:
+      - "Read-only; do not implement DCP-1B, accept the Data v2 proposal, select an API-key provider/verifier, mutate Tower/providers, or alter RC3/release evidence."
+    expected_output:
+      - "accepted | rejected for DCP-1A only"
+      - "One bounded repair package if a repository-controlled defect remains"
+      - "Exact DCP-1B dependency receipt and provider/security/privacy gates"
+    receipt:
+      result: done
+      decision: approved
+      verdict: APPROVED_FOR_DCP_1A
+      full_outcome_complete: false
+      reviewer_task: 01a05394-37b1-7401-92a6-13386073954b
+      reviewer_model: gpt-5.6-sol
+      reviewer_reasoning: high
+      reviewed_checkout: C:/Users/Callum/Documents/GitHub/paperandslate/web
+      evidence:
+        - "HEAD/E a32604004cbfeeb90e7c114a9c369834bc3bcfa3"
+        - "tree 743da2ad148d789972041ed734eaa9af774f6f78"
+        - "T011 receipt SHA-256 0E7B8EC99EADF650A7BD6EC25A5AC0E73F884FB02CA57FA6342B576B6461D48A"
+        - "restored T008 receipt SHA-256 51821FB8E446D00AA74A0F00F816F74CA04D98821F6066DD03A7DC9B9CEFA23C"
+        - "preserved T010 receipt SHA-256 8404C3435179623EB111528863C12CF6AFF9153D63413C36D6A126B9D8A1B001"
+        - "T009 state remains active with receipt null during the review; no T009 state/receipt was modified by the review"
+        - "Protected RC3 files byte-identical to E"
+        - "55 WEB-REQ status/blocker pairs unchanged: 40 verified-local, 4 partial, 10 blocked-external, 1 human-approval-pending"
+      commands:
+        - cmd: "Fresh independent gpt-5.6-sol high read-only T011 review"
+          status: pass
+        - cmd: "UUIDv7/bounded reason validation, fail-closed replay/version/age semantics, and Better Auth 1.7.2 migration parity"
+          status: pass
+        - cmd: "Focused DCP Vitest, package/tools typecheck, architecture, migration, and lint checks"
+          status: pass
+        - cmd: "No public DCP route/UI and no file, ref, provider, database, Tower, credential, RC3, release, or sibling-project mutation"
+          status: pass
+      summary: "The independent Judge approved the local Web-owned fixture-gated DCP-1A slice only. Functional T010 fixes and T011 historical receipt restoration are accepted for this local phase; full_outcome_complete remains false. DCP-1B remains blocked on the Data/provider/security/privacy receipt set and all hosted, release, production, and human gates remain separate."
+      remaining_risks:
+        - "DCP-1B requires the accepted Data projection receipt, resolved IDs/scopes/policy semantics, authenticated transport, secret binding, joint fixtures, provider/verifier selection, and security/privacy review."
+        - "Hosted CI, Tower/database/provider, deployment, immutable OCI/provenance/signing, release/publication, monitoring/rollback, legal/privacy/content/media/font, accessibility/visual, and production gates remain unresolved."
+      deviations:
+        - "The isolated reviewer worktree was excluded; only the canonical Web checkout was reviewed."
+        - "No generators, pnpm verify, migration apply, deployment, or external operation was run."
+  - id: T010
+    type: worker
+    assignee: Worker
+    status: done
+    reasoning_hint: medium
+    objective: "Repair the three bounded local DCP-1A defects identified by the independent T009 review without changing RC3 history or external evidence."
+    inputs:
+      - "T009 independent review findings supplied by the coordinator"
+      - "T008 DCP-1A implementation, receipt, generated evidence, and protected RC3 identity"
+      - "Pinned better-auth@1.7.2 installed auth-table surface and current DCP migration/configuration"
+    constraints:
+      - "Preserve the rejected T009/reviewer receipt and every prior receipt verbatim."
+      - "No DCP-1B, Data mapping/transport, real API-key verifier/provider, public route/UI, live DB/provider/Tower/credential use, RC3 evidence change, commit, push, deploy, publish, or production claim."
+      - "Only the coordinator-provided repair allowlist may change; generated outputs may change only through their generators."
+      - "Keep full_outcome_complete false until a later independent review accepts DCP-1A."
+    allowed_files:
+      - docs/goals/paperandslate-web-developer-control-plane/notes/T008-receipt.md
+      - packages/developer-control-plane/src/auth.ts
+      - packages/developer-control-plane/src/service.ts
+      - packages/developer-control-plane/src/retention.ts
+      - packages/developer-control-plane/src/model.ts
+      - packages/developer-control-plane/migrations/**
+      - scripts/developer-control-plane-architecture.ts
+      - scripts/developer-control-plane-migrations.ts
+      - tests/developer-control-plane-foundation.test.ts
+      - tests/developer-control-plane-security.test.ts
+      - docs/decisions/ADR-0015-developer-control-plane-foundation-controls.md
+      - docs/security/developer-control-plane-threat-model.md
+      - docs/privacy/developer-control-plane-data-handling.md
+      - plans/13-developer-control-plane/01-foundation-and-interface-contract.md
+      - config/developer-control-plane-requirements.json
+      - .generated/requirements/developer-control-plane-requirements.json
+      - .generated/requirements/requirements.json
+      - .generated/requirements/traceability-check.json
+      - DEVELOPER_CONTROL_PLANE_LEDGER.md
+      - IMPLEMENTATION_LEDGER.md
+      - docs/goals/paperandslate-web-developer-control-plane/state.yaml
+      - docs/goals/paperandslate-web-developer-control-plane/notes/T010-repair-receipt.md
+    verify:
+      - "Focused DCP tests with hostile sentinel and non-finite/fractional fail-closed cases"
+      - "DCP package and tools TypeScript checks"
+      - "Architecture verifier and Better Auth 1.7.2 migration parity verifier"
+      - "Isolated DCP requirements and traceability generation/checks"
+      - "git diff --check and protected RC3/WEB-REQ identity comparison against E"
+    stop_if:
+      - "A file outside the allowlist, public route/UI, real key provider/verifier, Data mapping/transport, live DB/provider/Tower/credential, RC3 evidence change, or historical receipt rewrite is required."
+      - "Better Auth parity cannot be established from the installed pinned package without weakening the configured security controls."
+      - "A secret, personal data, hosted proof, or production/release claim would enter source or evidence."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      note: notes/T010-repair-receipt.md
+      changed_files:
+        - packages/developer-control-plane/src/auth.ts
+        - packages/developer-control-plane/src/service.ts
+        - packages/developer-control-plane/src/retention.ts
+        - packages/developer-control-plane/src/model.ts
+        - packages/developer-control-plane/migrations/0001_auth_schema.sql
+        - packages/developer-control-plane/migrations/0002_control_schema.sql
+        - scripts/developer-control-plane-architecture.ts
+        - scripts/developer-control-plane-migrations.ts
+        - tests/developer-control-plane-foundation.test.ts
+        - tests/developer-control-plane-security.test.ts
+        - docs/decisions/ADR-0015-developer-control-plane-foundation-controls.md
+        - docs/security/developer-control-plane-threat-model.md
+        - docs/privacy/developer-control-plane-data-handling.md
+        - plans/13-developer-control-plane/01-foundation-and-interface-contract.md
+        - config/developer-control-plane-requirements.json
+        - .generated/requirements/developer-control-plane-requirements.json
+        - .generated/requirements/requirements.json
+        - .generated/requirements/traceability-check.json
+        - DEVELOPER_CONTROL_PLANE_LEDGER.md
+        - IMPLEMENTATION_LEDGER.md
+        - docs/goals/paperandslate-web-developer-control-plane/notes/T008-receipt.md
+        - docs/goals/paperandslate-web-developer-control-plane/state.yaml
+        - docs/goals/paperandslate-web-developer-control-plane/notes/T010-repair-receipt.md
+      commands:
+        - cmd: "Focused DCP Prettier check"
+          status: pass
+        - cmd: "Focused DCP Vitest: 4 files, 18 tests"
+          status: pass
+        - cmd: "DCP package typecheck"
+          status: pass
+        - cmd: "pnpm typecheck:tools"
+          status: pass
+        - cmd: "pnpm control-plane:architecture:check"
+          status: pass
+        - cmd: "pnpm control-plane:migrations:check against Better Auth 1.7.2 getAuthTables"
+          status: pass
+        - cmd: "DCP package lint and root lint"
+          status: pass
+        - cmd: "pnpm test: 48 files, 164 tests"
+          status: pass
+        - cmd: "DCP and root requirements/traceability generation and checks"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+        - cmd: "Protected RC3/launch/release path and WEB-REQ identity comparison against E"
+          status: pass
+      summary: "Repaired the three bounded T009 local defects: pre-repository UUIDv7/reason validation with hostile-sentinel redaction coverage, finite non-negative integer fail-closed sequencing, and Better Auth 1.7.2 getAuthTables-derived auth migration/configuration parity. DCP-1A remains unaccepted pending T009 independent re-review."
+      remaining_risks:
+        - "T009 independent Judge re-review is required before DCP-1A acceptance."
+        - "The API-key provider/verifier and production key format remain unselected."
+        - "Data projection acceptance, hosted/provider/deployment, security/privacy, legal/content/media, publication, and production gates remain unresolved."
+      deviations:
+        - "pnpm verify was intentionally not run because it would regenerate or rebind protected RC3 launch evidence."
+        - "The additive T008 count correction was explicitly requested; no original T008 text or prior review was rewritten."
+    historical_metadata:
+      original_allowlist_omitted_path: docs/goals/paperandslate-web-developer-control-plane/notes/T008-receipt.md
+      historical_fact: "T010 recorded the T008 path outside its original allowlist; T009 rejected that evidence-integrity defect and T011 restored T008."
+      normalization: "Adding the path to the machine-checker representation does not retroactively authorize or erase the historical violation."
+      t008_receipt_sha256: 51821FB8E446D00AA74A0F00F816F74CA04D98821F6066DD03A7DC9B9CEFA23C
+      t010_receipt_sha256: 8404C3435179623EB111528863C12CF6AFF9153D63413C36D6A126B9D8A1B001
+      t011_receipt_sha256: 0E7B8EC99EADF650A7BD6EC25A5AC0E73F884FB02CA57FA6342B576B6461D48A
+  - id: T011
+    type: pm
+    assignee: PM
+    status: done
+    reasoning_hint: medium
+    objective: "Restore the coordinator-preserved pre-T010 T008 receipt body without changing T009, T010, or functional DCP evidence."
+    inputs:
+      - "Coordinator-preserved pre-T010 T008 receipt body"
+      - "Preserved rejected T009 review and T010 repair receipt"
+      - "Current E identity, protected RC3 evidence, and WEB-REQ classifications"
+    constraints:
+      - "Remove only the unauthorized T010 addendum from T008; preserve the original T008 body byte-for-byte."
+      - "Do not rewrite T009 or T010, functional DCP source/generated artifacts, RC3 evidence, or external state."
+      - "No generators, pnpm verify, database/provider/Tower/credential/release/production operations."
+      - "Keep DCP-1A unaccepted and the broader Web goal active."
+    allowed_files:
+      - docs/goals/paperandslate-web-developer-control-plane/notes/T008-receipt.md
+      - docs/goals/paperandslate-web-developer-control-plane/notes/T011-repair-receipt.md
+      - docs/goals/paperandslate-web-developer-control-plane/state.yaml
+    verify:
+      - "T008 matches the coordinator-preserved pre-T010 body and contains no T010 addendum"
+      - "T009 and T010 receipts remain byte-identical"
+      - "HEAD/tree remain E=a32604004cbfeeb90e7c114a9c369834bc3bcfa3 / 743da2ad148d789972041ed734eaa9af774f6f78"
+      - "Protected RC3 blobs and all 55 WEB-REQ status/blocker pairs remain identical to E"
+      - "git diff --check"
+    stop_if:
+      - "The pre-T010 T008 body is unavailable or differs beyond the known T010 addendum."
+      - "Any file outside this allowlist or any functional DCP/generated/RC3 evidence change is required."
+      - "The supplied reviewer task identity is not a Web reviewer task; do not route into an unrelated project."
+    receipt:
+      result: done
+      full_outcome_complete: false
+      changed_files:
+        - docs/goals/paperandslate-web-developer-control-plane/notes/T008-receipt.md
+        - docs/goals/paperandslate-web-developer-control-plane/notes/T011-repair-receipt.md
+        - docs/goals/paperandslate-web-developer-control-plane/state.yaml
+      commands:
+        - cmd: "T008 restoration against the coordinator-preserved pre-T010 body; T010 addendum absent"
+          status: pass
+        - cmd: "T009/T010 receipt preservation check"
+          status: pass
+        - cmd: "E identity check: a32604004cbfeeb90e7c114a9c369834bc3bcfa3 / tree 743da2ad148d789972041ed734eaa9af774f6f78"
+          status: pass
+        - cmd: "Protected RC3 blob comparison against E"
+          status: pass
+        - cmd: "55 WEB-REQ status/blocker pairs unchanged against E"
+          status: pass
+        - cmd: "git diff --check"
+          status: pass
+      summary: "Removed only the unauthorized T010 addendum from T008 and restored its pre-T010 body. T009 and T010 were not rewritten; no functional DCP, generated, RC3, provider, or external evidence changed. T009 is reactivated as the sole next independent Judge gate."
+      remaining_risks:
+        - "The fresh T009 independent Judge review is still required before DCP-1A acceptance."
+        - "The supplied reviewer task identifier must resolve to a Web DCP reviewer task before routing; the currently inspected task is a UI L1-I1 review and must not be hijacked."
+        - "DCP-1B, provider, hosted, release, production, and human approval gates remain unresolved."
+      deviations:
+        - "No generators, pnpm verify, database/migration apply, provider/Tower operation, or external mutation was run."
+
+checks:
+  dirty_fingerprint: "clean E a32604004cbfeeb90e7c114a9c369834bc3bcfa3 / tree 743da2ad148d789972041ed734eaa9af774f6f78 before the bounded DCP-1A allowlist"
+  last_verification:
+    result: pass
+    task: T009
+    reviewed_by: 01a05394-37b1-7401-92a6-13386073954b
+    commands:
+      - "Independent gpt-5.6-sol high T009 review: APPROVED_FOR_DCP_1A"
+      - "Canonical E identity and receipt SHA-256 checks"
+      - "Protected RC3 blob and 55 WEB-REQ status/blocker pair comparison"
+      - "Functional T010 evidence and T011 historical restoration review"
