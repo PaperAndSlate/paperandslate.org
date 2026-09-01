@@ -7,8 +7,11 @@ import eventCases from "../docs/interfaces/fixtures/data-platform-api-key-projec
 import failureCases from "../docs/interfaces/fixtures/data-platform-api-key-projection-v3/failure-redaction-cases.json";
 import manifest from "../docs/interfaces/fixtures/data-platform-api-key-projection-v3/manifest.json";
 import {
+  ACKNOWLEDGEMENT_CASE_IDS,
+  ADAPTER_CASE_IDS,
   CLOSED_EVENT_TYPES,
   DATA_T681_IDENTITY,
+  FAILURE_CASE_IDS,
   REVIEWED_SCOPES,
   ROTATION_OVERLAP_MS,
   T018_IDENTITY,
@@ -23,6 +26,10 @@ import {
 const organizationId = "00000000-0000-7000-8000-000000000401";
 const projectId = "00000000-0000-7000-8000-000000000402";
 const keyId = "00000000-0000-7000-8000-000000000403";
+
+function clone<T>(value: T): T {
+  return JSON.parse(JSON.stringify(value)) as T;
+}
 
 describe("Developer Control Plane projection v3 readiness", () => {
   it("binds the local fixture corpus to T018 and Data T681 without changing either contract", () => {
@@ -121,6 +128,75 @@ describe("Developer Control Plane projection v3 readiness", () => {
         .every((item) => item.noStateMutation === true),
     ).toBe(true);
     expect(failureCases.cases.every((item) => item.expected === "fail_closed")).toBe(true);
+  });
+
+  it("validates every frozen collection semantically with fixed identities", () => {
+    expect(validateFixtureCollection(adapterCases, ADAPTER_CASE_IDS)).toEqual([]);
+    expect(
+      validateFixtureCollection(
+        eventCases,
+        CLOSED_EVENT_TYPES.map((type) => `event-${type}`),
+      ),
+    ).toEqual([]);
+    expect(validateFixtureCollection(acknowledgementCases, ACKNOWLEDGEMENT_CASE_IDS)).toEqual([]);
+    expect(validateFixtureCollection(failureCases, FAILURE_CASE_IDS)).toEqual([]);
+  });
+
+  it("rejects hostile event envelope, payload, scope, and identity mutations", () => {
+    const unsortedScopes = clone(eventCases) as unknown as {
+      cases: Array<Record<string, unknown>>;
+    };
+    const unsortedPayload = unsortedScopes.cases[3].event as Record<string, unknown>;
+    (unsortedPayload.payload as Record<string, unknown>).scopes = ["provenance:read", "data:read"];
+    expect(validateEventCase(unsortedScopes.cases[3])).not.toEqual([]);
+
+    const unknownScope = clone(eventCases) as unknown as { cases: Array<Record<string, unknown>> };
+    const unknownPayload = unknownScope.cases[3].event as Record<string, unknown>;
+    (unknownPayload.payload as Record<string, unknown>).scopes = ["data:read", "admin:write"];
+    expect(validateEventCase(unknownScope.cases[3])).not.toEqual([]);
+
+    const extraEnvelope = clone(eventCases) as unknown as { cases: Array<Record<string, unknown>> };
+    (extraEnvelope.cases[2].event as Record<string, unknown>).projection_version = "3.0.0";
+    expect(validateEventCase(extraEnvelope.cases[2])).not.toEqual([]);
+
+    const nonEmptyRevocation = clone(eventCases) as unknown as {
+      cases: Array<Record<string, unknown>>;
+    };
+    (nonEmptyRevocation.cases[2].event as Record<string, unknown>).payload = { reason: "revoked" };
+    expect(validateEventCase(nonEmptyRevocation.cases[2])).not.toEqual([]);
+  });
+
+  it("rejects adapter outcome mutations instead of trusting case IDs", () => {
+    const mutated = clone(adapterCases) as unknown as { cases: Array<Record<string, unknown>> };
+    const providerFailure = mutated.cases[5].expected as Record<string, unknown>;
+    providerFailure.outboxEvent = "present";
+    providerFailure.display = "Bearer live-secret-sentinel";
+    expect(validateFixtureCollection(mutated, ADAPTER_CASE_IDS)).not.toEqual([]);
+
+    const spoofed = clone(adapterCases) as unknown as { cases: Array<Record<string, unknown>> };
+    spoofed.cases[0].id = "project-binding-spoof";
+    const spoofedIds = spoofed.cases.map((item) => item.id as string);
+    expect(validateFixtureCollection(spoofed, spoofedIds)).not.toEqual([]);
+
+    const wrongExpectedIds = [...ADAPTER_CASE_IDS.slice(1), ADAPTER_CASE_IDS[0]];
+    expect(validateFixtureCollection(adapterCases, wrongExpectedIds)).not.toEqual([]);
+  });
+
+  it("fails closed for nonfinite, negative, and fractional event counters", () => {
+    for (const malformed of [NaN, Infinity, -1, 1.5, 0]) {
+      const mutated = clone(eventCases) as unknown as { cases: Array<Record<string, unknown>> };
+      const event = mutated.cases[2].event as Record<string, unknown>;
+      event.organization_sequence = malformed;
+      expect(validateEventCase(mutated.cases[2])).not.toEqual([]);
+    }
+  });
+
+  it("rejects failure/redaction sensitive rule values while preserving the declarative rule token", () => {
+    expect(validateFixtureCollection(failureCases, FAILURE_CASE_IDS)).toEqual([]);
+    const mutated = clone(failureCases) as unknown as { cases: Array<Record<string, unknown>> };
+    const rules = mutated.cases[4].rules as unknown[];
+    rules[3] = "Bearer live-secret-sentinel";
+    expect(validateFixtureCollection(mutated, FAILURE_CASE_IDS)).not.toEqual([]);
   });
 
   it("keeps show-once values out of persisted entities, events, acknowledgements, metrics, errors, and serialization", () => {
