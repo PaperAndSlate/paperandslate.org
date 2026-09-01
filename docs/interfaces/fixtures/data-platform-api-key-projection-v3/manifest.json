@@ -1,0 +1,73 @@
+{
+  "schemaVersion": 1,
+  "evidenceClass": "local-fixture-only",
+  "contractStatus": "T018-Proposed-local-identity-only",
+  "webContract": {
+    "commit": "38449c320e0fbaec1dba38f56c0f9570384f8b60",
+    "tree": "cf3cac41763938546af9d6f662167b17f3197288",
+    "files": [
+      {
+        "path": "plans/13-developer-control-plane/01-foundation-and-interface-contract.md",
+        "blob": "2bce690dacd927af5742872c6a69f8a6633a3bf2",
+        "sha256": "36B2F1A4C66D1FEE8754EB47AC49B3BDCF823CD3C2375FC6C333A098C96EC5BB"
+      },
+      {
+        "path": "plans/11-implementation/01-phased-implementation-plan.md",
+        "blob": "6be1cbcbdc04eb5f117a3c21bafe2276c7c1a62e",
+        "sha256": "63EAB6D1B69BA1C7EE9FC94C4EF85AC62D0C5822A53B1BBF6AFE71CF412FF4BD"
+      },
+      {
+        "path": "docs/decisions/ADR-0016-developer-control-plane-projection-and-verifier-contract.md",
+        "blob": "a9de1e96308c39923ffbdcec3db210d87c139efd",
+        "sha256": "2F8CA59E6A8AF28F1DAF7524AB2DCEC461F2E401C98163FB527F6A3564D93D13"
+      },
+      {
+        "path": "docs/interfaces/data-platform-api-key-projection-v3-web-proposal.md",
+        "blob": "d3eda869a30a5af235f916f5bd982fdeb2cb70e0",
+        "sha256": "BC3F7942AA2368C3D50068F1EE6ACD536AEFA14599EEB43EFD619C1E3539F4F0"
+      }
+    ]
+  },
+  "dataDependency": {
+    "commit": "d21efabb8550578333fee5f62bf0e822fbca1394",
+    "tree": "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a",
+    "acceptance": "producer-local-v2-only"
+  },
+  "provider": {
+    "status": "unbound",
+    "positiveVectors": "blocked_external"
+  },
+  "eventTypes": [
+    "key.verifier_published",
+    "key.rotated",
+    "key.revoked",
+    "key.policy_changed",
+    "project.activated",
+    "project.disabled",
+    "organization.disabled",
+    "projection.heartbeat"
+  ],
+  "counterPolicy": {
+    "policyVersion": "finite-positive-safe-integer",
+    "organizationSequence": "finite-positive-safe-integer-and-separate",
+    "heartbeatStaleSeconds": 60,
+    "revocationWarningSeconds": 30,
+    "revocationCriticalSeconds": 45,
+    "revocationFailClosedSeconds": 60
+  },
+  "fixtureFiles": {
+    "adapter": "adapter-cases.json",
+    "events": "event-cases.json",
+    "acknowledgements": "acknowledgement-replay-cases.json",
+    "failures": "failure-redaction-cases.json"
+  },
+  "authorityDenials": [
+    "no-final-verifier-scheme",
+    "no-final-key-format",
+    "no-provider-activation",
+    "no-transport-or-secret-binding",
+    "no-live-database-or-network",
+    "no-Data-v2-semantic-adoption",
+    "no-DCP-1B-or-production-acceptance"
+  ]
+}

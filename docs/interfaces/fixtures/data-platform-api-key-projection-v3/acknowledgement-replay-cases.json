@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "collection": "acknowledgement-and-replay",
+  "cases": [
+    {
+      "id": "durable-applied-acknowledgement",
+      "expected": "applied",
+      "noStateMutation": false,
+      "rules": ["durable-before-return", "exact-canonical-digest", "closed-fields-only"]
+    },
+    {
+      "id": "durable-quarantined-acknowledgement",
+      "expected": "quarantined",
+      "noStateMutation": false,
+      "rules": ["durable-before-return", "closed-reason-code"]
+    },
+    {
+      "id": "exact-duplicate-original-bytes",
+      "expected": "original_bytes",
+      "noStateMutation": true,
+      "rules": ["same-event-id", "same-counters", "same-canonical-bytes"]
+    },
+    {
+      "id": "mismatched-duplicate-quarantine",
+      "expected": "quarantined",
+      "noStateMutation": true,
+      "rules": ["same-event-id-different-bytes", "never-authorize"]
+    },
+    {
+      "id": "gap-rollback-policy-rollback-fail-closed",
+      "expected": "fail_closed",
+      "noStateMutation": true,
+      "rules": ["exact-next-sequence", "monotonic-policy-version"]
+    },
+    {
+      "id": "replay-from-last-durable-ack-plus-one",
+      "expected": "replay_next",
+      "noStateMutation": false,
+      "rules": ["at-least-once", "original-bytes", "never-skip"]
+    },
+    {
+      "id": "heartbeat-stale-and-watermark-mismatch",
+      "expected": "fail_closed",
+      "noStateMutation": true,
+      "rules": ["30-warning", "45-critical", "60-fail-closed", "watermark-equality"]
+    },
+    {
+      "id": "noninteger-and-unknown-state-fail-closed",
+      "expected": "fail_closed",
+      "noStateMutation": true,
+      "rules": ["NaN", "Infinity", "negative", "fractional", "unknown-version", "unknown-binding"]
+    }
+  ]
+}

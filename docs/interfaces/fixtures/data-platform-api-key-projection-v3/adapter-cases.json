@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "collection": "web-adapter-boundary",
+  "cases": [
+    {
+      "id": "project-binding-authoritative",
+      "classification": "local",
+      "operation": "authorize",
+      "input": {
+        "organizationId": "uuid-v7",
+        "projectId": "uuid-v7",
+        "providerReference": "ignored-for-authorization"
+      },
+      "expected": { "authority": "separate-web-project-record", "organizationMismatch": "deny" }
+    },
+    {
+      "id": "create-show-once-redaction",
+      "classification": "local",
+      "operation": "create",
+      "input": { "organizationProjectBinding": "valid", "providerResult": "volatile-test-only" },
+      "expected": {
+        "create": "allow",
+        "firstDisplay": "volatile-only",
+        "secondDisplay": "deny",
+        "persistedRecord": "metadata-only"
+      }
+    },
+    {
+      "id": "list-metadata-only",
+      "classification": "local",
+      "operation": "list",
+      "input": { "projectBinding": "valid" },
+      "expected": { "result": "metadata-only", "displayValue": "absent", "descriptor": "absent" }
+    },
+    {
+      "id": "exact-command-retry",
+      "classification": "local",
+      "operation": "retry",
+      "input": { "sameCommandIdentity": true, "sameCanonicalBytes": true },
+      "expected": {
+        "result": "original-redacted-outcome",
+        "eventBytes": "reused",
+        "providerCall": "not-repeated"
+      }
+    },
+    {
+      "id": "mismatched-command-retry-fail-closed",
+      "classification": "local",
+      "operation": "retry",
+      "input": { "sameCommandIdentity": true, "sameCanonicalBytes": false },
+      "expected": { "result": "fail_closed", "stateMutation": false }
+    },
+    {
+      "id": "provider-failure-no-event",
+      "classification": "local",
+      "operation": "create",
+      "input": { "providerResult": "failure" },
+      "expected": { "result": "fail_closed", "outboxEvent": "absent", "display": "absent" }
+    },
+    {
+      "id": "provider-success-web-failure-no-reveal",
+      "classification": "local",
+      "operation": "create",
+      "input": { "providerResult": "success", "webCommit": "failure" },
+      "expected": {
+        "display": "absent",
+        "orphan": "recoverable",
+        "compensation": "disable-before-retry"
+      }
+    },
+    {
+      "id": "rotation-overlap-boundaries",
+      "classification": "local",
+      "operation": "rotate",
+      "input": {
+        "committedAt": "2026-08-31T00:00:00.000Z",
+        "predecessor": "active",
+        "replacement": "active"
+      },
+      "expected": {
+        "overlapMs": 86400000,
+        "startsAt": "committed_at",
+        "boundary": "exclusive_after_86400_seconds"
+      }
+    },
+    {
+      "id": "revoke-overrides-overlap",
+      "classification": "local",
+      "operation": "revoke",
+      "input": { "duringOverlap": true },
+      "expected": {
+        "revokePrecedence": "immediate",
+        "predecessor": "deny",
+        "replacement": "unchanged-unless-targeted"
+      }
+    },
+    {
+      "id": "project-and-organization-disable-precedence",
+      "classification": "local",
+      "operation": "disable",
+      "input": { "replayedActivation": true, "organizationDisabled": true },
+      "expected": { "projectAndDescendantKeys": "deny", "replayReactivation": "fail_closed" }
+    }
+  ]
+}

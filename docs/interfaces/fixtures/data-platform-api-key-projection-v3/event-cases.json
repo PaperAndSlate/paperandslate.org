@@ -1,0 +1,152 @@
+{
+  "schemaVersion": 1,
+  "collection": "v3-events",
+  "cases": [
+    {
+      "id": "event-key.verifier_published",
+      "event_type": "key.verifier_published",
+      "expected": "blocked_external",
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "blockedReason": "provider-security-registry-entry-missing",
+      "event": {
+        "committed_at": "2026-08-31T00:00:01.000Z",
+        "event_id": "00000000-0000-7000-8000-000000000411",
+        "event_type": "key.verifier_published",
+        "key_id": "00000000-0000-7000-8000-000000000403",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 1,
+        "payload": { "descriptorStatus": "unbound" },
+        "policy_version": 1,
+        "project_id": "00000000-0000-7000-8000-000000000402"
+      }
+    },
+    {
+      "id": "event-key.rotated",
+      "event_type": "key.rotated",
+      "expected": "blocked_external",
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "blockedReason": "provider-security-registry-entry-missing",
+      "event": {
+        "committed_at": "2026-08-31T00:00:02.000Z",
+        "event_id": "00000000-0000-7000-8000-000000000412",
+        "event_type": "key.rotated",
+        "key_id": "00000000-0000-7000-8000-000000000404",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 2,
+        "payload": { "descriptorStatus": "unbound", "overlapSeconds": 86400 },
+        "policy_version": 2,
+        "project_id": "00000000-0000-7000-8000-000000000402"
+      }
+    },
+    {
+      "id": "event-key.revoked",
+      "event_type": "key.revoked",
+      "expected": "local",
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:03.000Z\",\"event_id\":\"00000000-0000-7000-8000-000000000413\",\"event_type\":\"key.revoked\",\"key_id\":\"00000000-0000-7000-8000-000000000403\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":3,\"payload\":{},\"policy_version\":3,\"project_id\":\"00000000-0000-7000-8000-000000000402\"}",
+      "canonicalDigest": "sha256:1b3876acf31446b3cc50d90293a30247be67ba9b9c0b43ed7bb68817cf9d9822",
+      "event": {
+        "committed_at": "2026-08-31T00:00:03.000Z",
+        "event_id": "00000000-0000-7000-8000-000000000413",
+        "event_type": "key.revoked",
+        "key_id": "00000000-0000-7000-8000-000000000403",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 3,
+        "payload": {},
+        "policy_version": 3,
+        "project_id": "00000000-0000-7000-8000-000000000402"
+      }
+    },
+    {
+      "id": "event-key.policy_changed",
+      "event_type": "key.policy_changed",
+      "expected": "local",
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:04.000Z\",\"event_id\":\"00000000-0000-7000-8000-000000000414\",\"event_type\":\"key.policy_changed\",\"key_id\":\"00000000-0000-7000-8000-000000000403\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":4,\"payload\":{\"scopes\":[\"data:read\",\"provenance:read\"]},\"policy_version\":4,\"project_id\":\"00000000-0000-7000-8000-000000000402\"}",
+      "canonicalDigest": "sha256:1fa2c4b1300c8ebf288aafa28c43c4e5a83a46cd99e9ed6ea690b9b37761d046",
+      "event": {
+        "committed_at": "2026-08-31T00:00:04.000Z",
+        "event_id": "00000000-0000-7000-8000-000000000414",
+        "event_type": "key.policy_changed",
+        "key_id": "00000000-0000-7000-8000-000000000403",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 4,
+        "payload": { "scopes": ["data:read", "provenance:read"] },
+        "policy_version": 4,
+        "project_id": "00000000-0000-7000-8000-000000000402"
+      }
+    },
+    {
+      "id": "event-project.activated",
+      "event_type": "project.activated",
+      "expected": "local",
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:05.000Z\",\"event_id\":\"00000000-0000-7000-8000-000000000415\",\"event_type\":\"project.activated\",\"key_id\":null,\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":5,\"payload\":{},\"policy_version\":5,\"project_id\":\"00000000-0000-7000-8000-000000000402\"}",
+      "canonicalDigest": "sha256:0188f515aaf1ece94e23935cc2bed91da974037c06477e115d49902e09aa0848",
+      "event": {
+        "committed_at": "2026-08-31T00:00:05.000Z",
+        "event_id": "00000000-0000-7000-8000-000000000415",
+        "event_type": "project.activated",
+        "key_id": null,
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 5,
+        "payload": {},
+        "policy_version": 5,
+        "project_id": "00000000-0000-7000-8000-000000000402"
+      }
+    },
+    {
+      "id": "event-project.disabled",
+      "event_type": "project.disabled",
+      "expected": "local",
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:06.000Z\",\"event_id\":\"00000000-0000-7000-8000-000000000416\",\"event_type\":\"project.disabled\",\"key_id\":null,\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":6,\"payload\":{},\"policy_version\":6,\"project_id\":\"00000000-0000-7000-8000-000000000402\"}",
+      "canonicalDigest": "sha256:95f69c4f812f3fd9d96e12ec941c0d3605288465b99a83ea1d3c787d739e5ab6",
+      "event": {
+        "committed_at": "2026-08-31T00:00:06.000Z",
+        "event_id": "00000000-0000-7000-8000-000000000416",
+        "event_type": "project.disabled",
+        "key_id": null,
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 6,
+        "payload": {},
+        "policy_version": 6,
+        "project_id": "00000000-0000-7000-8000-000000000402"
+      }
+    },
+    {
+      "id": "event-organization.disabled",
+      "event_type": "organization.disabled",
+      "expected": "local",
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:07.000Z\",\"event_id\":\"00000000-0000-7000-8000-000000000417\",\"event_type\":\"organization.disabled\",\"key_id\":null,\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":7,\"payload\":{},\"policy_version\":7,\"project_id\":null}",
+      "canonicalDigest": "sha256:c3a1c76b3c1a3da37f7d08e7e305e558cf07983264a91aafc5df43aa24ebd685",
+      "event": {
+        "committed_at": "2026-08-31T00:00:07.000Z",
+        "event_id": "00000000-0000-7000-8000-000000000417",
+        "event_type": "organization.disabled",
+        "key_id": null,
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 7,
+        "payload": {},
+        "policy_version": 7,
+        "project_id": null
+      }
+    },
+    {
+      "id": "event-projection.heartbeat",
+      "event_type": "projection.heartbeat",
+      "expected": "local",
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:08.000Z\",\"event_id\":\"00000000-0000-7000-8000-000000000418\",\"event_type\":\"projection.heartbeat\",\"key_id\":null,\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":8,\"payload\":{\"watermark_sequence\":8},\"policy_version\":7,\"project_id\":null}",
+      "canonicalDigest": "sha256:bdced044002020bf92e2d1914eae803f9b2d01f7170324e5e38053d11947777a",
+      "event": {
+        "committed_at": "2026-08-31T00:00:08.000Z",
+        "event_id": "00000000-0000-7000-8000-000000000418",
+        "event_type": "projection.heartbeat",
+        "key_id": null,
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 8,
+        "payload": { "watermark_sequence": 8 },
+        "policy_version": 7,
+        "project_id": null
+      }
+    }
+  ]
+}

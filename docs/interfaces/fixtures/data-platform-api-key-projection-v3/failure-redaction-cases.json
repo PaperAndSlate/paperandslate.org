@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "collection": "failure-and-redaction",
+  "cases": [
+    {
+      "id": "unknown-event-or-version",
+      "expected": "fail_closed",
+      "rules": ["unknown-event", "unknown-projection-version", "unknown-policy-version"]
+    },
+    {
+      "id": "unknown-binding-or-key-reference",
+      "expected": "fail_closed",
+      "rules": ["unknown-organization", "unknown-project", "unknown-key", "unknown-key-reference"]
+    },
+    {
+      "id": "malformed-counters-and-scopes",
+      "expected": "fail_closed",
+      "rules": [
+        "nonfinite",
+        "negative",
+        "fractional",
+        "duplicate-scope",
+        "unsorted-scope",
+        "unknown-scope"
+      ]
+    },
+    {
+      "id": "revocation-disable-replay-precedence",
+      "expected": "fail_closed",
+      "rules": [
+        "revoke-during-overlap",
+        "project-disable",
+        "organization-disable",
+        "replay-cannot-reactivate"
+      ]
+    },
+    {
+      "id": "outage-retry-and-redaction-sentinels",
+      "expected": "fail_closed",
+      "rules": [
+        "Data-unavailable",
+        "provider-success-web-failure",
+        "no-one-time-value-in-persistence",
+        "no-session-or-header-data"
+      ]
+    }
+  ]
+}
