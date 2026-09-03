@@ -23,6 +23,32 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
+function assertFrozenReceiptSlotAndAggregateMutationsReject(): void {
+  const mutations: Array<[string, (value: any) => void]> = [
+    ["schema version", (value) => (value.schemaVersion = "2.0.0")],
+    ["collection", (value) => (value.collection = "other")],
+    ["classification", (value) => (value.classification = "accepted")],
+    ["contract status", (value) => (value.contractStatus = "accepted")],
+    ["aggregate status", (value) => (value.aggregate.status = "accepted")],
+    ["joint acceptance", (value) => (value.aggregate.jointAcceptance = true)],
+    ["DCP-1B authority", (value) => (value.aggregate.dcp1bAuthority = true)],
+    ["positive vectors", (value) => (value.aggregate.positiveVerifierVectors = "local_candidate")],
+    ["slot order", (value) => value.slots.reverse()],
+    ["slot status", (value) => (value.slots[0].status = "approved")],
+    ["slot owner", (value) => (value.slots[0].owner = "Attacker")],
+    ["slot evidence", (value) => (value.slots[0].requiredEvidence[0] = "changed")],
+    ["slot identity binding", (value) => (value.slots[0].identityBinding = "changed")],
+    ["slot acceptance owner", (value) => (value.slots[0].acceptanceOwner = "Attacker")],
+    ["authority denials", (value) => (value.authorityDenials[0] = "allow-provider")],
+    ["extra root field", (value) => (value.extra = true)],
+  ];
+  for (const [_label, mutate] of mutations) {
+    const mutated = clone(receiptSlots) as any;
+    mutate(mutated);
+    expect(validateReceiptSlots(mutated)).not.toEqual([]);
+  }
+}
+
 function acceptedPostKSnapshot(): RepositorySnapshot {
   const headTree = "1".repeat(40);
   const rawCommit =
@@ -176,34 +202,8 @@ describe("projection v3 acceptance-input bundle", () => {
     const mutated = clone(receiptSlots) as any;
     mutate(mutated);
     expect(validateReceiptSlots(mutated)).not.toEqual([]);
-  });
-
-  it("rejects every frozen pending-slot and aggregate identity mutation", () => {
-    const mutations: Array<[string, (value: any) => void]> = [
-      ["schema version", (value) => (value.schemaVersion = "2.0.0")],
-      ["collection", (value) => (value.collection = "other")],
-      ["classification", (value) => (value.classification = "accepted")],
-      ["contract status", (value) => (value.contractStatus = "accepted")],
-      ["aggregate status", (value) => (value.aggregate.status = "accepted")],
-      ["joint acceptance", (value) => (value.aggregate.jointAcceptance = true)],
-      ["DCP-1B authority", (value) => (value.aggregate.dcp1bAuthority = true)],
-      [
-        "positive vectors",
-        (value) => (value.aggregate.positiveVerifierVectors = "local_candidate"),
-      ],
-      ["slot order", (value) => value.slots.reverse()],
-      ["slot status", (value) => (value.slots[0].status = "approved")],
-      ["slot owner", (value) => (value.slots[0].owner = "Attacker")],
-      ["slot evidence", (value) => (value.slots[0].requiredEvidence[0] = "changed")],
-      ["slot identity binding", (value) => (value.slots[0].identityBinding = "changed")],
-      ["slot acceptance owner", (value) => (value.slots[0].acceptanceOwner = "Attacker")],
-      ["authority denials", (value) => (value.authorityDenials[0] = "allow-provider")],
-      ["extra root field", (value) => (value.extra = true)],
-    ];
-    for (const [_label, mutate] of mutations) {
-      const mutated = clone(receiptSlots) as any;
-      mutate(mutated);
-      expect(validateReceiptSlots(mutated)).not.toEqual([]);
+    if (_label === "approved provider slot") {
+      assertFrozenReceiptSlotAndAggregateMutationsReject();
     }
   });
 
