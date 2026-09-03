@@ -1,0 +1,185 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://paperandslate.org/schemas/data-platform-api-key-projection-v3-joint-review.schema.json",
+  "title": "Paper & Slate projection v3 joint-review bundle",
+  "description": "A provider-neutral, development-only review bundle. It is not a wire, provider, or production acceptance artifact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "evidenceClass",
+    "contractStatus",
+    "jointAcceptance",
+    "dcp1bAuthority",
+    "webContract",
+    "localEvidence",
+    "dataDependency",
+    "fixtureCorpus",
+    "jointCaseFile",
+    "localFixtureVocabulary",
+    "contractRules",
+    "jointOwnership",
+    "unresolvedInputs",
+    "authorityDenials"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "evidenceClass": { "const": "development-local-joint-review-candidate" },
+    "contractStatus": { "const": "T018-Proposed-local-identity-only" },
+    "jointAcceptance": { "const": false },
+    "dcp1bAuthority": { "const": false },
+    "webContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["projectionVersion", "commit", "tree", "files"],
+      "properties": {
+        "projectionVersion": { "const": "3.0.0" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "tree": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "files": {
+          "type": "array",
+          "minItems": 4,
+          "items": { "$ref": "#/$defs/fileIdentity" }
+        }
+      }
+    },
+    "localEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["f", "r", "receipts"],
+      "properties": {
+        "f": { "$ref": "#/$defs/commitIdentity" },
+        "r": { "$ref": "#/$defs/commitIdentity" },
+        "receipts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["historicalBlockedT020", "t020Completion", "t021", "t022"],
+          "properties": {
+            "historicalBlockedT020": { "type": "string", "pattern": "^[A-F0-9]{64}$" },
+            "t020Completion": { "type": "string", "pattern": "^[A-F0-9]{64}$" },
+            "t021": { "type": "string", "pattern": "^[A-F0-9]{64}$" },
+            "t022": { "type": "string", "pattern": "^[A-F0-9]{64}$" }
+          }
+        }
+      }
+    },
+    "dataDependency": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "tree", "status", "resumeReview"],
+      "properties": {
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "tree": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "status": { "const": "producer-local-v2-only" },
+        "resumeReview": { "const": "fresh-T681-review-after-T023" }
+      }
+    },
+    "fixtureCorpus": {
+      "type": "array",
+      "minItems": 5,
+      "items": { "$ref": "#/$defs/fileIdentity" }
+    },
+    "jointCaseFile": { "const": "joint-review-cases.json" },
+    "localFixtureVocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "envelopeFields",
+        "projectionVersion",
+        "occurredAt",
+        "canonicalization",
+        "wireStatus"
+      ],
+      "properties": {
+        "envelopeFields": { "type": "array", "minItems": 9, "items": { "type": "string" } },
+        "projectionVersion": { "const": "absent-from-F" },
+        "occurredAt": { "const": "absent-from-F" },
+        "canonicalization": { "const": "restricted-canonicalFixtureJson-six-local-events-only" },
+        "wireStatus": { "const": "full-RFC8785-bytes-pending" }
+      }
+    },
+    "contractRules": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "counterRange",
+        "policyAndOrder",
+        "events",
+        "scopes",
+        "rotation",
+        "acknowledgement",
+        "descriptor"
+      ],
+      "properties": {
+        "counterRange": { "const": "finite-positive-safe-integer-1-to-9007199254740991" },
+        "policyAndOrder": { "const": "policy_version-distinct-from-organization_sequence" },
+        "events": { "type": "array", "minItems": 8, "items": { "type": "string" } },
+        "scopes": {
+          "const": "bulk:read,data:read,geometry:read,provenance:read-sorted;empty-only-policy-change"
+        },
+        "rotation": { "const": "exactly-86400-seconds-exclusive-boundary" },
+        "acknowledgement": {
+          "const": "durable-before-return-exact-duplicate-bytes-mismatch-quarantine"
+        },
+        "descriptor": { "const": "opaque-versioned-non-plaintext-unbound" }
+      }
+    },
+    "jointOwnership": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evidence", "producer", "acceptanceOwners"],
+        "properties": {
+          "evidence": { "type": "string" },
+          "producer": { "type": "string" },
+          "acceptanceOwners": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        }
+      }
+    },
+    "unresolvedInputs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "owner", "requiredEvidence"],
+        "properties": {
+          "id": { "type": "string" },
+          "status": { "const": "pending" },
+          "owner": { "type": "string" },
+          "requiredEvidence": { "type": "string" }
+        }
+      }
+    },
+    "authorityDenials": {
+      "type": "array",
+      "minItems": 8,
+      "items": { "type": "string" }
+    }
+  },
+  "$defs": {
+    "fileIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "blob", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "blob": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "sha256": { "type": "string", "pattern": "^[A-F0-9]{64}$" }
+      }
+    },
+    "commitIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "parent", "tree", "diffPaths"],
+      "properties": {
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "parent": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "tree": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "diffPaths": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    }
+  }
+}

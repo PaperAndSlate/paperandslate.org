@@ -1,0 +1,570 @@
+{
+  "schemaVersion": "1.0.0",
+  "caseSet": "projection-v3-joint-review",
+  "contractIdentity": "T018-Proposed-local-identity-only",
+  "cases": [
+    {
+      "id": "event-key.verifier_published",
+      "kind": "event",
+      "sourceCollection": "v3-events",
+      "sourceCaseId": "event-key.verifier_published",
+      "evidenceStatus": "blocked_external",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Security", "Data"],
+      "expected": {
+        "authorizationEffect": "publish-unbound",
+        "localEvidence": "blocked_external",
+        "canonicalWireStatus": "pending-provider-security-wire",
+        "verifierStatus": "unbound",
+        "sequenceRule": "organization-sequence-1-policy-1",
+        "policyRule": "numeric-policy-distinct-from-order"
+      },
+      "unresolved": [
+        "provider-registry",
+        "security-registry",
+        "wire-canonical-bytes",
+        "data-t681-review"
+      ]
+    },
+    {
+      "id": "event-key.rotated",
+      "kind": "event",
+      "sourceCollection": "v3-events",
+      "sourceCaseId": "event-key.rotated",
+      "evidenceStatus": "blocked_external",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Security", "Data"],
+      "expected": {
+        "authorizationEffect": "replace-with-exact-24-hour-overlap-unbound",
+        "localEvidence": "blocked_external",
+        "canonicalWireStatus": "pending-provider-security-wire",
+        "verifierStatus": "unbound",
+        "sequenceRule": "organization-sequence-2-policy-2",
+        "policyRule": "numeric-policy-distinct-from-order"
+      },
+      "unresolved": [
+        "provider-registry",
+        "security-registry",
+        "wire-canonical-bytes",
+        "data-t681-review"
+      ]
+    },
+    {
+      "id": "event-key.revoked",
+      "kind": "event",
+      "sourceCollection": "v3-events",
+      "sourceCaseId": "event-key.revoked",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Security", "Data"],
+      "expected": {
+        "authorizationEffect": "immediate-deny",
+        "localEvidence": "local-structural-candidate",
+        "canonicalWireStatus": "restricted-fixture-only",
+        "verifierStatus": "unbound",
+        "sequenceRule": "organization-sequence-3-policy-3",
+        "policyRule": "numeric-policy-distinct-from-order"
+      },
+      "unresolved": ["security-registry", "wire-canonical-bytes", "data-t681-review"]
+    },
+    {
+      "id": "event-key.policy_changed",
+      "kind": "event",
+      "sourceCollection": "v3-events",
+      "sourceCaseId": "event-key.policy_changed",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Security", "Data", "Privacy"],
+      "expected": {
+        "authorizationEffect": "replace-sorted-scope-policy",
+        "localEvidence": "local-structural-candidate",
+        "canonicalWireStatus": "restricted-fixture-only",
+        "verifierStatus": "unbound",
+        "sequenceRule": "organization-sequence-4-policy-4",
+        "policyRule": "numeric-policy-distinct-from-order"
+      },
+      "unresolved": ["security-registry", "wire-canonical-bytes", "data-t681-review"]
+    },
+    {
+      "id": "event-project.activated",
+      "kind": "event",
+      "sourceCollection": "v3-events",
+      "sourceCaseId": "event-project.activated",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security"],
+      "expected": {
+        "authorizationEffect": "allow-bound-project",
+        "localEvidence": "local-structural-candidate",
+        "canonicalWireStatus": "restricted-fixture-only",
+        "verifierStatus": "unbound",
+        "sequenceRule": "organization-sequence-5-policy-5",
+        "policyRule": "numeric-policy-distinct-from-order"
+      },
+      "unresolved": ["wire-canonical-bytes", "data-t681-review"]
+    },
+    {
+      "id": "event-project.disabled",
+      "kind": "event",
+      "sourceCollection": "v3-events",
+      "sourceCaseId": "event-project.disabled",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security"],
+      "expected": {
+        "authorizationEffect": "deny-project-descendants",
+        "localEvidence": "local-structural-candidate",
+        "canonicalWireStatus": "restricted-fixture-only",
+        "verifierStatus": "unbound",
+        "sequenceRule": "organization-sequence-6-policy-6",
+        "policyRule": "numeric-policy-distinct-from-order"
+      },
+      "unresolved": ["wire-canonical-bytes", "data-t681-review"]
+    },
+    {
+      "id": "event-organization.disabled",
+      "kind": "event",
+      "sourceCollection": "v3-events",
+      "sourceCaseId": "event-organization.disabled",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security", "Privacy"],
+      "expected": {
+        "authorizationEffect": "deny-organization-descendants",
+        "localEvidence": "local-structural-candidate",
+        "canonicalWireStatus": "restricted-fixture-only",
+        "verifierStatus": "unbound",
+        "sequenceRule": "organization-sequence-7-policy-7",
+        "policyRule": "numeric-policy-distinct-from-order"
+      },
+      "unresolved": ["wire-canonical-bytes", "data-t681-review"]
+    },
+    {
+      "id": "event-projection.heartbeat",
+      "kind": "event",
+      "sourceCollection": "v3-events",
+      "sourceCaseId": "event-projection.heartbeat",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Operations"],
+      "expected": {
+        "authorizationEffect": "observe-watermark-only",
+        "localEvidence": "local-structural-candidate",
+        "canonicalWireStatus": "restricted-fixture-only",
+        "verifierStatus": "unbound",
+        "sequenceRule": "organization-sequence-8-policy-7",
+        "policyRule": "numeric-policy-distinct-from-order"
+      },
+      "unresolved": ["wire-canonical-bytes", "data-t681-review", "authenticated-acknowledgement"]
+    },
+    {
+      "id": "adapter-project-binding-authoritative",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "project-binding-authoritative",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Security", "Data"],
+      "expected": {
+        "webBoundary": "separate-project-record-is-authoritative",
+        "dataBoundary": "not-yet-bound",
+        "providerBoundary": "provider-reference-cannot-authorize",
+        "compensationBoundary": "not-applicable",
+        "overlapRule": "not-applicable",
+        "revokeRule": "organization-mismatch-deny"
+      },
+      "unresolved": ["provider-registry", "data-t681-review"]
+    },
+    {
+      "id": "adapter-create-show-once-redaction",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "create-show-once-redaction",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Security", "Privacy"],
+      "expected": {
+        "webBoundary": "first-display-only-metadata-afterward",
+        "dataBoundary": "not-yet-bound",
+        "providerBoundary": "volatile-test-only",
+        "compensationBoundary": "no-persistence-of-display-value",
+        "overlapRule": "not-applicable",
+        "revokeRule": "not-applicable"
+      },
+      "unresolved": ["provider-registry", "security-registry", "data-t681-review"]
+    },
+    {
+      "id": "adapter-list-metadata-only",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "list-metadata-only",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Privacy", "Security"],
+      "expected": {
+        "webBoundary": "project-bound-list",
+        "dataBoundary": "not-yet-bound",
+        "providerBoundary": "no-provider-read",
+        "compensationBoundary": "metadata-only",
+        "overlapRule": "not-applicable",
+        "revokeRule": "display-absent"
+      },
+      "unresolved": ["provider-registry", "data-t681-review"]
+    },
+    {
+      "id": "adapter-exact-command-retry",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "exact-command-retry",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Operations", "Security"],
+      "expected": {
+        "webBoundary": "same-command-and-bytes-reuse-outcome",
+        "dataBoundary": "replay-safe",
+        "providerBoundary": "provider-call-not-repeated",
+        "compensationBoundary": "original-redacted-outcome",
+        "overlapRule": "not-applicable",
+        "revokeRule": "not-applicable"
+      },
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "adapter-mismatched-command-retry-fail-closed",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "mismatched-command-retry-fail-closed",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security"],
+      "expected": {
+        "webBoundary": "mismatched-command-fail-closed",
+        "dataBoundary": "no-state-mutation",
+        "providerBoundary": "provider-call-not-repeated",
+        "compensationBoundary": "mismatch-quarantine",
+        "overlapRule": "not-applicable",
+        "revokeRule": "not-applicable"
+      },
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "adapter-provider-failure-no-event",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "provider-failure-no-event",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Operations", "Security"],
+      "expected": {
+        "webBoundary": "fail-closed",
+        "dataBoundary": "no-event",
+        "providerBoundary": "provider-failure",
+        "compensationBoundary": "no-outbox-no-display",
+        "overlapRule": "not-applicable",
+        "revokeRule": "not-applicable"
+      },
+      "unresolved": ["provider-registry", "data-t681-review"]
+    },
+    {
+      "id": "adapter-provider-success-web-failure-no-reveal",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "provider-success-web-failure-no-reveal",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Operations", "Security", "Privacy"],
+      "expected": {
+        "webBoundary": "fail-closed-no-display",
+        "dataBoundary": "no-publish-before-control-commit",
+        "providerBoundary": "provider-success-orphan-recoverable",
+        "compensationBoundary": "disable-before-retry",
+        "overlapRule": "not-applicable",
+        "revokeRule": "orphan-disabled-before-retry"
+      },
+      "unresolved": ["provider-registry", "authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "adapter-rotation-overlap-boundaries",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "rotation-overlap-boundaries",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Security", "Data"],
+      "expected": {
+        "webBoundary": "replacement-and-predecessor-active-at-commit",
+        "dataBoundary": "overlap-not-yet-wire-bound",
+        "providerBoundary": "provider-overlap-pending",
+        "compensationBoundary": "exactly-86400000-ms",
+        "overlapRule": "exclusive-after-86400-seconds",
+        "revokeRule": "not-applicable"
+      },
+      "unresolved": ["provider-registry", "security-registry", "data-t681-review"]
+    },
+    {
+      "id": "adapter-revoke-overrides-overlap",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "revoke-overrides-overlap",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Security", "Data"],
+      "expected": {
+        "webBoundary": "immediate-revocation-precedence",
+        "dataBoundary": "predecessor-deny",
+        "providerBoundary": "replacement-unchanged-unless-targeted",
+        "compensationBoundary": "no-overlap-resurrection",
+        "overlapRule": "revoke-wins-during-overlap",
+        "revokeRule": "immediate"
+      },
+      "unresolved": ["provider-registry", "security-registry", "data-t681-review"]
+    },
+    {
+      "id": "adapter-project-and-organization-disable-precedence",
+      "kind": "adapter",
+      "sourceCollection": "web-adapter-boundary",
+      "sourceCaseId": "project-and-organization-disable-precedence",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security", "Operations"],
+      "expected": {
+        "webBoundary": "descendant-disable-precedence",
+        "dataBoundary": "deny-disabled-descendants",
+        "providerBoundary": "provider-state-not-authoritative",
+        "compensationBoundary": "replay-reactivation-fail-closed",
+        "overlapRule": "disabled-state-wins",
+        "revokeRule": "disable-wins"
+      },
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "ack-durable-applied-acknowledgement",
+      "kind": "acknowledgement",
+      "sourceCollection": "acknowledgement-and-replay",
+      "sourceCaseId": "durable-applied-acknowledgement",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Data",
+      "acceptanceOwners": ["Data", "Web", "Security", "Operations"],
+      "expected": {
+        "durability": "durable-before-return",
+        "duplicateRule": "closed-duplicate-contract-pending",
+        "sequenceRule": "exact-canonical-digest",
+        "stalenessRule": "fresh-only",
+        "mutationRule": "state-applied",
+        "ackStatus": "applied"
+      },
+      "unresolved": ["authenticated-acknowledgement", "quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "ack-durable-quarantined-acknowledgement",
+      "kind": "acknowledgement",
+      "sourceCollection": "acknowledgement-and-replay",
+      "sourceCaseId": "durable-quarantined-acknowledgement",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Data",
+      "acceptanceOwners": ["Data", "Web", "Security", "Operations"],
+      "expected": {
+        "durability": "durable-before-return",
+        "duplicateRule": "closed-duplicate-contract-pending",
+        "sequenceRule": "closed-reason-code",
+        "stalenessRule": "quarantine-on-rejected-apply",
+        "mutationRule": "quarantine-state-only",
+        "ackStatus": "quarantined"
+      },
+      "unresolved": ["authenticated-acknowledgement", "quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "ack-exact-duplicate-original-bytes",
+      "kind": "acknowledgement",
+      "sourceCollection": "acknowledgement-and-replay",
+      "sourceCaseId": "exact-duplicate-original-bytes",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Data",
+      "acceptanceOwners": ["Data", "Web", "Operations"],
+      "expected": {
+        "durability": "original-ack-durable",
+        "duplicateRule": "same-event-counters-and-bytes",
+        "sequenceRule": "same-event-id",
+        "stalenessRule": "return-original-bytes",
+        "mutationRule": "no-state-mutation",
+        "ackStatus": "original_bytes"
+      },
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "ack-mismatched-duplicate-quarantine",
+      "kind": "acknowledgement",
+      "sourceCollection": "acknowledgement-and-replay",
+      "sourceCaseId": "mismatched-duplicate-quarantine",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Data",
+      "acceptanceOwners": ["Data", "Web", "Security", "Operations"],
+      "expected": {
+        "durability": "quarantine-durable",
+        "duplicateRule": "same-event-id-different-bytes",
+        "sequenceRule": "mismatch-never-authorizes",
+        "stalenessRule": "quarantine",
+        "mutationRule": "no-authorizing-state-mutation",
+        "ackStatus": "quarantined"
+      },
+      "unresolved": ["authenticated-acknowledgement", "quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "ack-gap-rollback-policy-rollback-fail-closed",
+      "kind": "acknowledgement",
+      "sourceCollection": "acknowledgement-and-replay",
+      "sourceCaseId": "gap-rollback-policy-rollback-fail-closed",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Data",
+      "acceptanceOwners": ["Data", "Web", "Security"],
+      "expected": {
+        "durability": "no-durable-apply",
+        "duplicateRule": "unknown-until-reviewed",
+        "sequenceRule": "exact-next-and-monotonic-policy",
+        "stalenessRule": "gap-or-rollback-fail-closed",
+        "mutationRule": "no-state-mutation",
+        "ackStatus": "fail_closed"
+      },
+      "unresolved": ["quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "ack-replay-from-last-durable-ack-plus-one",
+      "kind": "acknowledgement",
+      "sourceCollection": "acknowledgement-and-replay",
+      "sourceCaseId": "replay-from-last-durable-ack-plus-one",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Data",
+      "acceptanceOwners": ["Data", "Web", "Operations"],
+      "expected": {
+        "durability": "last-ack-is-durable",
+        "duplicateRule": "original-bytes",
+        "sequenceRule": "last-plus-one",
+        "stalenessRule": "at-least-once",
+        "mutationRule": "no-skip",
+        "ackStatus": "replay_next"
+      },
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "ack-heartbeat-stale-and-watermark-mismatch",
+      "kind": "acknowledgement",
+      "sourceCollection": "acknowledgement-and-replay",
+      "sourceCaseId": "heartbeat-stale-and-watermark-mismatch",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Data",
+      "acceptanceOwners": ["Data", "Web", "Operations", "Security"],
+      "expected": {
+        "durability": "no-authorizing-apply",
+        "duplicateRule": "unknown-until-reviewed",
+        "sequenceRule": "watermark-equality",
+        "stalenessRule": "30-warning-45-critical-60-fail-closed",
+        "mutationRule": "no-state-mutation",
+        "ackStatus": "fail_closed"
+      },
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "ack-noninteger-and-unknown-state-fail-closed",
+      "kind": "acknowledgement",
+      "sourceCollection": "acknowledgement-and-replay",
+      "sourceCaseId": "noninteger-and-unknown-state-fail-closed",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Data",
+      "acceptanceOwners": ["Data", "Web", "Security"],
+      "expected": {
+        "durability": "no-authorizing-apply",
+        "duplicateRule": "unknown-binding-fail-closed",
+        "sequenceRule": "finite-nonnegative-integer-required",
+        "stalenessRule": "unknown-version-fail-closed",
+        "mutationRule": "no-state-mutation",
+        "ackStatus": "fail_closed"
+      },
+      "unresolved": ["quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "failure-unknown-event-or-version",
+      "kind": "failure",
+      "sourceCollection": "failure-and-redaction",
+      "sourceCaseId": "unknown-event-or-version",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security"],
+      "expected": {
+        "outcome": "fail_closed",
+        "redactionRule": "no-sensitive-fields",
+        "unknownRule": "unknown-event-or-version",
+        "mutationRule": "no-state-mutation"
+      },
+      "unresolved": ["security-registry", "quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "failure-unknown-binding-or-key-reference",
+      "kind": "failure",
+      "sourceCollection": "failure-and-redaction",
+      "sourceCaseId": "unknown-binding-or-key-reference",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security", "Provider"],
+      "expected": {
+        "outcome": "fail_closed",
+        "redactionRule": "no-sensitive-fields",
+        "unknownRule": "unknown-organization-project-key-reference",
+        "mutationRule": "no-state-mutation"
+      },
+      "unresolved": ["provider-registry", "security-registry", "data-t681-review"]
+    },
+    {
+      "id": "failure-malformed-counters-and-scopes",
+      "kind": "failure",
+      "sourceCollection": "failure-and-redaction",
+      "sourceCaseId": "malformed-counters-and-scopes",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security"],
+      "expected": {
+        "outcome": "fail_closed",
+        "redactionRule": "no-sensitive-fields",
+        "unknownRule": "nonfinite-negative-fractional-or-scope-error",
+        "mutationRule": "no-state-mutation"
+      },
+      "unresolved": ["security-registry", "data-t681-review"]
+    },
+    {
+      "id": "failure-revocation-disable-replay-precedence",
+      "kind": "failure",
+      "sourceCollection": "failure-and-redaction",
+      "sourceCaseId": "revocation-disable-replay-precedence",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Data", "Security"],
+      "expected": {
+        "outcome": "fail_closed",
+        "redactionRule": "no-sensitive-fields",
+        "unknownRule": "revoke-disable-replay-precedence",
+        "mutationRule": "no-reactivation"
+      },
+      "unresolved": ["security-registry", "data-t681-review"]
+    },
+    {
+      "id": "failure-outage-retry-and-redaction-sentinels",
+      "kind": "failure",
+      "sourceCollection": "failure-and-redaction",
+      "sourceCaseId": "outage-retry-and-redaction-sentinels",
+      "evidenceStatus": "local-structural-candidate",
+      "producerOwner": "Web",
+      "acceptanceOwners": ["Web", "Provider", "Security", "Privacy", "Operations", "Data"],
+      "expected": {
+        "outcome": "fail_closed",
+        "redactionRule": "no-one-time-or-session-header-data",
+        "unknownRule": "data-or-provider-outage-retry",
+        "mutationRule": "compensate-before-retry"
+      },
+      "unresolved": [
+        "provider-registry",
+        "authenticated-acknowledgement",
+        "transport-credential-binding",
+        "data-t681-review"
+      ]
+    }
+  ]
+}
