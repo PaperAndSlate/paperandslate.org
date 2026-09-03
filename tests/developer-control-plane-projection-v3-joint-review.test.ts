@@ -91,6 +91,27 @@ describe("projection v3 joint-review bundle", () => {
     expect(validateJointReviewCaseFile(mutated)).not.toEqual([]);
   });
 
+  it.each([
+    ["legacy nonnegative vocabulary", "finite-nonnegative-integer-required"],
+    ["zero lower bound", "finite-positive-safe-integer-0-to-9007199254740991"],
+    ["above maximum safe integer", "finite-positive-safe-integer-1-to-9007199254740992"],
+    ["fractional lower bound", "finite-positive-safe-integer-1.5-to-9007199254740991"],
+    ["fractional upper bound", "finite-positive-safe-integer-1-to-9007199254740991.5"],
+  ])("rejects acknowledgement counter-domain bypass: %s", (_label, sequenceRule) => {
+    const expected = JOINT_CASE_SPECS.find(
+      (item) => item.id === "ack-noninteger-and-unknown-state-fail-closed",
+    );
+    expect(expected?.expected.sequenceRule).toBe(
+      "finite-positive-safe-integer-1-to-9007199254740991",
+    );
+    const mutated = clone(jointCases) as any;
+    const target = mutated.cases.find(
+      (item: { id: string }) => item.id === "ack-noninteger-and-unknown-state-fail-closed",
+    );
+    target.expected.sequenceRule = sequenceRule;
+    expect(validateJointReviewCaseFile(mutated)).not.toEqual([]);
+  });
+
   it("keeps the two descriptor vectors blocked and the local fixture vocabulary reduced", () => {
     expect(jointManifest.localFixtureVocabulary).toMatchObject({
       projectionVersion: "absent-from-F",

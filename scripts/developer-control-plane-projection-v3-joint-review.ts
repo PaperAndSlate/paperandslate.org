@@ -991,7 +991,7 @@ export const JOINT_CASE_SPECS: readonly JointCase[] = [
     {
       durability: "no-authorizing-apply",
       duplicateRule: "unknown-binding-fail-closed",
-      sequenceRule: "finite-nonnegative-integer-required",
+      sequenceRule: "finite-positive-safe-integer-1-to-9007199254740991",
       stalenessRule: "unknown-version-fail-closed",
       mutationRule: "no-state-mutation",
       ackStatus: "fail_closed",
