@@ -1,0 +1,176 @@
+{
+  "schemaVersion": "1.0.0",
+  "collection": "v3-wire-acknowledgements",
+  "classification": "local-provider-neutral-acknowledgement-candidate",
+  "contractStatus": "T018-Proposed-local-identity-only",
+  "acknowledgementFields": [
+    "acknowledgement_version",
+    "projection_version",
+    "event_id",
+    "organization_id",
+    "organization_sequence",
+    "canonical_event_digest",
+    "outcome",
+    "reason_code",
+    "decided_at"
+  ],
+  "cases": [
+    {
+      "id": "ack-durable-applied-acknowledgement",
+      "expected": "local_candidate",
+      "event_id": "00000000-0000-7000-8000-000000000415",
+      "organization_id": "00000000-0000-7000-8000-000000000401",
+      "organization_sequence": 5,
+      "canonical_event_digest": "sha256:06d8b5837a69c238a47dda248799dd2d5560e8ba96c0f8954acc52b9e957db73",
+      "acknowledgement": {
+        "acknowledgement_version": "1.0.0",
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000415",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "organization_sequence": 5,
+        "canonical_event_digest": "sha256:06d8b5837a69c238a47dda248799dd2d5560e8ba96c0f8954acc52b9e957db73",
+        "outcome": "applied",
+        "reason_code": null,
+        "decided_at": "2026-08-31T00:00:06Z"
+      },
+      "canonicalBytes": "{\"acknowledgement_version\":\"1.0.0\",\"canonical_event_digest\":\"sha256:06d8b5837a69c238a47dda248799dd2d5560e8ba96c0f8954acc52b9e957db73\",\"decided_at\":\"2026-08-31T00:00:06Z\",\"event_id\":\"00000000-0000-7000-8000-000000000415\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":5,\"outcome\":\"applied\",\"projection_version\":\"3.0.0\",\"reason_code\":null}",
+      "canonicalDigest": "sha256:3423c0e051dd663a5c71ccc62474d506bc1197895525192b4925b4622d594ee3",
+      "rules": [
+        "durable-before-return",
+        "applied-reason-code-null",
+        "exact-event-digest",
+        "authorization-state-applied"
+      ],
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "ack-exact-duplicate-original-bytes",
+      "expected": "blocked_external",
+      "event_id": "00000000-0000-7000-8000-000000000415",
+      "organization_id": "00000000-0000-7000-8000-000000000401",
+      "organization_sequence": 5,
+      "canonical_event_digest": "sha256:06d8b5837a69c238a47dda248799dd2d5560e8ba96c0f8954acc52b9e957db73",
+      "acknowledgement": null,
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "rules": [
+        "original-ack-durable",
+        "same-event-counters-and-bytes",
+        "same-event-id",
+        "return-original-bytes",
+        "no-state-mutation"
+      ],
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "ack-mismatched-duplicate-quarantine",
+      "expected": "blocked_external",
+      "event_id": "00000000-0000-7000-8000-000000000415",
+      "organization_id": "00000000-0000-7000-8000-000000000401",
+      "organization_sequence": 5,
+      "canonical_event_digest": "sha256:06d8b5837a69c238a47dda248799dd2d5560e8ba96c0f8954acc52b9e957db73",
+      "acknowledgement": null,
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "rules": [
+        "same-event-id-different-bytes",
+        "mismatch-never-authorizes",
+        "quarantine-durable",
+        "no-authorizing-state-mutation"
+      ],
+      "unresolved": ["authenticated-acknowledgement", "quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "ack-gap-rollback-policy-rollback-fail-closed",
+      "expected": "blocked_external",
+      "event_id": "00000000-0000-7000-8000-000000000416",
+      "organization_id": "00000000-0000-7000-8000-000000000401",
+      "organization_sequence": 6,
+      "canonical_event_digest": "sha256:923e9551b0d93dfe77bfb3b180e96bd0d351fce477f15f7be0443081bfe2e917",
+      "acknowledgement": null,
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "rules": [
+        "no-durable-apply",
+        "exact-next-and-monotonic-policy",
+        "gap-or-rollback-fail-closed",
+        "no-state-mutation"
+      ],
+      "unresolved": ["quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "ack-replay-from-last-durable-ack-plus-one",
+      "expected": "blocked_external",
+      "event_id": "00000000-0000-7000-8000-000000000416",
+      "organization_id": "00000000-0000-7000-8000-000000000401",
+      "organization_sequence": 6,
+      "canonical_event_digest": "sha256:923e9551b0d93dfe77bfb3b180e96bd0d351fce477f15f7be0443081bfe2e917",
+      "acknowledgement": null,
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "rules": [
+        "last-ack-is-durable",
+        "original-event-bytes",
+        "last-plus-one",
+        "at-least-once",
+        "no-skip"
+      ],
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "ack-heartbeat-stale-and-watermark-mismatch",
+      "expected": "blocked_external",
+      "event_id": "00000000-0000-7000-8000-000000000418",
+      "organization_id": "00000000-0000-7000-8000-000000000401",
+      "organization_sequence": 8,
+      "canonical_event_digest": "sha256:f9b3b75f219aa6f5d9647312ecfc6678f4bf56e89486ebd05c75ca8eae7d5335",
+      "acknowledgement": null,
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "rules": [
+        "no-authorizing-apply",
+        "watermark-equality",
+        "30-warning-45-critical-60-fail-closed",
+        "no-state-mutation"
+      ],
+      "unresolved": ["authenticated-acknowledgement", "data-t681-review"]
+    },
+    {
+      "id": "ack-noninteger-and-unknown-state-fail-closed",
+      "expected": "blocked_external",
+      "event_id": "00000000-0000-7000-8000-000000000418",
+      "organization_id": "00000000-0000-7000-8000-000000000401",
+      "organization_sequence": 8,
+      "canonical_event_digest": "sha256:f9b3b75f219aa6f5d9647312ecfc6678f4bf56e89486ebd05c75ca8eae7d5335",
+      "acknowledgement": null,
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "rules": [
+        "no-authorizing-apply",
+        "unknown-binding-fail-closed",
+        "finite-positive-safe-integer-1-to-9007199254740991",
+        "unknown-version-fail-closed",
+        "no-state-mutation"
+      ],
+      "unresolved": ["quarantine-reason-codes", "data-t681-review"]
+    },
+    {
+      "id": "ack-durable-quarantined-acknowledgement",
+      "expected": "blocked_external",
+      "event_id": "00000000-0000-7000-8000-000000000417",
+      "organization_id": "00000000-0000-7000-8000-000000000401",
+      "organization_sequence": 7,
+      "canonical_event_digest": "sha256:8254d3eda369376d470b7c08a87c6099f1fb2a0604f3c1762c59a918004f8783",
+      "acknowledgement": null,
+      "canonicalBytes": null,
+      "canonicalDigest": null,
+      "rules": [
+        "durable-before-return",
+        "quarantined-reason-code-required",
+        "quarantine-state-only",
+        "no-authorization-grant"
+      ],
+      "unresolved": ["authenticated-acknowledgement", "quarantine-reason-codes", "data-t681-review"]
+    }
+  ]
+}

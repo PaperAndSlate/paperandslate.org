@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "1.0.0",
+  "evidenceClass": "development-local-provider-neutral-acceptance-input",
+  "contractStatus": "T018-Proposed-local-identity-only",
+  "jointAcceptance": false,
+  "dcp1bAuthority": false,
+  "sourceBoundary": {
+    "t018": {
+      "commit": "38449c320e0fbaec1dba38f56c0f9570384f8b60",
+      "parent": "ee7e6341f9ce52edf51766f540af3864ed565cfd",
+      "tree": "cf3cac41763938546af9d6f662167b17f3197288",
+      "diffPaths": [
+        "plans/13-developer-control-plane/01-foundation-and-interface-contract.md",
+        "plans/11-implementation/01-phased-implementation-plan.md",
+        "docs/decisions/ADR-0016-developer-control-plane-projection-and-verifier-contract.md",
+        "docs/interfaces/data-platform-api-key-projection-v3-web-proposal.md"
+      ]
+    },
+    "f": {
+      "commit": "83548d8fdd636f3ceb222036ad115983401ce0fb",
+      "parent": "38449c320e0fbaec1dba38f56c0f9570384f8b60",
+      "tree": "42bd3051e2196c32f640e0ef032af6cd2519d851",
+      "diffPaths": [
+        "docs/interfaces/fixtures/data-platform-api-key-projection-v3/acknowledgement-replay-cases.json",
+        "docs/interfaces/fixtures/data-platform-api-key-projection-v3/adapter-cases.json",
+        "docs/interfaces/fixtures/data-platform-api-key-projection-v3/event-cases.json",
+        "docs/interfaces/fixtures/data-platform-api-key-projection-v3/failure-redaction-cases.json",
+        "docs/interfaces/fixtures/data-platform-api-key-projection-v3/manifest.json",
+        "packages/developer-control-plane/src/projection-v3-readiness.ts",
+        "scripts/developer-control-plane-projection-v3-readiness.ts",
+        "tests/developer-control-plane-projection-v3-readiness.test.ts"
+      ]
+    },
+    "r": {
+      "commit": "52e120253c60047f4eadec30dafb5fa7981ac947",
+      "parent": "83548d8fdd636f3ceb222036ad115983401ce0fb",
+      "tree": "5d517f9ba396acffaa81ed01325f237a4acfd92f",
+      "diffPaths": [
+        "packages/developer-control-plane/src/projection-v3-readiness.ts",
+        "tests/developer-control-plane-projection-v3-readiness.test.ts"
+      ]
+    },
+    "t023": {
+      "commit": "f2e0672d026381aaeee2863b2c4144405c924bf2",
+      "parent": "48a58d5f2551fd35e6b481c50ded3ffea3831983",
+      "tree": "ae11ad69fc0ec3781ed5c4dc995bbfbbf0772384",
+      "diffPaths": [
+        "docs/interfaces/fixtures/data-platform-api-key-projection-v3/joint-review-cases.json",
+        "scripts/developer-control-plane-projection-v3-joint-review.ts",
+        "tests/developer-control-plane-projection-v3-joint-review.test.ts"
+      ]
+    },
+    "dataT681": {
+      "commit": "d21efabb8550578333fee5f62bf0e822fbca1394",
+      "parent": "0000000000000000000000000000000000000000",
+      "tree": "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a",
+      "diffPaths": ["producer-local-v2-identity-only"]
+    }
+  },
+  "wireContract": {
+    "projectionVersion": "3.0.0",
+    "envelopeFields": [
+      "projection_version",
+      "event_id",
+      "event_type",
+      "occurred_at",
+      "committed_at",
+      "organization_id",
+      "project_id",
+      "key_id",
+      "policy_version",
+      "organization_sequence",
+      "payload"
+    ],
+    "eventTypes": [
+      "key.verifier_published",
+      "key.rotated",
+      "key.revoked",
+      "key.policy_changed",
+      "project.activated",
+      "project.disabled",
+      "organization.disabled",
+      "projection.heartbeat"
+    ],
+    "counterDomain": "finite-positive-safe-integer-1-to-9007199254740991",
+    "canonicalization": "RFC8785-UTF8-no-BOM-closed-fixture-domain",
+    "status": "candidate-bytes-provider-security-pending"
+  },
+  "acknowledgementContract": {
+    "fields": [
+      "acknowledgement_version",
+      "projection_version",
+      "event_id",
+      "organization_id",
+      "organization_sequence",
+      "canonical_event_digest",
+      "outcome",
+      "reason_code",
+      "decided_at"
+    ],
+    "outcomes": ["applied", "quarantined"],
+    "duplicateRule": "exact-original-bytes-mismatched-quarantine",
+    "durability": "durable-before-return",
+    "status": "candidate-reason-registry-transport-pending"
+  },
+  "receiptSlots": "external-receipt-slots.json",
+  "dataReview": {
+    "owner": "Data",
+    "sourceIdentity": {
+      "commit": "d21efabb8550578333fee5f62bf0e822fbca1394",
+      "parent": "0000000000000000000000000000000000000000",
+      "tree": "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a",
+      "diffPaths": ["producer-local-v2-identity-only"]
+    },
+    "mode": "fresh-read-only-compatibility-review",
+    "resumeEvent": "complete-A-to-G-bundle-bound-to-T025-then-recheck-T681",
+    "status": "blocked_external"
+  },
+  "authorityDenials": [
+    "no-final-verifier-scheme",
+    "no-final-key-format",
+    "no-provider-activation",
+    "no-transport-or-secret-binding",
+    "no-live-database-or-network",
+    "no-Data-v2-semantic-adoption",
+    "no-DCP-1B-or-production-acceptance",
+    "no-relabeling-reduced-F-as-wire-acceptance",
+    "no-hosted-or-release-evidence",
+    "no-legal-human-or-publication-acceptance"
+  ]
+}

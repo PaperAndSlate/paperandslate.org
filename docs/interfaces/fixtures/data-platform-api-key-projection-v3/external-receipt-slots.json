@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "1.0.0",
+  "collection": "v3-external-receipt-slots",
+  "classification": "pending-identity-bound-external-inputs",
+  "contractStatus": "T018-Proposed-local-identity-only",
+  "aggregate": {
+    "status": "blocked_external",
+    "jointAcceptance": false,
+    "dcp1bAuthority": false,
+    "positiveVerifierVectors": "blocked_external"
+  },
+  "slots": [
+    {
+      "id": "web-source-identity",
+      "status": "pending",
+      "owner": "Web",
+      "requiredEvidence": [
+        "immutable T025 commit/tree and eight file blob and SHA-256 identities",
+        "exact T018, F, R, T023, and Data T681 identity bindings",
+        "fresh independent local Judge receipt"
+      ],
+      "identityBinding": "T025-K-plus-T018-F-R-T023-Data-T681",
+      "acceptanceOwner": "Web coordinator"
+    },
+    {
+      "id": "provider-web-primitives",
+      "status": "pending",
+      "owner": "Provider plus Web",
+      "requiredEvidence": [
+        "Better Auth 1.7.2 organization ownership and lifecycle capability",
+        "separate Web project binding and database source of truth",
+        "show-once and hashing controls with API-key sessions disabled",
+        "portable opaque descriptor feasibility, key reference behavior, rotation and revoke compensation",
+        "availability and fail-closed behavior"
+      ],
+      "identityBinding": "T025-K-plus-T018-four-proposal-blobs",
+      "acceptanceOwner": "Provider, Web, Security, Operations"
+    },
+    {
+      "id": "security-verifier-registry",
+      "status": "pending",
+      "owner": "Security",
+      "requiredEvidence": [
+        "one approved versioned scheme registry entry",
+        "exact non-plaintext material type, length, binding, and migration rules",
+        "constant-time comparison or independently reviewed equivalent",
+        "unknown, malformed, stale, unavailable, rotation, revoke, and redaction behavior"
+      ],
+      "identityBinding": "T025-K-plus-provider-receipt-plus-exact-fixtures",
+      "acceptanceOwner": "Independent Security reviewer"
+    },
+    {
+      "id": "operations-transport-and-managed-references",
+      "status": "pending",
+      "owner": "Operations",
+      "requiredEvidence": [
+        "ordered authenticated transport and acknowledgement integrity",
+        "producer and consumer workload identity with least privilege",
+        "reference-only managed credential names, rotation, revocation, and cleanup",
+        "limits, replay, retry, dead-letter, monitoring, SLO, on-call, and rollback"
+      ],
+      "identityBinding": "T025-K-plus-exact-staged-workload-identity",
+      "acceptanceOwner": "Operations and Security"
+    },
+    {
+      "id": "privacy-data-handling",
+      "status": "pending",
+      "owner": "Privacy",
+      "requiredEvidence": [
+        "field minimization for events, acknowledgements, audits, telemetry, and receipts",
+        "exclusion of human identity, plaintext, headers, sessions, and credentials",
+        "retention, deletion, legal hold, incident, and evidence-redaction rules"
+      ],
+      "identityBinding": "T025-K-plus-exact-fixture-and-receipt-manifest",
+      "acceptanceOwner": "Independent Privacy reviewer"
+    },
+    {
+      "id": "joint-web-data-fixtures",
+      "status": "pending",
+      "owner": "Web, Data, Security, Privacy, Operations",
+      "requiredEvidence": [
+        "valid and hostile lifecycle, order, scope, rotation, revoke, disable, and heartbeat fixtures",
+        "exact and mismatched duplicates, gap, rollback, replay, stale, unknown, and malformed cases",
+        "provider/Web compensation, acknowledgement durability, transport failure, DLQ, and redaction cases"
+      ],
+      "identityBinding": "T025-K-plus-all-owner-receipts",
+      "acceptanceOwner": "Joint owner review"
+    },
+    {
+      "id": "data-t681-review",
+      "status": "pending",
+      "owner": "Data",
+      "requiredEvidence": [
+        "fresh read-only compatibility verdict for the exact T025 identity",
+        "unchanged Data T681 commit/tree and historical v2 artifact identities",
+        "consumer mapping, raw-wire duplicate handling, ordered apply, acknowledgement, and usage-denial result"
+      ],
+      "identityBinding": "T025-K-plus-A-to-F-plus-Data-T681",
+      "acceptanceOwner": "Data T681 owner and Web coordinator"
+    }
+  ],
+  "authorityDenials": [
+    "no-final-verifier-scheme",
+    "no-final-key-format",
+    "no-provider-activation",
+    "no-transport-or-managed-reference-binding",
+    "no-live-database-or-network",
+    "no-Data-v2-semantic-adoption",
+    "no-DCP-1B-or-production-acceptance",
+    "no-hosted-or-release-evidence",
+    "no-legal-human-or-publication-acceptance"
+  ]
+}

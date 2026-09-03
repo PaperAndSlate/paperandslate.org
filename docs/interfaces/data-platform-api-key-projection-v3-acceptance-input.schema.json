@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://paperandslate.org/schemas/data-platform-api-key-projection-v3-acceptance-input.schema.json",
+  "title": "Paper & Slate projection v3 acceptance-input bundle",
+  "description": "Provider-neutral local input evidence for a Proposed contract. It is not a wire, provider, security, transport, Data, or production acceptance artifact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "evidenceClass",
+    "contractStatus",
+    "jointAcceptance",
+    "dcp1bAuthority",
+    "sourceBoundary",
+    "wireContract",
+    "acknowledgementContract",
+    "receiptSlots",
+    "dataReview",
+    "authorityDenials"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "1.0.0" },
+    "evidenceClass": { "const": "development-local-provider-neutral-acceptance-input" },
+    "contractStatus": { "const": "T018-Proposed-local-identity-only" },
+    "jointAcceptance": { "const": false },
+    "dcp1bAuthority": { "const": false },
+    "sourceBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["t018", "f", "r", "t023", "dataT681"],
+      "properties": {
+        "t018": { "$ref": "#/$defs/commitIdentity" },
+        "f": { "$ref": "#/$defs/commitIdentity" },
+        "r": { "$ref": "#/$defs/commitIdentity" },
+        "t023": { "$ref": "#/$defs/commitIdentity" },
+        "dataT681": { "$ref": "#/$defs/commitIdentity" }
+      }
+    },
+    "wireContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "projectionVersion",
+        "envelopeFields",
+        "eventTypes",
+        "counterDomain",
+        "canonicalization",
+        "status"
+      ],
+      "properties": {
+        "projectionVersion": { "const": "3.0.0" },
+        "envelopeFields": { "type": "array", "minItems": 11, "items": { "type": "string" } },
+        "eventTypes": { "type": "array", "minItems": 8, "items": { "type": "string" } },
+        "counterDomain": { "const": "finite-positive-safe-integer-1-to-9007199254740991" },
+        "canonicalization": { "const": "RFC8785-UTF8-no-BOM-closed-fixture-domain" },
+        "status": { "const": "candidate-bytes-provider-security-pending" }
+      }
+    },
+    "acknowledgementContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["fields", "outcomes", "duplicateRule", "durability", "status"],
+      "properties": {
+        "fields": { "type": "array", "minItems": 9, "items": { "type": "string" } },
+        "outcomes": { "const": ["applied", "quarantined"] },
+        "duplicateRule": { "const": "exact-original-bytes-mismatched-quarantine" },
+        "durability": { "const": "durable-before-return" },
+        "status": { "const": "candidate-reason-registry-transport-pending" }
+      }
+    },
+    "receiptSlots": { "type": "string", "const": "external-receipt-slots.json" },
+    "dataReview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["owner", "sourceIdentity", "mode", "resumeEvent", "status"],
+      "properties": {
+        "owner": { "const": "Data" },
+        "sourceIdentity": { "$ref": "#/$defs/commitIdentity" },
+        "mode": { "const": "fresh-read-only-compatibility-review" },
+        "resumeEvent": { "const": "complete-A-to-G-bundle-bound-to-T025-then-recheck-T681" },
+        "status": { "const": "blocked_external" }
+      }
+    },
+    "authorityDenials": { "type": "array", "minItems": 10, "items": { "type": "string" } }
+  },
+  "$defs": {
+    "fileIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "blob", "sha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "blob": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "sha256": { "type": "string", "pattern": "^[A-F0-9]{64}$" }
+      }
+    },
+    "commitIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "parent", "tree", "diffPaths"],
+      "properties": {
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "parent": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "tree": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "diffPaths": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    }
+  }
+}

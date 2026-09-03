@@ -1,0 +1,196 @@
+{
+  "schemaVersion": "1.0.0",
+  "collection": "v3-wire-events",
+  "classification": "local-provider-neutral-wire-candidate",
+  "contractStatus": "T018-Proposed-local-identity-only",
+  "cases": [
+    {
+      "id": "wire-key.verifier_published",
+      "event_type": "key.verifier_published",
+      "expected": "blocked_external",
+      "blockedReason": "provider-security-registry-entry-missing",
+      "unresolved": ["provider-registry", "security-registry", "data-t681-review"],
+      "event": {
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000411",
+        "event_type": "key.verifier_published",
+        "occurred_at": "2026-08-31T00:00:00Z",
+        "committed_at": "2026-08-31T00:00:01Z",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "project_id": "00000000-0000-7000-8000-000000000402",
+        "key_id": "00000000-0000-7000-8000-000000000403",
+        "policy_version": 1,
+        "organization_sequence": 1,
+        "payload": {
+          "state": "active",
+          "scopes": ["data:read"],
+          "expires_at": null,
+          "verifier": null
+        }
+      },
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:01Z\",\"event_id\":\"00000000-0000-7000-8000-000000000411\",\"event_type\":\"key.verifier_published\",\"key_id\":\"00000000-0000-7000-8000-000000000403\",\"occurred_at\":\"2026-08-31T00:00:00Z\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":1,\"payload\":{\"expires_at\":null,\"scopes\":[\"data:read\"],\"state\":\"active\",\"verifier\":null},\"policy_version\":1,\"project_id\":\"00000000-0000-7000-8000-000000000402\",\"projection_version\":\"3.0.0\"}",
+      "canonicalDigest": "sha256:f59bbcf30d39036edb515d966c0a5bc7998bcfa9a8110cada12d570a1e1f0ee6"
+    },
+    {
+      "id": "wire-key.rotated",
+      "event_type": "key.rotated",
+      "expected": "blocked_external",
+      "blockedReason": "provider-security-registry-entry-missing",
+      "unresolved": ["provider-registry", "security-registry", "data-t681-review"],
+      "event": {
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000412",
+        "event_type": "key.rotated",
+        "occurred_at": "2026-08-31T00:00:01Z",
+        "committed_at": "2026-08-31T00:00:02Z",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "project_id": "00000000-0000-7000-8000-000000000402",
+        "key_id": "00000000-0000-7000-8000-000000000404",
+        "policy_version": 2,
+        "organization_sequence": 2,
+        "payload": {
+          "predecessor_key_id": "00000000-0000-7000-8000-000000000403",
+          "replacement_key_id": "00000000-0000-7000-8000-000000000404",
+          "replacement_scopes": ["data:read"],
+          "replacement_expires_at": null,
+          "replacement_verifier": null,
+          "overlap_ends_at": "2026-09-01T00:00:02Z"
+        }
+      },
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:02Z\",\"event_id\":\"00000000-0000-7000-8000-000000000412\",\"event_type\":\"key.rotated\",\"key_id\":\"00000000-0000-7000-8000-000000000404\",\"occurred_at\":\"2026-08-31T00:00:01Z\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":2,\"payload\":{\"overlap_ends_at\":\"2026-09-01T00:00:02Z\",\"predecessor_key_id\":\"00000000-0000-7000-8000-000000000403\",\"replacement_expires_at\":null,\"replacement_key_id\":\"00000000-0000-7000-8000-000000000404\",\"replacement_scopes\":[\"data:read\"],\"replacement_verifier\":null},\"policy_version\":2,\"project_id\":\"00000000-0000-7000-8000-000000000402\",\"projection_version\":\"3.0.0\"}",
+      "canonicalDigest": "sha256:28c7f16a429712d98db137b52a780d9594da4696b5ee98e402777e132fa83ec9"
+    },
+    {
+      "id": "wire-key.revoked",
+      "event_type": "key.revoked",
+      "expected": "local_candidate",
+      "blockedReason": null,
+      "unresolved": ["data-t681-review", "authenticated-acknowledgement"],
+      "event": {
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000413",
+        "event_type": "key.revoked",
+        "occurred_at": "2026-08-31T00:00:02Z",
+        "committed_at": "2026-08-31T00:00:03Z",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "project_id": "00000000-0000-7000-8000-000000000402",
+        "key_id": "00000000-0000-7000-8000-000000000403",
+        "policy_version": 3,
+        "organization_sequence": 3,
+        "payload": {}
+      },
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:03Z\",\"event_id\":\"00000000-0000-7000-8000-000000000413\",\"event_type\":\"key.revoked\",\"key_id\":\"00000000-0000-7000-8000-000000000403\",\"occurred_at\":\"2026-08-31T00:00:02Z\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":3,\"payload\":{},\"policy_version\":3,\"project_id\":\"00000000-0000-7000-8000-000000000402\",\"projection_version\":\"3.0.0\"}",
+      "canonicalDigest": "sha256:5b5149cf5cf0acdea7731d026aff50c7d87d1a2f765852b68a26279cdc664794"
+    },
+    {
+      "id": "wire-key.policy_changed",
+      "event_type": "key.policy_changed",
+      "expected": "local_candidate",
+      "blockedReason": null,
+      "unresolved": ["data-t681-review", "authenticated-acknowledgement"],
+      "event": {
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000414",
+        "event_type": "key.policy_changed",
+        "occurred_at": "2026-08-31T00:00:03Z",
+        "committed_at": "2026-08-31T00:00:04Z",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "project_id": "00000000-0000-7000-8000-000000000402",
+        "key_id": "00000000-0000-7000-8000-000000000403",
+        "policy_version": 4,
+        "organization_sequence": 4,
+        "payload": { "scopes": ["data:read", "provenance:read"] }
+      },
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:04Z\",\"event_id\":\"00000000-0000-7000-8000-000000000414\",\"event_type\":\"key.policy_changed\",\"key_id\":\"00000000-0000-7000-8000-000000000403\",\"occurred_at\":\"2026-08-31T00:00:03Z\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":4,\"payload\":{\"scopes\":[\"data:read\",\"provenance:read\"]},\"policy_version\":4,\"project_id\":\"00000000-0000-7000-8000-000000000402\",\"projection_version\":\"3.0.0\"}",
+      "canonicalDigest": "sha256:1ed228bebeeb8f9708b25a1c8cd98b13b499d2754508bb7c2ce77604c061ebd8"
+    },
+    {
+      "id": "wire-project.activated",
+      "event_type": "project.activated",
+      "expected": "local_candidate",
+      "blockedReason": null,
+      "unresolved": ["data-t681-review", "authenticated-acknowledgement"],
+      "event": {
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000415",
+        "event_type": "project.activated",
+        "occurred_at": "2026-08-31T00:00:04Z",
+        "committed_at": "2026-08-31T00:00:05Z",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "project_id": "00000000-0000-7000-8000-000000000402",
+        "key_id": null,
+        "policy_version": 5,
+        "organization_sequence": 5,
+        "payload": {}
+      },
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:05Z\",\"event_id\":\"00000000-0000-7000-8000-000000000415\",\"event_type\":\"project.activated\",\"key_id\":null,\"occurred_at\":\"2026-08-31T00:00:04Z\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":5,\"payload\":{},\"policy_version\":5,\"project_id\":\"00000000-0000-7000-8000-000000000402\",\"projection_version\":\"3.0.0\"}",
+      "canonicalDigest": "sha256:06d8b5837a69c238a47dda248799dd2d5560e8ba96c0f8954acc52b9e957db73"
+    },
+    {
+      "id": "wire-project.disabled",
+      "event_type": "project.disabled",
+      "expected": "local_candidate",
+      "blockedReason": null,
+      "unresolved": ["data-t681-review", "authenticated-acknowledgement"],
+      "event": {
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000416",
+        "event_type": "project.disabled",
+        "occurred_at": "2026-08-31T00:00:05Z",
+        "committed_at": "2026-08-31T00:00:06Z",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "project_id": "00000000-0000-7000-8000-000000000402",
+        "key_id": null,
+        "policy_version": 6,
+        "organization_sequence": 6,
+        "payload": {}
+      },
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:06Z\",\"event_id\":\"00000000-0000-7000-8000-000000000416\",\"event_type\":\"project.disabled\",\"key_id\":null,\"occurred_at\":\"2026-08-31T00:00:05Z\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":6,\"payload\":{},\"policy_version\":6,\"project_id\":\"00000000-0000-7000-8000-000000000402\",\"projection_version\":\"3.0.0\"}",
+      "canonicalDigest": "sha256:923e9551b0d93dfe77bfb3b180e96bd0d351fce477f15f7be0443081bfe2e917"
+    },
+    {
+      "id": "wire-organization.disabled",
+      "event_type": "organization.disabled",
+      "expected": "local_candidate",
+      "blockedReason": null,
+      "unresolved": ["data-t681-review", "authenticated-acknowledgement"],
+      "event": {
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000417",
+        "event_type": "organization.disabled",
+        "occurred_at": "2026-08-31T00:00:06Z",
+        "committed_at": "2026-08-31T00:00:07Z",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "project_id": null,
+        "key_id": null,
+        "policy_version": 7,
+        "organization_sequence": 7,
+        "payload": {}
+      },
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:07Z\",\"event_id\":\"00000000-0000-7000-8000-000000000417\",\"event_type\":\"organization.disabled\",\"key_id\":null,\"occurred_at\":\"2026-08-31T00:00:06Z\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":7,\"payload\":{},\"policy_version\":7,\"project_id\":null,\"projection_version\":\"3.0.0\"}",
+      "canonicalDigest": "sha256:8254d3eda369376d470b7c08a87c6099f1fb2a0604f3c1762c59a918004f8783"
+    },
+    {
+      "id": "wire-projection.heartbeat",
+      "event_type": "projection.heartbeat",
+      "expected": "local_candidate",
+      "blockedReason": null,
+      "unresolved": ["data-t681-review", "authenticated-acknowledgement"],
+      "event": {
+        "projection_version": "3.0.0",
+        "event_id": "00000000-0000-7000-8000-000000000418",
+        "event_type": "projection.heartbeat",
+        "occurred_at": "2026-08-31T00:00:07Z",
+        "committed_at": "2026-08-31T00:00:08Z",
+        "organization_id": "00000000-0000-7000-8000-000000000401",
+        "project_id": null,
+        "key_id": null,
+        "policy_version": 7,
+        "organization_sequence": 8,
+        "payload": { "watermark_sequence": 8 }
+      },
+      "canonicalBytes": "{\"committed_at\":\"2026-08-31T00:00:08Z\",\"event_id\":\"00000000-0000-7000-8000-000000000418\",\"event_type\":\"projection.heartbeat\",\"key_id\":null,\"occurred_at\":\"2026-08-31T00:00:07Z\",\"organization_id\":\"00000000-0000-7000-8000-000000000401\",\"organization_sequence\":8,\"payload\":{\"watermark_sequence\":8},\"policy_version\":7,\"project_id\":null,\"projection_version\":\"3.0.0\"}",
+      "canonicalDigest": "sha256:f9b3b75f219aa6f5d9647312ecfc6678f4bf56e89486ebd05c75ca8eae7d5335"
+    }
+  ]
+}
