@@ -38,15 +38,15 @@ export const T023_IDENTITY = {
   tree: "ae11ad69fc0ec3781ed5c4dc995bbfbbf0772384",
 } as const;
 
+export const K_IDENTITY = {
+  commit: "6bf23285e3763f8ed76c2d5d2ed57d3067fefde1",
+  parent: T023_IDENTITY.commit,
+  tree: "c20ab665c32551df8f5bd4405c66d5bbac1f0c7c",
+} as const;
+
 export const DATA_T681_IDENTITY = {
   commit: "d21efabb8550578333fee5f62bf0e822fbca1394",
   tree: "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a",
-} as const;
-
-export const CURRENT_PARENT_IDENTITY = {
-  commit: T023_IDENTITY.commit,
-  parent: T023_IDENTITY.parent,
-  tree: T023_IDENTITY.tree,
 } as const;
 
 export const CLOSED_EVENT_TYPES = [
@@ -81,6 +81,171 @@ export const RECEIPT_SLOT_IDS = [
   "data-t681-review",
 ] as const;
 
+const WIRE_CASE_POLICIES = [
+  {
+    eventType: "key.verifier_published",
+    expected: "blocked_external",
+    blockedReason: "provider-security-registry-entry-missing",
+    unresolved: ["provider-registry", "security-registry", "data-t681-review"],
+  },
+  {
+    eventType: "key.rotated",
+    expected: "blocked_external",
+    blockedReason: "provider-security-registry-entry-missing",
+    unresolved: ["provider-registry", "security-registry", "data-t681-review"],
+  },
+  {
+    eventType: "key.revoked",
+    expected: "local_candidate",
+    blockedReason: null,
+    unresolved: ["data-t681-review", "authenticated-acknowledgement"],
+  },
+  {
+    eventType: "key.policy_changed",
+    expected: "local_candidate",
+    blockedReason: null,
+    unresolved: ["data-t681-review", "authenticated-acknowledgement"],
+  },
+  {
+    eventType: "project.activated",
+    expected: "local_candidate",
+    blockedReason: null,
+    unresolved: ["data-t681-review", "authenticated-acknowledgement"],
+  },
+  {
+    eventType: "project.disabled",
+    expected: "local_candidate",
+    blockedReason: null,
+    unresolved: ["data-t681-review", "authenticated-acknowledgement"],
+  },
+  {
+    eventType: "organization.disabled",
+    expected: "local_candidate",
+    blockedReason: null,
+    unresolved: ["data-t681-review", "authenticated-acknowledgement"],
+  },
+  {
+    eventType: "projection.heartbeat",
+    expected: "local_candidate",
+    blockedReason: null,
+    unresolved: ["data-t681-review", "authenticated-acknowledgement"],
+  },
+] as const;
+
+const EXPECTED_RECEIPT_SLOTS = {
+  schemaVersion: "1.0.0",
+  collection: "v3-external-receipt-slots",
+  classification: "pending-identity-bound-external-inputs",
+  contractStatus: "T018-Proposed-local-identity-only",
+  aggregate: {
+    status: "blocked_external",
+    jointAcceptance: false,
+    dcp1bAuthority: false,
+    positiveVerifierVectors: "blocked_external",
+  },
+  slots: [
+    {
+      id: "web-source-identity",
+      status: "pending",
+      owner: "Web",
+      requiredEvidence: [
+        "immutable T025 commit/tree and eight file blob and SHA-256 identities",
+        "exact T018, F, R, T023, and Data T681 identity bindings",
+        "fresh independent local Judge receipt",
+      ],
+      identityBinding: "T025-K-plus-T018-F-R-T023-Data-T681",
+      acceptanceOwner: "Web coordinator",
+    },
+    {
+      id: "provider-web-primitives",
+      status: "pending",
+      owner: "Provider plus Web",
+      requiredEvidence: [
+        "Better Auth 1.7.2 organization ownership and lifecycle capability",
+        "separate Web project binding and database source of truth",
+        "show-once and hashing controls with API-key sessions disabled",
+        "portable opaque descriptor feasibility, key reference behavior, rotation and revoke compensation",
+        "availability and fail-closed behavior",
+      ],
+      identityBinding: "T025-K-plus-T018-four-proposal-blobs",
+      acceptanceOwner: "Provider, Web, Security, Operations",
+    },
+    {
+      id: "security-verifier-registry",
+      status: "pending",
+      owner: "Security",
+      requiredEvidence: [
+        "one approved versioned scheme registry entry",
+        "exact non-plaintext material type, length, binding, and migration rules",
+        "constant-time comparison or independently reviewed equivalent",
+        "unknown, malformed, stale, unavailable, rotation, revoke, and redaction behavior",
+      ],
+      identityBinding: "T025-K-plus-provider-receipt-plus-exact-fixtures",
+      acceptanceOwner: "Independent Security reviewer",
+    },
+    {
+      id: "operations-transport-and-managed-references",
+      status: "pending",
+      owner: "Operations",
+      requiredEvidence: [
+        "ordered authenticated transport and acknowledgement integrity",
+        "producer and consumer workload identity with least privilege",
+        "reference-only managed credential names, rotation, revocation, and cleanup",
+        "limits, replay, retry, dead-letter, monitoring, SLO, on-call, and rollback",
+      ],
+      identityBinding: "T025-K-plus-exact-staged-workload-identity",
+      acceptanceOwner: "Operations and Security",
+    },
+    {
+      id: "privacy-data-handling",
+      status: "pending",
+      owner: "Privacy",
+      requiredEvidence: [
+        "field minimization for events, acknowledgements, audits, telemetry, and receipts",
+        "exclusion of human identity, plaintext, headers, sessions, and credentials",
+        "retention, deletion, legal hold, incident, and evidence-redaction rules",
+      ],
+      identityBinding: "T025-K-plus-exact-fixture-and-receipt-manifest",
+      acceptanceOwner: "Independent Privacy reviewer",
+    },
+    {
+      id: "joint-web-data-fixtures",
+      status: "pending",
+      owner: "Web, Data, Security, Privacy, Operations",
+      requiredEvidence: [
+        "valid and hostile lifecycle, order, scope, rotation, revoke, disable, and heartbeat fixtures",
+        "exact and mismatched duplicates, gap, rollback, replay, stale, unknown, and malformed cases",
+        "provider/Web compensation, acknowledgement durability, transport failure, DLQ, and redaction cases",
+      ],
+      identityBinding: "T025-K-plus-all-owner-receipts",
+      acceptanceOwner: "Joint owner review",
+    },
+    {
+      id: "data-t681-review",
+      status: "pending",
+      owner: "Data",
+      requiredEvidence: [
+        "fresh read-only compatibility verdict for the exact T025 identity",
+        "unchanged Data T681 commit/tree and historical v2 artifact identities",
+        "consumer mapping, raw-wire duplicate handling, ordered apply, acknowledgement, and usage-denial result",
+      ],
+      identityBinding: "T025-K-plus-A-to-F-plus-Data-T681",
+      acceptanceOwner: "Data T681 owner and Web coordinator",
+    },
+  ],
+  authorityDenials: [
+    "no-final-verifier-scheme",
+    "no-final-key-format",
+    "no-provider-activation",
+    "no-transport-or-managed-reference-binding",
+    "no-live-database-or-network",
+    "no-Data-v2-semantic-adoption",
+    "no-DCP-1B-or-production-acceptance",
+    "no-hosted-or-release-evidence",
+    "no-legal-human-or-publication-acceptance",
+  ],
+} as const;
+
 const ENVELOPE_FIELDS = [
   "projection_version",
   "event_id",
@@ -112,9 +277,10 @@ const MAX_SAFE_COUNTER = Number.MAX_SAFE_INTEGER;
 const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const UTC_Z = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
-const FORBIDDEN_KEYS = /^(authorization|bearer|header|plaintext|secret|session|token)$/i;
+const FORBIDDEN_KEYS =
+  /^(authorization|bearer|header|material|plaintext|secret|session|token|key[_-]?ref|client[_-]?secret|credential|provider)$/i;
 const SENSITIVE_VALUES =
-  /(?:Bearer\s+\S+|live[-_ ]?secret[-_ ]?sentinel|hmac-sha256-v1|fixture[-_ ]?key[-_ ]?ref)/i;
+  /(?:Bearer\s+\S+|live[-_ ]?secret[-_ ]?sentinel|hmac-sha256-v1|fixture[-_ ]?key[-_ ]?ref|client[-_ ]?secret)/i;
 
 const ACK_RULES: readonly (readonly string[])[] = [
   [
@@ -234,6 +400,9 @@ export function canonicalizeJcs(value: unknown): string {
   }
   if (Array.isArray(value)) return "[" + value.map(canonicalizeJcs).join(",") + "]";
   if (isPlainRecord(value)) {
+    for (const key of Object.keys(value)) {
+      if (hasUnpairedSurrogate(key)) throw new Error("unpaired surrogate in property name");
+    }
     const keys = Object.keys(value).sort((left, right) =>
       left < right ? -1 : left > right ? 1 : 0,
     );
@@ -451,6 +620,7 @@ export function validateWireEventCase(value: unknown, index: number): string[] {
     "wire event " + index + " fields changed",
   );
   const eventType = value.event_type;
+  const policy = WIRE_CASE_POLICIES.find((item) => item.eventType === eventType);
   push(
     errors,
     typeof eventType === "string" && (CLOSED_EVENT_TYPES as readonly string[]).includes(eventType),
@@ -459,26 +629,27 @@ export function validateWireEventCase(value: unknown, index: number): string[] {
   push(errors, value.id === "wire-" + String(eventType), "wire event " + index + " ID changed");
   push(
     errors,
-    value.expected === "local_candidate" || value.expected === "blocked_external",
+    policy !== undefined && value.expected === policy.expected,
     "wire event " + index + " evidence class changed",
   );
   push(
     errors,
-    Array.isArray(value.unresolved) && value.unresolved.includes("data-t681-review"),
+    policy !== undefined && deepEqual(value.unresolved, policy.unresolved),
     "wire event " + index + " unresolved review missing",
   );
-  if (value.expected === "blocked_external")
+  if (policy?.expected === "blocked_external")
     push(
       errors,
-      value.blockedReason === "provider-security-registry-entry-missing",
+      value.blockedReason === policy.blockedReason,
       "wire event " + index + " blocked reason changed",
     );
-  else
+  else if (policy !== undefined)
     push(
       errors,
-      value.blockedReason === null,
+      value.blockedReason === policy.blockedReason,
       "wire event " + index + " local blocked reason changed",
     );
+  else errors.push("wire event " + index + " has no closed policy");
   if (!isRecord(value.event))
     return errors.concat("wire event " + index + " envelope is not an object");
   const event = value.event;
@@ -543,7 +714,12 @@ export function validateWireEventCase(value: unknown, index: number): string[] {
       "wire event " + index + " key identity changed",
     );
   }
-  validateEventPayload(event, errors, "wire event " + index, value.expected === "blocked_external");
+  validateEventPayload(
+    event,
+    errors,
+    "wire event " + index,
+    policy?.expected === "blocked_external",
+  );
   push(
     errors,
     typeof value.canonicalBytes === "string" && typeof value.canonicalDigest === "string",
@@ -1115,6 +1291,11 @@ export function validateReceiptSlots(value: unknown): string[] {
       "receipt slot " + index + " evidence changed",
     );
   });
+  push(
+    errors,
+    deepEqual(value, EXPECTED_RECEIPT_SLOTS),
+    "receipt slot identity or authority metadata changed",
+  );
   validateNoSensitiveData(value, "receipt slots", errors);
   return errors;
 }
@@ -1146,47 +1327,193 @@ function validateNoCrossArtifactSecrets(...values: unknown[]): string[] {
   return errors;
 }
 
-export function validateRepositoryBoundaries(): string[] {
-  const errors: string[] = [];
-  const git = (args: string[]) => {
-    try {
-      return execFileSync("git", args, {
-        cwd: ROOT,
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      }).trim();
-    } catch {
-      return null;
-    }
+const REPAIR_PATHS = [
+  "scripts/developer-control-plane-projection-v3-acceptance-input.ts",
+  "tests/developer-control-plane-projection-v3-acceptance-input.test.ts",
+] as const;
+
+const HISTORICAL_COMMITS = new Set<string>([
+  T018_IDENTITY.commit,
+  F_IDENTITY.commit,
+  R_IDENTITY.commit,
+  T023_IDENTITY.commit,
+  K_IDENTITY.commit,
+]);
+
+export type RepositorySnapshot = {
+  head: string | null;
+  headType: string | null;
+  headTree: string | null;
+  headParent: string | null;
+  headSecondParent: string | null;
+  headCommitObjectHash: string | null;
+  headCommitTree: string | null;
+  headCommitParents: string[] | null;
+  ancestryCount: number | null;
+  kTree: string | null;
+  branch: string | null;
+  originUrl: string | null;
+  originReleaseRef: string | null;
+  stagedPaths: string[] | null;
+  tagsAtHead: string[] | null;
+  diffPaths: string[] | null;
+};
+
+export function gitCommitObjectId(rawCommit: string | Buffer): string {
+  const body = Buffer.isBuffer(rawCommit) ? rawCommit : Buffer.from(rawCommit, "utf8");
+  return createHash("sha1")
+    .update(Buffer.from("commit " + body.byteLength + "\0", "utf8"))
+    .update(body)
+    .digest("hex");
+}
+
+function gitBuffer(args: string[]): Buffer | null {
+  try {
+    const output = execFileSync("git", args, {
+      cwd: ROOT,
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+    return Buffer.isBuffer(output) ? output : Buffer.from(String(output), "utf8");
+  } catch {
+    return null;
+  }
+}
+
+function gitText(args: string[]): string | null {
+  const output = gitBuffer(args);
+  return output === null ? null : output.toString("utf8").trim();
+}
+
+function gitLines(args: string[]): string[] | null {
+  const output = gitText(args);
+  if (output === null) return null;
+  return output === "" ? [] : output.split(/\r?\n/);
+}
+
+function readRepositorySnapshot(): RepositorySnapshot {
+  const rawCommit = gitBuffer(["cat-file", "commit", "HEAD"]);
+  const rawCommitText = rawCommit?.toString("utf8") ?? "";
+  const commitLines = rawCommitText.split(/\r?\n/);
+  const treeLine = commitLines.find((line) => line.startsWith("tree "));
+  const parents = commitLines
+    .filter((line) => line.startsWith("parent "))
+    .map((line) => line.slice("parent ".length));
+  const rawParents = rawCommit === null ? null : parents;
+  const rawTree =
+    rawCommit === null || treeLine === undefined ? null : treeLine.slice("tree ".length);
+  const ancestryText = gitText(["rev-list", "--count", K_IDENTITY.commit + "..HEAD"]);
+  const ancestryCount = ancestryText === null ? null : Number(ancestryText);
+  return {
+    head: gitText(["rev-parse", "HEAD"]),
+    headType: gitText(["cat-file", "-t", "HEAD"]),
+    headTree: gitText(["rev-parse", "HEAD^{tree}"]),
+    headParent: gitText(["rev-parse", "HEAD^"]),
+    headSecondParent: gitText(["rev-parse", "HEAD^2"]),
+    headCommitObjectHash: rawCommit === null ? null : gitCommitObjectId(rawCommit),
+    headCommitTree: rawTree,
+    headCommitParents: rawParents,
+    ancestryCount: Number.isFinite(ancestryCount) ? ancestryCount : null,
+    kTree: gitText(["rev-parse", K_IDENTITY.commit + "^{tree}"]),
+    branch: gitText(["branch", "--show-current"]),
+    originUrl: gitText(["remote", "get-url", "origin"]),
+    originReleaseRef: gitText(["rev-parse", "origin/release/v1-closure"]),
+    stagedPaths: gitLines(["diff", "--cached", "--name-only"]),
+    tagsAtHead: gitLines(["tag", "--points-at", "HEAD"]),
+    diffPaths: gitLines([
+      "diff-tree",
+      "--no-commit-id",
+      "--name-only",
+      "-r",
+      K_IDENTITY.commit,
+      "HEAD",
+    ]),
   };
+}
+
+function validObjectId(value: unknown): value is string {
+  return typeof value === "string" && /^[0-9a-f]{40}$/.test(value);
+}
+
+export function validateRepositorySnapshot(snapshot: RepositorySnapshot): string[] {
+  const errors: string[] = [];
+  push(errors, validObjectId(snapshot.head), "repair head is not a Git object ID");
+  push(errors, snapshot.head !== K_IDENTITY.commit, "repair head is still K");
+  push(errors, !HISTORICAL_COMMITS.has(snapshot.head ?? ""), "historical head substitution");
+  push(errors, snapshot.headType === "commit", "repair head is not a commit");
   push(
     errors,
-    git(["rev-parse", "HEAD"]) === CURRENT_PARENT_IDENTITY.commit,
-    "current parent commit changed",
+    snapshot.headCommitObjectHash === snapshot.head,
+    "repair head object hash is inconsistent",
   );
+  push(errors, validObjectId(snapshot.headTree), "repair tree is not a Git object ID");
+  push(errors, snapshot.headCommitTree === snapshot.headTree, "repair commit tree is inconsistent");
   push(
     errors,
-    git(["rev-parse", "HEAD^{tree}"]) === CURRENT_PARENT_IDENTITY.tree,
-    "current parent tree changed",
+    snapshot.headCommitParents !== null &&
+      deepEqual(snapshot.headCommitParents, [K_IDENTITY.commit]),
+    "repair commit parents are not exactly K",
   );
-  push(errors, git(["branch", "--show-current"]) === "release/v1-closure", "branch changed");
+  push(errors, snapshot.headParent === K_IDENTITY.commit, "repair parent is not K");
+  push(errors, snapshot.headSecondParent === null, "repair commit has a second parent");
+  push(errors, snapshot.ancestryCount === 1, "repair is not exactly one commit after K");
+  push(errors, snapshot.kTree === K_IDENTITY.tree, "K tree changed");
+  push(errors, snapshot.branch === "release/v1-closure", "branch changed");
   push(
     errors,
-    git(["remote", "get-url", "origin"]) === "https://git.tower/callum/paperandslate-web.git",
+    snapshot.originUrl === "https://git.tower/callum/paperandslate-web.git",
     "origin changed",
   );
   push(
     errors,
-    git(["rev-parse", "origin/release/v1-closure"]) === "a32604004cbfeeb90e7c114a9c369834bc3bcfa3",
+    snapshot.originReleaseRef === "a32604004cbfeeb90e7c114a9c369834bc3bcfa3",
     "origin release ref changed",
   );
-  push(errors, git(["diff", "--cached", "--name-only"]) === "", "index is not empty");
-  push(errors, git(["tag", "--points-at", "HEAD"]) === "", "exact tag exists");
+  push(
+    errors,
+    snapshot.stagedPaths !== null && deepEqual(snapshot.stagedPaths, []),
+    "index is not empty",
+  );
+  push(
+    errors,
+    snapshot.tagsAtHead !== null && deepEqual(snapshot.tagsAtHead, []),
+    "exact tag exists",
+  );
+  push(
+    errors,
+    snapshot.diffPaths !== null && deepEqual([...snapshot.diffPaths].sort(), [...REPAIR_PATHS]),
+    "repair diff is not exactly the two Worker paths",
+  );
   return errors;
 }
 
-export function runOfflineCheck(): string[] {
-  return [...validateAcceptanceInputBundle(), ...validateRepositoryBoundaries()];
+type AcceptanceInputBundle = {
+  manifest: unknown;
+  events: unknown;
+  acknowledgements: unknown;
+  slots: unknown;
+};
+
+function readAcceptanceInputBundle(): AcceptanceInputBundle {
+  return {
+    manifest: readJson(MANIFEST_PATH),
+    events: readJson(EVENT_CASES_PATH),
+    acknowledgements: readJson(ACK_CASES_PATH),
+    slots: readJson(SLOT_PATH),
+  };
+}
+
+export function validateRepositoryBoundaries(snapshot = readRepositorySnapshot()): string[] {
+  return validateRepositorySnapshot(snapshot);
+}
+
+export function runOfflineCheck(
+  snapshot?: RepositorySnapshot,
+  bundleLoader: () => AcceptanceInputBundle = readAcceptanceInputBundle,
+): string[] {
+  const repositoryErrors = validateRepositoryBoundaries(snapshot);
+  if (repositoryErrors.length > 0) return repositoryErrors;
+  const bundle = bundleLoader();
+  return validateAcceptanceInputBundle(bundle);
 }
 
 if (process.argv.includes("--check") && process.argv.includes("--offline")) {

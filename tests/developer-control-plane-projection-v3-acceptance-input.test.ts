@@ -6,15 +6,53 @@ import wireEvents from "../docs/interfaces/fixtures/data-platform-api-key-projec
 import {
   canonicalDigest,
   canonicalizeJcs,
+  gitCommitObjectId,
+  K_IDENTITY,
+  runOfflineCheck,
+  T023_IDENTITY,
   validateAcceptanceInputBundle,
   validateAcknowledgementCases,
   validateReceiptSlots,
   validateRepositoryBoundaries,
+  validateRepositorySnapshot,
   validateWireEventCases,
+  type RepositorySnapshot,
 } from "../scripts/developer-control-plane-projection-v3-acceptance-input";
 
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
+}
+
+function acceptedPostKSnapshot(): RepositorySnapshot {
+  const headTree = "1".repeat(40);
+  const rawCommit =
+    "tree " +
+    headTree +
+    "\nparent " +
+    K_IDENTITY.commit +
+    "\nauthor Test User <test@example.invalid> 0 +0000\ncommitter Test User <test@example.invalid> 0 +0000\n\nrepair\n";
+  const head = gitCommitObjectId(rawCommit);
+  return {
+    head,
+    headType: "commit",
+    headTree,
+    headParent: K_IDENTITY.commit,
+    headSecondParent: null,
+    headCommitObjectHash: head,
+    headCommitTree: headTree,
+    headCommitParents: [K_IDENTITY.commit],
+    ancestryCount: 1,
+    kTree: K_IDENTITY.tree,
+    branch: "release/v1-closure",
+    originUrl: "https://git.tower/callum/paperandslate-web.git",
+    originReleaseRef: "a32604004cbfeeb90e7c114a9c369834bc3bcfa3",
+    stagedPaths: [],
+    tagsAtHead: [],
+    diffPaths: [
+      "scripts/developer-control-plane-projection-v3-acceptance-input.ts",
+      "tests/developer-control-plane-projection-v3-acceptance-input.test.ts",
+    ],
+  };
 }
 
 describe("projection v3 acceptance-input bundle", () => {
@@ -30,7 +68,7 @@ describe("projection v3 acceptance-input bundle", () => {
     expect(acceptanceManifest.dcp1bAuthority).toBe(false);
   });
 
-  it("revalidates the exact pre-commit repository boundary", () => {
+  it("revalidates the exact post-K repair boundary", () => {
     expect(validateRepositoryBoundaries()).toEqual([]);
   });
 
@@ -44,6 +82,8 @@ describe("projection v3 acceptance-input bundle", () => {
     expect(() => canonicalizeJcs(Number.NaN)).toThrow("non-finite number");
     expect(() => canonicalizeJcs(Number.POSITIVE_INFINITY)).toThrow("non-finite number");
     expect(() => canonicalizeJcs("\ud800")).toThrow("unpaired surrogate");
+    expect(() => canonicalizeJcs({ ["\ud800"]: "value" })).toThrow("property name");
+    expect(() => canonicalizeJcs({ nested: { ["\udc00"]: "value" } })).toThrow("property name");
   });
 
   it("binds every supplied event and acknowledgement digest to canonical bytes", () => {
@@ -90,6 +130,19 @@ describe("projection v3 acceptance-input bundle", () => {
     expect(validateWireEventCases(mutated)).not.toEqual([]);
   });
 
+  it("rejects descriptor activation, provider material, and recomputed canonical evidence", () => {
+    for (const field of ["client_secret", "key_ref", "material"]) {
+      const mutated = clone(wireEvents) as any;
+      const item = mutated.cases[0];
+      item.expected = "local_candidate";
+      item.blockedReason = null;
+      item.event.payload.verifier = { [field]: "provider-secret-sentinel" };
+      item.canonicalBytes = canonicalizeJcs(item.event);
+      item.canonicalDigest = canonicalDigest(item.event);
+      expect(validateWireEventCases(mutated)).not.toEqual([]);
+    }
+  });
+
   it.each([
     ["extra acknowledgement field", (value: any) => (value.cases[0].acknowledgement.extra = true)],
     [
@@ -123,6 +176,87 @@ describe("projection v3 acceptance-input bundle", () => {
     const mutated = clone(receiptSlots) as any;
     mutate(mutated);
     expect(validateReceiptSlots(mutated)).not.toEqual([]);
+  });
+
+  it("rejects every frozen pending-slot and aggregate identity mutation", () => {
+    const mutations: Array<[string, (value: any) => void]> = [
+      ["schema version", (value) => (value.schemaVersion = "2.0.0")],
+      ["collection", (value) => (value.collection = "other")],
+      ["classification", (value) => (value.classification = "accepted")],
+      ["contract status", (value) => (value.contractStatus = "accepted")],
+      ["aggregate status", (value) => (value.aggregate.status = "accepted")],
+      ["joint acceptance", (value) => (value.aggregate.jointAcceptance = true)],
+      ["DCP-1B authority", (value) => (value.aggregate.dcp1bAuthority = true)],
+      [
+        "positive vectors",
+        (value) => (value.aggregate.positiveVerifierVectors = "local_candidate"),
+      ],
+      ["slot order", (value) => value.slots.reverse()],
+      ["slot status", (value) => (value.slots[0].status = "approved")],
+      ["slot owner", (value) => (value.slots[0].owner = "Attacker")],
+      ["slot evidence", (value) => (value.slots[0].requiredEvidence[0] = "changed")],
+      ["slot identity binding", (value) => (value.slots[0].identityBinding = "changed")],
+      ["slot acceptance owner", (value) => (value.slots[0].acceptanceOwner = "Attacker")],
+      ["authority denials", (value) => (value.authorityDenials[0] = "allow-provider")],
+      ["extra root field", (value) => (value.extra = true)],
+    ];
+    for (const [_label, mutate] of mutations) {
+      const mutated = clone(receiptSlots) as any;
+      mutate(mutated);
+      expect(validateReceiptSlots(mutated)).not.toEqual([]);
+    }
+  });
+
+  it("accepts only a self-consistent direct child of K and checks identity first", () => {
+    const accepted = acceptedPostKSnapshot();
+    expect(validateRepositorySnapshot(accepted)).toEqual([]);
+    let bundleLoaded = false;
+    expect(
+      runOfflineCheck({ ...accepted, head: K_IDENTITY.commit }, () => {
+        bundleLoaded = true;
+        throw new Error("bundle must not load");
+      }),
+    ).not.toEqual([]);
+    expect(bundleLoaded).toBe(false);
+
+    const mutations: Array<[string, (value: RepositorySnapshot) => void]> = [
+      ["tree", (value) => (value.headTree = "2".repeat(40))],
+      ["parent", (value) => (value.headParent = T023_IDENTITY.commit)],
+      ["second parent", (value) => (value.headSecondParent = T023_IDENTITY.commit)],
+      ["ancestry", (value) => (value.ancestryCount = 2)],
+      ["raw object hash", (value) => (value.headCommitObjectHash = "3".repeat(40))],
+      ["raw commit tree", (value) => (value.headCommitTree = "4".repeat(40))],
+      [
+        "raw commit parents",
+        (value) => (value.headCommitParents = [K_IDENTITY.commit, T023_IDENTITY.commit]),
+      ],
+      ["branch", (value) => (value.branch = "main")],
+      ["origin", (value) => (value.originUrl = "https://example.invalid/repo.git")],
+      ["origin ref", (value) => (value.originReleaseRef = K_IDENTITY.commit)],
+      [
+        "index",
+        (value) => {
+          value.stagedPaths = ["unexpected"];
+        },
+      ],
+      [
+        "tag",
+        (value) => {
+          value.tagsAtHead = ["v3"];
+        },
+      ],
+      [
+        "diff",
+        (value) => {
+          value.diffPaths = ["scripts/developer-control-plane-projection-v3-acceptance-input.ts"];
+        },
+      ],
+    ];
+    for (const [_label, mutate] of mutations) {
+      const mutated = clone(accepted);
+      mutate(mutated);
+      expect(validateRepositorySnapshot(mutated)).not.toEqual([]);
+    }
   });
 
   it("retains provider-neutral and external-gate denials in serialized artifacts", () => {
