@@ -2,6 +2,18 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import {
+  ACKNOWLEDGEMENT_CASE_IDS as LOCAL_ACK_CASE_IDS,
+  ADAPTER_CASE_IDS,
+  FAILURE_CASE_IDS,
+  validateEventCase,
+  validateFixtureCollection,
+  validateManifest,
+} from "../packages/developer-control-plane/src/projection-v3-readiness";
+import {
+  validateJointReviewBundle,
+  validateJointReviewCaseFile,
+} from "./developer-control-plane-projection-v3-joint-review";
 
 type JsonPrimitive = null | boolean | number | string;
 export type JsonValue = JsonPrimitive | JsonValue[] | { [key: string]: JsonValue };
@@ -38,10 +50,28 @@ export const T023_IDENTITY = {
   tree: "ae11ad69fc0ec3781ed5c4dc995bbfbbf0772384",
 } as const;
 
+export const T023_BASE_IDENTITY = {
+  commit: "48a58d5f2551fd35e6b481c50ded3ffea3831983",
+  parent: R_IDENTITY.commit,
+  tree: "2a60695fd81a713ae63ddee3ef6a793148732f84",
+} as const;
+
 export const K_IDENTITY = {
   commit: "6bf23285e3763f8ed76c2d5d2ed57d3067fefde1",
   parent: T023_IDENTITY.commit,
   tree: "c20ab665c32551df8f5bd4405c66d5bbac1f0c7c",
+} as const;
+
+export const T026_IDENTITY = {
+  commit: "c2b5c40d4a363a55dc8f4e84cd9674318bac885e",
+  parent: K_IDENTITY.commit,
+  tree: "3cafb90820e1c90b92fd82ec563c2c86c8e5b135",
+} as const;
+
+export const T027_IDENTITY = {
+  commit: "eb4e6f6d6d231e832f4afa279dd3fd6b9a214a20",
+  parent: T026_IDENTITY.commit,
+  tree: "b94b3252ec7a2897fb20aebb44bec0cfa3ea2129",
 } as const;
 
 export const DATA_T681_IDENTITY = {
@@ -149,11 +179,11 @@ const EXPECTED_RECEIPT_SLOTS = {
       status: "pending",
       owner: "Web",
       requiredEvidence: [
-        "immutable T025 commit/tree and eight file blob and SHA-256 identities",
-        "exact T018, F, R, T023, and Data T681 identity bindings",
+        "immutable T030 direct-child commit/tree and eight file blob and SHA-256 identities",
+        "exact T018, F, R, T023, M, and Data T681 identity bindings",
         "fresh independent local Judge receipt",
       ],
-      identityBinding: "T025-K-plus-T018-F-R-T023-Data-T681",
+      identityBinding: "T030-M-plus-T018-F-R-T023-Data-T681",
       acceptanceOwner: "Web coordinator",
     },
     {
@@ -167,7 +197,7 @@ const EXPECTED_RECEIPT_SLOTS = {
         "portable opaque descriptor feasibility, key reference behavior, rotation and revoke compensation",
         "availability and fail-closed behavior",
       ],
-      identityBinding: "T025-K-plus-T018-four-proposal-blobs",
+      identityBinding: "T030-M-plus-T018-four-proposal-blobs",
       acceptanceOwner: "Provider, Web, Security, Operations",
     },
     {
@@ -180,7 +210,7 @@ const EXPECTED_RECEIPT_SLOTS = {
         "constant-time comparison or independently reviewed equivalent",
         "unknown, malformed, stale, unavailable, rotation, revoke, and redaction behavior",
       ],
-      identityBinding: "T025-K-plus-provider-receipt-plus-exact-fixtures",
+      identityBinding: "T030-M-plus-provider-receipt-plus-exact-fixtures",
       acceptanceOwner: "Independent Security reviewer",
     },
     {
@@ -193,7 +223,7 @@ const EXPECTED_RECEIPT_SLOTS = {
         "reference-only managed credential names, rotation, revocation, and cleanup",
         "limits, replay, retry, dead-letter, monitoring, SLO, on-call, and rollback",
       ],
-      identityBinding: "T025-K-plus-exact-staged-workload-identity",
+      identityBinding: "T030-M-plus-exact-staged-workload-identity",
       acceptanceOwner: "Operations and Security",
     },
     {
@@ -205,7 +235,7 @@ const EXPECTED_RECEIPT_SLOTS = {
         "exclusion of human identity, plaintext, headers, sessions, and credentials",
         "retention, deletion, legal hold, incident, and evidence-redaction rules",
       ],
-      identityBinding: "T025-K-plus-exact-fixture-and-receipt-manifest",
+      identityBinding: "T030-M-plus-exact-fixture-and-receipt-manifest",
       acceptanceOwner: "Independent Privacy reviewer",
     },
     {
@@ -217,7 +247,7 @@ const EXPECTED_RECEIPT_SLOTS = {
         "exact and mismatched duplicates, gap, rollback, replay, stale, unknown, and malformed cases",
         "provider/Web compensation, acknowledgement durability, transport failure, DLQ, and redaction cases",
       ],
-      identityBinding: "T025-K-plus-all-owner-receipts",
+      identityBinding: "T030-M-plus-all-owner-receipts",
       acceptanceOwner: "Joint owner review",
     },
     {
@@ -225,11 +255,11 @@ const EXPECTED_RECEIPT_SLOTS = {
       status: "pending",
       owner: "Data",
       requiredEvidence: [
-        "fresh read-only compatibility verdict for the exact T025 identity",
+        "fresh read-only compatibility verdict for the exact T030 identity",
         "unchanged Data T681 commit/tree and historical v2 artifact identities",
         "consumer mapping, raw-wire duplicate handling, ordered apply, acknowledgement, and usage-denial result",
       ],
-      identityBinding: "T025-K-plus-A-to-F-plus-Data-T681",
+      identityBinding: "T030-M-plus-A-to-F-plus-Data-T681",
       acceptanceOwner: "Data T681 owner and Web coordinator",
     },
   ],
@@ -277,6 +307,16 @@ const MAX_SAFE_COUNTER = Number.MAX_SAFE_INTEGER;
 const UUID_V7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 const UTC_Z = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/;
 const DIGEST = /^sha256:[0-9a-f]{64}$/;
+const QUARANTINE_REASON_CODES = [
+  "duplicate_mismatch",
+  "sequence_violation",
+  "stale_heartbeat",
+  "unknown_binding",
+  "malformed_event",
+  "unknown_version",
+  "unknown_scope",
+  "verifier_unavailable",
+] as const;
 const FORBIDDEN_KEYS =
   /^(authorization|bearer|header|material|plaintext|secret|session|token|key[_-]?ref|client[_-]?secret|credential|provider)$/i;
 const SENSITIVE_VALUES =
@@ -329,6 +369,142 @@ const ACK_RULES: readonly (readonly string[])[] = [
     "no-authorization-grant",
   ],
 ] as const;
+
+const ACK_CASE_POLICIES = [
+  { disposition: "durable", reasonCode: null, outcome: "applied" },
+  { disposition: "return-original", reasonCode: null, outcome: "applied" },
+  { disposition: "durable", reasonCode: "duplicate_mismatch", outcome: "quarantined" },
+  { disposition: "durable", reasonCode: "sequence_violation", outcome: "quarantined" },
+  { disposition: "replay-instruction", reasonCode: null, outcome: null },
+  { disposition: "durable", reasonCode: "stale_heartbeat", outcome: "quarantined" },
+  { disposition: "none", reasonCode: null, outcome: null },
+  { disposition: "durable", reasonCode: "unknown_binding", outcome: "quarantined" },
+] as const;
+
+const ACK_NO_ACK_REASONS = [
+  null,
+  null,
+  null,
+  null,
+  "replay-is-a-control-instruction-no-new-ack",
+  null,
+  "malformed-or-unknown-input-produces-no-ack",
+  null,
+] as const;
+
+const F_SOURCE_PATHS = [
+  {
+    id: "f-manifest",
+    path: FIXTURE_ROOT + "/manifest.json",
+    commit: F_IDENTITY.commit,
+    blob: "25b2ac777cf3ccb3a67a3170038adaa68776b0f4",
+    sha256: "716EC2E23E17FD3F603ED509FE0122665AB43934641B7309EFFFBDD88FAC2167",
+  },
+  {
+    id: "f-adapter-cases",
+    path: FIXTURE_ROOT + "/adapter-cases.json",
+    commit: F_IDENTITY.commit,
+    blob: "43dc34320d0f89d2cb6b1f7de0cf2b2ff94fc776",
+    sha256: "D0CD1A6F093C1CC4DB9C4D7B6CE53F519B80DACEB9F0E6235ECE15D974E708E3",
+  },
+  {
+    id: "f-event-cases",
+    path: FIXTURE_ROOT + "/event-cases.json",
+    commit: F_IDENTITY.commit,
+    blob: "2b09662ab3db2d58f05d3b44baa59cf9601c2af0",
+    sha256: "C21876A364980C349AAE3DFC863A083F3DED68B678260809969050568FE6F950",
+  },
+  {
+    id: "f-acknowledgement-replay-cases",
+    path: FIXTURE_ROOT + "/acknowledgement-replay-cases.json",
+    commit: F_IDENTITY.commit,
+    blob: "29afb740633a037d2a17191ab05dd82cb9f461f3",
+    sha256: "BA95726D69F0A56E1D3F9C93D091BEDE3798539DA03AA1E37C3C60EC2E010D2B",
+  },
+  {
+    id: "f-failure-redaction-cases",
+    path: FIXTURE_ROOT + "/failure-redaction-cases.json",
+    commit: F_IDENTITY.commit,
+    blob: "1686ac5a96c0f621d0730e8b5b9fc0f8a227ab95",
+    sha256: "174D57B2A1F9484F9752353C24520AF0236E2E966658EDB32C0C597B01C55AD6",
+  },
+] as const;
+
+export const FIXTURE_EVIDENCE = {
+  status: "local-candidate-external-owner-receipts-pending",
+  identityBoundary: {
+    t023Base: T023_BASE_IDENTITY,
+    t024Correction: T023_IDENTITY,
+    t026ValidatorRepair: T026_IDENTITY,
+    t027Reconciliation: T027_IDENTITY,
+  },
+  fullEnvelope: {
+    path: EVENT_CASES_PATH,
+    caseCount: 8,
+    fields: ENVELOPE_FIELDS,
+    eventTypes: CLOSED_EVENT_TYPES,
+    canonicalization: "RFC8785-UTF8-no-BOM-closed-fixture-domain",
+    status: "local-candidate-only",
+  },
+  acknowledgement: {
+    path: ACK_CASES_PATH,
+    caseCount: 8,
+    fields: ACK_FIELDS,
+    outcomes: ["applied", "quarantined", "original_bytes", "replay_next", "fail_closed"],
+    quarantineReasonCodes: QUARANTINE_REASON_CODES,
+    status: "local-candidate-only",
+  },
+  fSourcePaths: F_SOURCE_PATHS,
+  jointReview: {
+    manifestPath: FIXTURE_ROOT + "/joint-review-manifest.json",
+    casePath: FIXTURE_ROOT + "/joint-review-cases.json",
+    caseCount: 31,
+    categoryCounts: { events: 8, adapters: 10, acknowledgements: 8, failures: 5 },
+    status: "local-candidate-external-owner-receipts-pending",
+  },
+  boundaryFixtures: [
+    {
+      id: "provider-success-web-failure-compensation",
+      sourceCaseId: "adapter-provider-success-web-failure-no-reveal",
+      sourceCollection: "joint-review-cases.json",
+      actual: "local-fixture-present",
+      expected: "disable-before-retry",
+      status: "provider-web-acceptance-pending",
+    },
+    {
+      id: "outage-retry-dead-letter",
+      sourceCaseId: "failure-outage-retry-and-redaction-sentinels",
+      sourceCollection: "joint-review-cases.json",
+      actual: "local-fixture-present",
+      expected: "compensate-before-retry-and-operations-dlq-receipt",
+      status: "operations-transport-acceptance-pending",
+    },
+    {
+      id: "revoke-disable-replay-precedence",
+      sourceCaseId: "adapter-project-and-organization-disable-precedence",
+      sourceCollection: "joint-review-cases.json",
+      actual: "local-fixture-present",
+      expected: "disable-wins-and-replay-cannot-reactivate",
+      status: "data-security-acceptance-pending",
+    },
+    {
+      id: "telemetry-retention",
+      sourceCaseId: "failure-outage-retry-and-redaction-sentinels",
+      sourceCollection: "joint-review-cases.json",
+      actual: "local-sensitive-value-rejection-only",
+      expected: "privacy-retention-deletion-redaction-receipt",
+      status: "privacy-acceptance-pending",
+    },
+    {
+      id: "redaction",
+      sourceCaseId: "failure-outage-retry-and-redaction-sentinels",
+      sourceCollection: "joint-review-cases.json",
+      actual: "no-sensitive-values-in-serialized-evidence",
+      expected: "no-plaintext-session-header-or-credential-data",
+      status: "privacy-security-acceptance-pending",
+    },
+  ],
+} as const;
 
 function isRecord(value: unknown): value is JsonRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -428,6 +604,17 @@ function readJson(relativePath: string): unknown {
   return JSON.parse(fs.readFileSync(path.join(ROOT, relativePath), "utf8")) as unknown;
 }
 
+function sha256File(relativePath: string): string | null {
+  try {
+    return createHash("sha256")
+      .update(fs.readFileSync(path.join(ROOT, relativePath)))
+      .digest("hex")
+      .toUpperCase();
+  } catch {
+    return null;
+  }
+}
+
 function push(errors: string[], condition: boolean, message: string) {
   if (!condition) errors.push(message);
 }
@@ -497,6 +684,80 @@ function validateCanonicalFields(
   } catch (error) {
     errors.push(location + " canonicalization failed: " + String(error));
   }
+}
+
+function validateFixtureEvidence(value: unknown): string[] {
+  const errors: string[] = [];
+  if (!isRecord(value)) return ["fixture evidence is not an object"];
+  push(
+    errors,
+    exactKeys(value, [
+      "status",
+      "identityBoundary",
+      "fullEnvelope",
+      "acknowledgement",
+      "fSourcePaths",
+      "jointReview",
+      "boundaryFixtures",
+    ]),
+    "fixture evidence fields changed",
+  );
+  push(errors, deepEqual(value, FIXTURE_EVIDENCE), "fixture evidence contract changed");
+  for (const source of F_SOURCE_PATHS) {
+    push(errors, sha256File(source.path) === source.sha256, source.id + " SHA-256 changed");
+    push(
+      errors,
+      gitText(["hash-object", "--", source.path]) === source.blob,
+      source.id + " blob changed",
+    );
+  }
+  const sourceManifest = readJson(FIXTURE_ROOT + "/manifest.json");
+  const sourceAdapter = readJson(FIXTURE_ROOT + "/adapter-cases.json");
+  const sourceEvents = readJson(FIXTURE_ROOT + "/event-cases.json");
+  const sourceAcknowledgements = readJson(FIXTURE_ROOT + "/acknowledgement-replay-cases.json");
+  const sourceFailures = readJson(FIXTURE_ROOT + "/failure-redaction-cases.json");
+  errors.push(...validateManifest(sourceManifest).map((error) => "F manifest: " + error));
+  errors.push(
+    ...validateFixtureCollection(sourceAdapter, ADAPTER_CASE_IDS).map(
+      (error) => "F adapter cases: " + error,
+    ),
+  );
+  if (isRecord(sourceEvents) && Array.isArray(sourceEvents.cases))
+    sourceEvents.cases.forEach((item) =>
+      errors.push(...validateEventCase(item).map((error) => "F event cases: " + error)),
+    );
+  else errors.push("F event cases are not an array");
+  errors.push(
+    ...validateFixtureCollection(sourceAcknowledgements, LOCAL_ACK_CASE_IDS).map(
+      (error) => "F acknowledgement cases: " + error,
+    ),
+  );
+  errors.push(
+    ...validateFixtureCollection(sourceFailures, FAILURE_CASE_IDS).map(
+      (error) => "F failure cases: " + error,
+    ),
+  );
+  const jointManifest = readJson(FIXTURE_ROOT + "/joint-review-manifest.json");
+  const jointCases = readJson(FIXTURE_ROOT + "/joint-review-cases.json");
+  errors.push(
+    ...validateJointReviewBundle(jointManifest).map((error) => "joint manifest: " + error),
+  );
+  errors.push(...validateJointReviewCaseFile(jointCases).map((error) => "joint cases: " + error));
+  const jointCaseIds =
+    isRecord(jointCases) && Array.isArray(jointCases.cases)
+      ? jointCases.cases.filter(isRecord).map((item) => item.id)
+      : [];
+  if (Array.isArray(value.boundaryFixtures))
+    value.boundaryFixtures.forEach((item, index) => {
+      if (!isRecord(item)) return;
+      push(
+        errors,
+        jointCaseIds.includes(item.sourceCaseId),
+        "fixture boundary " + index + " source case is not present",
+      );
+    });
+  validateNoSensitiveData(value, "fixture evidence", errors);
+  return errors;
 }
 
 function validateEventPayload(
@@ -735,7 +996,15 @@ export function validateWireEventCases(value: unknown): string[] {
   const errors: string[] = [];
   push(
     errors,
-    exactKeys(value, ["schemaVersion", "collection", "classification", "contractStatus", "cases"]),
+    exactKeys(value, [
+      "schemaVersion",
+      "collection",
+      "classification",
+      "contractStatus",
+      "envelopeFields",
+      "canonicalization",
+      "cases",
+    ]),
     "wire event collection fields changed",
   );
   push(errors, value.schemaVersion === "1.0.0", "wire event schema version changed");
@@ -749,6 +1018,16 @@ export function validateWireEventCases(value: unknown): string[] {
     errors,
     value.contractStatus === "T018-Proposed-local-identity-only",
     "wire event contract status changed",
+  );
+  push(
+    errors,
+    deepEqual(value.envelopeFields, ENVELOPE_FIELDS),
+    "wire envelope field list changed",
+  );
+  push(
+    errors,
+    value.canonicalization === "RFC8785-UTF8-no-BOM-closed-fixture-domain",
+    "wire event canonicalization changed",
   );
   if (!Array.isArray(value.cases)) return errors.concat("wire event cases are not an array");
   push(errors, value.cases.length === CLOSED_EVENT_TYPES.length, "wire event case count changed");
@@ -840,6 +1119,7 @@ export function validateAcknowledgementCases(value: unknown): string[] {
       "classification",
       "contractStatus",
       "acknowledgementFields",
+      "quarantineReasonCodes",
       "cases",
     ]),
     "acknowledgement collection fields changed",
@@ -865,7 +1145,13 @@ export function validateAcknowledgementCases(value: unknown): string[] {
     deepEqual(value.acknowledgementFields, ACK_FIELDS),
     "acknowledgement field list changed",
   );
+  push(
+    errors,
+    deepEqual(value.quarantineReasonCodes, QUARANTINE_REASON_CODES),
+    "acknowledgement quarantine reason registry changed",
+  );
   if (!Array.isArray(value.cases)) return errors.concat("acknowledgement cases are not an array");
+  const cases = value.cases;
   push(
     errors,
     deepEqual(
@@ -874,7 +1160,7 @@ export function validateAcknowledgementCases(value: unknown): string[] {
     ),
     "acknowledgement case order changed",
   );
-  value.cases.forEach((item, index) => {
+  cases.forEach((item, index) => {
     if (!isRecord(item)) {
       errors.push("acknowledgement " + index + " is not an object");
       return;
@@ -891,6 +1177,9 @@ export function validateAcknowledgementCases(value: unknown): string[] {
         "acknowledgement",
         "canonicalBytes",
         "canonicalDigest",
+        "acknowledgementDisposition",
+        "reasonCode",
+        "noAcknowledgementReason",
         "rules",
         "unresolved",
       ]),
@@ -931,8 +1220,29 @@ export function validateAcknowledgementCases(value: unknown): string[] {
       Array.isArray(item.unresolved) && item.unresolved.includes("data-t681-review"),
       "acknowledgement " + index + " unresolved review missing",
     );
+    const policy = ACK_CASE_POLICIES[index];
+    push(
+      errors,
+      policy !== undefined && item.acknowledgementDisposition === policy.disposition,
+      "acknowledgement " + index + " disposition changed",
+    );
+    push(
+      errors,
+      policy !== undefined && item.reasonCode === policy.reasonCode,
+      "acknowledgement " + index + " reason code changed",
+    );
+    push(
+      errors,
+      policy !== undefined && item.noAcknowledgementReason === ACK_NO_ACK_REASONS[index],
+      "acknowledgement " + index + " no-ack reason changed",
+    );
     validateAcknowledgement(item, "acknowledgement " + index, errors);
     const acknowledgement = item.acknowledgement;
+    push(
+      errors,
+      policy !== undefined && (acknowledgement === null) === (policy.outcome === null),
+      "acknowledgement " + index + " acknowledgement presence changed",
+    );
     if (acknowledgement === null) {
       push(
         errors,
@@ -945,7 +1255,30 @@ export function validateAcknowledgementCases(value: unknown): string[] {
       typeof item.canonicalDigest === "string"
     ) {
       validateCanonicalFields(item, acknowledgement, errors, "acknowledgement " + index);
+      push(
+        errors,
+        policy !== undefined && acknowledgement.outcome === policy.outcome,
+        "acknowledgement " + index + " outcome policy changed",
+      );
+      push(
+        errors,
+        policy !== undefined && acknowledgement.reason_code === policy.reasonCode,
+        "acknowledgement " + index + " persisted reason code changed",
+      );
     } else errors.push("acknowledgement " + index + " canonical bytes missing");
+    if (index === 1 && isRecord(cases[0])) {
+      push(
+        errors,
+        deepEqual(item.acknowledgement, cases[0].acknowledgement),
+        "exact duplicate acknowledgement bytes changed",
+      );
+      push(
+        errors,
+        item.canonicalBytes === cases[0].canonicalBytes &&
+          item.canonicalDigest === cases[0].canonicalDigest,
+        "exact duplicate canonical bytes changed",
+      );
+    }
   });
   return errors;
 }
@@ -977,6 +1310,7 @@ export function validateAcceptanceManifest(value: unknown): string[] {
       "sourceBoundary",
       "wireContract",
       "acknowledgementContract",
+      "fixtureEvidence",
       "receiptSlots",
       "dataReview",
       "authorityDenials",
@@ -1070,6 +1404,7 @@ export function validateAcceptanceManifest(value: unknown): string[] {
       errors,
     );
   }
+  errors.push(...validateFixtureEvidence(value.fixtureEvidence));
   if (!isRecord(value.wireContract)) errors.push("wire contract is not an object");
   else {
     push(
@@ -1186,7 +1521,7 @@ export function validateAcceptanceManifest(value: unknown): string[] {
     );
     push(
       errors,
-      value.dataReview.resumeEvent === "complete-A-to-G-bundle-bound-to-T025-then-recheck-T681",
+      value.dataReview.resumeEvent === "complete-A-to-G-bundle-bound-to-T030-then-recheck-T681",
       "Data review resume event changed",
     );
     push(errors, value.dataReview.status === "blocked_external", "Data review status changed");
@@ -1328,6 +1663,12 @@ function validateNoCrossArtifactSecrets(...values: unknown[]): string[] {
 }
 
 const REPAIR_PATHS = [
+  "docs/interfaces/data-platform-api-key-projection-v3-acceptance-input.schema.json",
+  "docs/interfaces/fixtures/data-platform-api-key-projection-v3/acceptance-input-manifest.json",
+  "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-event-cases.json",
+  "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-acknowledgement-cases.json",
+  "docs/interfaces/fixtures/data-platform-api-key-projection-v3/external-receipt-slots.json",
+  "docs/interfaces/data-platform-api-key-projection-v3-data-review-handoff.md",
   "scripts/developer-control-plane-projection-v3-acceptance-input.ts",
   "tests/developer-control-plane-projection-v3-acceptance-input.test.ts",
 ] as const;
@@ -1336,8 +1677,11 @@ const HISTORICAL_COMMITS = new Set<string>([
   T018_IDENTITY.commit,
   F_IDENTITY.commit,
   R_IDENTITY.commit,
+  T023_BASE_IDENTITY.commit,
   T023_IDENTITY.commit,
   K_IDENTITY.commit,
+  T026_IDENTITY.commit,
+  T027_IDENTITY.commit,
 ]);
 
 export type RepositorySnapshot = {
@@ -1350,7 +1694,7 @@ export type RepositorySnapshot = {
   headCommitTree: string | null;
   headCommitParents: string[] | null;
   ancestryCount: number | null;
-  kTree: string | null;
+  mTree: string | null;
   branch: string | null;
   originUrl: string | null;
   originReleaseRef: string | null;
@@ -1401,7 +1745,7 @@ function readRepositorySnapshot(): RepositorySnapshot {
   const rawParents = rawCommit === null ? null : parents;
   const rawTree =
     rawCommit === null || treeLine === undefined ? null : treeLine.slice("tree ".length);
-  const ancestryText = gitText(["rev-list", "--count", K_IDENTITY.commit + "..HEAD"]);
+  const ancestryText = gitText(["rev-list", "--count", T027_IDENTITY.commit + "..HEAD"]);
   const ancestryCount = ancestryText === null ? null : Number(ancestryText);
   return {
     head: gitText(["rev-parse", "HEAD"]),
@@ -1413,7 +1757,7 @@ function readRepositorySnapshot(): RepositorySnapshot {
     headCommitTree: rawTree,
     headCommitParents: rawParents,
     ancestryCount: Number.isFinite(ancestryCount) ? ancestryCount : null,
-    kTree: gitText(["rev-parse", K_IDENTITY.commit + "^{tree}"]),
+    mTree: gitText(["rev-parse", T027_IDENTITY.commit + "^{tree}"]),
     branch: gitText(["branch", "--show-current"]),
     originUrl: gitText(["remote", "get-url", "origin"]),
     originReleaseRef: gitText(["rev-parse", "origin/release/v1-closure"]),
@@ -1424,7 +1768,7 @@ function readRepositorySnapshot(): RepositorySnapshot {
       "--no-commit-id",
       "--name-only",
       "-r",
-      K_IDENTITY.commit,
+      T027_IDENTITY.commit,
       "HEAD",
     ]),
   };
@@ -1437,7 +1781,7 @@ function validObjectId(value: unknown): value is string {
 export function validateRepositorySnapshot(snapshot: RepositorySnapshot): string[] {
   const errors: string[] = [];
   push(errors, validObjectId(snapshot.head), "repair head is not a Git object ID");
-  push(errors, snapshot.head !== K_IDENTITY.commit, "repair head is still K");
+  push(errors, snapshot.head !== T027_IDENTITY.commit, "repair head is still M");
   push(errors, !HISTORICAL_COMMITS.has(snapshot.head ?? ""), "historical head substitution");
   push(errors, snapshot.headType === "commit", "repair head is not a commit");
   push(
@@ -1450,13 +1794,13 @@ export function validateRepositorySnapshot(snapshot: RepositorySnapshot): string
   push(
     errors,
     snapshot.headCommitParents !== null &&
-      deepEqual(snapshot.headCommitParents, [K_IDENTITY.commit]),
-    "repair commit parents are not exactly K",
+      deepEqual(snapshot.headCommitParents, [T027_IDENTITY.commit]),
+    "repair commit parents are not exactly M",
   );
-  push(errors, snapshot.headParent === K_IDENTITY.commit, "repair parent is not K");
+  push(errors, snapshot.headParent === T027_IDENTITY.commit, "repair parent is not M");
   push(errors, snapshot.headSecondParent === null, "repair commit has a second parent");
-  push(errors, snapshot.ancestryCount === 1, "repair is not exactly one commit after K");
-  push(errors, snapshot.kTree === K_IDENTITY.tree, "K tree changed");
+  push(errors, snapshot.ancestryCount === 1, "repair is not exactly one commit after M");
+  push(errors, snapshot.mTree === T027_IDENTITY.tree, "M tree changed");
   push(errors, snapshot.branch === "release/v1-closure", "branch changed");
   push(
     errors,
@@ -1480,8 +1824,9 @@ export function validateRepositorySnapshot(snapshot: RepositorySnapshot): string
   );
   push(
     errors,
-    snapshot.diffPaths !== null && deepEqual([...snapshot.diffPaths].sort(), [...REPAIR_PATHS]),
-    "repair diff is not exactly the two Worker paths",
+    snapshot.diffPaths !== null &&
+      deepEqual([...snapshot.diffPaths].sort(), [...REPAIR_PATHS].sort()),
+    "repair diff is not exactly the eight Worker paths",
   );
   return errors;
 }

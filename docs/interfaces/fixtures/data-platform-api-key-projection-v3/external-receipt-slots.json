@@ -15,11 +15,11 @@
       "status": "pending",
       "owner": "Web",
       "requiredEvidence": [
-        "immutable T025 commit/tree and eight file blob and SHA-256 identities",
-        "exact T018, F, R, T023, and Data T681 identity bindings",
+        "immutable T030 direct-child commit/tree and eight file blob and SHA-256 identities",
+        "exact T018, F, R, T023, M, and Data T681 identity bindings",
         "fresh independent local Judge receipt"
       ],
-      "identityBinding": "T025-K-plus-T018-F-R-T023-Data-T681",
+      "identityBinding": "T030-M-plus-T018-F-R-T023-Data-T681",
       "acceptanceOwner": "Web coordinator"
     },
     {
@@ -33,7 +33,7 @@
         "portable opaque descriptor feasibility, key reference behavior, rotation and revoke compensation",
         "availability and fail-closed behavior"
       ],
-      "identityBinding": "T025-K-plus-T018-four-proposal-blobs",
+      "identityBinding": "T030-M-plus-T018-four-proposal-blobs",
       "acceptanceOwner": "Provider, Web, Security, Operations"
     },
     {
@@ -46,7 +46,7 @@
         "constant-time comparison or independently reviewed equivalent",
         "unknown, malformed, stale, unavailable, rotation, revoke, and redaction behavior"
       ],
-      "identityBinding": "T025-K-plus-provider-receipt-plus-exact-fixtures",
+      "identityBinding": "T030-M-plus-provider-receipt-plus-exact-fixtures",
       "acceptanceOwner": "Independent Security reviewer"
     },
     {
@@ -59,7 +59,7 @@
         "reference-only managed credential names, rotation, revocation, and cleanup",
         "limits, replay, retry, dead-letter, monitoring, SLO, on-call, and rollback"
       ],
-      "identityBinding": "T025-K-plus-exact-staged-workload-identity",
+      "identityBinding": "T030-M-plus-exact-staged-workload-identity",
       "acceptanceOwner": "Operations and Security"
     },
     {
@@ -71,7 +71,7 @@
         "exclusion of human identity, plaintext, headers, sessions, and credentials",
         "retention, deletion, legal hold, incident, and evidence-redaction rules"
       ],
-      "identityBinding": "T025-K-plus-exact-fixture-and-receipt-manifest",
+      "identityBinding": "T030-M-plus-exact-fixture-and-receipt-manifest",
       "acceptanceOwner": "Independent Privacy reviewer"
     },
     {
@@ -83,7 +83,7 @@
         "exact and mismatched duplicates, gap, rollback, replay, stale, unknown, and malformed cases",
         "provider/Web compensation, acknowledgement durability, transport failure, DLQ, and redaction cases"
       ],
-      "identityBinding": "T025-K-plus-all-owner-receipts",
+      "identityBinding": "T030-M-plus-all-owner-receipts",
       "acceptanceOwner": "Joint owner review"
     },
     {
@@ -91,11 +91,11 @@
       "status": "pending",
       "owner": "Data",
       "requiredEvidence": [
-        "fresh read-only compatibility verdict for the exact T025 identity",
+        "fresh read-only compatibility verdict for the exact T030 identity",
         "unchanged Data T681 commit/tree and historical v2 artifact identities",
         "consumer mapping, raw-wire duplicate handling, ordered apply, acknowledgement, and usage-denial result"
       ],
-      "identityBinding": "T025-K-plus-A-to-F-plus-Data-T681",
+      "identityBinding": "T030-M-plus-A-to-F-plus-Data-T681",
       "acceptanceOwner": "Data T681 owner and Web coordinator"
     }
   ],

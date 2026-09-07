@@ -3,6 +3,20 @@
   "collection": "v3-wire-events",
   "classification": "local-provider-neutral-wire-candidate",
   "contractStatus": "T018-Proposed-local-identity-only",
+  "envelopeFields": [
+    "projection_version",
+    "event_id",
+    "event_type",
+    "occurred_at",
+    "committed_at",
+    "organization_id",
+    "project_id",
+    "key_id",
+    "policy_version",
+    "organization_sequence",
+    "payload"
+  ],
+  "canonicalization": "RFC8785-UTF8-no-BOM-closed-fixture-domain",
   "cases": [
     {
       "id": "wire-key.verifier_published",

@@ -7,8 +7,9 @@ import {
   canonicalDigest,
   canonicalizeJcs,
   gitCommitObjectId,
-  K_IDENTITY,
   runOfflineCheck,
+  T026_IDENTITY,
+  T027_IDENTITY,
   T023_IDENTITY,
   validateAcceptanceInputBundle,
   validateAcknowledgementCases,
@@ -49,32 +50,38 @@ function assertFrozenReceiptSlotAndAggregateMutationsReject(): void {
   }
 }
 
-function acceptedPostKSnapshot(): RepositorySnapshot {
+function acceptedPostMSnapshot(): RepositorySnapshot {
   const headTree = "1".repeat(40);
   const rawCommit =
     "tree " +
     headTree +
     "\nparent " +
-    K_IDENTITY.commit +
+    T027_IDENTITY.commit +
     "\nauthor Test User <test@example.invalid> 0 +0000\ncommitter Test User <test@example.invalid> 0 +0000\n\nrepair\n";
   const head = gitCommitObjectId(rawCommit);
   return {
     head,
     headType: "commit",
     headTree,
-    headParent: K_IDENTITY.commit,
+    headParent: T027_IDENTITY.commit,
     headSecondParent: null,
     headCommitObjectHash: head,
     headCommitTree: headTree,
-    headCommitParents: [K_IDENTITY.commit],
+    headCommitParents: [T027_IDENTITY.commit],
     ancestryCount: 1,
-    kTree: K_IDENTITY.tree,
+    mTree: T027_IDENTITY.tree,
     branch: "release/v1-closure",
     originUrl: "https://git.tower/callum/paperandslate-web.git",
     originReleaseRef: "a32604004cbfeeb90e7c114a9c369834bc3bcfa3",
     stagedPaths: [],
     tagsAtHead: [],
     diffPaths: [
+      "docs/interfaces/data-platform-api-key-projection-v3-acceptance-input.schema.json",
+      "docs/interfaces/fixtures/data-platform-api-key-projection-v3/acceptance-input-manifest.json",
+      "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-event-cases.json",
+      "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-acknowledgement-cases.json",
+      "docs/interfaces/fixtures/data-platform-api-key-projection-v3/external-receipt-slots.json",
+      "docs/interfaces/data-platform-api-key-projection-v3-data-review-handoff.md",
       "scripts/developer-control-plane-projection-v3-acceptance-input.ts",
       "tests/developer-control-plane-projection-v3-acceptance-input.test.ts",
     ],
@@ -94,7 +101,7 @@ describe("projection v3 acceptance-input bundle", () => {
     expect(acceptanceManifest.dcp1bAuthority).toBe(false);
   });
 
-  it("revalidates the exact post-K repair boundary", () => {
+  it("revalidates the exact post-M repair boundary", () => {
     expect(validateRepositoryBoundaries()).toEqual([]);
   });
 
@@ -207,12 +214,12 @@ describe("projection v3 acceptance-input bundle", () => {
     }
   });
 
-  it("accepts only a self-consistent direct child of K and checks identity first", () => {
-    const accepted = acceptedPostKSnapshot();
+  it("accepts only a self-consistent direct child of M and checks identity first", () => {
+    const accepted = acceptedPostMSnapshot();
     expect(validateRepositorySnapshot(accepted)).toEqual([]);
     let bundleLoaded = false;
     expect(
-      runOfflineCheck({ ...accepted, head: K_IDENTITY.commit }, () => {
+      runOfflineCheck({ ...accepted, head: T027_IDENTITY.commit }, () => {
         bundleLoaded = true;
         throw new Error("bundle must not load");
       }),
@@ -221,18 +228,18 @@ describe("projection v3 acceptance-input bundle", () => {
 
     const mutations: Array<[string, (value: RepositorySnapshot) => void]> = [
       ["tree", (value) => (value.headTree = "2".repeat(40))],
-      ["parent", (value) => (value.headParent = T023_IDENTITY.commit)],
+      ["parent", (value) => (value.headParent = T026_IDENTITY.commit)],
       ["second parent", (value) => (value.headSecondParent = T023_IDENTITY.commit)],
       ["ancestry", (value) => (value.ancestryCount = 2)],
       ["raw object hash", (value) => (value.headCommitObjectHash = "3".repeat(40))],
       ["raw commit tree", (value) => (value.headCommitTree = "4".repeat(40))],
       [
         "raw commit parents",
-        (value) => (value.headCommitParents = [K_IDENTITY.commit, T023_IDENTITY.commit]),
+        (value) => (value.headCommitParents = [T027_IDENTITY.commit, T023_IDENTITY.commit]),
       ],
       ["branch", (value) => (value.branch = "main")],
       ["origin", (value) => (value.originUrl = "https://example.invalid/repo.git")],
-      ["origin ref", (value) => (value.originReleaseRef = K_IDENTITY.commit)],
+      ["origin ref", (value) => (value.originReleaseRef = T027_IDENTITY.commit)],
       [
         "index",
         (value) => {
@@ -272,5 +279,22 @@ describe("projection v3 acceptance-input bundle", () => {
     expect(acceptanceManifest.authorityDenials).toContain("no-final-verifier-scheme");
     expect(receiptSlots.aggregate.positiveVerifierVectors).toBe("blocked_external");
     expect(receiptSlots.aggregate.jointAcceptance).toBe(false);
+  });
+
+  it.each([
+    ["fixture evidence status", (value: any) => (value.fixtureEvidence.status = "accepted")],
+    [
+      "fixture evidence identity",
+      (value: any) =>
+        (value.fixtureEvidence.identityBoundary.t027Reconciliation.tree = "0".repeat(40)),
+    ],
+    [
+      "joint case reference",
+      (value: any) => (value.fixtureEvidence.boundaryFixtures[0].sourceCaseId = "missing"),
+    ],
+  ])("rejects a hostile fixture-evidence mutation: %s", (_label, mutate) => {
+    const mutated = clone(acceptanceManifest) as any;
+    mutate(mutated);
+    expect(validateAcceptanceInputBundle({ manifest: mutated })).not.toEqual([]);
   });
 });

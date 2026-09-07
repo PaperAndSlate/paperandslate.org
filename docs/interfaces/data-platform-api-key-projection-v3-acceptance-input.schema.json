@@ -14,6 +14,7 @@
     "sourceBoundary",
     "wireContract",
     "acknowledgementContract",
+    "fixtureEvidence",
     "receiptSlots",
     "dataReview",
     "authorityDenials"
@@ -68,6 +69,170 @@
         "status": { "const": "candidate-reason-registry-transport-pending" }
       }
     },
+    "fixtureEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "identityBoundary",
+        "fullEnvelope",
+        "acknowledgement",
+        "fSourcePaths",
+        "jointReview",
+        "boundaryFixtures"
+      ],
+      "properties": {
+        "status": { "const": "local-candidate-external-owner-receipts-pending" },
+        "identityBoundary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["t023Base", "t024Correction", "t026ValidatorRepair", "t027Reconciliation"],
+          "properties": {
+            "t023Base": { "$ref": "#/$defs/sourceIdentity" },
+            "t024Correction": { "$ref": "#/$defs/sourceIdentity" },
+            "t026ValidatorRepair": { "$ref": "#/$defs/sourceIdentity" },
+            "t027Reconciliation": { "$ref": "#/$defs/sourceIdentity" }
+          }
+        },
+        "fullEnvelope": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "caseCount", "fields", "eventTypes", "canonicalization", "status"],
+          "properties": {
+            "path": {
+              "const": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-event-cases.json"
+            },
+            "caseCount": { "const": 8 },
+            "fields": {
+              "const": [
+                "projection_version",
+                "event_id",
+                "event_type",
+                "occurred_at",
+                "committed_at",
+                "organization_id",
+                "project_id",
+                "key_id",
+                "policy_version",
+                "organization_sequence",
+                "payload"
+              ]
+            },
+            "eventTypes": {
+              "const": [
+                "key.verifier_published",
+                "key.rotated",
+                "key.revoked",
+                "key.policy_changed",
+                "project.activated",
+                "project.disabled",
+                "organization.disabled",
+                "projection.heartbeat"
+              ]
+            },
+            "canonicalization": { "const": "RFC8785-UTF8-no-BOM-closed-fixture-domain" },
+            "status": { "const": "local-candidate-only" }
+          }
+        },
+        "acknowledgement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "caseCount",
+            "fields",
+            "outcomes",
+            "quarantineReasonCodes",
+            "status"
+          ],
+          "properties": {
+            "path": {
+              "const": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-acknowledgement-cases.json"
+            },
+            "caseCount": { "const": 8 },
+            "fields": {
+              "const": [
+                "acknowledgement_version",
+                "projection_version",
+                "event_id",
+                "organization_id",
+                "organization_sequence",
+                "canonical_event_digest",
+                "outcome",
+                "reason_code",
+                "decided_at"
+              ]
+            },
+            "outcomes": {
+              "const": ["applied", "quarantined", "original_bytes", "replay_next", "fail_closed"]
+            },
+            "quarantineReasonCodes": {
+              "const": [
+                "duplicate_mismatch",
+                "sequence_violation",
+                "stale_heartbeat",
+                "unknown_binding",
+                "malformed_event",
+                "unknown_version",
+                "unknown_scope",
+                "verifier_unavailable"
+              ]
+            },
+            "status": { "const": "local-candidate-only" }
+          }
+        },
+        "fSourcePaths": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": { "$ref": "#/$defs/sourceFileIdentity" }
+        },
+        "jointReview": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["manifestPath", "casePath", "caseCount", "categoryCounts", "status"],
+          "properties": {
+            "manifestPath": {
+              "const": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/joint-review-manifest.json"
+            },
+            "casePath": {
+              "const": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/joint-review-cases.json"
+            },
+            "caseCount": { "const": 31 },
+            "categoryCounts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["events", "adapters", "acknowledgements", "failures"],
+              "properties": {
+                "events": { "const": 8 },
+                "adapters": { "const": 10 },
+                "acknowledgements": { "const": 8 },
+                "failures": { "const": 5 }
+              }
+            },
+            "status": { "const": "local-candidate-external-owner-receipts-pending" }
+          }
+        },
+        "boundaryFixtures": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "sourceCaseId", "sourceCollection", "actual", "expected", "status"],
+            "properties": {
+              "id": { "type": "string", "minLength": 1 },
+              "sourceCaseId": { "type": "string", "minLength": 1 },
+              "sourceCollection": { "const": "joint-review-cases.json" },
+              "actual": { "type": "string", "minLength": 1 },
+              "expected": { "type": "string", "minLength": 1 },
+              "status": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
     "receiptSlots": { "type": "string", "const": "external-receipt-slots.json" },
     "dataReview": {
       "type": "object",
@@ -77,7 +242,7 @@
         "owner": { "const": "Data" },
         "sourceIdentity": { "$ref": "#/$defs/commitIdentity" },
         "mode": { "const": "fresh-read-only-compatibility-review" },
-        "resumeEvent": { "const": "complete-A-to-G-bundle-bound-to-T025-then-recheck-T681" },
+        "resumeEvent": { "const": "complete-A-to-G-bundle-bound-to-T030-then-recheck-T681" },
         "status": { "const": "blocked_external" }
       }
     },
@@ -90,6 +255,28 @@
       "required": ["path", "blob", "sha256"],
       "properties": {
         "path": { "type": "string", "minLength": 1 },
+        "blob": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "sha256": { "type": "string", "pattern": "^[A-F0-9]{64}$" }
+      }
+    },
+    "sourceIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "parent", "tree"],
+      "properties": {
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "parent": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "tree": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "sourceFileIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path", "commit", "blob", "sha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
         "blob": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
         "sha256": { "type": "string", "pattern": "^[A-F0-9]{64}$" }
       }

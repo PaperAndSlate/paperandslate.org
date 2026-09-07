@@ -103,6 +103,173 @@
     "durability": "durable-before-return",
     "status": "candidate-reason-registry-transport-pending"
   },
+  "fixtureEvidence": {
+    "status": "local-candidate-external-owner-receipts-pending",
+    "identityBoundary": {
+      "t023Base": {
+        "commit": "48a58d5f2551fd35e6b481c50ded3ffea3831983",
+        "parent": "52e120253c60047f4eadec30dafb5fa7981ac947",
+        "tree": "2a60695fd81a713ae63ddee3ef6a793148732f84"
+      },
+      "t024Correction": {
+        "commit": "f2e0672d026381aaeee2863b2c4144405c924bf2",
+        "parent": "48a58d5f2551fd35e6b481c50ded3ffea3831983",
+        "tree": "ae11ad69fc0ec3781ed5c4dc995bbfbbf0772384"
+      },
+      "t026ValidatorRepair": {
+        "commit": "c2b5c40d4a363a55dc8f4e84cd9674318bac885e",
+        "parent": "6bf23285e3763f8ed76c2d5d2ed57d3067fefde1",
+        "tree": "3cafb90820e1c90b92fd82ec563c2c86c8e5b135"
+      },
+      "t027Reconciliation": {
+        "commit": "eb4e6f6d6d231e832f4afa279dd3fd6b9a214a20",
+        "parent": "c2b5c40d4a363a55dc8f4e84cd9674318bac885e",
+        "tree": "b94b3252ec7a2897fb20aebb44bec0cfa3ea2129"
+      }
+    },
+    "fullEnvelope": {
+      "path": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-event-cases.json",
+      "caseCount": 8,
+      "fields": [
+        "projection_version",
+        "event_id",
+        "event_type",
+        "occurred_at",
+        "committed_at",
+        "organization_id",
+        "project_id",
+        "key_id",
+        "policy_version",
+        "organization_sequence",
+        "payload"
+      ],
+      "eventTypes": [
+        "key.verifier_published",
+        "key.rotated",
+        "key.revoked",
+        "key.policy_changed",
+        "project.activated",
+        "project.disabled",
+        "organization.disabled",
+        "projection.heartbeat"
+      ],
+      "canonicalization": "RFC8785-UTF8-no-BOM-closed-fixture-domain",
+      "status": "local-candidate-only"
+    },
+    "acknowledgement": {
+      "path": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-acknowledgement-cases.json",
+      "caseCount": 8,
+      "fields": [
+        "acknowledgement_version",
+        "projection_version",
+        "event_id",
+        "organization_id",
+        "organization_sequence",
+        "canonical_event_digest",
+        "outcome",
+        "reason_code",
+        "decided_at"
+      ],
+      "outcomes": ["applied", "quarantined", "original_bytes", "replay_next", "fail_closed"],
+      "quarantineReasonCodes": [
+        "duplicate_mismatch",
+        "sequence_violation",
+        "stale_heartbeat",
+        "unknown_binding",
+        "malformed_event",
+        "unknown_version",
+        "unknown_scope",
+        "verifier_unavailable"
+      ],
+      "status": "local-candidate-only"
+    },
+    "fSourcePaths": [
+      {
+        "id": "f-manifest",
+        "path": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/manifest.json",
+        "commit": "83548d8fdd636f3ceb222036ad115983401ce0fb",
+        "blob": "25b2ac777cf3ccb3a67a3170038adaa68776b0f4",
+        "sha256": "716EC2E23E17FD3F603ED509FE0122665AB43934641B7309EFFFBDD88FAC2167"
+      },
+      {
+        "id": "f-adapter-cases",
+        "path": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/adapter-cases.json",
+        "commit": "83548d8fdd636f3ceb222036ad115983401ce0fb",
+        "blob": "43dc34320d0f89d2cb6b1f7de0cf2b2ff94fc776",
+        "sha256": "D0CD1A6F093C1CC4DB9C4D7B6CE53F519B80DACEB9F0E6235ECE15D974E708E3"
+      },
+      {
+        "id": "f-event-cases",
+        "path": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/event-cases.json",
+        "commit": "83548d8fdd636f3ceb222036ad115983401ce0fb",
+        "blob": "2b09662ab3db2d58f05d3b44baa59cf9601c2af0",
+        "sha256": "C21876A364980C349AAE3DFC863A083F3DED68B678260809969050568FE6F950"
+      },
+      {
+        "id": "f-acknowledgement-replay-cases",
+        "path": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/acknowledgement-replay-cases.json",
+        "commit": "83548d8fdd636f3ceb222036ad115983401ce0fb",
+        "blob": "29afb740633a037d2a17191ab05dd82cb9f461f3",
+        "sha256": "BA95726D69F0A56E1D3F9C93D091BEDE3798539DA03AA1E37C3C60EC2E010D2B"
+      },
+      {
+        "id": "f-failure-redaction-cases",
+        "path": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/failure-redaction-cases.json",
+        "commit": "83548d8fdd636f3ceb222036ad115983401ce0fb",
+        "blob": "1686ac5a96c0f621d0730e8b5b9fc0f8a227ab95",
+        "sha256": "174D57B2A1F9484F9752353C24520AF0236E2E966658EDB32C0C597B01C55AD6"
+      }
+    ],
+    "jointReview": {
+      "manifestPath": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/joint-review-manifest.json",
+      "casePath": "docs/interfaces/fixtures/data-platform-api-key-projection-v3/joint-review-cases.json",
+      "caseCount": 31,
+      "categoryCounts": { "events": 8, "adapters": 10, "acknowledgements": 8, "failures": 5 },
+      "status": "local-candidate-external-owner-receipts-pending"
+    },
+    "boundaryFixtures": [
+      {
+        "id": "provider-success-web-failure-compensation",
+        "sourceCaseId": "adapter-provider-success-web-failure-no-reveal",
+        "sourceCollection": "joint-review-cases.json",
+        "actual": "local-fixture-present",
+        "expected": "disable-before-retry",
+        "status": "provider-web-acceptance-pending"
+      },
+      {
+        "id": "outage-retry-dead-letter",
+        "sourceCaseId": "failure-outage-retry-and-redaction-sentinels",
+        "sourceCollection": "joint-review-cases.json",
+        "actual": "local-fixture-present",
+        "expected": "compensate-before-retry-and-operations-dlq-receipt",
+        "status": "operations-transport-acceptance-pending"
+      },
+      {
+        "id": "revoke-disable-replay-precedence",
+        "sourceCaseId": "adapter-project-and-organization-disable-precedence",
+        "sourceCollection": "joint-review-cases.json",
+        "actual": "local-fixture-present",
+        "expected": "disable-wins-and-replay-cannot-reactivate",
+        "status": "data-security-acceptance-pending"
+      },
+      {
+        "id": "telemetry-retention",
+        "sourceCaseId": "failure-outage-retry-and-redaction-sentinels",
+        "sourceCollection": "joint-review-cases.json",
+        "actual": "local-sensitive-value-rejection-only",
+        "expected": "privacy-retention-deletion-redaction-receipt",
+        "status": "privacy-acceptance-pending"
+      },
+      {
+        "id": "redaction",
+        "sourceCaseId": "failure-outage-retry-and-redaction-sentinels",
+        "sourceCollection": "joint-review-cases.json",
+        "actual": "no-sensitive-values-in-serialized-evidence",
+        "expected": "no-plaintext-session-header-or-credential-data",
+        "status": "privacy-security-acceptance-pending"
+      }
+    ]
+  },
   "receiptSlots": "external-receipt-slots.json",
   "dataReview": {
     "owner": "Data",
@@ -113,7 +280,7 @@
       "diffPaths": ["producer-local-v2-identity-only"]
     },
     "mode": "fresh-read-only-compatibility-review",
-    "resumeEvent": "complete-A-to-G-bundle-bound-to-T025-then-recheck-T681",
+    "resumeEvent": "complete-A-to-G-bundle-bound-to-T030-then-recheck-T681",
     "status": "blocked_external"
   },
   "authorityDenials": [
