@@ -25,6 +25,8 @@ const MANIFEST_PATH = FIXTURE_ROOT + "/acceptance-input-manifest.json";
 const EVENT_CASES_PATH = FIXTURE_ROOT + "/wire-event-cases.json";
 const ACK_CASES_PATH = FIXTURE_ROOT + "/wire-acknowledgement-cases.json";
 const SLOT_PATH = FIXTURE_ROOT + "/external-receipt-slots.json";
+const DATA_REVIEW_HANDOFF_PATH =
+  "docs/interfaces/data-platform-api-key-projection-v3-data-review-handoff.md";
 
 export const T018_IDENTITY = {
   commit: "38449c320e0fbaec1dba38f56c0f9570384f8b60",
@@ -72,6 +74,12 @@ export const T027_IDENTITY = {
   commit: "eb4e6f6d6d231e832f4afa279dd3fd6b9a214a20",
   parent: T026_IDENTITY.commit,
   tree: "b94b3252ec7a2897fb20aebb44bec0cfa3ea2129",
+} as const;
+
+export const N_IDENTITY = {
+  commit: "7cc6443ea0aedb505ce047ce12bda985c7f2d268",
+  parent: T027_IDENTITY.commit,
+  tree: "bd62615183e4fc1946e3ecbc7fe0df7e2a531ec7",
 } as const;
 
 export const DATA_T681_IDENTITY = {
@@ -684,6 +692,30 @@ function validateCanonicalFields(
   } catch (error) {
     errors.push(location + " canonicalization failed: " + String(error));
   }
+}
+
+export function validateDataReviewHandoff(value: unknown): string[] {
+  if (typeof value !== "string") return ["Data review handoff is not text"];
+  const errors: string[] = [];
+  const matches = [
+    ...value.matchAll(
+      /Data T681's immutable producer-local identity\s+`([^`\r\n]+)` with tree\r?\n`([^`\r\n]+)`\./g,
+    ),
+  ];
+  push(errors, matches.length === 1, "Data review handoff identity occurrence changed");
+  const commit = matches[0]?.[1];
+  const tree = matches[0]?.[2];
+  push(
+    errors,
+    commit === DATA_T681_IDENTITY.commit && /^[0-9a-f]{40}$/.test(commit ?? ""),
+    "Data review handoff commit identity changed",
+  );
+  push(
+    errors,
+    tree === DATA_T681_IDENTITY.tree && /^[0-9a-f]{40}$/.test(tree ?? ""),
+    "Data review handoff tree identity changed",
+  );
+  return errors;
 }
 
 function validateFixtureEvidence(value: unknown): string[] {
@@ -1640,17 +1672,21 @@ export function validateAcceptanceInputBundle(bundle?: {
   events?: unknown;
   acknowledgements?: unknown;
   slots?: unknown;
+  handoff?: unknown;
 }): string[] {
   const manifest = bundle?.manifest ?? readJson(MANIFEST_PATH);
   const events = bundle?.events ?? readJson(EVENT_CASES_PATH);
   const acknowledgements = bundle?.acknowledgements ?? readJson(ACK_CASES_PATH);
   const slots = bundle?.slots ?? readJson(SLOT_PATH);
+  const handoff =
+    bundle?.handoff ?? fs.readFileSync(path.join(ROOT, DATA_REVIEW_HANDOFF_PATH), "utf8");
   return [
     ...validateAcceptanceManifest(manifest),
     ...validateWireEventCases(events),
     ...validateAcknowledgementCases(acknowledgements),
     ...validateReceiptSlots(slots),
-    ...validateNoCrossArtifactSecrets(manifest, events, acknowledgements, slots),
+    ...validateDataReviewHandoff(handoff),
+    ...validateNoCrossArtifactSecrets(manifest, events, acknowledgements, slots, handoff),
   ];
 }
 
@@ -1673,6 +1709,12 @@ const REPAIR_PATHS = [
   "tests/developer-control-plane-projection-v3-acceptance-input.test.ts",
 ] as const;
 
+const REPAIR_DELTA_PATHS = [
+  DATA_REVIEW_HANDOFF_PATH,
+  "scripts/developer-control-plane-projection-v3-acceptance-input.ts",
+  "tests/developer-control-plane-projection-v3-acceptance-input.test.ts",
+] as const;
+
 const HISTORICAL_COMMITS = new Set<string>([
   T018_IDENTITY.commit,
   F_IDENTITY.commit,
@@ -1682,6 +1724,7 @@ const HISTORICAL_COMMITS = new Set<string>([
   K_IDENTITY.commit,
   T026_IDENTITY.commit,
   T027_IDENTITY.commit,
+  N_IDENTITY.commit,
 ]);
 
 export type RepositorySnapshot = {
@@ -1694,7 +1737,8 @@ export type RepositorySnapshot = {
   headCommitTree: string | null;
   headCommitParents: string[] | null;
   ancestryCount: number | null;
-  mTree: string | null;
+  nTree: string | null;
+  baseDiffPaths: string[] | null;
   branch: string | null;
   originUrl: string | null;
   originReleaseRef: string | null;
@@ -1745,7 +1789,7 @@ function readRepositorySnapshot(): RepositorySnapshot {
   const rawParents = rawCommit === null ? null : parents;
   const rawTree =
     rawCommit === null || treeLine === undefined ? null : treeLine.slice("tree ".length);
-  const ancestryText = gitText(["rev-list", "--count", T027_IDENTITY.commit + "..HEAD"]);
+  const ancestryText = gitText(["rev-list", "--count", N_IDENTITY.commit + "..HEAD"]);
   const ancestryCount = ancestryText === null ? null : Number(ancestryText);
   return {
     head: gitText(["rev-parse", "HEAD"]),
@@ -1757,13 +1801,21 @@ function readRepositorySnapshot(): RepositorySnapshot {
     headCommitTree: rawTree,
     headCommitParents: rawParents,
     ancestryCount: Number.isFinite(ancestryCount) ? ancestryCount : null,
-    mTree: gitText(["rev-parse", T027_IDENTITY.commit + "^{tree}"]),
+    nTree: gitText(["rev-parse", N_IDENTITY.commit + "^{tree}"]),
     branch: gitText(["branch", "--show-current"]),
     originUrl: gitText(["remote", "get-url", "origin"]),
     originReleaseRef: gitText(["rev-parse", "origin/release/v1-closure"]),
     stagedPaths: gitLines(["diff", "--cached", "--name-only"]),
     tagsAtHead: gitLines(["tag", "--points-at", "HEAD"]),
     diffPaths: gitLines([
+      "diff-tree",
+      "--no-commit-id",
+      "--name-only",
+      "-r",
+      N_IDENTITY.commit,
+      "HEAD",
+    ]),
+    baseDiffPaths: gitLines([
       "diff-tree",
       "--no-commit-id",
       "--name-only",
@@ -1781,7 +1833,7 @@ function validObjectId(value: unknown): value is string {
 export function validateRepositorySnapshot(snapshot: RepositorySnapshot): string[] {
   const errors: string[] = [];
   push(errors, validObjectId(snapshot.head), "repair head is not a Git object ID");
-  push(errors, snapshot.head !== T027_IDENTITY.commit, "repair head is still M");
+  push(errors, snapshot.head !== N_IDENTITY.commit, "repair head is still N");
   push(errors, !HISTORICAL_COMMITS.has(snapshot.head ?? ""), "historical head substitution");
   push(errors, snapshot.headType === "commit", "repair head is not a commit");
   push(
@@ -1794,13 +1846,13 @@ export function validateRepositorySnapshot(snapshot: RepositorySnapshot): string
   push(
     errors,
     snapshot.headCommitParents !== null &&
-      deepEqual(snapshot.headCommitParents, [T027_IDENTITY.commit]),
-    "repair commit parents are not exactly M",
+      deepEqual(snapshot.headCommitParents, [N_IDENTITY.commit]),
+    "repair commit parents are not exactly N",
   );
-  push(errors, snapshot.headParent === T027_IDENTITY.commit, "repair parent is not M");
+  push(errors, snapshot.headParent === N_IDENTITY.commit, "repair parent is not N");
   push(errors, snapshot.headSecondParent === null, "repair commit has a second parent");
-  push(errors, snapshot.ancestryCount === 1, "repair is not exactly one commit after M");
-  push(errors, snapshot.mTree === T027_IDENTITY.tree, "M tree changed");
+  push(errors, snapshot.ancestryCount === 1, "repair is not exactly one commit after N");
+  push(errors, snapshot.nTree === N_IDENTITY.tree, "N tree changed");
   push(errors, snapshot.branch === "release/v1-closure", "branch changed");
   push(
     errors,
@@ -1825,8 +1877,14 @@ export function validateRepositorySnapshot(snapshot: RepositorySnapshot): string
   push(
     errors,
     snapshot.diffPaths !== null &&
-      deepEqual([...snapshot.diffPaths].sort(), [...REPAIR_PATHS].sort()),
-    "repair diff is not exactly the eight Worker paths",
+      deepEqual([...snapshot.diffPaths].sort(), [...REPAIR_DELTA_PATHS].sort()),
+    "repair delta is not exactly the three Worker paths",
+  );
+  push(
+    errors,
+    snapshot.baseDiffPaths !== null &&
+      deepEqual([...snapshot.baseDiffPaths].sort(), [...REPAIR_PATHS].sort()),
+    "M-to-repair diff is not exactly the eight T030 paths",
   );
   return errors;
 }
@@ -1836,6 +1894,7 @@ type AcceptanceInputBundle = {
   events: unknown;
   acknowledgements: unknown;
   slots: unknown;
+  handoff: unknown;
 };
 
 function readAcceptanceInputBundle(): AcceptanceInputBundle {
@@ -1844,6 +1903,7 @@ function readAcceptanceInputBundle(): AcceptanceInputBundle {
     events: readJson(EVENT_CASES_PATH),
     acknowledgements: readJson(ACK_CASES_PATH),
     slots: readJson(SLOT_PATH),
+    handoff: fs.readFileSync(path.join(ROOT, DATA_REVIEW_HANDOFF_PATH), "utf8"),
   };
 }
 

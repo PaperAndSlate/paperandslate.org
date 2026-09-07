@@ -1,3 +1,4 @@
+import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import acceptanceManifest from "../docs/interfaces/fixtures/data-platform-api-key-projection-v3/acceptance-input-manifest.json";
 import acknowledgementCases from "../docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-acknowledgement-cases.json";
@@ -8,11 +9,12 @@ import {
   canonicalizeJcs,
   gitCommitObjectId,
   runOfflineCheck,
-  T026_IDENTITY,
+  N_IDENTITY,
   T027_IDENTITY,
   T023_IDENTITY,
   validateAcceptanceInputBundle,
   validateAcknowledgementCases,
+  validateDataReviewHandoff,
   validateReceiptSlots,
   validateRepositoryBoundaries,
   validateRepositorySnapshot,
@@ -23,6 +25,11 @@ import {
 function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
+
+const dataReviewHandoff = fs.readFileSync(
+  "docs/interfaces/data-platform-api-key-projection-v3-data-review-handoff.md",
+  "utf8",
+);
 
 function assertFrozenReceiptSlotAndAggregateMutationsReject(): void {
   const mutations: Array<[string, (value: any) => void]> = [
@@ -50,32 +57,37 @@ function assertFrozenReceiptSlotAndAggregateMutationsReject(): void {
   }
 }
 
-function acceptedPostMSnapshot(): RepositorySnapshot {
+function acceptedPostNSnapshot(): RepositorySnapshot {
   const headTree = "1".repeat(40);
   const rawCommit =
     "tree " +
     headTree +
     "\nparent " +
-    T027_IDENTITY.commit +
+    N_IDENTITY.commit +
     "\nauthor Test User <test@example.invalid> 0 +0000\ncommitter Test User <test@example.invalid> 0 +0000\n\nrepair\n";
   const head = gitCommitObjectId(rawCommit);
   return {
     head,
     headType: "commit",
     headTree,
-    headParent: T027_IDENTITY.commit,
+    headParent: N_IDENTITY.commit,
     headSecondParent: null,
     headCommitObjectHash: head,
     headCommitTree: headTree,
-    headCommitParents: [T027_IDENTITY.commit],
+    headCommitParents: [N_IDENTITY.commit],
     ancestryCount: 1,
-    mTree: T027_IDENTITY.tree,
+    nTree: N_IDENTITY.tree,
     branch: "release/v1-closure",
     originUrl: "https://git.tower/callum/paperandslate-web.git",
     originReleaseRef: "a32604004cbfeeb90e7c114a9c369834bc3bcfa3",
     stagedPaths: [],
     tagsAtHead: [],
     diffPaths: [
+      "docs/interfaces/data-platform-api-key-projection-v3-data-review-handoff.md",
+      "scripts/developer-control-plane-projection-v3-acceptance-input.ts",
+      "tests/developer-control-plane-projection-v3-acceptance-input.test.ts",
+    ],
+    baseDiffPaths: [
       "docs/interfaces/data-platform-api-key-projection-v3-acceptance-input.schema.json",
       "docs/interfaces/fixtures/data-platform-api-key-projection-v3/acceptance-input-manifest.json",
       "docs/interfaces/fixtures/data-platform-api-key-projection-v3/wire-event-cases.json",
@@ -91,6 +103,7 @@ function acceptedPostMSnapshot(): RepositorySnapshot {
 describe("projection v3 acceptance-input bundle", () => {
   it("accepts the exact local provider-neutral bundle", () => {
     expect(validateAcceptanceInputBundle()).toEqual([]);
+    expect(validateDataReviewHandoff(dataReviewHandoff)).toEqual([]);
     expect(wireEvents.cases).toHaveLength(8);
     expect(acknowledgementCases.cases).toHaveLength(8);
     expect(receiptSlots.slots).toHaveLength(7);
@@ -101,7 +114,7 @@ describe("projection v3 acceptance-input bundle", () => {
     expect(acceptanceManifest.dcp1bAuthority).toBe(false);
   });
 
-  it("revalidates the exact post-M repair boundary", () => {
+  it("revalidates the exact post-N repair boundary", () => {
     expect(validateRepositoryBoundaries()).toEqual([]);
   });
 
@@ -214,12 +227,12 @@ describe("projection v3 acceptance-input bundle", () => {
     }
   });
 
-  it("accepts only a self-consistent direct child of M and checks identity first", () => {
-    const accepted = acceptedPostMSnapshot();
+  it("accepts only a self-consistent direct child of N and checks identity first", () => {
+    const accepted = acceptedPostNSnapshot();
     expect(validateRepositorySnapshot(accepted)).toEqual([]);
     let bundleLoaded = false;
     expect(
-      runOfflineCheck({ ...accepted, head: T027_IDENTITY.commit }, () => {
+      runOfflineCheck({ ...accepted, head: N_IDENTITY.commit }, () => {
         bundleLoaded = true;
         throw new Error("bundle must not load");
       }),
@@ -228,18 +241,18 @@ describe("projection v3 acceptance-input bundle", () => {
 
     const mutations: Array<[string, (value: RepositorySnapshot) => void]> = [
       ["tree", (value) => (value.headTree = "2".repeat(40))],
-      ["parent", (value) => (value.headParent = T026_IDENTITY.commit)],
+      ["parent", (value) => (value.headParent = T027_IDENTITY.commit)],
       ["second parent", (value) => (value.headSecondParent = T023_IDENTITY.commit)],
       ["ancestry", (value) => (value.ancestryCount = 2)],
       ["raw object hash", (value) => (value.headCommitObjectHash = "3".repeat(40))],
       ["raw commit tree", (value) => (value.headCommitTree = "4".repeat(40))],
       [
         "raw commit parents",
-        (value) => (value.headCommitParents = [T027_IDENTITY.commit, T023_IDENTITY.commit]),
+        (value) => (value.headCommitParents = [N_IDENTITY.commit, T023_IDENTITY.commit]),
       ],
       ["branch", (value) => (value.branch = "main")],
       ["origin", (value) => (value.originUrl = "https://example.invalid/repo.git")],
-      ["origin ref", (value) => (value.originReleaseRef = T027_IDENTITY.commit)],
+      ["origin ref", (value) => (value.originReleaseRef = N_IDENTITY.commit)],
       [
         "index",
         (value) => {
@@ -256,6 +269,14 @@ describe("projection v3 acceptance-input bundle", () => {
         "diff",
         (value) => {
           value.diffPaths = ["scripts/developer-control-plane-projection-v3-acceptance-input.ts"];
+        },
+      ],
+      [
+        "aggregate diff",
+        (value) => {
+          value.baseDiffPaths = [
+            "scripts/developer-control-plane-projection-v3-acceptance-input.ts",
+          ];
         },
       ],
     ];
@@ -296,5 +317,44 @@ describe("projection v3 acceptance-input bundle", () => {
     const mutated = clone(acceptanceManifest) as any;
     mutate(mutated);
     expect(validateAcceptanceInputBundle({ manifest: mutated })).not.toEqual([]);
+  });
+
+  it.each([
+    [
+      "malformed tree length",
+      (value: string) =>
+        value.replace(
+          "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a`",
+          "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a3`",
+        ),
+    ],
+    [
+      "trailing tree characters",
+      (value: string) =>
+        value.replace(
+          "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a`",
+          "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a-suffix`",
+        ),
+    ],
+    [
+      "drifted commit",
+      (value: string) =>
+        value.replace("d21efabb8550578333fee5f62bf0e822fbca1394`", "0".repeat(40) + "`"),
+    ],
+    [
+      "drifted tree",
+      (value: string) =>
+        value.replace("5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a`", "1".repeat(40) + "`"),
+    ],
+    [
+      "tree trailing character outside code span",
+      (value: string) =>
+        value.replace(
+          "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a`.",
+          "5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a`x.",
+        ),
+    ],
+  ])("rejects a hostile Data T681 handoff mutation: %s", (_label, mutate) => {
+    expect(validateDataReviewHandoff(mutate(dataReviewHandoff))).not.toEqual([]);
   });
 });

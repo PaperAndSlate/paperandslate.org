@@ -11,7 +11,7 @@ and SHA-256 manifest, and the T030 receipt to the existing Web T018 proposal
 identity, T020 F/R local evidence, T023/Q joint-review evidence, approved
 T026/T027 repairs, and Data T681's immutable producer-local identity
 `d21efabb8550578333fee5f62bf0e822fbca1394` with tree
-`5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a3`. Older T018, T020, T023, T025,
+`5c3a56a25f4eb374e94550f89b9ed1dbd52bb66a`. Older T018, T020, T023, T025,
 and Data v2 receipts remain historical and must not be rebound.
 
 ## Web-owned candidate inputs
