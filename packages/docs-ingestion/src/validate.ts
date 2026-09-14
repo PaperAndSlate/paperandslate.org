@@ -1,7 +1,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { DocsDocument } from "./types";
-import { slugifyHeading } from "./markdown";
+import {
+  extractMarkdownLinks,
+  firstMarkdownLinkDestination,
+  slugifyHeading,
+  stripClosingHeadingMarker,
+} from "./markdown";
 export function validateDocuments(documents: DocsDocument[]): void {
   const ids = new Set<string>();
   const routes = new Map<string, string>();
@@ -16,24 +21,33 @@ export function validateDocuments(documents: DocsDocument[]): void {
     }
     const anchors = new Set<string>();
     for (const heading of doc.headings) {
-      const anchor = slugifyHeading(heading.replace(/\s+#$/, ""));
+      const anchor = slugifyHeading(stripClosingHeadingMarker(heading));
       if (anchors.has(anchor)) throw new Error(`Anchor collision #${anchor} in ${doc.id}`);
       anchors.add(anchor);
     }
-    for (const link of doc.content.matchAll(/\]\((#[^)\s]+)(?:\s+[^)]*)?\)/g))
-      if (!anchors.has(slugifyHeading(link[1].slice(1))))
-        throw new Error(`Broken anchor ${link[1]} in ${doc.id}`);
-    for (const link of doc.content.matchAll(/\]\((\/docs\/[^)#\s]+)(#[^)\s]+)?\)/g)) {
-      const target = documents.find((candidate) =>
-        [candidate.route, candidate.canonicalRoute, ...(candidate.aliases ?? [])].includes(link[1]),
+    for (const link of extractMarkdownLinks(doc.content)) {
+      const target = firstMarkdownLinkDestination(link.rawTarget);
+      if (target.startsWith("#") && !anchors.has(slugifyHeading(target.slice(1))))
+        throw new Error(`Broken anchor ${target} in ${doc.id}`);
+    }
+    for (const link of extractMarkdownLinks(doc.content)) {
+      const targetUrl = firstMarkdownLinkDestination(link.rawTarget);
+      const anchorIndex = targetUrl.indexOf("#");
+      const route = anchorIndex < 0 ? targetUrl : targetUrl.slice(0, anchorIndex);
+      const anchor = anchorIndex < 0 ? undefined : targetUrl.slice(anchorIndex + 1);
+      if (!route.startsWith("/docs/")) continue;
+      const targetDocument = documents.find((candidate) =>
+        [candidate.route, candidate.canonicalRoute, ...(candidate.aliases ?? [])].includes(route),
       );
-      if (!target) throw new Error(`Broken link ${link[1]} in ${doc.id}`);
-      if (link[2]) {
+      if (!targetDocument) throw new Error(`Broken link ${route} in ${doc.id}`);
+      if (anchor) {
         const targetAnchors = new Set(
-          target.headings.map((heading) => slugifyHeading(heading.replace(/\s+#$/, ""))),
+          targetDocument.headings.map((heading) =>
+            slugifyHeading(stripClosingHeadingMarker(heading)),
+          ),
         );
-        if (!targetAnchors.has(slugifyHeading(link[2].slice(1))))
-          throw new Error(`Broken anchor ${link[2]} in ${doc.id}`);
+        if (!targetAnchors.has(slugifyHeading(anchor)))
+          throw new Error(`Broken anchor #${anchor} in ${doc.id}`);
       }
     }
   }

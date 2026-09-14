@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { extractMarkdownLinks, firstMarkdownLinkDestination, headings } from "./markdown";
 const MAX_BYTES = 256 * 1024;
 const MAX_URL_DECODE_PASSES = 8;
 
@@ -36,7 +37,13 @@ function resolvesWithinRoot(file: string, url: string, root: string): boolean {
   const decodedUrl = decodeUrlRepeated(url);
   if (!decodedUrl.complete) return false;
   const decoded = decodedUrl.value;
-  const pathPart = decoded.split(/[?#]/, 1)[0].replace(/\\/g, path.sep);
+  const queryIndex = decoded.indexOf("?");
+  const anchorIndex = decoded.indexOf("#");
+  const suffixIndex =
+    queryIndex < 0 ? anchorIndex : anchorIndex < 0 ? queryIndex : Math.min(queryIndex, anchorIndex);
+  const pathPart = decoded
+    .slice(0, suffixIndex < 0 ? decoded.length : suffixIndex)
+    .replaceAll("\\", path.sep);
   const resolved = path.resolve(path.dirname(file), pathPart);
   const resolvedRoot = path.resolve(root);
   const relative = path.relative(resolvedRoot, resolved);
@@ -44,6 +51,17 @@ function resolvesWithinRoot(file: string, url: string, root: string): boolean {
     relative === "" ||
     (relative !== ".." && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative))
   );
+}
+
+function containsParentSegment(value: string): boolean {
+  const normalized = value.replaceAll("\\", "/");
+  let segmentStart = 0;
+  for (let index = 0; index <= normalized.length; index += 1) {
+    if (index !== normalized.length && normalized[index] !== "/") continue;
+    if (normalized.slice(segmentStart, index) === "..") return true;
+    segmentStart = index + 1;
+  }
+  return false;
 }
 
 export function assertSafeDocument(
@@ -57,23 +75,21 @@ export function assertSafeDocument(
     throw new Error(`Unsupported MDX syntax: ${file}`);
   if (/<script\b|\son[a-z]+\s*=|<svg\b|javascript:|data:text\/html|vbscript:/i.test(content))
     throw new Error(`Unsafe markup or URL: ${file}`);
-  for (const match of content.matchAll(/!?\[[^\]]*\]\(([^)]+)\)/g)) {
-    const url = match[1].trim().split(/\s+/)[0];
+  for (const link of extractMarkdownLinks(content)) {
+    const url = firstMarkdownLinkDestination(link.rawTarget);
     const decodedUrl = decodeUrlRepeated(url);
     const unsafeProtocol = /^(?:https?:|\/\/|javascript:|data:|mailto:)/i;
     if (
       !decodedUrl.complete ||
       unsafeProtocol.test(url) ||
       unsafeProtocol.test(decodedUrl.value) ||
-      (/(^|[\\/])\.\.([\\/]|$)/.test(decodedUrl.value) &&
-        !resolvesWithinRoot(file, url, sourceRoot))
+      (containsParentSegment(decodedUrl.value) && !resolvesWithinRoot(file, url, sourceRoot))
     )
       throw new Error(`Unsafe URL or traversal: ${url}`);
   }
-  const headings = [...content.matchAll(/^#{1,6}\s+(.+)$/gm)].map((match) =>
-    match[1].replace(/\s+#$/, "").trim(),
-  );
-  if (new Set(headings).size !== headings.length) throw new Error(`Duplicate heading: ${file}`);
+  const documentHeadings = headings(content);
+  if (new Set(documentHeadings).size !== documentHeadings.length)
+    throw new Error(`Duplicate heading: ${file}`);
 }
 export function assertSafeAsset(file: string): void {
   if (!/\.(png|jpe?g|gif|webp|avif)$/i.test(file))

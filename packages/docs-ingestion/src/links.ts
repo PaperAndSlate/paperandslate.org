@@ -1,5 +1,10 @@
 import path from "node:path";
 import type { DocsDocument } from "./types";
+import {
+  extractMarkdownLinks,
+  firstMarkdownLinkDestination,
+  splitMarkdownLinkTarget,
+} from "./markdown";
 
 const MAX_URL_DECODE_PASSES = 8;
 
@@ -18,40 +23,49 @@ function decodeUrlRepeated(value: string): { value: string; complete: boolean } 
   return { value: current, complete: false };
 }
 
-function splitDestination(raw: string): { destination: string; suffix: string; title: string } {
-  const trimmed = raw.trim();
-  const match = /^(\S+)([\s\S]*)$/.exec(trimmed);
-  if (!match) return { destination: "", suffix: "", title: "" };
-  const destination = match[1];
-  const suffixIndex = destination.search(/[?#]/);
-  if (suffixIndex < 0) return { destination, suffix: "", title: match[2] };
-  return {
-    destination: destination.slice(0, suffixIndex),
-    suffix: destination.slice(suffixIndex),
-    title: match[2],
-  };
-}
-
 function sourcePathCandidates(sourcePath: string, destination: string): string[] {
   const decodedUrl = decodeUrlRepeated(destination);
   if (!decodedUrl.complete) return [];
   const decoded = decodedUrl.value;
   const normalized = path.posix.normalize(
-    path.posix.join(path.posix.dirname(sourcePath), decoded.replace(/\\/g, "/")),
+    path.posix.join(path.posix.dirname(sourcePath), decoded.replaceAll("\\", "/")),
   );
   if (normalized === "." || normalized === ".." || normalized.startsWith("../")) return [];
   const candidates = [normalized];
-  if (!/\.(?:md|mdx)$/i.test(normalized)) {
+  const normalizedLower = normalized.toLowerCase();
+  if (!normalizedLower.endsWith(".md") && !normalizedLower.endsWith(".mdx")) {
     candidates.push(`${normalized}.md`, `${normalized}.mdx`);
   }
-  if (/\/index\.(?:md|mdx)$/i.test(normalized))
-    candidates.push(normalized.replace(/\/index\.(?:md|mdx)$/i, ""));
-  else
-    candidates.push(
-      `${normalized.replace(/\/$/, "")}/index.md`,
-      `${normalized.replace(/\/$/, "")}/index.mdx`,
-    );
+  if (normalizedLower.endsWith("/index.md") || normalizedLower.endsWith("/index.mdx")) {
+    candidates.push(normalized.slice(0, normalized.lastIndexOf("/index.")));
+  } else {
+    const withoutTrailingSlash = normalized.endsWith("/") ? normalized.slice(0, -1) : normalized;
+    candidates.push(`${withoutTrailingSlash}/index.md`, `${withoutTrailingSlash}/index.mdx`);
+  }
   return [...new Set(candidates)];
+}
+
+function isAsciiAlpha(value: string | undefined): boolean {
+  if (value === undefined) return false;
+  const code = value.toLowerCase().charCodeAt(0);
+  return code >= 97 && code <= 122;
+}
+
+function isSchemeCharacter(value: string | undefined): boolean {
+  if (value === undefined) return false;
+  const lower = value.toLowerCase();
+  if (isAsciiAlpha(lower)) return true;
+  return value === "+" || value === "." || value === "-" || (value >= "0" && value <= "9");
+}
+
+function hasUrlScheme(destination: string): boolean {
+  if (destination.startsWith("//")) return true;
+  const colon = destination.indexOf(":");
+  if (colon <= 0) return false;
+  if (!isAsciiAlpha(destination[0])) return false;
+  for (let index = 1; index < colon; index += 1)
+    if (!isSchemeCharacter(destination[index])) return false;
+  return true;
 }
 
 function isRelativeDestination(destination: string): boolean {
@@ -59,7 +73,7 @@ function isRelativeDestination(destination: string): boolean {
     destination !== "" &&
     !destination.startsWith("/") &&
     !destination.startsWith("#") &&
-    !/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(destination)
+    !hasUrlScheme(destination)
   );
 }
 
@@ -83,12 +97,31 @@ function inertLabel(label: string): string {
 }
 
 export function rewriteDocLinks(content: string, documents: DocsDocument[]): string {
-  return content.replace(/\]\((\/docs\/[^)#]+)(#[^)]+)?\)/g, (all, route, anchor = "") => {
+  const links = extractMarkdownLinks(content);
+  const chunks: string[] = [];
+  let cursor = 0;
+  for (const link of links) {
+    const trimmedTarget = link.rawTarget.trim();
+    const token = firstMarkdownLinkDestination(trimmedTarget);
+    const title = trimmedTarget.slice(token.length);
+    const anchorIndex = token.indexOf("#");
+    if (title && anchorIndex < 0) continue;
+    const route = anchorIndex < 0 ? token : token.slice(0, anchorIndex);
+    if (!route.startsWith("/docs/")) continue;
     const target = documents.find((doc) =>
       [doc.route, doc.canonicalRoute, ...doc.aliases].includes(route),
     );
-    return target ? `](${target.canonicalRoute}${anchor})` : all;
-  });
+    if (!target) continue;
+    const suffix = anchorIndex < 0 ? "" : token.slice(anchorIndex);
+    chunks.push(content.slice(cursor, link.start));
+    chunks.push(
+      `${link.image ? "!" : ""}[${link.label}](${target.canonicalRoute}${suffix}${title})`,
+    );
+    cursor = link.end;
+  }
+  if (!chunks.length) return content;
+  chunks.push(content.slice(cursor));
+  return chunks.join("");
 }
 
 /**
@@ -99,22 +132,38 @@ export function rewriteDocLinks(content: string, documents: DocsDocument[]): str
 export function rewriteDocumentLinks(documents: DocsDocument[]): DocsDocument[] {
   return documents.map((current) => ({
     ...current,
-    content: current.content.replace(
-      /(!?)\[([^\]]*)\]\(([^)\n]+)\)/g,
-      (all, image, label, rawTarget) => {
-        const { destination, suffix, title } = splitDestination(rawTarget);
-        if (!isRelativeDestination(destination)) return all;
-        const target = sameSourceDocument(current, destination, documents);
-        if (target && !image) return `[${label}](${target.canonicalRoute}${suffix}${title})`;
-
-        const decodedUrl = decodeUrlRepeated(destination);
-        if (!decodedUrl.complete) return all;
-        // Images stay source-relative so the asset pipeline can fingerprint them.
-        // Every unresolved non-image relative reference is source-adjacent content
-        // (document, schema, download, or repository file) and must not become a
-        // broken runtime URL or an invented route.
-        return image ? all : inertLabel(label);
-      },
-    ),
+    content: rewriteDocumentLinksInContent(current, documents),
   }));
+}
+
+function rewriteDocumentLinksInContent(current: DocsDocument, documents: DocsDocument[]): string {
+  const chunks: string[] = [];
+  let cursor = 0;
+  for (const link of extractMarkdownLinks(current.content)) {
+    if (link.rawTarget.includes("\n")) continue;
+    const { destination, suffix, title } = splitMarkdownLinkTarget(link.rawTarget);
+    if (!isRelativeDestination(destination)) continue;
+
+    const target = sameSourceDocument(current, destination, documents);
+    let replacement: string | undefined;
+    if (target && !link.image)
+      replacement = `[${link.label}](${target.canonicalRoute}${suffix}${title})`;
+    else {
+      const decodedUrl = decodeUrlRepeated(destination);
+      if (!decodedUrl.complete) continue;
+      // Images stay source-relative so the asset pipeline can fingerprint them.
+      // Every unresolved non-image relative reference is source-adjacent content
+      // (document, schema, download, or repository file) and must not become a
+      // broken runtime URL or an invented route.
+      if (link.image) continue;
+      replacement = inertLabel(link.label);
+    }
+
+    chunks.push(current.content.slice(cursor, link.start));
+    chunks.push(replacement);
+    cursor = link.end;
+  }
+  if (!chunks.length) return current.content;
+  chunks.push(current.content.slice(cursor));
+  return chunks.join("");
 }

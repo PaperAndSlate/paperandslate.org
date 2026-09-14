@@ -4,6 +4,16 @@ import os from "node:os";
 import path from "node:path";
 import type { DocsSource, DocsVersion } from "../types";
 import { readLocalSourceFromRoot, type SourceFile } from "./local";
+
+function normalizeDocsPrefix(value: string): string {
+  const normalized = value.replaceAll("\\", "/");
+  let start = 0;
+  let end = normalized.length;
+  while (start < end && normalized[start] === "/") start += 1;
+  while (end > start && normalized[end - 1] === "/") end -= 1;
+  return normalized.slice(start, end);
+}
+
 export function resolvedGitSha(
   source: DocsSource,
   version: DocsVersion,
@@ -31,7 +41,7 @@ export function readGitSource(
 ): SourceFile[] {
   const sha = resolvedGitSha(source, version, cwd);
   const repositoryRoot = path.resolve(cwd, source.root);
-  const docsPrefix = (version.docs ?? "").replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+  const docsPrefix = normalizeDocsPrefix(version.docs ?? "");
   const listArgs = ["-C", repositoryRoot, "ls-tree", "-r", "-z", sha];
   if (docsPrefix) listArgs.push("--", docsPrefix);
   const tree = execFileSync("git", listArgs, {

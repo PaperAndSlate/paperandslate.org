@@ -1,7 +1,60 @@
 import crypto from "node:crypto";
 import type { DocsDocument, DocsSource, DocsVersion } from "./types";
 import { parseFrontmatter } from "./frontmatter";
-import { headings, slugifyHeading } from "./markdown";
+import {
+  extractMarkdownLinks,
+  firstMarkdownLinkDestination,
+  headings,
+  slugifyHeading,
+} from "./markdown";
+
+function normalizeSlashes(value: string): string {
+  return value.replaceAll("\\", "/");
+}
+
+function stripMarkdownExtension(value: string): string {
+  const lower = value.toLowerCase();
+  if (lower.endsWith(".mdx")) return value.slice(0, -4);
+  if (lower.endsWith(".md")) return value.slice(0, -3);
+  return value;
+}
+
+function stripTrailingIndex(value: string): string {
+  return value.endsWith("/index") ? value.slice(0, -6) : value;
+}
+
+function trimPathSlashes(value: string): string {
+  let start = 0;
+  let end = value.length;
+  while (start < end && value[start] === "/") start += 1;
+  while (end > start && value[end - 1] === "/") end -= 1;
+  return value.slice(start, end);
+}
+
+function documentSlug(relativePath: string, explicitSlug: string | undefined): string {
+  if (explicitSlug !== undefined) return trimPathSlashes(explicitSlug);
+  const normalizedPath = normalizeSlashes(relativePath);
+  return trimPathSlashes(stripTrailingIndex(stripMarkdownExtension(normalizedPath)));
+}
+
+function isImageAsset(value: string): boolean {
+  const lower = value.toLowerCase();
+  return (
+    lower.endsWith(".png") ||
+    lower.endsWith(".jpg") ||
+    lower.endsWith(".jpeg") ||
+    lower.endsWith(".gif") ||
+    lower.endsWith(".webp") ||
+    lower.endsWith(".avif")
+  );
+}
+
+function assetDestination(rawTarget: string): string {
+  const destination = firstMarkdownLinkDestination(rawTarget);
+  const anchor = destination.indexOf("#");
+  return anchor < 0 ? destination : destination.slice(0, anchor);
+}
+
 export function sha256(value: string): string {
   return crypto.createHash("sha256").update(value).digest("hex");
 }
@@ -12,17 +65,13 @@ export function normalizeDocument(
   raw: string,
 ): DocsDocument {
   const parsed = parseFrontmatter(raw);
-  const slug = (
-    parsed.data.slug ??
-    relativePath
-      .replace(/\.(md|mdx)$/i, "")
-      .replace(/\\/g, "/")
-      .replace(/\/index$/, "")
-  ).replace(/^\/+|\/+$/g, "");
+  const slug = documentSlug(relativePath, parsed.data.slug);
   const leaf = slug === "index" || !slug ? "" : `/${slug}`;
   const legacyVersion = version.id === "next" ? "/next" : `/${version.id}`;
   const versionPath =
-    version.id === "next" ? "next" : `v/${version.routeVersion ?? version.id.replace(/^v/, "")}`;
+    version.id === "next"
+      ? "next"
+      : `v/${version.routeVersion ?? (version.id.startsWith("v") ? version.id.slice(1) : version.id)}`;
   const canonicalRoute = `/docs/${source.project}${version.id === "next" ? "" : `/${versionPath}`}${leaf}`;
   const route =
     version.status === "historical"
@@ -35,7 +84,7 @@ export function normalizeDocument(
           ...new Set([route, canonicalRoute, `/docs/${source.project}/${versionPath}${leaf}`]),
         ].filter((candidate) => candidate !== canonicalRoute && candidate !== route);
   const pageHeadings = headings(parsed.body);
-  const normalizedPath = relativePath.replace(/\\/g, "/");
+  const normalizedPath = normalizeSlashes(relativePath);
   const taxonomy = parsed.data.taxonomy?.length
     ? parsed.data.taxonomy
     : [
@@ -43,9 +92,9 @@ export function normalizeDocument(
           ? "getting-started"
           : normalizedPath.split("/")[0] || "reference",
       ];
-  const assets = [...parsed.body.matchAll(/!?\[[^\]]*\]\(([^)#]+)\)/g)]
-    .map((match) => match[1])
-    .filter((asset) => /\.(png|jpe?g|gif|webp|avif)$/i.test(asset));
+  const assets = extractMarkdownLinks(parsed.body)
+    .map((link) => assetDestination(link.rawTarget))
+    .filter(isImageAsset);
   return {
     ...parsed.data,
     id: `${source.id}:${version.id}:${slug || "index"}`,
