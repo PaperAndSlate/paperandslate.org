@@ -3,8 +3,8 @@
     "id": "central:next:concepts/provenance",
     "route": "/docs/paper-and-slate/concepts/provenance",
     "legacyRoute": "/docs/paper-and-slate/next/concepts/provenance",
-    "title": "Untitled",
-    "description": "",
+    "title": "Provenance and local source state",
+    "description": "How this documentation slice records where each page came from.",
     "sourceId": "central",
     "version": "next",
     "taxonomy": [
@@ -14,14 +14,14 @@
       "provenance",
       "historical-pages"
     ],
-    "text": "---\r\ntitle: Provenance and local source state\r\ndescription: How this documentation slice records where each page came from.\r\norder: 2\r\n---\r\n\r\n Provenance\r\n\r\nGenerated records expose the effective source repository label, relative path, local ref, and SHA-256 content hash. A hash is evidence about these bytes; it is not presented as a Git commit SHA.\r\n\r\n Historical pages\r\n\r\nHistorical fixture pages use a separate immutable version identifier and never follow the working tree.\r\n"
+    "text": "\n Provenance\n\nGenerated records expose the effective source repository label, relative path, local ref, and SHA-256 content hash. A hash is evidence about these bytes; it is not presented as a Git commit SHA.\n\n Historical pages\n\nHistorical fixture pages use a separate immutable version identifier and never follow the working tree.\n"
   },
   {
     "id": "central:next:getting-started/welcome",
     "route": "/docs/paper-and-slate/getting-started/welcome",
     "legacyRoute": "/docs/paper-and-slate/next/getting-started/welcome",
-    "title": "Untitled",
-    "description": "",
+    "title": "Welcome to Paper & Slate docs",
+    "description": "A local, reviewable starting point for the Paper & Slate documentation system.",
     "sourceId": "central",
     "version": "next",
     "taxonomy": [
@@ -31,18 +31,18 @@
       "welcome",
       "start-here"
     ],
-    "text": "---\r\ntitle: Welcome to Paper & Slate docs\r\ndescription: A local, reviewable starting point for the Paper & Slate documentation system.\r\norder: 1\r\n---\r\n\r\n Welcome\r\n\r\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\r\n\r\n Start here\r\n\r\n- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).\r\n- Browse the [File System project](/docs/file-system/next).\r\n"
+    "text": "\n Welcome\n\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\n\n Start here\n\n- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system/next).\n"
   },
   {
     "id": "central:next:governance",
     "route": "/docs/paper-and-slate/governance",
     "legacyRoute": "/docs/paper-and-slate/next/governance",
-    "title": "Untitled",
-    "description": "",
+    "title": "Governance",
+    "description": "The documented boundaries for reviewing and publishing Paper & Slate documentation.",
     "sourceId": "central",
     "version": "next",
     "taxonomy": [
-      "governance.md"
+      "governance"
     ],
     "anchors": [
       "governance",
@@ -50,14 +50,14 @@
       "versions-and-provenance",
       "honest-status"
     ],
-    "text": "---\r\ntitle: Governance\r\ndescription: The documented boundaries for reviewing and publishing Paper & Slate documentation.\r\norder: 3\r\ntaxonomy: [governance]\r\n---\r\n\r\n Governance\r\n\r\nPaper & Slate publishes documentation from a local, reviewable source set. This page records the boundaries that are\r\ncurrently evidenced by the documentation system; it is not a claim of institutional approval or production status.\r\n\r\n Source review\r\n\r\nCentral pages are reviewed repository-owned Markdown. Each ingested page retains its source path, local ref, and\r\ncontent hash. Fixture, sibling-local, and future Git-imported pages remain separated from the reviewed central rendering\r\npath.\r\n\r\n Versions and provenance\r\n\r\nSupported and historical versions remain independent records. A content hash identifies the recorded bytes; it is not\r\npresented as a Git commit SHA. Raw Markdown routes remain available for source inspection.\r\n\r\n Honest status\r\n\r\nLocal checks can establish source shape, route behavior, rendering boundaries, and generated artifacts. They do not by\r\nthemselves establish deployment, legal review, provider activation, production monitoring, or factual approval.\r\n"
+    "text": "\n Governance\n\nPaper & Slate publishes documentation from a local, reviewable source set. This page records the boundaries that are\ncurrently evidenced by the documentation system; it is not a claim of institutional approval or production status.\n\n Source review\n\nCentral pages are reviewed repository-owned Markdown. Each ingested page retains its source path, local ref, and\ncontent hash. Fixture, sibling-local, and future Git-imported pages remain separated from the reviewed central rendering\npath.\n\n Versions and provenance\n\nSupported and historical versions remain independent records. A content hash identifies the recorded bytes; it is not\npresented as a Git commit SHA. Raw Markdown routes remain available for source inspection.\n\n Honest status\n\nLocal checks can establish source shape, route behavior, rendering boundaries, and generated artifacts. They do not by\nthemselves establish deployment, legal review, provider activation, production monitoring, or factual approval.\n"
   },
   {
     "id": "central:next:index",
     "route": "/docs/paper-and-slate",
     "legacyRoute": "/docs/paper-and-slate/next",
-    "title": "Untitled",
-    "description": "",
+    "title": "Paper & Slate documentation",
+    "description": "The current Paper & Slate documentation track, assembled from reviewed local sources.",
     "sourceId": "central",
     "version": "next",
     "taxonomy": [
@@ -67,14 +67,14 @@
       "paper-slate-documentation",
       "start-here"
     ],
-    "text": "---\r\ntitle: Paper & Slate documentation\r\ndescription: The current Paper & Slate documentation track, assembled from reviewed local sources.\r\norder: 0\r\n---\r\n\r\n Paper & Slate documentation\r\n\r\nThis is the current documentation track for Paper & Slate. It records work as it develops and keeps each page tied to a visible source and version.\r\n\r\n Start here\r\n\r\n- Read the [welcome page](/docs/paper-and-slate/getting-started/welcome).\r\n- Review [provenance and local source state](/docs/paper-and-slate/concepts/provenance).\r\n- Browse the [File System project](/docs/file-system).\r\n"
+    "text": "\n Paper & Slate documentation\n\nThis is the current documentation track for Paper & Slate. It records work as it develops and keeps each page tied to a visible source and version.\n\n Start here\n\n- Read the [welcome page](/docs/paper-and-slate/getting-started/welcome).\n- Review [provenance and local source state](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system).\n"
   },
   {
     "id": "file-system:next:guides/publish",
     "route": "/docs/file-system/guides/publish",
     "legacyRoute": "/docs/file-system/next/guides/publish",
-    "title": "Untitled",
-    "description": "",
+    "title": "Publish a file-system document",
+    "description": "A safe local publishing walkthrough.",
     "sourceId": "file-system",
     "version": "next",
     "taxonomy": [
@@ -83,14 +83,14 @@
     "anchors": [
       "publish"
     ],
-    "text": "---\r\ntitle: Publish a file-system document\r\ndescription: A safe local publishing walkthrough.\r\norder: 2\r\n---\r\n\r\n Publish\r\n\r\nReview the normalized document, then generate the static artifacts.\r\n"
+    "text": "\n Publish\n\nReview the normalized document, then generate the static artifacts.\n"
   },
   {
     "id": "file-system:next:index",
     "route": "/docs/file-system",
     "legacyRoute": "/docs/file-system/next",
-    "title": "Untitled",
-    "description": "",
+    "title": "File System",
+    "description": "The current File System project documentation.",
     "sourceId": "file-system",
     "version": "next",
     "taxonomy": [
@@ -100,14 +100,14 @@
       "file-system",
       "publish"
     ],
-    "text": "---\r\ntitle: File System\r\ndescription: The current File System project documentation.\r\norder: 1\r\n---\r\n\r\n File System\r\n\r\nThis is the next local documentation version.\r\n\r\n Publish\r\n\r\nRead the [publishing guide](/docs/file-system/next/guides/publish).\r\n"
+    "text": "\n File System\n\nThis is the next local documentation version.\n\n Publish\n\nRead the [publishing guide](/docs/file-system/next/guides/publish).\n"
   },
   {
     "id": "file-system:v1:index",
     "route": "/docs/file-system/v/1.0",
     "legacyRoute": "/docs/file-system/v/1.0",
-    "title": "Untitled",
-    "description": "",
+    "title": "File System v1",
+    "description": "The immutable historical fixture.",
     "sourceId": "file-system",
     "version": "v1",
     "taxonomy": [
@@ -116,14 +116,14 @@
     "anchors": [
       "file-system-v1"
     ],
-    "text": "---\r\ntitle: File System v1\r\ndescription: The immutable historical fixture.\r\norder: 1\r\n---\r\n\r\n File System v1\r\n\r\nThis page is retained under the immutable v1 fixture ref.\r\n"
+    "text": "\n File System v1\n\nThis page is retained under the immutable v1 fixture ref.\n"
   },
   {
     "id": "file-system:v1:reference/metadata",
     "route": "/docs/file-system/v/1.0/reference/metadata",
     "legacyRoute": "/docs/file-system/v/1.0/reference/metadata",
-    "title": "Untitled",
-    "description": "",
+    "title": "Metadata reference",
+    "description": "Historical metadata fields.",
     "sourceId": "file-system",
     "version": "v1",
     "taxonomy": [
@@ -132,7 +132,7 @@
     "anchors": [
       "metadata-reference"
     ],
-    "text": "---\r\ntitle: Metadata reference\r\ndescription: Historical metadata fields.\r\norder: 2\r\n---\r\n\r\n Metadata reference\r\n\r\nMetadata in v1 is documented from a fixed local fixture.\r\n"
+    "text": "\n Metadata reference\n\nMetadata in v1 is documented from a fixed local fixture.\n"
   },
   {
     "id": "standards-course-schema:next:data-boundary",

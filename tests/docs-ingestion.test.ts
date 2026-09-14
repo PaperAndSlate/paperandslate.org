@@ -5,8 +5,10 @@ import { describe, expect, it } from "vitest";
 import {
   assertSafeDocument,
   loadRegistry,
+  readLocalSourceFromRoot,
   renderMarkdown,
   rewriteDocumentLinks,
+  sha256,
   resolveIncludes,
   slugifyHeading,
 } from "../packages/docs-ingestion/src";
@@ -14,6 +16,27 @@ describe("local docs ingestion", () => {
   it("loads independent next and historical versions", () => {
     const source = loadRegistry().find((item) => item.id === "file-system");
     expect(source?.versions.map((version) => version.id)).toEqual(["next", "v1"]);
+  });
+
+  it("normalizes CRLF and LF source bytes to one canonical document identity", () => {
+    const source = loadRegistry().find((item) => item.id === "file-system");
+    const version = source?.versions.find((item) => item.id === "next");
+    expect(source).toBeDefined();
+    expect(version).toBeDefined();
+    const lfRoot = fs.mkdtempSync(path.join(os.tmpdir(), "docs-line-ending-lf-"));
+    const crlfRoot = fs.mkdtempSync(path.join(os.tmpdir(), "docs-line-ending-crlf-"));
+    const document = "---\ntitle: Line endings\n---\n# Hello\n\nBody\n";
+    try {
+      fs.writeFileSync(path.join(lfRoot, "index.md"), document, "utf8");
+      fs.writeFileSync(path.join(crlfRoot, "index.md"), document.replaceAll("\n", "\r\n"), "utf8");
+      const lf = readLocalSourceFromRoot(source!, version!, lfRoot)[0];
+      const crlf = readLocalSourceFromRoot(source!, version!, crlfRoot)[0];
+      expect(crlf.raw).toBe(lf.raw);
+      expect(sha256(crlf.raw)).toBe(sha256(lf.raw));
+    } finally {
+      fs.rmSync(lfRoot, { recursive: true, force: true });
+      fs.rmSync(crlfRoot, { recursive: true, force: true });
+    }
   });
   it("rejects unsafe imported content", () => {
     expect(() => assertSafeDocument("unsafe.mdx", 'import x from "x"')).toThrow();

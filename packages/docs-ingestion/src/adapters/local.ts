@@ -16,6 +16,9 @@ export type SourceFile = {
   source: DocsSource;
   version: DocsVersion;
 };
+export function normalizeSourceText(content: string): string {
+  return content.replace(/\r\n?/g, "\n");
+}
 export function resolveIncludes(
   content: string,
   file: string,
@@ -29,6 +32,7 @@ export function resolveIncludes(
   context.sourceBytes += Buffer.byteLength(content, "utf8");
   if (context.sourceBytes > MAX_INCLUDE_SOURCE_BYTES)
     throw new Error(`Include source budget exceeds ${MAX_INCLUDE_SOURCE_BYTES} bytes: ${file}`);
+  const normalizedContent = normalizeSourceText(content);
   const parts: string[] = [];
   let outputBytes = 0;
   let cursor = 0;
@@ -39,9 +43,9 @@ export function resolveIncludes(
     parts.push(part);
   };
   const pattern = /(?:<!--\s*include:\s*|\{\{\s*include\s+)([^\s}]+)(?:\s*-->\s*|\s*\}\})/g;
-  for (const match of content.matchAll(pattern)) {
+  for (const match of normalizedContent.matchAll(pattern)) {
     const index = match.index ?? 0;
-    append(content.slice(cursor, index));
+    append(normalizedContent.slice(cursor, index));
     context.includeCount += 1;
     if (context.includeCount > MAX_INCLUDE_COUNT)
       throw new Error(`Include count exceeds ${MAX_INCLUDE_COUNT}: ${file}`);
@@ -57,7 +61,7 @@ export function resolveIncludes(
     );
     cursor = index + match[0].length;
   }
-  append(content.slice(cursor));
+  append(normalizedContent.slice(cursor));
   return parts.join("");
 }
 function readDocument(file: string): string {

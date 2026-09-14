@@ -10,18 +10,18 @@
       "sourceMode": "fixture",
       "lockType": "content-hash",
       "gitSha": null,
-      "contentHash": "8136a53c3ee85a188b3525212ba7901b5bf5255cc1467f384273c6b7076ab90c",
+      "contentHash": "d26b8eb01490ddbfd2436141a9a7817b86d5bb10f460b95f6d270e09b5f76864",
       "files": [
         {
           "path": "guides/publish.md",
-          "contentHash": "f25a4c45a38a0f358bcc173575b90802f94095e9072041a92255676b2b6b2f20"
+          "contentHash": "afd7b65619f72183a9967c3eafc06c89ec0e616f6361ec2dead1d03e3f9df71f"
         },
         {
           "path": "index.md",
-          "contentHash": "af99ad6edaa3460213c8b146fa1fbbfb586c7ad9d8217d0978cb3b05ac8142f7"
+          "contentHash": "804374c5d780e5d1d2a876ede1c588c65522e27e6e73cbd2c3bdbcb9ee2441ec"
         }
       ],
-      "deterministicId": "0fa1e903be8766125a301fafc98a4a21460b3ed55a80728cc090ba3b131494e6",
+      "deterministicId": "36fe6aa29299ca6d78deed47d5f0682c3bee21b9af2f3fd3b429ae5f198e0b73",
       "editable": true,
       "recordedAt": "build-time"
     },
@@ -88,24 +88,32 @@
       "recordedAt": "build-time"
     },
     {
-      "sourceId": "file-system",
-      "path": "tests/fixtures/docs-source/projects/file-system",
-      "ref": "fixture-v1",
-      "sourceMode": "fixture",
+      "sourceId": "central",
+      "path": "content/docs",
+      "ref": "working-tree",
+      "sourceMode": "central",
       "lockType": "content-hash",
       "gitSha": null,
-      "contentHash": "6aaa8fe8d87fe1950ec1c7ae666e8a2ed8588c8d3469b6762599591f5dddbab3",
+      "contentHash": "1b0c0c5c56a51db410ca056f71c3ff1f78db175d4d74f984e178ea8f1742d21f",
       "files": [
         {
-          "path": "index.md",
-          "contentHash": "c5013579669c986dd00ec34f2a41c769e1751029e1f2ce146cbfcb62f8841514"
+          "path": "concepts/provenance.md",
+          "contentHash": "cd1ad43f8b20b6096e0a90befbc870a238fa7ac43238e7fbb489befc7d478cb1"
         },
         {
-          "path": "reference/metadata.md",
-          "contentHash": "0cc0122e7f9df5c914c623b7f72f04a9755ea5508e6c2790b345d98adc2a154c"
+          "path": "getting-started/welcome.md",
+          "contentHash": "e2e12c5014e856b990afcc3bc4b4777230c41a195f628b9b0e4a81b76218100c"
+        },
+        {
+          "path": "governance.md",
+          "contentHash": "a9911e81ec9558599ae9d9054a460a9be7f49936f617a69a1f6f197b71484f2a"
+        },
+        {
+          "path": "index.md",
+          "contentHash": "799c5ec0adf69c954b909885c29f8996c0a3cbfed344adc486dd56d3e5ee99e9"
         }
       ],
-      "deterministicId": "946e3e71ba00f7a039412243803509f7ae416e4493b54de588959f20f1e627d2",
+      "deterministicId": "ad7bbc03205597371fb1bee2ecfbb70fd5053e82e862925b32505568d45f4cef",
       "editable": true,
       "recordedAt": "build-time"
     },
@@ -176,32 +184,24 @@
       "recordedAt": "build-time"
     },
     {
-      "sourceId": "central",
-      "path": "content/docs",
-      "ref": "working-tree",
-      "sourceMode": "central",
+      "sourceId": "file-system",
+      "path": "tests/fixtures/docs-source/projects/file-system",
+      "ref": "fixture-v1",
+      "sourceMode": "fixture",
       "lockType": "content-hash",
       "gitSha": null,
-      "contentHash": "e851701f3e41c123f7d6cbf843f399c9e980b6062aa5e4af9610574627ca1f75",
+      "contentHash": "bb467cdf7aebf9b34b8cfb3d49720e4c65a600aaae5b0a03856bb370facd1076",
       "files": [
         {
-          "path": "concepts/provenance.md",
-          "contentHash": "fbd25bdeecd169011949a6734c4be0ac87c10ee8e37588f4972289ad0782071c"
-        },
-        {
-          "path": "getting-started/welcome.md",
-          "contentHash": "cc38f98179423bc8b1e13c0127b8c371b1cc8cba8babbc93a86095acbe8be1fe"
-        },
-        {
-          "path": "governance.md",
-          "contentHash": "4fc5571735ceeac5bce58bc124d4e5f9984199238cda6c96cadbe04d5ac25116"
-        },
-        {
           "path": "index.md",
-          "contentHash": "cc1c3728ad4c8c105fb47acb4577552901bf579e6a6adbe4020a49a0e9b8c283"
+          "contentHash": "e60538ecf7f1730287f4c0883183438048b822d7dcb646b616cf060bdb22cd04"
+        },
+        {
+          "path": "reference/metadata.md",
+          "contentHash": "1c51b2a0c61e02851bd8b0609f2b3b376ed2bd80aaf0e9683d51d52a24fcf0b7"
         }
       ],
-      "deterministicId": "facea762d3a98db42c9108b864ac3ea17aa3fd15f13c6590b387177544d70c38",
+      "deterministicId": "f4825e9949869677c811f37d68e03283ac557afb66efcda9833615652ab8dabe",
       "editable": true,
       "recordedAt": "build-time"
     }

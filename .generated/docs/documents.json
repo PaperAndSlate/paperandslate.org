@@ -1,6 +1,8 @@
 [
   {
-    "title": "Untitled",
+    "title": "Provenance and local source state",
+    "description": "How this documentation slice records where each page came from.",
+    "order": 2,
     "id": "central:next:concepts/provenance",
     "route": "/docs/paper-and-slate/next/concepts/provenance",
     "canonicalRoute": "/docs/paper-and-slate/concepts/provenance",
@@ -9,13 +11,13 @@
     "version": "next",
     "sourceId": "central",
     "sourcePath": "concepts/provenance.md",
-    "content": "---\r\ntitle: Provenance and local source state\r\ndescription: How this documentation slice records where each page came from.\r\norder: 2\r\n---\r\n\r\n# Provenance\r\n\r\nGenerated records expose the effective source repository label, relative path, local ref, and SHA-256 content hash. A hash is evidence about these bytes; it is not presented as a Git commit SHA.\r\n\r\n## Historical pages\r\n\r\nHistorical fixture pages use a separate immutable version identifier and never follow the working tree.\r\n",
+    "content": "\n# Provenance\n\nGenerated records expose the effective source repository label, relative path, local ref, and SHA-256 content hash. A hash is evidence about these bytes; it is not presented as a Git commit SHA.\n\n## Historical pages\n\nHistorical fixture pages use a separate immutable version identifier and never follow the working tree.\n",
     "headings": [
       "Provenance",
       "Historical pages"
     ],
-    "hash": "fbd25bdeecd169011949a6734c4be0ac87c10ee8e37588f4972289ad0782071c",
-    "sourceHash": "fbd25bdeecd169011949a6734c4be0ac87c10ee8e37588f4972289ad0782071c",
+    "hash": "cd1ad43f8b20b6096e0a90befbc870a238fa7ac43238e7fbb489befc7d478cb1",
+    "sourceHash": "cd1ad43f8b20b6096e0a90befbc870a238fa7ac43238e7fbb489befc7d478cb1",
     "status": "draft",
     "ref": "working-tree",
     "sourceMode": "central",
@@ -29,7 +31,9 @@
     "assets": []
   },
   {
-    "title": "Untitled",
+    "title": "Welcome to Paper & Slate docs",
+    "description": "A local, reviewable starting point for the Paper & Slate documentation system.",
+    "order": 1,
     "id": "central:next:getting-started/welcome",
     "route": "/docs/paper-and-slate/next/getting-started/welcome",
     "canonicalRoute": "/docs/paper-and-slate/getting-started/welcome",
@@ -38,13 +42,13 @@
     "version": "next",
     "sourceId": "central",
     "sourcePath": "getting-started/welcome.md",
-    "content": "---\r\ntitle: Welcome to Paper & Slate docs\r\ndescription: A local, reviewable starting point for the Paper & Slate documentation system.\r\norder: 1\r\n---\r\n\r\n# Welcome\r\n\r\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\r\n\r\n## Start here\r\n\r\n- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).\r\n- Browse the [File System project](/docs/file-system/next).\r\n",
+    "content": "\n# Welcome\n\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\n\n## Start here\n\n- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system/next).\n",
     "headings": [
       "Welcome",
       "Start here"
     ],
-    "hash": "cc38f98179423bc8b1e13c0127b8c371b1cc8cba8babbc93a86095acbe8be1fe",
-    "sourceHash": "cc38f98179423bc8b1e13c0127b8c371b1cc8cba8babbc93a86095acbe8be1fe",
+    "hash": "e2e12c5014e856b990afcc3bc4b4777230c41a195f628b9b0e4a81b76218100c",
+    "sourceHash": "e2e12c5014e856b990afcc3bc4b4777230c41a195f628b9b0e4a81b76218100c",
     "status": "draft",
     "ref": "working-tree",
     "sourceMode": "central",
@@ -58,7 +62,12 @@
     "assets": []
   },
   {
-    "title": "Untitled",
+    "title": "Governance",
+    "description": "The documented boundaries for reviewing and publishing Paper & Slate documentation.",
+    "order": 3,
+    "taxonomy": [
+      "governance"
+    ],
     "id": "central:next:governance",
     "route": "/docs/paper-and-slate/next/governance",
     "canonicalRoute": "/docs/paper-and-slate/governance",
@@ -67,15 +76,15 @@
     "version": "next",
     "sourceId": "central",
     "sourcePath": "governance.md",
-    "content": "---\r\ntitle: Governance\r\ndescription: The documented boundaries for reviewing and publishing Paper & Slate documentation.\r\norder: 3\r\ntaxonomy: [governance]\r\n---\r\n\r\n# Governance\r\n\r\nPaper & Slate publishes documentation from a local, reviewable source set. This page records the boundaries that are\r\ncurrently evidenced by the documentation system; it is not a claim of institutional approval or production status.\r\n\r\n## Source review\r\n\r\nCentral pages are reviewed repository-owned Markdown. Each ingested page retains its source path, local ref, and\r\ncontent hash. Fixture, sibling-local, and future Git-imported pages remain separated from the reviewed central rendering\r\npath.\r\n\r\n## Versions and provenance\r\n\r\nSupported and historical versions remain independent records. A content hash identifies the recorded bytes; it is not\r\npresented as a Git commit SHA. Raw Markdown routes remain available for source inspection.\r\n\r\n## Honest status\r\n\r\nLocal checks can establish source shape, route behavior, rendering boundaries, and generated artifacts. They do not by\r\nthemselves establish deployment, legal review, provider activation, production monitoring, or factual approval.\r\n",
+    "content": "\n# Governance\n\nPaper & Slate publishes documentation from a local, reviewable source set. This page records the boundaries that are\ncurrently evidenced by the documentation system; it is not a claim of institutional approval or production status.\n\n## Source review\n\nCentral pages are reviewed repository-owned Markdown. Each ingested page retains its source path, local ref, and\ncontent hash. Fixture, sibling-local, and future Git-imported pages remain separated from the reviewed central rendering\npath.\n\n## Versions and provenance\n\nSupported and historical versions remain independent records. A content hash identifies the recorded bytes; it is not\npresented as a Git commit SHA. Raw Markdown routes remain available for source inspection.\n\n## Honest status\n\nLocal checks can establish source shape, route behavior, rendering boundaries, and generated artifacts. They do not by\nthemselves establish deployment, legal review, provider activation, production monitoring, or factual approval.\n",
     "headings": [
       "Governance",
       "Source review",
       "Versions and provenance",
       "Honest status"
     ],
-    "hash": "4fc5571735ceeac5bce58bc124d4e5f9984199238cda6c96cadbe04d5ac25116",
-    "sourceHash": "4fc5571735ceeac5bce58bc124d4e5f9984199238cda6c96cadbe04d5ac25116",
+    "hash": "a9911e81ec9558599ae9d9054a460a9be7f49936f617a69a1f6f197b71484f2a",
+    "sourceHash": "a9911e81ec9558599ae9d9054a460a9be7f49936f617a69a1f6f197b71484f2a",
     "status": "draft",
     "ref": "working-tree",
     "sourceMode": "central",
@@ -85,13 +94,12 @@
       "versions-and-provenance",
       "honest-status"
     ],
-    "taxonomy": [
-      "governance.md"
-    ],
     "assets": []
   },
   {
-    "title": "Untitled",
+    "title": "Paper & Slate documentation",
+    "description": "The current Paper & Slate documentation track, assembled from reviewed local sources.",
+    "order": 0,
     "id": "central:next:index",
     "route": "/docs/paper-and-slate/next",
     "canonicalRoute": "/docs/paper-and-slate",
@@ -100,13 +108,13 @@
     "version": "next",
     "sourceId": "central",
     "sourcePath": "index.md",
-    "content": "---\r\ntitle: Paper & Slate documentation\r\ndescription: The current Paper & Slate documentation track, assembled from reviewed local sources.\r\norder: 0\r\n---\r\n\r\n# Paper & Slate documentation\r\n\r\nThis is the current documentation track for Paper & Slate. It records work as it develops and keeps each page tied to a visible source and version.\r\n\r\n## Start here\r\n\r\n- Read the [welcome page](/docs/paper-and-slate/getting-started/welcome).\r\n- Review [provenance and local source state](/docs/paper-and-slate/concepts/provenance).\r\n- Browse the [File System project](/docs/file-system).\r\n",
+    "content": "\n# Paper & Slate documentation\n\nThis is the current documentation track for Paper & Slate. It records work as it develops and keeps each page tied to a visible source and version.\n\n## Start here\n\n- Read the [welcome page](/docs/paper-and-slate/getting-started/welcome).\n- Review [provenance and local source state](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system).\n",
     "headings": [
       "Paper & Slate documentation",
       "Start here"
     ],
-    "hash": "cc1c3728ad4c8c105fb47acb4577552901bf579e6a6adbe4020a49a0e9b8c283",
-    "sourceHash": "cc1c3728ad4c8c105fb47acb4577552901bf579e6a6adbe4020a49a0e9b8c283",
+    "hash": "799c5ec0adf69c954b909885c29f8996c0a3cbfed344adc486dd56d3e5ee99e9",
+    "sourceHash": "799c5ec0adf69c954b909885c29f8996c0a3cbfed344adc486dd56d3e5ee99e9",
     "status": "draft",
     "ref": "working-tree",
     "sourceMode": "central",
@@ -120,7 +128,9 @@
     "assets": []
   },
   {
-    "title": "Untitled",
+    "title": "Publish a file-system document",
+    "description": "A safe local publishing walkthrough.",
+    "order": 2,
     "id": "file-system:next:guides/publish",
     "route": "/docs/file-system/next/guides/publish",
     "canonicalRoute": "/docs/file-system/guides/publish",
@@ -129,12 +139,12 @@
     "version": "next",
     "sourceId": "file-system",
     "sourcePath": "guides/publish.md",
-    "content": "---\r\ntitle: Publish a file-system document\r\ndescription: A safe local publishing walkthrough.\r\norder: 2\r\n---\r\n\r\n# Publish\r\n\r\nReview the normalized document, then generate the static artifacts.\r\n",
+    "content": "\n# Publish\n\nReview the normalized document, then generate the static artifacts.\n",
     "headings": [
       "Publish"
     ],
-    "hash": "f25a4c45a38a0f358bcc173575b90802f94095e9072041a92255676b2b6b2f20",
-    "sourceHash": "f25a4c45a38a0f358bcc173575b90802f94095e9072041a92255676b2b6b2f20",
+    "hash": "afd7b65619f72183a9967c3eafc06c89ec0e616f6361ec2dead1d03e3f9df71f",
+    "sourceHash": "afd7b65619f72183a9967c3eafc06c89ec0e616f6361ec2dead1d03e3f9df71f",
     "status": "draft",
     "ref": "fixture-next",
     "sourceMode": "fixture",
@@ -147,7 +157,9 @@
     "assets": []
   },
   {
-    "title": "Untitled",
+    "title": "File System",
+    "description": "The current File System project documentation.",
+    "order": 1,
     "id": "file-system:next:index",
     "route": "/docs/file-system/next",
     "canonicalRoute": "/docs/file-system",
@@ -156,13 +168,13 @@
     "version": "next",
     "sourceId": "file-system",
     "sourcePath": "index.md",
-    "content": "---\r\ntitle: File System\r\ndescription: The current File System project documentation.\r\norder: 1\r\n---\r\n\r\n# File System\r\n\r\nThis is the **next** local documentation version.\r\n\r\n## Publish\r\n\r\nRead the [publishing guide](/docs/file-system/next/guides/publish).\r\n",
+    "content": "\n# File System\n\nThis is the **next** local documentation version.\n\n## Publish\n\nRead the [publishing guide](/docs/file-system/next/guides/publish).\n",
     "headings": [
       "File System",
       "Publish"
     ],
-    "hash": "af99ad6edaa3460213c8b146fa1fbbfb586c7ad9d8217d0978cb3b05ac8142f7",
-    "sourceHash": "af99ad6edaa3460213c8b146fa1fbbfb586c7ad9d8217d0978cb3b05ac8142f7",
+    "hash": "804374c5d780e5d1d2a876ede1c588c65522e27e6e73cbd2c3bdbcb9ee2441ec",
+    "sourceHash": "804374c5d780e5d1d2a876ede1c588c65522e27e6e73cbd2c3bdbcb9ee2441ec",
     "status": "draft",
     "ref": "fixture-next",
     "sourceMode": "fixture",
@@ -176,7 +188,9 @@
     "assets": []
   },
   {
-    "title": "Untitled",
+    "title": "File System v1",
+    "description": "The immutable historical fixture.",
+    "order": 1,
     "id": "file-system:v1:index",
     "route": "/docs/file-system/v/1.0",
     "canonicalRoute": "/docs/file-system/v/1.0",
@@ -187,12 +201,12 @@
     "version": "v1",
     "sourceId": "file-system",
     "sourcePath": "index.md",
-    "content": "---\r\ntitle: File System v1\r\ndescription: The immutable historical fixture.\r\norder: 1\r\n---\r\n\r\n# File System v1\r\n\r\nThis page is retained under the immutable **v1** fixture ref.\r\n",
+    "content": "\n# File System v1\n\nThis page is retained under the immutable **v1** fixture ref.\n",
     "headings": [
       "File System v1"
     ],
-    "hash": "c5013579669c986dd00ec34f2a41c769e1751029e1f2ce146cbfcb62f8841514",
-    "sourceHash": "c5013579669c986dd00ec34f2a41c769e1751029e1f2ce146cbfcb62f8841514",
+    "hash": "e60538ecf7f1730287f4c0883183438048b822d7dcb646b616cf060bdb22cd04",
+    "sourceHash": "e60538ecf7f1730287f4c0883183438048b822d7dcb646b616cf060bdb22cd04",
     "status": "historical",
     "ref": "fixture-v1",
     "sourceMode": "fixture",
@@ -205,7 +219,9 @@
     "assets": []
   },
   {
-    "title": "Untitled",
+    "title": "Metadata reference",
+    "description": "Historical metadata fields.",
+    "order": 2,
     "id": "file-system:v1:reference/metadata",
     "route": "/docs/file-system/v/1.0/reference/metadata",
     "canonicalRoute": "/docs/file-system/v/1.0/reference/metadata",
@@ -216,12 +232,12 @@
     "version": "v1",
     "sourceId": "file-system",
     "sourcePath": "reference/metadata.md",
-    "content": "---\r\ntitle: Metadata reference\r\ndescription: Historical metadata fields.\r\norder: 2\r\n---\r\n\r\n# Metadata reference\r\n\r\nMetadata in v1 is documented from a fixed local fixture.\r\n",
+    "content": "\n# Metadata reference\n\nMetadata in v1 is documented from a fixed local fixture.\n",
     "headings": [
       "Metadata reference"
     ],
-    "hash": "0cc0122e7f9df5c914c623b7f72f04a9755ea5508e6c2790b345d98adc2a154c",
-    "sourceHash": "0cc0122e7f9df5c914c623b7f72f04a9755ea5508e6c2790b345d98adc2a154c",
+    "hash": "1c51b2a0c61e02851bd8b0609f2b3b376ed2bd80aaf0e9683d51d52a24fcf0b7",
+    "sourceHash": "1c51b2a0c61e02851bd8b0609f2b3b376ed2bd80aaf0e9683d51d52a24fcf0b7",
     "status": "historical",
     "ref": "fixture-v1",
     "sourceMode": "fixture",
