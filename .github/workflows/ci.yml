@@ -78,7 +78,7 @@ jobs:
       - run: pnpm build:web
       - run: pnpm packages:check
       - run: pnpm verify:release-reproducibility
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: paper-and-slate-quality-${{ matrix.os }}-node-${{ matrix.node }}-${{ github.sha }}
@@ -118,7 +118,7 @@ jobs:
           PLAYWRIGHT_BROWSER_MATRIX: true
           RELEASE_ID: ci-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: paper-and-slate-full-verify-${{ github.sha }}
@@ -161,7 +161,7 @@ jobs:
           RELEASE_ID: ci-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
       - run: pnpm performance:check
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: paper-and-slate-lighthouse-${{ github.sha }}
@@ -196,7 +196,7 @@ jobs:
         env:
           RELEASE_ID: ci-${{ github.sha }}
           GIT_SHA: ${{ github.sha }}
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         if: always()
         with:
           name: paper-and-slate-container-${{ github.sha }}
