@@ -6,6 +6,7 @@ import {
   assertSafeDocument,
   loadRegistry,
   renderMarkdown,
+  rewriteDocumentLinks,
   resolveIncludes,
   slugifyHeading,
 } from "../packages/docs-ingestion/src";
@@ -18,6 +19,76 @@ describe("local docs ingestion", () => {
     expect(() => assertSafeDocument("unsafe.mdx", 'import x from "x"')).toThrow();
     expect(() => assertSafeDocument("unsafe.md", "<script>x</script>")).toThrow();
     expect(() => assertSafeDocument("unsafe.md", "[escape](../../secret.md)")).toThrow();
+  });
+
+  it("allows source-root links while keeping escapes rejected", () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), "eom-link-root-test-"));
+    try {
+      const docsRoot = path.join(root, "docs");
+      fs.mkdirSync(docsRoot, { recursive: true });
+      const file = path.join(docsRoot, "index.md");
+      expect(() => assertSafeDocument(file, "[README](../README.md)", root)).not.toThrow();
+      expect(() => assertSafeDocument(file, "[secret](../../secret.md)", root)).toThrow(
+        /Unsafe URL or traversal/,
+      );
+      expect(() =>
+        assertSafeDocument(file, "[secret](%252e%252e/%252e%252e/secret.md)", root),
+      ).toThrow(/Unsafe URL or traversal/);
+      expect(() =>
+        assertSafeDocument(file, "[secret](%252e%252e%252f%252e%252e%252fsecret.md)", root),
+      ).toThrow(/Unsafe URL or traversal/);
+      expect(() => assertSafeDocument(file, "[secret](%2e%2e/%ZZ/secret.md)", root)).toThrow(
+        /Unsafe URL or traversal/,
+      );
+      expect(() => assertSafeDocument(file, "[secret](..\\..\\secret.md)", root)).toThrow(
+        /Unsafe URL or traversal/,
+      );
+    } finally {
+      fs.rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("rejects encoded unsafe URL schemes", () => {
+    expect(() => assertSafeDocument("unsafe.md", "[script](java%73cript%3Aalert)")).toThrow(
+      /Unsafe URL or traversal/,
+    );
+  });
+
+  it("rewrites same-source documents and makes unresolved source links inert", () => {
+    const base = {
+      id: "source:next:index",
+      route: "/docs/source/next",
+      canonicalRoute: "/docs/source",
+      aliases: [],
+      project: "source",
+      version: "next",
+      sourceId: "source",
+      sourcePath: "index.md",
+      headings: [],
+      hash: "a".repeat(64),
+      status: "draft" as const,
+      ref: "local",
+      sourceMode: "fixture" as const,
+      sourceHash: "a".repeat(64),
+      requirementAnchors: [],
+      taxonomy: [],
+      assets: [],
+      title: "Index",
+    };
+    const guide = {
+      ...base,
+      id: "source:next:guide",
+      sourcePath: "guide.md",
+      route: "/docs/source/next/guide",
+      canonicalRoute: "/docs/source/guide",
+      title: "Guide",
+    };
+    const current = {
+      ...base,
+      content: "[Guide](guide.md) [README](../README.md) [Missing](missing)",
+    };
+    const rewritten = rewriteDocumentLinks([current, { ...guide, content: "Guide" }]);
+    expect(rewritten[0].content).toBe("[Guide](/docs/source/guide) README Missing");
   });
   it("renders only escaped markdown", () => {
     expect(renderMarkdown("# Hello")).toContain('id="hello"');

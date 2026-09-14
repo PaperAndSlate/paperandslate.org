@@ -13,13 +13,13 @@ test.describe("public Standards source detail", () => {
     await expect(page.locator("main").getByRole("alert")).toContainText(
       /not configured|temporarily unavailable/i,
     );
-    await expect(page.locator("main")).not.toContainText("LOCAL_API_BEARER");
+    await expect(page.locator("main")).not.toContainText("STANDARDS_API_BEARER");
   });
 
   test("shows the exact candidate source projection and safe limits", async ({ page }) => {
     test.skip(
-      !process.env.STANDARDS_API_URL || !process.env.LOCAL_API_BEARER,
-      "requires STANDARDS_API_URL and LOCAL_API_BEARER for the authenticated Standards API projection",
+      !process.env.STANDARDS_API_URL || !process.env.STANDARDS_API_BEARER,
+      "requires STANDARDS_API_URL and STANDARDS_API_BEARER for the authenticated Standards API projection",
     );
     await page.goto(`/standards/sources/source-iowa-mathematics-research?release=${release}`);
     await expect(page.getByRole("heading", { name: "Source detail." })).toBeVisible();
@@ -31,6 +31,6 @@ test.describe("public Standards source detail", () => {
     await expect(page.locator("main")).toContainText("Provenance");
     await expect(page.locator("main")).not.toContainText("rawBytes");
     await expect(page.locator('a[target="_blank"]')).toHaveAttribute("href", /^https?:\/\//);
-    await expect(page.locator("main")).not.toContainText("LOCAL_API_BEARER");
+    await expect(page.locator("main")).not.toContainText("STANDARDS_API_BEARER");
   });
 });

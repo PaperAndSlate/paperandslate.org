@@ -278,12 +278,12 @@ export type StandardsConceptsCrosswalksResult = {
 export type StandardsApiReadinessResult = {
   releaseId: string;
   releaseStatus: string;
-  candidateOnly: true;
-  public: false;
-  stable: false;
-  current: false;
-  publishable: false;
-  rightsStatus: "denied";
+  candidateOnly: boolean;
+  public: boolean;
+  stable: boolean;
+  current: boolean;
+  publishable: boolean;
+  rightsStatus: string;
   apiAvailability: "metadata-only";
   provenance: {
     sourceReleaseId?: string;
@@ -333,9 +333,29 @@ function sourceLocatorValue(value: unknown): string | undefined {
   return parts.length > 0 ? parts.join(" · ") : undefined;
 }
 
-function candidateOnlyFromMeta(meta: Record<string, unknown>): boolean {
-  if (typeof meta.candidateOnly === "boolean") return meta.candidateOnly;
-  return meta.stable !== true && meta.public !== true;
+function assertSafeReleaseMeta(
+  meta: Record<string, unknown> | undefined,
+  releaseIds: string[],
+): { releaseId: string; candidateOnly: boolean } {
+  const releaseId =
+    stringValue(meta?.releaseId) ??
+    stringValue(meta?.release) ??
+    stringValue(meta?.standardsRelease);
+  const candidateOnly = meta?.candidateOnly;
+  const publicRelease = meta?.public;
+  const stable = meta?.stable;
+  if (
+    !releaseId ||
+    !releaseIds.includes(releaseId) ||
+    typeof candidateOnly !== "boolean" ||
+    typeof publicRelease !== "boolean" ||
+    typeof stable !== "boolean" ||
+    candidateOnly !== (!publicRelease && !stable) ||
+    (!candidateOnly && (!publicRelease || !stable))
+  ) {
+    throw new Error("Standards response release or safety metadata mismatch");
+  }
+  return { releaseId, candidateOnly };
 }
 
 function recordFromContract(value: unknown): StandardsRecord | null {
@@ -500,7 +520,7 @@ function configuredStandardsBaseUrl(): string | undefined {
 }
 
 async function standardsFetch(url: URL, releaseIds: string[], allowDenied = false) {
-  const bearer = process.env.LOCAL_API_BEARER?.trim();
+  const bearer = process.env.STANDARDS_API_BEARER?.trim();
   if (!bearer) throw new Error("Standards API authorization is unavailable");
   assertSafeProviderUrl(url.toString(), "Standards API request", { allowQuery: true });
   const authorization = /^Bearer\s/i.test(bearer) ? bearer : `Bearer ${bearer}`;
@@ -726,7 +746,9 @@ export async function getStandardsFrameworkDetail(
     const url = new URL(path, baseUrl);
     url.searchParams.set("release", releaseId);
     const response = await standardsFetch(url, [releaseId]);
-    return standardsJson<unknown>(response);
+    const payload = await standardsJson<{ meta?: Record<string, unknown> }>(response);
+    assertSafeReleaseMeta(payload.meta, [releaseId]);
+    return payload;
   };
   try {
     const id = encodeURIComponent(slug);
@@ -846,8 +868,7 @@ export async function getStandardsItemDetail(
     );
     const payloads = [detailPayload, childrenPayload, ancestorsPayload, provenancePayload];
     for (const payload of payloads) {
-      const apiRelease = stringValue(payload.meta?.releaseId);
-      if (apiRelease && apiRelease !== releaseId) throw new Error("Standards release mismatch");
+      assertSafeReleaseMeta(payload.meta, [releaseId]);
     }
     const record = firstRecord(detailPayload);
     if (!record || (record.releaseId && record.releaseId !== releaseId)) {
@@ -913,13 +934,12 @@ export async function searchStandards(params: StandardsQuery = {}): Promise<Stan
       response,
     );
     const meta = payload.meta ?? {};
-    const apiRelease = stringValue(meta.releaseId) ?? releaseId;
-    if (apiRelease !== releaseId) throw new Error("Standards search release mismatch");
+    const { releaseId: apiRelease, candidateOnly } = assertSafeReleaseMeta(meta, [releaseId]);
     const records = recordsForRelease(payload, releaseId);
     return {
       records,
       releaseId: apiRelease,
-      candidateOnly: candidateOnlyFromMeta(meta),
+      candidateOnly,
       hasMore: meta.hasMore === true,
       nextCursor: stringValue(meta.nextCursor),
     };
@@ -949,9 +969,7 @@ export async function getStandardsSources(): Promise<StandardsSourcesResult> {
       response,
     );
     const meta = payload.meta ?? {};
-    const apiRelease = stringValue(meta.releaseId) ?? releaseId;
-    if (apiRelease !== releaseId) throw new Error("Source projection release mismatch");
-    const candidateOnly = candidateOnlyFromMeta(meta);
+    const { candidateOnly } = assertSafeReleaseMeta(meta, [releaseId]);
     const data = Array.isArray(payload.data) ? payload.data : [];
     return {
       sources: data
@@ -1002,15 +1020,8 @@ export async function getStandardsSourceDetail(
       data?: unknown;
       meta?: Record<string, unknown>;
     }>(response);
-    const metaRelease = stringValue(payload.meta?.releaseId);
-    if (metaRelease && metaRelease !== releaseId) {
-      throw new Error("Source detail API release mismatch");
-    }
-    const detail = sourceDetailFromContract(
-      payload.data,
-      releaseId,
-      candidateOnlyFromMeta(payload.meta ?? {}),
-    );
+    const { candidateOnly } = assertSafeReleaseMeta(payload.meta, [releaseId]);
+    const detail = sourceDetailFromContract(payload.data, releaseId, candidateOnly);
     if (!detail) throw new Error("Source detail projection unavailable");
     return detail;
   } catch {
@@ -1040,7 +1051,10 @@ export async function getStandardsCoverage(): Promise<StandardsCoverageResult> {
     const url = new URL("/v1/standards/coverage", baseUrl);
     url.searchParams.set("release", releaseId);
     const response = await standardsFetch(url, [releaseId]);
-    const payload = await standardsJson<{ data?: unknown }>(response);
+    const payload = await standardsJson<{ data?: unknown; meta?: Record<string, unknown> }>(
+      response,
+    );
+    assertSafeReleaseMeta(payload.meta, [releaseId]);
     const data = objectValue(payload.data);
     const frameworks = Array.isArray(data.frameworks)
       ? data.frameworks
@@ -1080,37 +1094,50 @@ function readinessProjection(
   value: unknown,
   expectedPath: "concepts" | "crosswalks",
   releaseId: string,
+  meta: Record<string, unknown>,
 ): StandardsReadinessProjection {
   const data = objectValue(value);
   const lineage = objectValue(data.releaseLineage);
   const relationship = objectValue(data.relationshipSemantics);
   const safety = objectValue(data.safety);
-  const candidateReleaseId = stringValue(lineage.candidateReleaseId);
+  const candidateReleaseId =
+    stringValue(lineage.candidateReleaseId) ?? stringValue(lineage.releaseId);
+  const candidateOnly = meta.candidateOnly === true;
+  const publicRelease = meta.public === true;
+  const stable = meta.stable === true;
+  const current = meta.current === true;
+  const publishable = meta.publishable === true;
+  const rightsStatus = stringValue(meta.rightsStatus);
   if (
     candidateReleaseId !== releaseId ||
-    (expectedPath === "concepts" && data.status !== "unmapped") ||
-    (expectedPath === "crosswalks" && data.status !== "empty") ||
     relationship.status !== "reviewed-only" ||
-    relationship.reviewedCount !== 0 ||
-    safety.candidateOnly !== true ||
-    safety.preview !== true ||
-    safety.public !== false ||
-    safety.stable !== false ||
-    safety.current !== false ||
-    safety.publishable !== false ||
-    safety.rightsStatus !== "denied"
+    typeof relationship.reviewedCount !== "number" ||
+    safety.candidateOnly !== candidateOnly ||
+    safety.public !== publicRelease ||
+    safety.stable !== stable ||
+    safety.current !== current ||
+    safety.publishable !== publishable ||
+    safety.rightsStatus !== rightsStatus ||
+    (candidateOnly
+      ? !safety.preview ||
+        publicRelease ||
+        stable ||
+        current ||
+        publishable ||
+        rightsStatus !== "denied"
+      : !publicRelease || !stable || !current || !publishable || rightsStatus === "denied")
   ) {
     throw new Error("Unsafe or mismatched Standards readiness projection");
   }
   const items = data[expectedPath];
-  if (!Array.isArray(items) || items.length !== 0) {
+  if (!Array.isArray(items)) {
     throw new Error("Standards readiness projection contains unreviewed data");
   }
   return {
-    status: expectedPath === "concepts" ? "unmapped" : "empty",
-    count: 0,
+    status: stringValue(data.status) ?? (expectedPath === "concepts" ? "unmapped" : "empty"),
+    count: projectionNumber(data, "count") ?? items.length,
     relationshipStatus: "reviewed-only",
-    reviewedCount: 0,
+    reviewedCount: relationship.reviewedCount,
     limitations: stringList(data.limitations),
     releaseLineage: {
       candidateReleaseId,
@@ -1118,12 +1145,12 @@ function readinessProjection(
       snapshotId: stringValue(lineage.snapshotId),
       manifestId: stringValue(lineage.manifestId),
     },
-    candidateOnly: true,
-    public: false,
-    stable: false,
-    current: false,
-    publishable: false,
-    rightsStatus: "denied",
+    candidateOnly,
+    public: publicRelease,
+    stable,
+    current,
+    publishable,
+    rightsStatus: rightsStatus!,
   };
 }
 
@@ -1178,20 +1205,20 @@ export async function getStandardsConceptsCrosswalks(): Promise<StandardsConcept
     );
     const projections = payloads.map((payload, index) => {
       const meta = payload.meta ?? {};
+      assertSafeReleaseMeta(meta, [releaseId]);
       if (
-        (stringValue(meta.release) ??
-          stringValue(meta.releaseId) ??
-          stringValue(meta.standardsRelease)) !== releaseId ||
-        meta.candidateOnly !== true ||
-        meta.public !== false ||
-        meta.stable !== false ||
-        meta.current !== false ||
-        meta.publishable !== false ||
-        meta.rightsStatus !== "denied"
+        typeof meta.current !== "boolean" ||
+        typeof meta.publishable !== "boolean" ||
+        typeof meta.rightsStatus !== "string"
       ) {
         throw new Error("Standards readiness meta release or safety mismatch");
       }
-      return readinessProjection(payload.data, index === 0 ? "concepts" : "crosswalks", releaseId);
+      return readinessProjection(
+        payload.data,
+        index === 0 ? "concepts" : "crosswalks",
+        releaseId,
+        meta,
+      );
     });
     return { releaseId, concepts: projections[0], crosswalks: projections[1] };
   } catch {
@@ -1228,39 +1255,25 @@ export async function getStandardsApiReadiness(): Promise<StandardsApiReadinessR
     const lineage = readiness.concepts.releaseLineage;
     if (
       readiness.releaseId !== releaseId ||
-      readiness.concepts.candidateOnly !== true ||
-      readiness.concepts.public !== false ||
-      readiness.concepts.stable !== false ||
-      readiness.concepts.current !== false ||
-      readiness.concepts.publishable !== false ||
-      readiness.concepts.rightsStatus !== "denied" ||
+      readiness.concepts.candidateOnly !== readiness.crosswalks.candidateOnly ||
+      readiness.concepts.public !== readiness.crosswalks.public ||
+      readiness.concepts.stable !== readiness.crosswalks.stable ||
+      readiness.concepts.current !== readiness.crosswalks.current ||
+      readiness.concepts.publishable !== readiness.crosswalks.publishable ||
+      readiness.concepts.rightsStatus !== readiness.crosswalks.rightsStatus ||
       readiness.crosswalks.releaseLineage.candidateReleaseId !== releaseId
     )
       throw new Error("Unsafe Standards release metadata");
-
-    const responses = await Promise.all(
-      ["bulk", "case"].map((kind) => {
-        const url = new URL(`/v1/standards/${kind}`, baseUrl);
-        url.searchParams.set("release", releaseId);
-        return standardsFetch(url, [releaseId], true);
-      }),
-    );
-    for (const response of responses) {
-      if (response.status !== 403) throw new Error("Standards export was not denied");
-      const payload = await standardsJson<Record<string, unknown>>(response);
-      if (
-        payload.code !== "rights_denied" ||
-        payload.export !== "denied" ||
-        payload.candidateOnly !== true ||
-        payload.public !== false ||
-        payload.stable !== false ||
-        payload.rightsStatus !== "denied"
-      )
-        throw new Error("Unsafe Standards export metadata");
-    }
+    const projection = readiness.concepts;
     return {
       ...empty,
-      releaseStatus: "candidate",
+      releaseStatus: projection.stable ? "stable" : "candidate",
+      candidateOnly: projection.candidateOnly,
+      public: projection.public,
+      stable: projection.stable,
+      current: projection.current,
+      publishable: projection.publishable,
+      rightsStatus: projection.rightsStatus,
       provenance: {
         sourceReleaseId: lineage.sourceReleaseId,
         snapshotId: lineage.snapshotId,
@@ -1295,9 +1308,8 @@ export async function getStandardsChanges(
       data?: unknown;
       meta?: Record<string, unknown>;
     }>(await standardsFetch(url, [releaseId]));
-    const meta = payload.meta ?? {};
-    const apiRelease = stringValue(meta.release) ?? stringValue(meta.standardsRelease) ?? releaseId;
-    if (apiRelease !== releaseId) throw new Error("Standards changes release mismatch");
+    const meta = payload.meta;
+    assertSafeReleaseMeta(meta, [releaseId]);
     const changes = Array.isArray(payload.data)
       ? payload.data
           .map((item) => {

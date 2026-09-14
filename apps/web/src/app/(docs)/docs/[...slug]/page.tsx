@@ -75,10 +75,10 @@ export default async function DocPage({ params }: { params: Promise<{ slug: stri
         <Link rel="canonical" href={doc.canonicalRoute}>
           Canonical URL
         </Link>{" "}
-        · <a href={rawRoute}>Raw Markdown</a> · Source: {doc.sourceId} at {doc.ref}
+        · Source: {doc.sourceId} at {doc.ref}
       </p>
       <VersionSelector doc={doc} documents={docs} />
-      <details className="docs-metadata">
+      <details className="docs-metadata" open>
         <summary>Source and requirement metadata</summary>
         <SourceProvenance doc={doc} />
         <DocsInteractive title="Requirement anchors">

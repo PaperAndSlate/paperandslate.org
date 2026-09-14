@@ -5,7 +5,7 @@ test("Standards source detail has landmarks, headings, and navigation", async ({
   await expect(page.locator("main#main-content")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Source detail." })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Standards navigation" })).toBeVisible();
-  if (process.env.STANDARDS_API_URL && process.env.LOCAL_API_BEARER) {
+  if (process.env.STANDARDS_API_URL && process.env.STANDARDS_API_BEARER) {
     await expect(page.getByRole("heading", { name: "Source metadata" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Rights and availability" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Provenance" })).toBeVisible();

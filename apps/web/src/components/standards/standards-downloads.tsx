@@ -1,11 +1,15 @@
 import type { StandardsApiReadinessResult } from "../../lib/standards-api";
 
 export function StandardsDownloads({ result }: { result: StandardsApiReadinessResult }) {
+  const candidate = result.candidateOnly;
+  const maturity = candidate
+    ? "candidate preview; not public, stable, current, or publishable"
+    : "stable/public release metadata validated; exports remain closed";
   return (
     <section className="standards-readiness" aria-labelledby="downloads-heading">
       <div className="standards-release-notice" role="status">
-        <strong>Release: {result.releaseId}</strong> — candidate preview; not public, stable,
-        current, or publishable. Rights status: denied; API availability is metadata-only.
+        <strong>Release: {result.releaseId}</strong> — {maturity}. Rights status:{" "}
+        {result.rightsStatus}; API availability is metadata-only.
       </div>
       {result.unavailable ? (
         <section className="standards-empty info-card" role="alert">
@@ -19,8 +23,9 @@ export function StandardsDownloads({ result }: { result: StandardsApiReadinessRe
             <p className="eyebrow">Release-bound availability</p>
             <h2 id="downloads-heading">Metadata is ready; exports remain closed.</h2>
             <p>
-              This candidate exposes release and provenance metadata only. Bulk and CASE exports are
-              explicitly denied while rights review and publication remain unresolved.
+              {candidate
+                ? "This candidate exposes release and provenance metadata only. Bulk and CASE exports are explicitly denied while rights review and publication remain unresolved."
+                : "This stable release exposes validated release and provenance metadata. Bulk and CASE exports remain explicitly closed because no download grant is present in this contract."}
             </p>
           </section>
           <div className="standards-readiness-grid">
@@ -41,7 +46,9 @@ export function StandardsDownloads({ result }: { result: StandardsApiReadinessRe
           </div>
           <dl className="standards-readiness-meta">
             <dt>Publication state</dt>
-            <dd>Candidate only · closed</dd>
+            <dd>
+              {candidate ? "Candidate only · closed" : "Stable/public metadata · exports closed"}
+            </dd>
             <dt>Source release</dt>
             <dd>{result.provenance.sourceReleaseId ?? "Not supplied by the projection"}</dd>
             <dt>Snapshot</dt>

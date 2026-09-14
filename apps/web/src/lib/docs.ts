@@ -37,6 +37,25 @@ function publicRouteFor(route: string, publicProject: string) {
   return `/docs/${publicProject}${match[1] ?? ""}`;
 }
 
+const sourceDocumentRouteToPublicCanonical = new Map<string, string>();
+for (const doc of generatedDocuments) {
+  const publicProject = publicProjectFor(doc.project);
+  const publicCanonicalRoute = publicRouteFor(doc.canonicalRoute, publicProject);
+  for (const route of [doc.route, doc.canonicalRoute, ...(doc.aliases ?? [])]) {
+    sourceDocumentRouteToPublicCanonical.set(route, publicCanonicalRoute);
+  }
+}
+
+function rewriteEmbeddedDocumentLinks(content: string) {
+  return content.replace(/(\]\(\s*)([^\s)]+)(?=\s*(?:["'][^)]*["'])?\))/g, (full, prefix, href) => {
+    const hashIndex = href.search(/[?#]/);
+    const path = hashIndex === -1 ? href : href.slice(0, hashIndex);
+    const suffix = hashIndex === -1 ? "" : href.slice(hashIndex);
+    const replacement = sourceDocumentRouteToPublicCanonical.get(path);
+    return replacement ? `${prefix}${replacement}${suffix}` : full;
+  });
+}
+
 /**
  * All page-facing records are normalized here. The generated bundle retains
  * source project ids for provenance, while public routes use the project
@@ -60,6 +79,8 @@ export const docs: PublicDocsDocument[] = generatedDocuments.map((doc) => {
     route,
     canonicalRoute,
     aliases: [...aliases],
+    content: rewriteEmbeddedDocumentLinks(doc.content),
+    taxonomy: (doc.taxonomy ?? []).filter((topic) => !topic.toLowerCase().endsWith(".md")),
   };
 });
 
@@ -164,7 +185,9 @@ export function docProjects() {
 }
 
 export function docTaxonomy() {
-  return [...new Set(docs.flatMap((doc) => doc.taxonomy ?? []))].sort();
+  return [...new Set(docs.flatMap((doc) => doc.taxonomy ?? []))]
+    .filter((topic) => !topic.toLowerCase().endsWith(".md"))
+    .sort();
 }
 
 export function docText(doc: DocsDocument) {

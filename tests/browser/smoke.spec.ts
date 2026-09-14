@@ -65,6 +65,25 @@ test("route catalog landings are reachable on the dedicated test port", async ({
   }
 });
 
+test("mobile navigation exposes local trust and legal routes", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.getByRole("button", { name: "Open navigation" }).click();
+  const dialog = page.getByRole("dialog", { name: "Navigate" });
+  for (const [label, href] of [
+    ["Privacy", "/privacy"],
+    ["Terms", "/terms"],
+    ["Accessibility", "/accessibility"],
+    ["Security", "/security"],
+    ["Trademark policy", "/trademarks"],
+    ["License overview", "/licenses"],
+    ["Code of Conduct", "/code-of-conduct"],
+    ["Contact options", "/foundation/contact"],
+  ] as const) {
+    await expect(dialog.getByRole("link", { name: label })).toHaveAttribute("href", href);
+  }
+});
+
 test("component library is intentionally noindex", async ({ request }) => {
   const response = await request.get("/design-system");
   try {

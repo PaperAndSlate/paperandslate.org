@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { decisions } from "@paper-and-slate/content";
+import { decisions, getRfc } from "@paper-and-slate/content";
 import { PageHeader } from "../../../../components/page-primitives";
 export default function Decisions() {
   return (
@@ -15,6 +15,11 @@ export default function Decisions() {
             </p>
             <h2>{d.title}</h2>
             <p>{d.summary}</p>
+            <p className="record-meta">
+              Related RFC:{" "}
+              {d.relatedRfc ? (getRfc(d.relatedRfc)?.number ?? "Not found") : "Not recorded"}
+              {d.supersedes ? ` · Supersedes ${d.supersedes}` : ""}
+            </p>
             <Link href={d.canonicalUrl}>Read decision →</Link>
           </article>
         ))}

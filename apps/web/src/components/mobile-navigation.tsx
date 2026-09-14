@@ -104,6 +104,37 @@ export function MobileNavigation() {
             <Link href="/governance/contributing" onClick={() => setOpen(false)}>
               Get involved
             </Link>
+            <div className="mobile-nav-utility" aria-labelledby="mobile-navigation-utility-title">
+              <span className="eyebrow" id="mobile-navigation-utility-title">
+                Trust &amp; legal
+              </span>
+              <div className="mobile-nav-utility-links">
+                <Link href="/privacy" onClick={() => setOpen(false)}>
+                  Privacy
+                </Link>
+                <Link href="/terms" onClick={() => setOpen(false)}>
+                  Terms
+                </Link>
+                <Link href="/accessibility" onClick={() => setOpen(false)}>
+                  Accessibility
+                </Link>
+                <Link href="/security" onClick={() => setOpen(false)}>
+                  Security
+                </Link>
+                <Link href="/trademarks" onClick={() => setOpen(false)}>
+                  Trademark policy
+                </Link>
+                <Link href="/licenses" onClick={() => setOpen(false)}>
+                  License overview
+                </Link>
+                <Link href="/code-of-conduct" onClick={() => setOpen(false)}>
+                  Code of Conduct
+                </Link>
+                <Link href="/foundation/contact" onClick={() => setOpen(false)}>
+                  Contact options
+                </Link>
+              </div>
+            </div>
             <ThemeToggle />
           </nav>
         </div>

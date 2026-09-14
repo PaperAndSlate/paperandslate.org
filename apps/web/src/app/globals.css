@@ -1104,6 +1104,21 @@ kbd {
   margin-top: 0.75rem;
   padding: 0.5rem 0.35rem;
 }
+.mobile-nav-utility {
+  display: grid;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.8rem 0.35rem 0.25rem;
+  border-top: 1px solid var(--border);
+}
+.mobile-nav-utility-links {
+  display: grid;
+  gap: 0.1rem;
+}
+.mobile-nav-utility-links a {
+  padding: 0.3rem 0;
+  font-size: 0.9rem;
+}
 .mobile-nav-heading {
   display: flex;
   align-items: center;
@@ -1433,6 +1448,20 @@ kbd {
   color: var(--muted-foreground);
 }
 .metadata-panel dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.record-details {
+  display: grid;
+  grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1.6fr);
+  gap: 0.55rem 1rem;
+  margin: 1rem 0;
+  font-size: 0.82rem;
+}
+.record-details dt {
+  color: var(--muted-foreground);
+}
+.record-details dd {
   margin: 0;
   overflow-wrap: anywhere;
 }

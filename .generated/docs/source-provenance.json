@@ -1,160 +1,48 @@
 [
   {
-    "sourceId": "standards-course-schema",
-    "project": "standards-course-schema",
-    "path": "../standards/projects/course-schema",
-    "ref": "local-sibling",
-    "contentHash": "af3bf1f1ddb72d6acc67f4f644f6b0e97dc027bb4226a68a2407e96ce2abbc7e",
-    "hashAlgorithm": "sha256",
-    "sourceKind": "sibling-local",
-    "sourceMode": "sibling-local",
-    "editable": true,
-    "lockType": "content-hash",
-    "deterministicId": "26d76630c4f82541f7ef837ed5072cc7a8ef258b9aa3e44c91760207808335af",
-    "files": [
-      {
-        "path": "index.md",
-        "contentHash": "9db653b91a2559f97372731672ab48df708de34818bc7b740312c758e19df0bd"
-      }
-    ],
-    "recordedAt": "build-time"
-  },
-  {
     "sourceId": "file-system",
     "project": "file-system",
     "path": "tests/fixtures/docs-source/projects/file-system",
     "ref": "fixture-next",
-    "contentHash": "d26b8eb01490ddbfd2436141a9a7817b86d5bb10f460b95f6d270e09b5f76864",
+    "contentHash": "8136a53c3ee85a188b3525212ba7901b5bf5255cc1467f384273c6b7076ab90c",
     "hashAlgorithm": "sha256",
     "sourceKind": "fixture",
     "sourceMode": "fixture",
     "editable": true,
     "lockType": "content-hash",
-    "deterministicId": "36fe6aa29299ca6d78deed47d5f0682c3bee21b9af2f3fd3b429ae5f198e0b73",
+    "deterministicId": "0fa1e903be8766125a301fafc98a4a21460b3ed55a80728cc090ba3b131494e6",
     "files": [
       {
         "path": "guides/publish.md",
-        "contentHash": "afd7b65619f72183a9967c3eafc06c89ec0e616f6361ec2dead1d03e3f9df71f"
+        "contentHash": "f25a4c45a38a0f358bcc173575b90802f94095e9072041a92255676b2b6b2f20"
       },
       {
         "path": "index.md",
-        "contentHash": "804374c5d780e5d1d2a876ede1c588c65522e27e6e73cbd2c3bdbcb9ee2441ec"
+        "contentHash": "af99ad6edaa3460213c8b146fa1fbbfb586c7ad9d8217d0978cb3b05ac8142f7"
       }
     ],
     "recordedAt": "build-time"
   },
   {
-    "sourceId": "standards-organization-schema",
-    "project": "standards-organization-schema",
-    "path": "../standards/projects/organization-schema",
+    "sourceId": "standards-course-schema",
+    "project": "standards-course-schema",
+    "path": "../standards/projects/course-schema",
     "ref": "local-sibling",
-    "contentHash": "f22adce74423995259086d704554baa60919d9e24b0747a5403493ebaaad49ce",
+    "contentHash": "5d8055906ba73c29b61076435e7270ce3719a941973954d5c7ff24b187453a14",
     "hashAlgorithm": "sha256",
     "sourceKind": "sibling-local",
     "sourceMode": "sibling-local",
     "editable": true,
     "lockType": "content-hash",
-    "deterministicId": "7294a859c34d5c5a94954ba0e4938afbd52b4add2b7b986b94d4a13f3960811e",
+    "deterministicId": "3876846cb1a97cc0d78c3305b268082bd4cc7ef735c6529e0f0d5a83942f64a0",
     "files": [
       {
-        "path": "index.md",
-        "contentHash": "e56e4235848de341a04c18046ff13d19cb1567bcce123b556012c618d5eefe98"
-      }
-    ],
-    "recordedAt": "build-time"
-  },
-  {
-    "sourceId": "central",
-    "project": "paper-and-slate",
-    "path": "content/docs",
-    "ref": "working-tree",
-    "contentHash": "1b0c0c5c56a51db410ca056f71c3ff1f78db175d4d74f984e178ea8f1742d21f",
-    "hashAlgorithm": "sha256",
-    "sourceKind": "central",
-    "sourceMode": "central",
-    "editable": true,
-    "lockType": "content-hash",
-    "deterministicId": "ad7bbc03205597371fb1bee2ecfbb70fd5053e82e862925b32505568d45f4cef",
-    "files": [
-      {
-        "path": "concepts/provenance.md",
-        "contentHash": "cd1ad43f8b20b6096e0a90befbc870a238fa7ac43238e7fbb489befc7d478cb1"
-      },
-      {
-        "path": "getting-started/welcome.md",
-        "contentHash": "e2e12c5014e856b990afcc3bc4b4777230c41a195f628b9b0e4a81b76218100c"
-      },
-      {
-        "path": "governance.md",
-        "contentHash": "a9911e81ec9558599ae9d9054a460a9be7f49936f617a69a1f6f197b71484f2a"
+        "path": "data-boundary.md",
+        "contentHash": "308a1eae810a2fc29819ba5965d4ff6aa91f38cb6c7d7cdc3b7813fca4e3d6cb"
       },
       {
         "path": "index.md",
-        "contentHash": "799c5ec0adf69c954b909885c29f8996c0a3cbfed344adc486dd56d3e5ee99e9"
-      }
-    ],
-    "recordedAt": "build-time"
-  },
-  {
-    "sourceId": "standards-curriculum-standards",
-    "project": "standards-curriculum-standards",
-    "path": "../standards/projects/curriculum-standards",
-    "ref": "local-sibling",
-    "contentHash": "6a0a6426e6266e8c9d89145ee2ef94d0931b622b730c5a874f6f9a3427bc3cca",
-    "hashAlgorithm": "sha256",
-    "sourceKind": "sibling-local",
-    "sourceMode": "sibling-local",
-    "editable": true,
-    "lockType": "content-hash",
-    "deterministicId": "c51b5d633ac5684066a1218f41fc18b9914e7b0e61c09a9726cce6e797fc35d4",
-    "files": [
-      {
-        "path": "index.md",
-        "contentHash": "838fc38ef08c2e0852334cb4b38a5b9e0e3c1023ac5e5541c40794f6af3952d2"
-      }
-    ],
-    "recordedAt": "build-time"
-  },
-  {
-    "sourceId": "standards-discovery",
-    "project": "standards-discovery",
-    "path": "../standards/projects/discovery",
-    "ref": "local-sibling",
-    "contentHash": "7c062a15b9c97e104ed37bf877614053bb0d55b60200785bc5868f1da419f388",
-    "hashAlgorithm": "sha256",
-    "sourceKind": "sibling-local",
-    "sourceMode": "sibling-local",
-    "editable": true,
-    "lockType": "content-hash",
-    "deterministicId": "d0cf03dcf5fbf7d05702bdfa4406d0aefbc2997aeaf7c3c55acacfe57307afef",
-    "files": [
-      {
-        "path": "index.md",
-        "contentHash": "3565ebd4e06002e6e21b01a6d6de93beb5e20e1fc4b852129de9f1af9b2dec02"
-      }
-    ],
-    "recordedAt": "build-time"
-  },
-  {
-    "sourceId": "file-system",
-    "project": "file-system",
-    "path": "tests/fixtures/docs-source/projects/file-system",
-    "ref": "fixture-v1",
-    "contentHash": "bb467cdf7aebf9b34b8cfb3d49720e4c65a600aaae5b0a03856bb370facd1076",
-    "hashAlgorithm": "sha256",
-    "sourceKind": "fixture",
-    "sourceMode": "fixture",
-    "editable": true,
-    "lockType": "content-hash",
-    "deterministicId": "f4825e9949869677c811f37d68e03283ac557afb66efcda9833615652ab8dabe",
-    "files": [
-      {
-        "path": "index.md",
-        "contentHash": "e60538ecf7f1730287f4c0883183438048b822d7dcb646b616cf060bdb22cd04"
-      },
-      {
-        "path": "reference/metadata.md",
-        "contentHash": "1c51b2a0c61e02851bd8b0609f2b3b376ed2bd80aaf0e9683d51d52a24fcf0b7"
+        "contentHash": "7b1d68853c73f8009ddf333f7619b819f9219e156b677cda8e90a938f3ec0b17"
       }
     ],
     "recordedAt": "build-time"
@@ -164,17 +52,21 @@
     "project": "standards-tools-and-libraries",
     "path": "../standards/projects/tools-and-libraries",
     "ref": "local-sibling",
-    "contentHash": "1fc3fa6697ac4e41066e5d25b77a391e614f0e2cdd5a87d0eeab9c60071d7e22",
+    "contentHash": "f0871e6f7bc4c05381c06830341c97e8c53e7c9b47d1dbd2f06f39fceb3fd85a",
     "hashAlgorithm": "sha256",
     "sourceKind": "sibling-local",
     "sourceMode": "sibling-local",
     "editable": true,
     "lockType": "content-hash",
-    "deterministicId": "f5d6e12aad47cf60b251d7fd3ff01e873cc21cca20238950aa6cbad05d6ab990",
+    "deterministicId": "40e892df92d2b829821b609690c3865702c8cdf140f4ac13506ad610ad3b6065",
     "files": [
       {
         "path": "index.md",
-        "contentHash": "8d11d7eb4ced659d2031b1a3d35522243030d4ff9894f2db5faf567607637ae6"
+        "contentHash": "a2d0974f0571c5822c2c1521d6803f4e5d0ed0bd8619e31e1d9270a0316d2631"
+      },
+      {
+        "path": "license-and-endorsement-boundary.md",
+        "contentHash": "ec25e994e30bd49fd53c15fd6bd79298a0c7be1934d07e77ca6de929efda7537"
       }
     ],
     "recordedAt": "build-time"
@@ -184,17 +76,145 @@
     "project": "standards-file-system",
     "path": "../standards/projects/file-system",
     "ref": "local-sibling",
-    "contentHash": "81c25d170c0de1c7b1c31ca3a7ffc6c3aae3e2f6d003dfc5c21dbde925ff1864",
+    "contentHash": "4d90f28d3b24ddc628bd56080bcace5884a9c67d89c8cd33469207b329de3ad1",
     "hashAlgorithm": "sha256",
     "sourceKind": "sibling-local",
     "sourceMode": "sibling-local",
     "editable": true,
     "lockType": "content-hash",
-    "deterministicId": "fa44e640119b3679ce0f9529f63150e9d8b50dd40fc2726230dcc4c28835aa9f",
+    "deterministicId": "4542589256958a5e4a187f3266761dbbd31747daacedbfe3b1069a4e8d471b88",
     "files": [
       {
         "path": "index.md",
-        "contentHash": "39a09b4256466f185a01b30a39f30ac3e6b9404ef17dc9f86f069ccc5b7ca38f"
+        "contentHash": "3b79763297bca51351eec429ec0a06e266a90219acaa389b3f1b32111d28f511"
+      }
+    ],
+    "recordedAt": "build-time"
+  },
+  {
+    "sourceId": "file-system",
+    "project": "file-system",
+    "path": "tests/fixtures/docs-source/projects/file-system",
+    "ref": "fixture-v1",
+    "contentHash": "6aaa8fe8d87fe1950ec1c7ae666e8a2ed8588c8d3469b6762599591f5dddbab3",
+    "hashAlgorithm": "sha256",
+    "sourceKind": "fixture",
+    "sourceMode": "fixture",
+    "editable": true,
+    "lockType": "content-hash",
+    "deterministicId": "946e3e71ba00f7a039412243803509f7ae416e4493b54de588959f20f1e627d2",
+    "files": [
+      {
+        "path": "index.md",
+        "contentHash": "c5013579669c986dd00ec34f2a41c769e1751029e1f2ce146cbfcb62f8841514"
+      },
+      {
+        "path": "reference/metadata.md",
+        "contentHash": "0cc0122e7f9df5c914c623b7f72f04a9755ea5508e6c2790b345d98adc2a154c"
+      }
+    ],
+    "recordedAt": "build-time"
+  },
+  {
+    "sourceId": "standards-organization-schema",
+    "project": "standards-organization-schema",
+    "path": "../standards/projects/organization-schema",
+    "ref": "local-sibling",
+    "contentHash": "65ab42e87cc2efaf2b26c69fc160ded3d193c39b99999cfad2b2fe1c559dc528",
+    "hashAlgorithm": "sha256",
+    "sourceKind": "sibling-local",
+    "sourceMode": "sibling-local",
+    "editable": true,
+    "lockType": "content-hash",
+    "deterministicId": "c74ef69faee328427a2910a04736d50ecdf0ea789d00ea447e5e4680819461cd",
+    "files": [
+      {
+        "path": "eom-boundary.md",
+        "contentHash": "3bca16dd7fc953d881d16a6475b71c056e19ef0fe28e2152255e90725ce7a11b"
+      },
+      {
+        "path": "index.md",
+        "contentHash": "b447fa64854d4d060da407252f87db8cfef5b6647280ca4427787db85b64e7ca"
+      }
+    ],
+    "recordedAt": "build-time"
+  },
+  {
+    "sourceId": "standards-curriculum-standards",
+    "project": "standards-curriculum-standards",
+    "path": "../standards/projects/curriculum-standards",
+    "ref": "local-sibling",
+    "contentHash": "076508c89f114395d62af31b2406c1b29921ff837d7a7d6d8266cac5aa80bf91",
+    "hashAlgorithm": "sha256",
+    "sourceKind": "sibling-local",
+    "sourceMode": "sibling-local",
+    "editable": true,
+    "lockType": "content-hash",
+    "deterministicId": "ca743586471e143fce68ffbe8db200c2bc091e9dfbc3128c6edd0067d33fbb1d",
+    "files": [
+      {
+        "path": "index.md",
+        "contentHash": "a6d39ef044efbc824f95b421c21edd56d8b72d81d9c58afe424ec3a5510daebb"
+      },
+      {
+        "path": "registry-data-boundary.md",
+        "contentHash": "078d49f9f6e7f0f3dadd888c740076cba9fdd7618c28d078727c21c42c3c3d6d"
+      }
+    ],
+    "recordedAt": "build-time"
+  },
+  {
+    "sourceId": "standards-discovery",
+    "project": "standards-discovery",
+    "path": "../standards/projects/discovery",
+    "ref": "local-sibling",
+    "contentHash": "a90bdcc2b47d14eb3660e8642e982e041423b0bd1043e6de03866da312342ffc",
+    "hashAlgorithm": "sha256",
+    "sourceKind": "sibling-local",
+    "sourceMode": "sibling-local",
+    "editable": true,
+    "lockType": "content-hash",
+    "deterministicId": "e035f397fbd6802e2000bdcc80953db5dae3acd09c43d3252449acac3b42e370",
+    "files": [
+      {
+        "path": "eom-boundary.md",
+        "contentHash": "bc2e430cbb7579c939910d0ba904367eedf82aefc4bb1b24cd19ff08aa060916"
+      },
+      {
+        "path": "index.md",
+        "contentHash": "f6c499567572a75f4bd59435f3eb41de0eb3a2107183e83d43bba1ae63c7cbfb"
+      }
+    ],
+    "recordedAt": "build-time"
+  },
+  {
+    "sourceId": "central",
+    "project": "paper-and-slate",
+    "path": "content/docs",
+    "ref": "working-tree",
+    "contentHash": "e851701f3e41c123f7d6cbf843f399c9e980b6062aa5e4af9610574627ca1f75",
+    "hashAlgorithm": "sha256",
+    "sourceKind": "central",
+    "sourceMode": "central",
+    "editable": true,
+    "lockType": "content-hash",
+    "deterministicId": "facea762d3a98db42c9108b864ac3ea17aa3fd15f13c6590b387177544d70c38",
+    "files": [
+      {
+        "path": "concepts/provenance.md",
+        "contentHash": "fbd25bdeecd169011949a6734c4be0ac87c10ee8e37588f4972289ad0782071c"
+      },
+      {
+        "path": "getting-started/welcome.md",
+        "contentHash": "cc38f98179423bc8b1e13c0127b8c371b1cc8cba8babbc93a86095acbe8be1fe"
+      },
+      {
+        "path": "governance.md",
+        "contentHash": "4fc5571735ceeac5bce58bc124d4e5f9984199238cda6c96cadbe04d5ac25116"
+      },
+      {
+        "path": "index.md",
+        "contentHash": "cc1c3728ad4c8c105fb47acb4577552901bf579e6a6adbe4020a49a0e9b8c283"
       }
     ],
     "recordedAt": "build-time"

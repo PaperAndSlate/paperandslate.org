@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { validateTraceability, type TraceabilityRecord } from "./traceability-check-core";
 import { sourceDirtyPaths, sourceWorktreeClean } from "./source-state";
 
@@ -36,18 +37,33 @@ function git(args: string[]) {
   return result.stdout.trim();
 }
 
-function gitStatus() {
-  const result = spawnSync("git", ["status", "--porcelain", "--untracked-files=all"], {
-    cwd: root,
-    encoding: "utf8",
-    windowsHide: true,
+function gitStatus(): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(
+      process.platform === "win32" ? "git.exe" : "git",
+      ["status", "--porcelain", "--untracked-files=all"],
+      { cwd: root, windowsHide: true },
+    );
+    const stdout: Buffer[] = [];
+    const stderr: Buffer[] = [];
+    child.stdout.on("data", (chunk: Buffer | string) =>
+      stdout.push(typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk),
+    );
+    child.stderr.on("data", (chunk: Buffer | string) =>
+      stderr.push(typeof chunk === "string" ? Buffer.from(chunk, "utf8") : chunk),
+    );
+    child.on("error", (error) => reject(new Error(`git status failed: ${error.message}`)));
+    child.on("close", (status) => {
+      if (status !== 0) {
+        reject(new Error(`git status failed: ${Buffer.concat(stderr).toString("utf8").trim()}`));
+        return;
+      }
+      resolve(Buffer.concat(stdout).toString("utf8").trimEnd());
+    });
   });
-  if (result.error || result.status !== 0)
-    throw new Error(`git status failed: ${result.error?.message ?? result.stderr.trim()}`);
-  return result.stdout.trimEnd();
 }
 
-function porcelainPaths(status: string) {
+export function porcelainPaths(status: string) {
   return status
     .split(/\r?\n/)
     .filter(Boolean)
@@ -64,7 +80,7 @@ function writeAtomically(file: string, value: unknown) {
   fs.renameSync(temporary, file);
 }
 
-function main() {
+async function main() {
   if (!fs.existsSync(requirementsPath))
     throw new Error(`Missing ${relative(requirementsPath)}; run pnpm requirements:check first`);
   const parsed = JSON.parse(fs.readFileSync(requirementsPath, "utf8")) as {
@@ -78,7 +94,7 @@ function main() {
   if (!fs.existsSync(plansRoot)) throw new Error("plans directory is missing");
   const planFiles = collectPlanFiles(plansRoot);
   const errors = validateTraceability(parsed.requirements, planFiles, root);
-  const rawStatus = gitStatus();
+  const rawStatus = await gitStatus();
   const dirtyPaths = sourceDirtyPaths(rawStatus);
   const worktreeClean = sourceWorktreeClean(rawStatus);
   if (process.env.TRACEABILITY_REQUIRE_CLEAN === "true" && !worktreeClean)
@@ -123,4 +139,5 @@ function main() {
   );
 }
 
-main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+  void main();

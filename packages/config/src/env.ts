@@ -4,6 +4,12 @@ const baseEnvSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DEPLOYMENT_ENV: z.enum(["local", "ci", "staging", "production"]).default("local"),
   NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
+  STANDARDS_API_URL: z.string().url().optional(),
+  STANDARDS_RELEASE_ID: z
+    .string()
+    .regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/)
+    .optional(),
+  STANDARDS_API_BEARER: z.string().min(1).optional(),
   KIT_ENABLED: z.enum(["true", "false"]).default("false"),
   KIT_API_KEY: z.string().optional(),
   KIT_FORM_ID: z.string().optional(),

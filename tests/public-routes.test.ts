@@ -26,4 +26,9 @@ describe("public route contract", () => {
     ])
       expect(fs.existsSync(file)).toBe(true);
   });
+  it("keeps global error recovery pointed at an internal contact route", () => {
+    const source = fs.readFileSync("apps/web/src/app/error.tsx", "utf8");
+    expect(source).toContain('href="/foundation/contact"');
+    expect(source).toContain("Review contact options");
+  });
 });

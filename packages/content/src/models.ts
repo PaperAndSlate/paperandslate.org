@@ -125,8 +125,17 @@ export const rfcSchema = z.object({
   title: z.string(),
   summary: z.string(),
   status: z.enum(["proposed", "accepted", "rejected", "superseded"]),
+  authors: z.array(z.string().min(1)).min(1).default(["Paper & Slate maintainers"]),
+  sponsor: z.string().min(1).default("Paper & Slate maintainers"),
+  scope: z.string().min(1).default("Foundation-wide"),
+  projects: z.array(z.string().min(1)).default([]),
   owner: z.string(),
+  year: z.number().int().positive(),
   published: date,
+  reviewDeadline: date.optional(),
+  lastUpdated: date.optional(),
+  discussionUrl: z.string().startsWith("/").or(z.string().url()).nullable().default(null),
+  decisionId: z.string().optional(),
   content: z.string(),
   canonicalUrl: z.string().startsWith("/"),
 });
@@ -138,6 +147,10 @@ export const decisionSchema = z.object({
   status: z.enum(["accepted", "reversed"]),
   decisionMaker: z.string(),
   date,
+  relatedRfc: z.number().int().positive().optional(),
+  supersedes: z.string().optional(),
+  supersededBy: z.string().optional(),
+  lastUpdated: date.optional(),
   content: z.string(),
   canonicalUrl: z.string().startsWith("/"),
 });
@@ -149,6 +162,18 @@ export const policySchema = z.object({
   version: z.string(),
   effectiveDate: date,
   status: z.enum(["current", "archived"]),
+  owner: z.string().min(1).default("Paper & Slate maintainers"),
+  lastReviewed: date.optional(),
+  nextReview: date.optional(),
+  revisionHistory: z
+    .array(
+      z.object({
+        version: z.string().min(1),
+        date,
+        summary: z.string().min(1),
+      }),
+    )
+    .default([]),
   content: z.string(),
   canonicalUrl: z.string().startsWith("/"),
   kind: z.enum(["policy", "license"]),

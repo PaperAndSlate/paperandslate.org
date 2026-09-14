@@ -6,7 +6,7 @@ test("item detail has a named main landmark and keyboard navigation", async ({ p
   );
   await expect(page.locator("main#main-content")).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Standards navigation" })).toBeVisible();
-  if (process.env.STANDARDS_API_URL && process.env.LOCAL_API_BEARER) {
+  if (process.env.STANDARDS_API_URL && process.env.STANDARDS_API_BEARER) {
     await expect(
       page.getByText("Release candidate-ia-mathematics-fixture-2026").first(),
     ).toBeVisible();

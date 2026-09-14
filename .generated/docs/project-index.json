@@ -27,6 +27,7 @@
   {
     "project": "standards-course-schema",
     "documents": [
+      "standards-course-schema:next:data-boundary",
       "standards-course-schema:next:index"
     ],
     "versions": [
@@ -36,7 +37,8 @@
   {
     "project": "standards-curriculum-standards",
     "documents": [
-      "standards-curriculum-standards:next:index"
+      "standards-curriculum-standards:next:index",
+      "standards-curriculum-standards:next:registry-data-boundary"
     ],
     "versions": [
       "next"
@@ -45,6 +47,7 @@
   {
     "project": "standards-discovery",
     "documents": [
+      "standards-discovery:next:eom-boundary",
       "standards-discovery:next:index"
     ],
     "versions": [
@@ -63,6 +66,7 @@
   {
     "project": "standards-organization-schema",
     "documents": [
+      "standards-organization-schema:next:eom-boundary",
       "standards-organization-schema:next:index"
     ],
     "versions": [
@@ -72,7 +76,8 @@
   {
     "project": "standards-tools-and-libraries",
     "documents": [
-      "standards-tools:next:index"
+      "standards-tools:next:index",
+      "standards-tools:next:license-and-endorsement-boundary"
     ],
     "versions": [
       "next"

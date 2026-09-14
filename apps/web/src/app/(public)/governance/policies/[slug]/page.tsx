@@ -13,10 +13,31 @@ export default async function Policy({ params }: { params: Promise<{ slug: strin
         {p.summary}
       </PageHeader>
       <article className="prose">
-        <p>
-          <strong>Effective:</strong> {p.effectiveDate}
-        </p>
+        <dl className="record-details">
+          <dt>Owner</dt>
+          <dd>{p.owner}</dd>
+          <dt>Version</dt>
+          <dd>{p.version}</dd>
+          <dt>Effective</dt>
+          <dd>{p.effectiveDate}</dd>
+          <dt>Last reviewed</dt>
+          <dd>{p.lastReviewed ?? "Not recorded"}</dd>
+          <dt>Next review</dt>
+          <dd>{p.nextReview ?? "Not recorded"}</dd>
+        </dl>
         <p>{p.content}</p>
+        <h2>Revision history</h2>
+        {p.revisionHistory.length > 0 ? (
+          <ul>
+            {p.revisionHistory.map((revision) => (
+              <li key={`${revision.version}-${revision.date}`}>
+                v{revision.version} · {revision.date} — {revision.summary}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No revision history is recorded for this local policy.</p>
+        )}
       </article>
     </main>
   );

@@ -3,8 +3,8 @@
     "id": "central:next:concepts/provenance",
     "route": "/docs/paper-and-slate/concepts/provenance",
     "legacyRoute": "/docs/paper-and-slate/next/concepts/provenance",
-    "title": "Provenance and local source state",
-    "description": "How this documentation slice records where each page came from.",
+    "title": "Untitled",
+    "description": "",
     "sourceId": "central",
     "version": "next",
     "taxonomy": [
@@ -14,14 +14,14 @@
       "provenance",
       "historical-pages"
     ],
-    "text": "\n Provenance\n\nGenerated records expose the effective source repository label, relative path, local ref, and SHA-256 content hash. A hash is evidence about these bytes; it is not presented as a Git commit SHA.\n\n Historical pages\n\nHistorical fixture pages use a separate immutable version identifier and never follow the working tree.\n"
+    "text": "---\r\ntitle: Provenance and local source state\r\ndescription: How this documentation slice records where each page came from.\r\norder: 2\r\n---\r\n\r\n Provenance\r\n\r\nGenerated records expose the effective source repository label, relative path, local ref, and SHA-256 content hash. A hash is evidence about these bytes; it is not presented as a Git commit SHA.\r\n\r\n Historical pages\r\n\r\nHistorical fixture pages use a separate immutable version identifier and never follow the working tree.\r\n"
   },
   {
     "id": "central:next:getting-started/welcome",
     "route": "/docs/paper-and-slate/getting-started/welcome",
     "legacyRoute": "/docs/paper-and-slate/next/getting-started/welcome",
-    "title": "Welcome to Paper & Slate docs",
-    "description": "A local, reviewable starting point for the Paper & Slate documentation system.",
+    "title": "Untitled",
+    "description": "",
     "sourceId": "central",
     "version": "next",
     "taxonomy": [
@@ -31,18 +31,18 @@
       "welcome",
       "start-here"
     ],
-    "text": "\n Welcome\n\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\n\n Start here\n\n- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system/next).\n"
+    "text": "---\r\ntitle: Welcome to Paper & Slate docs\r\ndescription: A local, reviewable starting point for the Paper & Slate documentation system.\r\norder: 1\r\n---\r\n\r\n Welcome\r\n\r\nPaper & Slate documentation is assembled locally from reviewed Markdown sources. Each page carries a source path, immutable local ref, and content hash.\r\n\r\n Start here\r\n\r\n- Read the [provenance guide](/docs/paper-and-slate/concepts/provenance).\r\n- Browse the [File System project](/docs/file-system/next).\r\n"
   },
   {
     "id": "central:next:governance",
     "route": "/docs/paper-and-slate/governance",
     "legacyRoute": "/docs/paper-and-slate/next/governance",
-    "title": "Governance",
-    "description": "The documented boundaries for reviewing and publishing Paper & Slate documentation.",
+    "title": "Untitled",
+    "description": "",
     "sourceId": "central",
     "version": "next",
     "taxonomy": [
-      "governance"
+      "governance.md"
     ],
     "anchors": [
       "governance",
@@ -50,14 +50,14 @@
       "versions-and-provenance",
       "honest-status"
     ],
-    "text": "\n Governance\n\nPaper & Slate publishes documentation from a local, reviewable source set. This page records the boundaries that are\ncurrently evidenced by the documentation system; it is not a claim of institutional approval or production status.\n\n Source review\n\nCentral pages are reviewed repository-owned Markdown. Each ingested page retains its source path, local ref, and\ncontent hash. Fixture, sibling-local, and future Git-imported pages remain separated from the reviewed central rendering\npath.\n\n Versions and provenance\n\nSupported and historical versions remain independent records. A content hash identifies the recorded bytes; it is not\npresented as a Git commit SHA. Raw Markdown routes remain available for source inspection.\n\n Honest status\n\nLocal checks can establish source shape, route behavior, rendering boundaries, and generated artifacts. They do not by\nthemselves establish deployment, legal review, provider activation, production monitoring, or factual approval.\n"
+    "text": "---\r\ntitle: Governance\r\ndescription: The documented boundaries for reviewing and publishing Paper & Slate documentation.\r\norder: 3\r\ntaxonomy: [governance]\r\n---\r\n\r\n Governance\r\n\r\nPaper & Slate publishes documentation from a local, reviewable source set. This page records the boundaries that are\r\ncurrently evidenced by the documentation system; it is not a claim of institutional approval or production status.\r\n\r\n Source review\r\n\r\nCentral pages are reviewed repository-owned Markdown. Each ingested page retains its source path, local ref, and\r\ncontent hash. Fixture, sibling-local, and future Git-imported pages remain separated from the reviewed central rendering\r\npath.\r\n\r\n Versions and provenance\r\n\r\nSupported and historical versions remain independent records. A content hash identifies the recorded bytes; it is not\r\npresented as a Git commit SHA. Raw Markdown routes remain available for source inspection.\r\n\r\n Honest status\r\n\r\nLocal checks can establish source shape, route behavior, rendering boundaries, and generated artifacts. They do not by\r\nthemselves establish deployment, legal review, provider activation, production monitoring, or factual approval.\r\n"
   },
   {
     "id": "central:next:index",
     "route": "/docs/paper-and-slate",
     "legacyRoute": "/docs/paper-and-slate/next",
-    "title": "Paper & Slate documentation",
-    "description": "The current Paper & Slate documentation track, assembled from reviewed local sources.",
+    "title": "Untitled",
+    "description": "",
     "sourceId": "central",
     "version": "next",
     "taxonomy": [
@@ -67,14 +67,14 @@
       "paper-slate-documentation",
       "start-here"
     ],
-    "text": "\n Paper & Slate documentation\n\nThis is the current documentation track for Paper & Slate. It records work as it develops and keeps each page tied to a visible source and version.\n\n Start here\n\n- Read the [welcome page](/docs/paper-and-slate/getting-started/welcome).\n- Review [provenance and local source state](/docs/paper-and-slate/concepts/provenance).\n- Browse the [File System project](/docs/file-system).\n"
+    "text": "---\r\ntitle: Paper & Slate documentation\r\ndescription: The current Paper & Slate documentation track, assembled from reviewed local sources.\r\norder: 0\r\n---\r\n\r\n Paper & Slate documentation\r\n\r\nThis is the current documentation track for Paper & Slate. It records work as it develops and keeps each page tied to a visible source and version.\r\n\r\n Start here\r\n\r\n- Read the [welcome page](/docs/paper-and-slate/getting-started/welcome).\r\n- Review [provenance and local source state](/docs/paper-and-slate/concepts/provenance).\r\n- Browse the [File System project](/docs/file-system).\r\n"
   },
   {
     "id": "file-system:next:guides/publish",
     "route": "/docs/file-system/guides/publish",
     "legacyRoute": "/docs/file-system/next/guides/publish",
-    "title": "Publish a file-system document",
-    "description": "A safe local publishing walkthrough.",
+    "title": "Untitled",
+    "description": "",
     "sourceId": "file-system",
     "version": "next",
     "taxonomy": [
@@ -83,14 +83,14 @@
     "anchors": [
       "publish"
     ],
-    "text": "\n Publish\n\nReview the normalized document, then generate the static artifacts.\n"
+    "text": "---\r\ntitle: Publish a file-system document\r\ndescription: A safe local publishing walkthrough.\r\norder: 2\r\n---\r\n\r\n Publish\r\n\r\nReview the normalized document, then generate the static artifacts.\r\n"
   },
   {
     "id": "file-system:next:index",
     "route": "/docs/file-system",
     "legacyRoute": "/docs/file-system/next",
-    "title": "File System",
-    "description": "The current File System project documentation.",
+    "title": "Untitled",
+    "description": "",
     "sourceId": "file-system",
     "version": "next",
     "taxonomy": [
@@ -100,14 +100,14 @@
       "file-system",
       "publish"
     ],
-    "text": "\n File System\n\nThis is the next local documentation version.\n\n Publish\n\nRead the [publishing guide](/docs/file-system/next/guides/publish).\n"
+    "text": "---\r\ntitle: File System\r\ndescription: The current File System project documentation.\r\norder: 1\r\n---\r\n\r\n File System\r\n\r\nThis is the next local documentation version.\r\n\r\n Publish\r\n\r\nRead the [publishing guide](/docs/file-system/next/guides/publish).\r\n"
   },
   {
     "id": "file-system:v1:index",
     "route": "/docs/file-system/v/1.0",
     "legacyRoute": "/docs/file-system/v/1.0",
-    "title": "File System v1",
-    "description": "The immutable historical fixture.",
+    "title": "Untitled",
+    "description": "",
     "sourceId": "file-system",
     "version": "v1",
     "taxonomy": [
@@ -116,14 +116,14 @@
     "anchors": [
       "file-system-v1"
     ],
-    "text": "\n File System v1\n\nThis page is retained under the immutable v1 fixture ref.\n"
+    "text": "---\r\ntitle: File System v1\r\ndescription: The immutable historical fixture.\r\norder: 1\r\n---\r\n\r\n File System v1\r\n\r\nThis page is retained under the immutable v1 fixture ref.\r\n"
   },
   {
     "id": "file-system:v1:reference/metadata",
     "route": "/docs/file-system/v/1.0/reference/metadata",
     "legacyRoute": "/docs/file-system/v/1.0/reference/metadata",
-    "title": "Metadata reference",
-    "description": "Historical metadata fields.",
+    "title": "Untitled",
+    "description": "",
     "sourceId": "file-system",
     "version": "v1",
     "taxonomy": [
@@ -132,7 +132,23 @@
     "anchors": [
       "metadata-reference"
     ],
-    "text": "\n Metadata reference\n\nMetadata in v1 is documented from a fixed local fixture.\n"
+    "text": "---\r\ntitle: Metadata reference\r\ndescription: Historical metadata fields.\r\norder: 2\r\n---\r\n\r\n Metadata reference\r\n\r\nMetadata in v1 is documented from a fixed local fixture.\r\n"
+  },
+  {
+    "id": "standards-course-schema:next:data-boundary",
+    "route": "/docs/standards-course-schema/data-boundary",
+    "legacyRoute": "/docs/standards-course-schema/next/data-boundary",
+    "title": "Untitled",
+    "description": "",
+    "sourceId": "standards-course-schema",
+    "version": "next",
+    "taxonomy": [
+      "data-boundary.md"
+    ],
+    "anchors": [
+      "data-platform-boundary-note"
+    ],
+    "text": " Data Platform boundary note\n\nStatus: Planned and non-accepting. This note records a local ownership boundary; it is not a Data Platform contract or canonical-record receipt.\n\nThe Course and Catalog Schema proposal describes catalog-facing labels and relationships only. Its courseId, catalogId, lifecycle labels, and provenance do not establish enrollment, learner state, completion, credit, accreditation, credentials, a source catalog, an API, or an immutable release.\n\nData Platform retains canonical education data, learner/enrollment state, provenance stores, APIs, and release semantics. Any future projection or compatibility request requires a Data-owned versioned contract receipt; this workspace makes no acceptance claim.\n"
   },
   {
     "id": "standards-course-schema:next:index",
@@ -146,9 +162,12 @@
       "getting-started"
     ],
     "anchors": [
-      "course-and-catalog-schema"
+      "course-and-catalog-schema",
+      "ownership",
+      "verification",
+      "documentation"
     ],
-    "text": "\n Course and Catalog Schema\n\nStatus: Planned. A course record could describe title, summary, audience, prerequisites, and catalog relationships. It must not imply enrollment, credit, accreditation, or completion without separately verified facts.\n"
+    "text": "\n Course and Catalog Schema\n\nStatus: Planned. A course record could describe title, summary, audience, prerequisites, and catalog relationships. It must not imply enrollment, credit, accreditation, or completion without separately verified facts.\n\nRead the Planned descriptive record proposal for local identifiers, relationships, lifecycle/effective dates, explicit unknowns, claim boundaries, and synthetic fixture rules.\n\nThe [Data Platform boundary note](/docs/standards-course-schema/data-boundary) is non-accepting and does not define a canonical data contract.\n\n Ownership\n\nStandards owns this local descriptive proposal. Data Platform owns canonical education data and release semantics; this page does not accept that contract.\n\n Verification\n\nRun pnpm verify from the Standards root and node --test tests/course-schema. Local checks do not prove enrollment, completion, credit, accreditation, rights, adoption, publication, or production readiness.\n\n Documentation\n\nSee the project README for audience, non-goals, contribution, and evidence limits.\n"
   },
   {
     "id": "standards-curriculum-standards:next:index",
@@ -162,9 +181,44 @@
       "getting-started"
     ],
     "anchors": [
-      "curriculum-standards-schema"
+      "curriculum-standards-schema",
+      "ownership",
+      "verification",
+      "documentation"
     ],
-    "text": "\n Curriculum Standards Schema\n\nStatus: Experimental. A future record may link learning materials to an identified framework, jurisdiction, or version. Alignment is a review claim and must remain explicit; no official conformance is asserted here.\n"
+    "text": "\n Curriculum Standards Schema\n\nStatus: Experimental. A future record may link learning materials to an identified framework, jurisdiction, or version. Alignment is a review claim and must remain explicit; no official conformance is asserted here.\n\nRead the Experimental alignment-assertion proposal for synthetic framework IDs, target material, claimant, evidence, review/effective-period states, uncertainty, and candidate-only mappings.\n\nThe [Registry/Data boundary dossier](/docs/standards-curriculum-standards/registry-data-boundary) records the non-accepting owner split and no-official-source rule.\n\n Ownership\n\nStandards owns this Experimental alignment proposal. Standards Registry owns official framework source, rights, ingestion, mappings, and releases; Data Platform owns canonical infrastructure.\n\n Verification\n\nRun pnpm verify from the Standards root and node --test tests/curriculum-standards. Local checks do not prove official conformance, rights, adoption, publication, or production readiness.\n\n Documentation\n\nSee the project README for audience, non-goals, contribution, and evidence limits.\n"
+  },
+  {
+    "id": "standards-curriculum-standards:next:registry-data-boundary",
+    "route": "/docs/standards-curriculum-standards/registry-data-boundary",
+    "legacyRoute": "/docs/standards-curriculum-standards/next/registry-data-boundary",
+    "title": "Untitled",
+    "description": "",
+    "sourceId": "standards-curriculum-standards",
+    "version": "next",
+    "taxonomy": [
+      "registry-data-boundary.md"
+    ],
+    "anchors": [
+      "registry-and-data-boundary-dossier"
+    ],
+    "text": " Registry and Data boundary dossier\n\nStatus: Experimental and non-accepting. This dossier records a requested ownership boundary; it is not a Standards Registry or Data Platform receipt.\n\nThis local proposal uses synthetic framework identifiers and local snapshots only. It does not ingest official standards, resolve mappings, assert conformance, establish source rights, or publish a framework release. candidate-only, unresolved, unknown, and tentative states must remain visible.\n\nStandards Registry owns official framework sources, rights review, canonical framework models, mappings, workbench/API behavior, evidence stores, and releases. Data Platform owns canonical education data, provenance stores, APIs, and release semantics. EOM retains protocol identity and authority. Any future projection, ingestion, or compatibility request remains unaccepted until the owning project supplies its own versioned receipt.\n"
+  },
+  {
+    "id": "standards-discovery:next:eom-boundary",
+    "route": "/docs/standards-discovery/eom-boundary",
+    "legacyRoute": "/docs/standards-discovery/next/eom-boundary",
+    "title": "Untitled",
+    "description": "",
+    "sourceId": "standards-discovery",
+    "version": "next",
+    "taxonomy": [
+      "eom-boundary.md"
+    ],
+    "anchors": [
+      "eom-boundary-dossier"
+    ],
+    "text": " EOM boundary dossier\n\nStatus: Experimental and non-accepting. This dossier documents a local compatibility boundary; it is not an EOM contract, implementation, endorsement, or acceptance record.\n\nThe Education Discovery proposal does not define or publish a .well-known endpoint, reuse EOM normative identifiers, claim IANA registration, assert interoperability, or establish identity, authority, capability, schema, or release semantics. Its discoveryId is a local descriptive label and its hashes describe synthetic workspace snapshots only.\n\nEOM retains ownership of protocol identity, authority, capability semantics, schemas, endpoints, registration, conformance, and release identity. A future compatibility or adapter request requires an immutable EOM owner receipt and a fresh review from that owner; this local validator cannot substitute for either.\n\nStandards Registry and Data Platform retain official-source, rights, canonical, mapping, API, and release authority. Web owns public ingestion and publication, UI owns runtime acceptance, and Documents owns file-format semantics and materialization. No sibling acceptance, legal conclusion, adoption, certification, provider activation, or production behavior is inferred here.\n\nThe only local evidence is the deterministic validator and its synthetic vectors. Keep unresolved identity, route, review, provenance, and interoperability states explicit, and stop if a proposed change crosses one of these ownership boundaries.\n"
   },
   {
     "id": "standards-discovery:next:index",
@@ -179,9 +233,12 @@
     ],
     "anchors": [
       "well-known-education-discovery",
+      "ownership",
+      "verification",
+      "documentation",
       "safety-boundary"
     ],
-    "text": "\n .well-known Education Discovery\n\nStatus: Experimental. A future discovery document could identify education resources, ownership, and documentation routes. This local proposal does not publish a network endpoint or assert ecosystem support.\n\n Safety boundary\n\nConsumers should treat discovery as descriptive metadata and verify source provenance before relying on it.\n"
+    "text": "\n .well-known Education Discovery\n\nStatus: Experimental. The local discovery proposal describes education-shaped resources and documentation paths without publishing a network endpoint or asserting ecosystem support. Its machine-readable profile is discovery-record.schema.json, with synthetic valid and invalid vectors under fixtures.\n\n Ownership\n\nStandards owns this Experimental descriptive proposal. EOM owns any .well-known protocol contract, endpoint, registration, conformance, and release.\n\nThe [EOM boundary dossier](/docs/standards-discovery/eom-boundary) records the non-accepting compatibility and authority split. Registry, Data Platform, Web, UI, and Documents retain their own source, rights, runtime, acceptance, publication, and file-format boundaries.\n\n Verification\n\nRun pnpm verify from the Standards root, node scripts/validate-discovery.mjs, and node --test tests/discovery. Local checks do not prove interoperability, registration, publication, rights, or production readiness.\n\n Documentation\n\nSee the project README for audience, non-goals, contribution, and evidence limits.\n\n Safety boundary\n\nConsumers should treat discovery as descriptive metadata and verify source provenance before relying on it.\n"
   },
   {
     "id": "standards-file-system:next:index",
@@ -196,9 +253,28 @@
     ],
     "anchors": [
       "file-system",
-      "ownership"
+      "ownership",
+      "verification",
+      "documentation",
+      "non-goals"
     ],
-    "text": "\n File System\n\nStatus: Planned. This proposal describes a stable place for educational files and their review metadata. It has no normative adoption.\n\n Ownership\n\nEach document should retain its source path, version, edit date, and local content hash. Publication is a generated local artifact, not a request-time import.\n"
+    "text": "\n File System\n\nStatus: Planned. This proposal describes a stable place for educational files and their review metadata. It has no normative adoption.\n\n Ownership\n\nStandards owns this local metadata proposal. Documents owns file-format semantics and recipient-safe materialization.\n\n Verification\n\nRun pnpm verify from the standards root. Local checks do not prove adoption, publication, release, rights, or production readiness.\n\n Documentation\n\nSee the project README for audience, non-goals, contribution, and evidence limits.\n\nRead the Planned record proposal for source, version, review, publication-state, conflict, and derived-provenance metadata.\n\n Non-goals\n\nEach document should retain its source path, version, edit date, and local content hash. Publication is a generated local artifact, not a request-time import.\n"
+  },
+  {
+    "id": "standards-organization-schema:next:eom-boundary",
+    "route": "/docs/standards-organization-schema/eom-boundary",
+    "legacyRoute": "/docs/standards-organization-schema/next/eom-boundary",
+    "title": "Untitled",
+    "description": "",
+    "sourceId": "standards-organization-schema",
+    "version": "next",
+    "taxonomy": [
+      "eom-boundary.md"
+    ],
+    "anchors": [
+      "eom-boundary-note"
+    ],
+    "text": " EOM boundary note\n\nStatus: Planned and non-accepting. This note records a boundary for future discussion; it is not an EOM compatibility or protocol receipt.\n\nThe Organization Schema proposal's display metadata and local descriptive verification state must not be read as EOM manifest identity, authority, capability, endpoint, registration, or authentication semantics. No EOM identifier, schema, network route, or adapter is defined here.\n\nAn immutable EOM owner receipt would be required before any compatibility claim or accepted adapter could be considered. Until then, the organization proposal remains a local Planned source with legal, affiliation, endorsement, authentication, and authority claims explicitly not-asserted, unknown, or unverified.\n"
   },
   {
     "id": "standards-organization-schema:next:index",
@@ -212,9 +288,12 @@
       "getting-started"
     ],
     "anchors": [
-      "organization-schema"
+      "organization-schema",
+      "ownership",
+      "verification",
+      "documentation"
     ],
-    "text": "\n Organization Schema\n\nStatus: Planned. A possible organization record may include a display name, public URL, contact route, and provenance. Legal identity, registration, affiliation, and endorsement remain unverified facts.\n"
+    "text": "\n Organization Schema\n\nStatus: Planned. A possible organization record may include a display name, public URL, contact route, and provenance. Legal identity, registration, affiliation, and endorsement remain unverified facts.\n\nRead the Planned descriptive record proposal for the local shape, explicit unknown/unverified states, boundary claims, and synthetic fixture rules.\n\nThe [EOM boundary note](/docs/standards-organization-schema/eom-boundary) is a non-accepting comparison only; it does not define an EOM contract or endpoint.\n\n Ownership\n\nStandards owns this local descriptive proposal. EOM, Data Platform, and legal/governance authorities retain their respective identity, canonical-data, and legal fact boundaries.\n\n Verification\n\nRun pnpm verify from the Standards root and node --test tests/organization-schema. Local checks do not verify legal identity, rights, adoption, publication, or production readiness.\n\n Documentation\n\nSee the project README for audience, non-goals, contribution, and evidence limits.\n"
   },
   {
     "id": "standards-tools:next:index",
@@ -228,8 +307,27 @@
       "getting-started"
     ],
     "anchors": [
-      "tools-and-libraries"
+      "tools-and-libraries",
+      "ownership",
+      "verification",
+      "documentation"
     ],
-    "text": "\n Tools and Libraries\n\nStatus: Planned. An inventory entry may record a name, purpose, version, license reference, and review date. It should distinguish descriptive listing from endorsement and retain source provenance.\n"
+    "text": "\n Tools and Libraries\n\nStatus: Planned. An inventory entry may record a name, purpose, version, license reference, and review date. It should distinguish descriptive listing from endorsement and retain source provenance.\n\nRead the Planned inventory proposal for availability/review states, descriptive-only license references, boundary claims, and synthetic fixture rules.\n\nThe [license and endorsement boundary note](/docs/standards-tools-and-libraries/license-and-endorsement-boundary) records the non-accepting distinction between listing and support, certification, provider activation, or rights verification.\n\n Ownership\n\nStandards owns this local descriptive inventory proposal. A listing is not a provider, security, support, endorsement, or rights decision.\n\n Verification\n\nRun pnpm verify from the Standards root and node --test tests/tools-and-libraries. Local checks do not verify license rights, security, availability, adoption, publication, or production readiness.\n\n Documentation\n\nSee the project README for audience, non-goals, contribution, and evidence limits.\n"
+  },
+  {
+    "id": "standards-tools:next:license-and-endorsement-boundary",
+    "route": "/docs/standards-tools-and-libraries/license-and-endorsement-boundary",
+    "legacyRoute": "/docs/standards-tools-and-libraries/next/license-and-endorsement-boundary",
+    "title": "Untitled",
+    "description": "",
+    "sourceId": "standards-tools",
+    "version": "next",
+    "taxonomy": [
+      "license-and-endorsement-boundary.md"
+    ],
+    "anchors": [
+      "license-and-endorsement-boundary"
+    ],
+    "text": " License and endorsement boundary\n\nStatus: Planned and non-accepting. This note records local inventory boundaries; it is not a rights, security, provider, or support receipt.\n\nAn inventory listed state means only that descriptive text exists in this local workspace. It does not mean installed, available, supported, endorsed, secure, certified, provider-activated, or legally cleared. licenseReference.scope: descriptive-only is a pointer for review, never a license grant or conclusion about redistribution rights.\n\nProvider, security, support, and rights owners retain their own acceptance authority. Consumers must perform independent due diligence; no dependency installation, provider call, public publication, or sibling contract is performed here.\n"
   }
 ]

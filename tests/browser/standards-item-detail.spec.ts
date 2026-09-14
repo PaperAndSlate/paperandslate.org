@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test.describe("public Standards item detail", () => {
   test("renders truthful candidate metadata or the unavailable state safely", async ({ page }) => {
-    const configured = Boolean(process.env.STANDARDS_API_URL && process.env.LOCAL_API_BEARER);
+    const configured = Boolean(process.env.STANDARDS_API_URL && process.env.STANDARDS_API_BEARER);
     await page.goto(
       "/standards/items/node-ia-math-k5-numeric-1?release=candidate-ia-mathematics-fixture-2026",
     );

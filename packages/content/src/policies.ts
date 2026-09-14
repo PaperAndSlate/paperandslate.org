@@ -7,6 +7,9 @@ export const policies: Policy[] = [
     version: "0.1",
     effectiveDate: "2026-08-18",
     status: "current",
+    owner: "Paper & Slate maintainers",
+    lastReviewed: "2026-08-18",
+    revisionHistory: [],
     kind: "policy",
     canonicalUrl: "/governance/policies/contribution-policy",
     content:
@@ -19,6 +22,9 @@ export const policies: Policy[] = [
     version: "0.1",
     effectiveDate: "2026-08-18",
     status: "current",
+    owner: "Paper & Slate maintainers",
+    lastReviewed: "2026-08-18",
+    revisionHistory: [],
     kind: "license",
     canonicalUrl: "/governance/policies/documentation-license",
     content:

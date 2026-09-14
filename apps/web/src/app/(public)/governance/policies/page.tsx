@@ -17,6 +17,10 @@ export default function Policies() {
               </p>
               <h2>{p.title}</h2>
               <p>{p.summary}</p>
+              <p className="record-meta">
+                Owner: {p.owner} · Last reviewed: {p.lastReviewed ?? "Not recorded"} · Next review:{" "}
+                {p.nextReview ?? "Not recorded"}
+              </p>
               <Link href={p.canonicalUrl}>Read notice →</Link>
             </article>
           ))}

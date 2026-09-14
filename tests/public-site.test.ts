@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  filterPublicProjects,
   foundationPages,
   getProject,
   people,
@@ -7,6 +8,7 @@ import {
   publicPeopleAt,
   publicProjectsAt,
 } from "../packages/content/src/index";
+import { GET as getProjectsJson } from "../apps/web/src/app/projects.json/route";
 
 describe("public content registry", () => {
   it("contains unique, truthful project entries", () => {
@@ -42,5 +44,25 @@ describe("public content registry", () => {
         (person) => person.id,
       ),
     ).toEqual([people[0]!.id]);
+  });
+
+  it("keeps maturity and health independent in filters and the JSON projection", async () => {
+    const experimental = filterPublicProjects({ maturity: "experimental" });
+    expect(experimental).toHaveLength(1);
+    expect(experimental[0]).toMatchObject({
+      maturity: "experimental",
+      health: "limited-maintenance",
+    });
+    expect(filterPublicProjects({ health: "limited-maintenance" })).toEqual(experimental);
+
+    const response = getProjectsJson();
+    expect(response.status).toBe(200);
+    const body = (await response.json()) as {
+      projects: Array<{ slug: string; maturity?: string; health?: string }>;
+    };
+    expect(body.projects.find((project) => project.slug === "organization-schema")).toMatchObject({
+      maturity: "experimental",
+      health: "limited-maintenance",
+    });
   });
 });

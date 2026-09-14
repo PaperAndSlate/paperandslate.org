@@ -3,6 +3,7 @@ import {
   docs,
   docProjectRecords,
   docRouteManifest,
+  docTaxonomy,
   getDoc,
   rawRouteFor,
   resolveDocRoute,
@@ -74,5 +75,37 @@ describe("public discovery contract", () => {
   });
   it("declares the noindex component board as an internal review surface", () => {
     expect(fs.existsSync("apps/web/src/app/(public)/design-system/page.tsx")).toBe(true);
+  });
+});
+
+describe("source-document link mapping", () => {
+  const boundaryRoutes = [
+    ["/docs/course-catalog-schema/data-boundary", "/docs/standards-course-schema/data-boundary"],
+    [
+      "/docs/curriculum-standards-schema/registry-data-boundary",
+      "/docs/standards-curriculum-standards/registry-data-boundary",
+    ],
+    ["/docs/well-known-discovery/eom-boundary", "/docs/standards-discovery/eom-boundary"],
+    ["/docs/organization-schema/eom-boundary", "/docs/standards-organization-schema/eom-boundary"],
+    [
+      "/docs/tools-and-libraries/license-and-endorsement-boundary",
+      "/docs/standards-tools-and-libraries/license-and-endorsement-boundary",
+    ],
+  ] as const;
+
+  it("maps each ingested source boundary link to an existing public document", () => {
+    for (const [publicRoute, sourceRoute] of boundaryRoutes) {
+      expect(resolveDocRoute(publicRoute)?.doc.canonicalRoute).toBe(publicRoute);
+      expect(docs.some((doc) => doc.content.includes(`](${sourceRoute})`))).toBe(false);
+      expect(docs.some((doc) => doc.content.includes(`](${publicRoute})`))).toBe(true);
+    }
+  });
+
+  it("does not emit source-adjacent Markdown or invented root aliases", () => {
+    expect(docTaxonomy().some((topic) => topic.endsWith(".md"))).toBe(false);
+    for (const doc of docs) {
+      expect(doc.content).not.toMatch(/\]\([^)]*\.md(?:[#?][^)]*)?\)/i);
+      expect(doc.content).not.toMatch(/\]\(\/docs\/[^)]+\.md(?:[#?][^)]*)?\)/i);
+    }
   });
 });
