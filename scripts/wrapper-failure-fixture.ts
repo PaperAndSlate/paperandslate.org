@@ -1,26 +1,30 @@
-import { spawnSync } from "node:child_process";
 import path from "node:path";
-import { pnpmSpawnSpec } from "./pnpm-command";
+import { fileURLToPath } from "node:url";
+import { preparePnpmEnv, spawnPnpmSync } from "./pnpm-command";
 const root = process.cwd();
 
-function expectFailure(script: string, extra: Record<string, string>) {
-  const invocation = pnpmSpawnSpec(["exec", "tsx", script]);
-  const result = spawnSync(invocation.command, invocation.args, {
+export function expectFailure(
+  script: string,
+  extra: Record<string, string>,
+  spawnSyncImpl: typeof spawnPnpmSync = spawnPnpmSync,
+) {
+  const result = spawnSyncImpl(["exec", "tsx", script], {
     cwd: root,
-    env: { ...process.env, ...extra },
+    env: preparePnpmEnv({ ...process.env, ...extra }),
     stdio: "pipe",
     encoding: "utf8",
-    shell: false,
   });
   if (result.error) throw result.error;
   if (result.status === 0) throw new Error(`${script} unexpectedly passed its failure fixture`);
   console.log(`${path.basename(script)} returned the expected nonzero fixture status.`);
 }
 
-expectFailure("scripts/lighthouse.ts", {
-  LIGHTHOUSE_STANDALONE_SERVER: path.join(root, ".generated", "missing", "server.js"),
-});
-expectFailure("scripts/container-check.ts", {
-  CONTAINER_CHECK_DOCKERFILE: path.join(root, ".generated", "missing", "Dockerfile"),
-});
-expectFailure("scripts/ci-browser.ts", {});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  expectFailure("scripts/lighthouse.ts", {
+    LIGHTHOUSE_STANDALONE_SERVER: path.join(root, ".generated", "missing", "server.js"),
+  });
+  expectFailure("scripts/container-check.ts", {
+    CONTAINER_CHECK_DOCKERFILE: path.join(root, ".generated", "missing", "Dockerfile"),
+  });
+  expectFailure("scripts/ci-browser.ts", {});
+}

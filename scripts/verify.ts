@@ -1,10 +1,11 @@
-import { spawn, spawnSync, type ChildProcess } from "node:child_process";
+import { spawnSync, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { loadRegistry, sourceDocsRoot } from "../packages/docs-ingestion/src/index";
 import { normalizeFumadocsSource } from "./normalize-fumadocs-source";
-import { pnpmSpawnSpec } from "./pnpm-command";
+import { preparePnpmEnv, spawnPnpm } from "./pnpm-command";
 import { readSourceState } from "./source-state";
+import { fileURLToPath } from "node:url";
 
 const siblingDocsAvailable = (() => {
   try {
@@ -56,6 +57,7 @@ const tasksThatRegenerateFumadocsSource = new Set(["e2e", "a11y:rc", "links", "v
 const tasks =
   process.env.VERIFY_SKIP_EXTERNAL === "true" ? localTasks : [...localTasks, ...externalTasks];
 const evidencePath = path.join(process.cwd(), ".generated", "launch", "verify.json");
+const isMain = process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 const startedAt = new Date().toISOString();
 const recoverAbandonedEvidence = () => {
   if (!fs.existsSync(evidencePath)) return;
@@ -112,8 +114,10 @@ const writeEvidence = (
   );
 };
 const completed: string[] = [];
-recoverAbandonedEvidence();
-writeEvidence("running", completed);
+if (isMain) {
+  recoverAbandonedEvidence();
+  writeEvidence("running", completed);
+}
 
 const configuredTaskTimeoutMs = Number(process.env.VERIFY_TASK_TIMEOUT_MS ?? 15 * 60_000);
 const taskTimeoutMs =
@@ -135,15 +139,17 @@ function stopChild(child: ChildProcess | undefined) {
   }
 }
 
-function runTask(task: string): Promise<number> {
+export function runTask(
+  task: string,
+  spawnImpl: typeof spawnPnpm = spawnPnpm,
+  stopImpl: (child: ChildProcess | undefined) => void = stopChild,
+  timeoutMs = taskTimeoutMs,
+): Promise<number> {
   return new Promise((resolve, reject) => {
-    const invocation = pnpmSpawnSpec([task]);
-    const child = spawn(invocation.command, invocation.args, {
+    const child = spawnImpl([task], {
       cwd: process.cwd(),
       stdio: "inherit",
-      env: process.env,
-      shell: false,
-      windowsHide: true,
+      env: preparePnpmEnv(process.env),
     });
     activeChild = child;
     let finished = false;
@@ -156,11 +162,11 @@ function runTask(task: string): Promise<number> {
       if (error) reject(error);
       else resolve(code ?? 1);
     };
-    if (Number.isFinite(taskTimeoutMs) && taskTimeoutMs > 0) {
+    if (Number.isFinite(timeoutMs) && timeoutMs > 0) {
       timer = setTimeout(() => {
-        stopChild(child);
-        finish(new Error(`pnpm ${task} exceeded the ${taskTimeoutMs}ms task timeout`));
-      }, taskTimeoutMs);
+        stopImpl(child);
+        finish(new Error(`pnpm ${task} exceeded the ${timeoutMs}ms task timeout`));
+      }, timeoutMs);
     }
     child.once("error", (error) => finish(error));
     child.once("exit", (code, signal) => {
@@ -174,8 +180,10 @@ const abortVerification = () => {
   interrupted = true;
   stopChild(activeChild);
 };
-process.once("SIGINT", abortVerification);
-process.once("SIGTERM", abortVerification);
+if (isMain) {
+  process.once("SIGINT", abortVerification);
+  process.once("SIGTERM", abortVerification);
+}
 
 async function main() {
   for (const task of tasks) {
@@ -208,8 +216,9 @@ async function main() {
   console.log(`[verify] ${tasks.length} checks passed.`);
 }
 
-main().catch((error) => {
-  writeEvidence("failed", completed, error instanceof Error ? error.message : String(error));
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = interrupted ? 130 : 1;
-});
+if (isMain)
+  main().catch((error) => {
+    writeEvidence("failed", completed, error instanceof Error ? error.message : String(error));
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = interrupted ? 130 : 1;
+  });

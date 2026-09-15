@@ -2,7 +2,8 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { pnpmSpawnSpec } from "./pnpm-command";
+import { fileURLToPath } from "node:url";
+import { preparePnpmEnv, spawnPnpmSync } from "./pnpm-command";
 import { equalBytes, sha256Bytes } from "./reproducibility-core";
 import { sourceDirtyPaths, sourceWorktreeClean } from "./source-state";
 
@@ -10,11 +11,10 @@ const root = process.cwd();
 const output = path.join(root, ".generated", "search", "search-records.json");
 const evidence = path.join(root, ".generated", "launch", "reproducibility.json");
 
-function runSearch() {
-  const invocation = pnpmSpawnSpec(["search:index"]);
-  const result = spawnSync(invocation.command, invocation.args, {
+export function runSearch(spawnSyncImpl: typeof spawnPnpmSync = spawnPnpmSync) {
+  const result = spawnSyncImpl(["search:index"], {
     cwd: root,
-    env: {
+    env: preparePnpmEnv({
       ...process.env,
       CI: "true",
       LANG: "C",
@@ -22,14 +22,14 @@ function runSearch() {
       LC_ALL: "C",
       PUBLICATION_AS_OF: "2026-08-27",
       TZ: "UTC",
-    },
+    }),
     encoding: "utf8",
     maxBuffer: 20 * 1024 * 1024,
-    shell: false,
-    windowsHide: true,
   });
+  const stderr =
+    typeof result.stderr === "string" ? result.stderr : (result.stderr?.toString() ?? "");
   if (result.error || result.status !== 0)
-    throw new Error(`pnpm search:index failed: ${result.error?.message ?? result.stderr.trim()}`);
+    throw new Error(`pnpm search:index failed: ${result.error?.message ?? stderr.trim()}`);
 }
 
 function git(args: string[]) {
@@ -95,36 +95,37 @@ function main() {
   }
 }
 
-try {
-  main();
-} catch (error) {
-  const message = error instanceof Error ? error.message : String(error);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
   try {
-    const status = sourceStatus();
-    fs.mkdirSync(path.dirname(evidence), { recursive: true });
-    fs.writeFileSync(
-      evidence,
-      `${JSON.stringify(
-        {
-          schemaVersion: 1,
-          status: "failed",
-          generatedAt: new Date().toISOString(),
-          source: {
-            commit: git(["rev-parse", "HEAD"]),
-            tree: git(["rev-parse", "HEAD^{tree}"]),
-            lockfileSha256: sha256Bytes(fs.readFileSync(path.join(root, "pnpm-lock.yaml"))),
-            worktreeClean: sourceWorktreeClean(status),
-            dirtyPaths: sourceDirtyPaths(status),
+    main();
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    try {
+      const status = sourceStatus();
+      fs.mkdirSync(path.dirname(evidence), { recursive: true });
+      fs.writeFileSync(
+        evidence,
+        `${JSON.stringify(
+          {
+            schemaVersion: 1,
+            status: "failed",
+            generatedAt: new Date().toISOString(),
+            source: {
+              commit: git(["rev-parse", "HEAD"]),
+              tree: git(["rev-parse", "HEAD^{tree}"]),
+              lockfileSha256: sha256Bytes(fs.readFileSync(path.join(root, "pnpm-lock.yaml"))),
+              worktreeClean: sourceWorktreeClean(status),
+              dirtyPaths: sourceDirtyPaths(status),
+            },
+            error: message,
           },
-          error: message,
-        },
-        null,
-        2,
-      )}\n`,
-    );
-  } catch {
-    // Preserve the original reproducibility failure when evidence output is unavailable.
+          null,
+          2,
+        )}\n`,
+      );
+    } catch {
+      // Preserve the original reproducibility failure when evidence output is unavailable.
+    }
+    console.error(message);
+    process.exitCode = 1;
   }
-  console.error(message);
-  process.exitCode = 1;
-}

@@ -1,12 +1,13 @@
 import { spawn, spawnSync, type ChildProcess } from "node:child_process";
 import { cp, mkdir, readFile, readdir, realpath, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
 import { isMissingPathError } from "./fs-errors";
 import { withLighthouseChrome } from "./lighthouse-chrome";
 import { withOwnedPuppeteerBrowser } from "./lighthouse-config";
 import { normalizeFumadocsSource } from "./normalize-fumadocs-source";
-import { pnpmSpawnSpec } from "./pnpm-command";
+import { preparePnpmEnv, spawnPnpm } from "./pnpm-command";
 import { assertTcpPortFree, parseTcpPort } from "./port-check";
 import { assertExactSourceRevision } from "./evidence-identity";
 import { withProductionOutputLock } from "./production-output-lock";
@@ -168,15 +169,16 @@ async function writeRunConfig() {
   await writeFile(configPath, `${JSON.stringify(template, null, 2)}\n`, "utf8");
 }
 
-function runLighthouse(config: string, env: NodeJS.ProcessEnv) {
+export function runLighthouse(
+  config: string,
+  env: NodeJS.ProcessEnv,
+  spawnImpl: typeof spawnPnpm = spawnPnpm,
+) {
   return new Promise<void>((resolve, reject) => {
-    const invocation = pnpmSpawnSpec(["exec", "lhci", "autorun", `--config=${config}`]);
-    const child = spawn(invocation.command, invocation.args, {
+    const child = spawnImpl(["exec", "lhci", "autorun", `--config=${config}`], {
       cwd: root,
-      env,
+      env: preparePnpmEnv(env),
       stdio: "inherit",
-      shell: false,
-      windowsHide: true,
     });
     child.once("error", reject);
     child.once("exit", (code, signal) => {
@@ -314,25 +316,26 @@ async function runLighthouseEvidence() {
   }
 }
 
-main().catch(async (error) => {
-  if (error instanceof ExclusiveRunAlreadyActiveError) {
-    console.error(error.message);
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+  main().catch(async (error) => {
+    if (error instanceof ExclusiveRunAlreadyActiveError) {
+      console.error(error.message);
+      process.exitCode = 1;
+      return;
+    }
+    await writeRunManifest({
+      schemaVersion: 1,
+      status: "failed",
+      startedAt: new Date().toISOString(),
+      finishedAt: new Date().toISOString(),
+      releaseId,
+      gitSha,
+      baseUrl,
+      port,
+      outputDir: path.relative(root, outputDir),
+      configuredUrls: [],
+      error: error instanceof Error ? error.message : String(error),
+    });
+    console.error(error instanceof Error ? error.message : error);
     process.exitCode = 1;
-    return;
-  }
-  await writeRunManifest({
-    schemaVersion: 1,
-    status: "failed",
-    startedAt: new Date().toISOString(),
-    finishedAt: new Date().toISOString(),
-    releaseId,
-    gitSha,
-    baseUrl,
-    port,
-    outputDir: path.relative(root, outputDir),
-    configuredUrls: [],
-    error: error instanceof Error ? error.message : String(error),
   });
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});

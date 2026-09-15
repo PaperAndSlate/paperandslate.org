@@ -3,7 +3,8 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { pnpmSpawnSpec } from "./pnpm-command";
+import { fileURLToPath } from "node:url";
+import { preparePnpmEnv, spawnPnpmSync } from "./pnpm-command";
 import { sourceDirtyPaths, sourceWorktreeClean } from "./source-state";
 
 const root = process.cwd();
@@ -14,21 +15,26 @@ const consumerRoot = path.join(tempRoot, "consumer");
 const consumerSource = path.join(consumerRoot, "consumer.ts");
 const evidencePath = path.join(root, ".generated", "launch", "package-smoke.json");
 
-function run(args: string[], cwd: string) {
-  const invocation = pnpmSpawnSpec(args);
-  const result = spawnSync(invocation.command, invocation.args, {
+export function run(
+  args: string[],
+  cwd: string,
+  spawnSyncImpl: typeof spawnPnpmSync = spawnPnpmSync,
+) {
+  const result = spawnSyncImpl(args, {
     cwd,
-    env: { ...process.env, CI: "true" },
+    env: preparePnpmEnv({ ...process.env, CI: "true" }),
     encoding: "utf8",
     maxBuffer: 20 * 1024 * 1024,
-    shell: false,
-    windowsHide: true,
   });
+  const stdout =
+    typeof result.stdout === "string" ? result.stdout : (result.stdout?.toString() ?? "");
+  const stderr =
+    typeof result.stderr === "string" ? result.stderr : (result.stderr?.toString() ?? "");
   if (result.error || result.status !== 0)
     throw new Error(
-      `pnpm ${args.join(" ")} failed in ${cwd}: ${result.error?.message ?? (result.stderr.trim() || result.stdout.trim())}`,
+      `pnpm ${args.join(" ")} failed in ${cwd}: ${result.error?.message ?? (stderr.trim() || stdout.trim())}`,
     );
-  return result.stdout;
+  return stdout;
 }
 
 function sha256(file: string) {
@@ -217,4 +223,4 @@ function sourceStatus() {
   return result.stdout.trimEnd();
 }
 
-main();
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) main();

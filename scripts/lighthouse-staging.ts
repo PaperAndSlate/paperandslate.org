@@ -1,11 +1,11 @@
-import { spawn } from "node:child_process";
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { readBoundedJson } from "../packages/config/src/provider-safety";
 import { acquireExclusiveRunLock, ExclusiveRunAlreadyActiveError } from "./exclusive-run-lock";
 import { withLighthouseChrome } from "./lighthouse-chrome";
 import { withOwnedPuppeteerBrowser } from "./lighthouse-config";
-import { pnpmSpawnSpec } from "./pnpm-command";
+import { preparePnpmEnv, spawnPnpm } from "./pnpm-command";
 import { assertHostedStagingOrigin, assertResponseOrigin } from "./hosted-origin";
 
 const root = process.cwd();
@@ -82,15 +82,16 @@ async function waitForHealth(url: string) {
   throw new Error(`Staging health did not become ready at ${url}`);
 }
 
-function runLighthouse(config: string, env: NodeJS.ProcessEnv) {
+export function runLighthouse(
+  config: string,
+  env: NodeJS.ProcessEnv,
+  spawnImpl: typeof spawnPnpm = spawnPnpm,
+) {
   return new Promise<void>((resolve, reject) => {
-    const invocation = pnpmSpawnSpec(["exec", "lhci", "autorun", `--config=${config}`]);
-    const child = spawn(invocation.command, invocation.args, {
+    const child = spawnImpl(["exec", "lhci", "autorun", `--config=${config}`], {
       cwd: root,
-      env,
+      env: preparePnpmEnv(env),
       stdio: "inherit",
-      shell: false,
-      windowsHide: true,
     });
     child.once("error", reject);
     child.once("exit", (code, signal) => {
@@ -225,31 +226,32 @@ async function runHostedLighthouseEvidence() {
   }
 }
 
-main().catch(async (error) => {
-  const message = error instanceof Error ? error.message : String(error);
-  if (error instanceof ExclusiveRunAlreadyActiveError) {
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url))
+  main().catch(async (error) => {
+    const message = error instanceof Error ? error.message : String(error);
+    if (error instanceof ExclusiveRunAlreadyActiveError) {
+      console.error(message);
+      process.exitCode = 1;
+      return;
+    }
+    try {
+      const base = stagingUrl ? new URL(stagingUrl) : null;
+      await writeManifest({
+        schemaVersion: 2,
+        status: "failed",
+        startedAt: new Date().toISOString(),
+        finishedAt: new Date().toISOString(),
+        targetUrl: base?.origin ?? (stagingUrl ? "invalid" : "missing"),
+        releaseId,
+        gitSha: expectedGitSha,
+        deploymentId: process.env.STAGING_DEPLOYMENT_ID ?? null,
+        environment: process.env.DEPLOYMENT_ENV ?? "staging",
+        configuredUrls: [],
+        error: message,
+      });
+    } catch {
+      // Preserve the original failure when evidence output itself is unavailable.
+    }
     console.error(message);
     process.exitCode = 1;
-    return;
-  }
-  try {
-    const base = stagingUrl ? new URL(stagingUrl) : null;
-    await writeManifest({
-      schemaVersion: 2,
-      status: "failed",
-      startedAt: new Date().toISOString(),
-      finishedAt: new Date().toISOString(),
-      targetUrl: base?.origin ?? (stagingUrl ? "invalid" : "missing"),
-      releaseId,
-      gitSha: expectedGitSha,
-      deploymentId: process.env.STAGING_DEPLOYMENT_ID ?? null,
-      environment: process.env.DEPLOYMENT_ENV ?? "staging",
-      configuredUrls: [],
-      error: message,
-    });
-  } catch {
-    // Preserve the original failure when evidence output itself is unavailable.
-  }
-  console.error(message);
-  process.exitCode = 1;
-});
+  });
